@@ -14,8 +14,9 @@ class CertificateDetailsRepo(uuid: String) {
   def update(certificateDetails: CertificateDetails): CertificateDetails = {    
     sql"""
     | update CertificateDetails c
-    | set c.bgImage = ${certificateDetails.getBgImage}
-    | where c.uuid = ${certificateDetails.getUUID}""".executeUpdate
+    | set c.bgImage = ${certificateDetails.getBgImage},
+    | c.certificateType = ${certificateDetails.getCertificateType.toString}
+    | where c.uuid = ${uuid}""".executeUpdate
     
     certificateDetails
   }

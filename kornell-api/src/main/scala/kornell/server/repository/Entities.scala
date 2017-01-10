@@ -30,6 +30,7 @@ import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.repository.CourseRepo
 import kornell.core.entity.RepositoryType
 import kornell.core.entity.CourseDetailsEntityType
+import kornell.core.entity.CertificateType
 
 
 //TODO: Remove this class without spreading dependency on AutoBeanFactorySource
@@ -454,10 +455,11 @@ object Entities {
     section
   }
   
-  def newCertificateDetails(uuid: String, bgImage: String, entityType:CourseDetailsEntityType, entityUUID:String) = {
+  def newCertificateDetails(uuid: String, bgImage: String, certificateType: CertificateType, entityType:CourseDetailsEntityType, entityUUID:String) = {
     val certificateDetails = factory.newCertificateDetails().as
     certificateDetails.setUUID(uuid)
     certificateDetails.setBgImage(bgImage)
+    certificateDetails.setCertificateType(certificateType)
     certificateDetails.setEntityType(entityType)
     certificateDetails.setEntityUUID(entityUUID)
     certificateDetails

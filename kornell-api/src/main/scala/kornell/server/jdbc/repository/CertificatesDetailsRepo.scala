@@ -13,19 +13,20 @@ object CertificatesDetailsRepo {
       certificateDetails.setUUID(UUID.random)
     }    
     sql"""
-    | insert into CertificateDetails (uuid,bgImage,entityType,entityUUID) 
+    | insert into CertificateDetails (uuid,bgImage,certificateType,entityType,entityUUID)
     | values(
     | ${certificateDetails.getUUID},
     | ${certificateDetails.getBgImage},
+    | ${certificateDetails.getCertificateType.toString},
     | ${certificateDetails.getEntityType.toString}, 
     | ${certificateDetails.getEntityUUID})""".executeUpdate
     
     certificateDetails
   }
   
-  def listForEntity(entityUUIDs: List[String], entityType: CourseDetailsEntityType): Map[String, List[CertificateDetails]] = {
+  def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType): Option[CertificateDetails] = {
     sql"""
-      select * from CertificateDetails where entityUUID in (${entityUUIDs mkString ","}) and entityType = ${entityType.toString}
-    """.map[CertificateDetails].groupBy { x => x.getEntityUUID }
+      select * from CertificateDetails where entityUUID = ${entityUUID} and entityType = ${entityType.toString}
+    """.first[CertificateDetails]
   }
 }

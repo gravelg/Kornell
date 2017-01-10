@@ -10,6 +10,8 @@ public class CertificateInformationTO {
 	private String assetsURL;
 	private String distributionPrefix;
 	private String courseVersionUUID;
+	private String courseClassUUID;
+	private String courseUUID;
 	private Date courseClassFinishedDate;
 	private String baseURL;
 	private String institutionName;
@@ -62,7 +64,19 @@ public class CertificateInformationTO {
 	public void setCourseVersionUUID(String courseVersionUUID) {
 		this.courseVersionUUID = courseVersionUUID;
 	}
-    public String getBaseURL() {
+    public String getCourseClassUUID() {
+		return courseClassUUID;
+	}
+	public void setCourseClassUUID(String courseClassUUID) {
+		this.courseClassUUID = courseClassUUID;
+	}
+	public String getCourseUUID() {
+		return courseUUID;
+	}
+	public void setCourseUUID(String courseUUID) {
+		this.courseUUID = courseUUID;
+	}
+	public String getBaseURL() {
         return baseURL;
     }
     public void setBaseURL(String baseURL) {

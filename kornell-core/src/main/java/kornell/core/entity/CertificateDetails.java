@@ -5,10 +5,13 @@ public interface CertificateDetails extends Entity {
 
 	String getBgImage();
 	void setBgImage(String bgImage);
-	
+
+	CertificateType getCertificateType();
+	void setCertificateType(CertificateType certificateType);
+
 	CourseDetailsEntityType getEntityType();
 	void setEntityType(CourseDetailsEntityType entityType);
-	
+
 	String getEntityUUID();
 	void setEntityUUID(String entityUUID);
 }

@@ -5,43 +5,38 @@
 	<property name="ireport.y" value="0"/>
 	<property name="ireport.background.image.properties" value="true,true,0.25,-116,2516,0,0,3524,2496"/>
 	<parameter name="assetsURL" class="java.lang.String"/>
-	<parameter name="institutionURL" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
 	<field name="courseTitle" class="java.lang.String"/>
-	<field name="courseClassName" class="java.lang.String"/>
 	<field name="personFullName" class="java.lang.String"/>
 	<field name="personCPF" class="java.lang.String"/>
 	<field name="courseClassFinishedDate" class="java.util.Date"/>
-	<field name="institutionName" class="java.lang.String"/>
 	<background>
-		<band height="2480"/>
+		<band height="2480">
+			<image>
+				<reportElement uuid="91999c94-6016-4d04-a5e3-d67eb3f61b93" x="-50" y="0" width="3508" height="2480"/>
+				<imageExpression><![CDATA[$P{assetsURL} + "certificate-bg.jpg"]]></imageExpression>
+			</image>
+		</band>
 	</background>
 	<detail>
 		<band height="2480" splitType="Stretch">
-			<image isUsingCache="false">
-				<reportElement uuid="91999c94-6016-4d04-a5e3-d67eb3f61b93" x="1204" y="191" width="1000" height="180"/>
-				<imageExpression><![CDATA[$P{institutionURL} + "logo250x45.png"]]></imageExpression>
-			</image>
 			<textField>
-				<reportElement uuid="7f263ba1-dbce-4ab0-9120-5518365477b7" x="253" y="1563" width="1913" height="150" forecolor="#514F4F"/>
-				<textElement verticalAlignment="Middle" markup="none">
-					<font fontName="Serif" size="70" isBold="false" isItalic="false"/>
+				<reportElement uuid="7f263ba1-dbce-4ab0-9120-5518365477b7" x="358" y="1457" width="2657" height="150" forecolor="#2D4E5D"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="SansSerif" size="52" isBold="false"/>
 					<paragraph lineSpacing="1_1_2"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Brasil, " + new SimpleDateFormat("d 'de' MMMM 'de' yyyy", new Locale("pt","BR")).format($F{courseClassFinishedDate})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new SimpleDateFormat("d 'de' MMMM 'de' yyyy", new Locale("pt","BR")).format($F{courseClassFinishedDate}).toUpperCase()]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="385cc1ce-1243-4bf4-a036-846a36d31643" x="253" y="644" width="2997" height="909" forecolor="#514F4F"/>
-				<textElement verticalAlignment="Middle" markup="styled">
-					<font fontName="Serif" size="80"/>
+				<reportElement uuid="385cc1ce-1243-4bf4-a036-846a36d31643" x="193" y="1203" width="2970" height="211" forecolor="#2D4E5D"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font fontName="SansSerif" size="80"/>
 					<paragraph lineSpacing="1_1_2"/>
 				</textElement>
-				<textFieldExpression><![CDATA["A <style isBold='true' pdfFontName='Helvetica-Bold'>" + ($F{institutionName}).toUpperCase() + "</style> certifica que " + "\n" +
-"<style isBold='true' pdfFontName='Helvetica-Bold'>" + ($F{personFullName}).toUpperCase() + "</style>" + ($F{personCPF} == null ? "" : ", portador(a) do <style isBold='true' pdfFontName='Helvetica-Bold'>CPF " + ($F{personCPF}).substring(0,3) + "." + ($F{personCPF}).substring(3,6) + "." + ($F{personCPF}).substring(6,9) + "-" + ($F{personCPF}).substring(9) + "</style>,") + "\n" +
-"concluiu o <style isBold='true' pdfFontName='Helvetica-Bold'>CURSO DE " + ($F{courseTitle}).toUpperCase() + "</style>,\n" +
-"na turma <style isBold='true' pdfFontName='Helvetica-Bold'>" + ($F{courseClassName}).toUpperCase() + "</style>."]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{personFullName}).toUpperCase()]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
