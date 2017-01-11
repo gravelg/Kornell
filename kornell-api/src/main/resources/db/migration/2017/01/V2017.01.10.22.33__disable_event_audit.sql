@@ -9,3 +9,4 @@ CREATE TABLE `ActomEntryChangedEvent` (
   PRIMARY KEY (`uuid`),
   KEY `fk_actomentrychangedevent_enrollment_enrollmentUUID_idx` (`enrollment_uuid`)
 )
+alter table ebdb.ActomEntries modify column entryValue varchar(255);
