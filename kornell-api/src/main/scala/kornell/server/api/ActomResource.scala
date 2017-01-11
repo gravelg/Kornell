@@ -51,18 +51,18 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
   @Consumes(Array("text/plain"))
   @PUT
   def putValue(@PathParam("entryKey") entryKey: String, entryValue: String) = {
-    updateEventModel(entryKey, entryValue)
+//    updateEventModel(entryKey, entryValue)
     updateQueryModel(entryKey, entryValue)
   }
 
-  def updateEventModel(entryKey: String, entryValue: String) = {
-    val currentValue = getValue(entryKey)
-    if (entryValue != currentValue)
-      sql"""
-  		insert into ActomEntryChangedEvent (uuid, enrollment_uuid, actomKey, entryKey, entryValue, ingestedAt) 
-  		values (${randomUUID}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue}, now())
-  	  """.executeUpdate
-  }
+//  def updateEventModel(entryKey: String, entryValue: String) = {
+//    val currentValue = getValue(entryKey)
+//    if (entryValue != currentValue)
+//      sql"""
+//  		insert into ActomEntryChangedEvent (uuid, enrollment_uuid, actomKey, entryKey, entryValue, ingestedAt) 
+//  		values (${randomUUID}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue}, now())
+//  	  """.executeUpdate
+//  }
 
   def updateQueryModel(entryKey: String, entryValue: String) = sql"""
   	insert into ActomEntries (uuid, enrollment_uuid, actomKey, entryKey, entryValue) 
@@ -72,13 +72,13 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
 
   //Batch version of put value using a map
   def putValues(actomEntries: Map[String, String]) = {
-    var eventModelQuery = "insert into ActomEntryChangedEvent (uuid, enrollment_uuid, actomKey, entryKey, entryValue, ingestedAt) values "
-    val eventModelStrings = new ListBuffer[String]
-    for ((key, value) <- actomEntries) {
-      eventModelStrings += ("('" + randomUUID + "','" + enrollmentUUID + "','" + actomKey + "','" + key + "','" + value + "',now())")
-    }
-    eventModelQuery += eventModelStrings.mkString(",")
-    new PreparedStmt(eventModelQuery, List[String]()).executeUpdate
+//    var eventModelQuery = "insert into ActomEntryChangedEvent (uuid, enrollment_uuid, actomKey, entryKey, entryValue, ingestedAt) values "
+//    val eventModelStrings = new ListBuffer[String]
+//    for ((key, value) <- actomEntries) {
+//      eventModelStrings += ("('" + randomUUID + "','" + enrollmentUUID + "','" + actomKey + "','" + key + "','" + value + "',now())")
+//    }
+//    eventModelQuery += eventModelStrings.mkString(",")
+//    new PreparedStmt(eventModelQuery, List[String]()).executeUpdate
 
     var queryModelQuery = "insert into ActomEntries (uuid, enrollment_uuid, actomKey, entryKey, entryValue) values "
     val queryModelStrings = new ListBuffer[String]
