@@ -94,11 +94,10 @@ public class GenericAdminBarView extends Composite implements AdminBarView {
 		buttonPanel.addStyleName("btnPanel");
 		buttonPanel.addStyleName(getItemName(buttonType));
 
-		icon.addStyleName("label");
-		icon.addStyleName("font16");
+		icon.addStyleName("activityBarButtonItem font16");
 		
 		Label label = new Label(buttonType.toUpperCase());
-		label.addStyleName("label");
+		label.addStyleName("activityBarButtonItem label");
 		
 		buttonPanel.add(icon);
 		buttonPanel.add(label);

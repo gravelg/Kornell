@@ -182,7 +182,7 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 
 		FlowPanel pagePanel = new FlowPanel();
 		pagePanel.addStyleName("pagePanel");
-		pagePanel.addStyleName("label");
+		pagePanel.addStyleName("activityBarButtonItem");
 
 		if (showDetails) {
 			pagePanel.add(createSpan(progressPercent + "%", true, false));
@@ -220,11 +220,10 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 		buttonPanel.addStyleName("btnPanel");
 		buttonPanel.addStyleName(getItemName(buttonType));
 
-		icon.addStyleName("label");
-		icon.addStyleName("font16");
+		icon.addStyleName("activityBarButtonItem font16");
 
 		Label label = new Label(buttonType.toUpperCase());
-		label.addStyleName("label");
+		label.addStyleName("activityBarButtonItem label");
 
 		if (invertIcon) {
 			buttonPanel.add(label);
