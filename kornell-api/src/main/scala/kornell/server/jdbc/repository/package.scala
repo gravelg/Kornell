@@ -41,6 +41,7 @@ import kornell.core.to.DashboardLeaderboardTO
 import kornell.core.to.DashboardLeaderboardItemTO
 import kornell.core.entity.ContentRepository
 import kornell.core.entity.RepositoryType
+import kornell.core.entity.EnrollmentSource
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -212,7 +213,8 @@ package object repository {
       rs.getDate("start_date"),
       rs.getDate("end_date"),
       rs.getBigDecimal("preAssessmentScore"),
-      rs.getBigDecimal("postAssessmentScore")
+      rs.getBigDecimal("postAssessmentScore"),
+      EnrollmentSource.valueOf(rs.getString("enrollmentSource"))
     )
   }
     

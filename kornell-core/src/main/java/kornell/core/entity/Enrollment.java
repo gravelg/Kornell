@@ -71,4 +71,7 @@ public interface Enrollment extends Entity{
 	
 	BigDecimal getPostAssessmentScore();
 	void setPostAssessmentScore(BigDecimal assessmentScore);
+	
+	EnrollmentSource getEnrollmentSource();
+	void setEnrollmentSource(EnrollmentSource enrollmentSource);
 }

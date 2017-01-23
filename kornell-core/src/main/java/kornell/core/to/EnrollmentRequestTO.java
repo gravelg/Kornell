@@ -1,5 +1,6 @@
 package kornell.core.to;
 
+import kornell.core.entity.EnrollmentSource;
 import kornell.core.entity.RegistrationType;
 
 public interface EnrollmentRequestTO {
@@ -25,4 +26,6 @@ public interface EnrollmentRequestTO {
 	void setInstitutionRegistrationPrefixUUID(String institutionRegistrationPrefixUUID);
 	Boolean isCancelEnrollment();
 	void setCancelEnrollment(Boolean cancelEnrollment);
+	EnrollmentSource getEnrollmentSource();
+	void setEnrollmentSource(EnrollmentSource enrollmentSource);
 }

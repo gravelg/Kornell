@@ -50,11 +50,11 @@ class EnrollmentsResource {
       val oldState = existingEnrollment.get.getState
       existingEnrollment.get.setState(enrollment.getState)
       EnrollmentRepo(existingEnrollment.get.getUUID).update(existingEnrollment.get)
-      EventsRepo.logEnrollmentStateChanged(UUID.random, getAuthenticatedPersonUUID, existingEnrollment.get.getUUID, oldState, existingEnrollment.get.getState, false)
+      EventsRepo.logEnrollmentStateChanged(UUID.random, getAuthenticatedPersonUUID, existingEnrollment.get.getUUID, oldState, existingEnrollment.get.getState, false, null)
       existingEnrollment.get
     } else {
       val e = EnrollmentsRepo.create(enrollment)
-      EventsRepo.logEnrollmentStateChanged(UUID.random, getAuthenticatedPersonUUID, e.getUUID, EnrollmentState.notEnrolled, e.getState, false)
+      EventsRepo.logEnrollmentStateChanged(UUID.random, getAuthenticatedPersonUUID, e.getUUID, EnrollmentState.notEnrolled, e.getState, false, null)
       e
     }
   }.requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(enrollment.getPersonUUID), AccessDeniedErr())

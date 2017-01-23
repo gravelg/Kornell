@@ -95,6 +95,7 @@ public class RoleCategory {
 		case controlPanelAdmin:
 			if (RoleType.controlPanelAdmin.equals(type))
 				return true;
+			break;
 		default:
 			break;
 		}
