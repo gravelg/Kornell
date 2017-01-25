@@ -6,6 +6,7 @@ import com.github.gwtbootstrap.client.ui.Icon;
 import com.github.gwtbootstrap.client.ui.ProgressBar;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -130,6 +131,7 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 
 		displayButton(btnDetails, showDetails ? constants.course() : BUTTON_DETAILS,
 				new Icon(IconType.BOOK));
+		setupBtnDetailsEvent(showDetails);
 		
 		Icon iconChat = new Icon();
 		iconChat.setStyleName("fa fa-comments");
@@ -157,6 +159,43 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 			enableButton(BUTTON_NEXT, false);
 		}
 	}
+
+	private void setupBtnDetailsEvent(boolean showDetails) {
+		btnDetails.getElement().setId("btnClassroomDetails");
+		
+		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+			@Override
+			public void execute() {
+				setupBtnDetailsEventNative();
+			}
+		});
+	}
+
+	private static native void setupBtnDetailsEventNative() /*-{
+		var btnClassroomDetails = $wnd.document.getElementById("btnClassroomDetails");
+		btnClassroomDetails.addEventListener("click", courseClassDetailsShown, false);
+		
+		function courseClassDetailsShown(e) {
+
+		    e.preventDefault();
+		    
+		    var courseClassDetailsShown = $wnd.document.getElementsByClassName("courseClassDetailsShown").length > 0;
+
+		    if (window.CustomEvent) {
+		        var event = new CustomEvent("courseClassDetailsShown", {
+		            detail: {
+		                courseClassDetailsShown: courseClassDetailsShown,
+		                time: new Date(),
+		            },
+		            bubbles: true,
+		            cancelable: true
+		        });
+		    
+		        e.currentTarget.dispatchEvent(event);
+		    }
+
+		}
+	}-*/;
 
 	private void displayProgressButton() {
 		progressBarPanel = new FlowPanel();
@@ -362,7 +401,7 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 		this.showDetails = event.isShowDetails();
 		if (showDetails) {
 			clientFactory.getEventBus().fireEvent(new ShowChatDockEvent(false));
-			btnDetails.addStyleName("btnAction");
+			btnDetails.addStyleName("btnAction courseClassDetailsShown");
 			displayButton(btnDetails, constants.course(),
 					new Icon(IconType.BOOK));
 		} else {
@@ -370,6 +409,7 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 				clientFactory.getEventBus().fireEvent(new ShowChatDockEvent(true));
 			}
 			btnDetails.removeStyleName("btnAction");
+			btnDetails.removeStyleName("courseClassDetailsShown");
 			displayButton(btnDetails, BUTTON_DETAILS,
 					new Icon(IconType.BOOK));
 		}
