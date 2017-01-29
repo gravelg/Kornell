@@ -1,6 +1,6 @@
-@import "../../utils/mixins";
-@import "../../utils/colors";
-@import "../../utils/forms";
+@import "../utils/mixins";
+@import "../utils/colors";
+@import "../utils/forms";
 
 .detailsPanel{
     width: @wrapperWidth;
@@ -145,6 +145,7 @@
 			width: @topicsPanelWidth;
 			margin-top: @detailsPanelMargin * 1.5;
 			float: left;
+			margin-bottom: 20px;
 			.topicsHeaderPanel{
 				@topicsHeaderPanelHeight: 24px;
 				height: @topicsHeaderPanelHeight;
@@ -379,6 +380,196 @@
 				padding-right: @detailsPanelMargin;
 			}
 		}
+	}
+}
+
+@media screen and (max-width: @wrapperWidth) {
+	.detailsPanel{
+		@detailsPanelWidth: @wrapperWidthUnder990 - 18px;
+		@buttonsPanelWidth: @detailsPanelWidth;
+		@infoPanelWidth: @detailsPanelWidth;
+		@topicsPanelWidth: @detailsPanelWidth;
+		@hintsPanelWidth: @detailsPanelWidth * 2 / 3;
+		@rightPanelWidth: .85 * @wrapperWidthUnder990;
+		@detailsPanelMargin: 10px;
+		width:	auto;
+		.titlePanel{
+			.titleImage{
+				height: 20px;
+    			width: 20px;
+			}
+			.titleLabel{
+				font-size: 13px
+			}
+			.courseNameLabel{
+				font-size: 13px;
+				padding-left: 53px;
+				clear: both;
+			}
+			.subTitleLabel{
+				font-size: 11px;
+				margin-left: 45px;
+			}
+			.courseClassNameLabel{
+				font-size: 10px;
+			}
+		}
+		.buttonsPanel{
+			width: auto;
+			margin-left: 5px;
+			margin-right: 0px;
+			margin-top: @detailsPanelMargin;
+			.btnDetails{
+				width: 70px;
+				margin-left: 5px;
+				text-align: center;
+				margin-top: 7px;
+				.btnTitle{
+					line-height: 15px;
+					font-size: 10px;
+				}
+				.btnLabel{
+					display: none;
+				}
+			}
+			.btnChat{
+				display: none;
+			}
+		}
+		.detailsContentPanel{
+			.infoPanel{
+				margin-left: @detailsPanelMargin;
+				width: auto;
+				padding: 0px 15px;
+			}
+			.sidePanel{
+				.hintsPanel{
+					width: auto;
+					margin-top: @detailsPanelMargin; 
+					margin-bottom: @detailsPanelMargin * 3;
+					margin-right: @detailsPanelMargin * 3;
+					margin-left: 10px;
+				}
+			}
+			.topicsPanel{
+				width: ~"calc(100% - 20px)";
+				padding-left: @detailsPanelMargin / 2;
+				padding-right: @detailsPanelMargin / 2;
+				margin-left: 5px;
+				.topicWrapper{
+					width: auto;
+					height: auto;
+					min-height: 30px;
+					.identImage {
+						display: none;
+					}
+					.topicPanel{
+						width: 100% !important;
+						float: none;
+						.lblTopic{
+							float: none;
+							padding-left: 35px;
+							font-size: 12px;
+						}
+					}
+				}
+				.pageWrapper{
+					margin-left: 15px;
+					.topicPanel{
+						.lblTopic{
+							font-size: 10px;
+						}
+					}
+				}
+			}
+
+			@itemWidth: .6 * @rightPanelWidth - (@detailsPanelMargin * 2) - 2px;
+			@statusWidth: .15 * @rightPanelWidth - (@detailsPanelMargin * 2) - 2px;
+			@gradeWidth: .07 * @rightPanelWidth - (@detailsPanelMargin * 2) - 2px;
+			@actionsWidth: .18 * @rightPanelWidth - (@detailsPanelMargin * 2) - 2px;
+			.certificationPanel{
+				margin-left: @detailsPanelMargin;
+				.detailsInfo{
+					width: auto;
+				}
+				.certificationHeaderPanel{
+					.btnItem{width: 120px;}
+					.btnStatus{display: none;}
+					.btnGrade{width: @gradeWidth + @detailsPanelMargin;}
+					.btnActions{width: @actionsWidth + @detailsPanelMargin;}
+				}
+				.certificationWrapper{
+					width: 295px;
+					.itemPanel{
+						width: 125px;
+						.certificationIcon{
+						}
+						.lblName{
+							font-size: 12px;
+							line-height: 54px;
+						}
+						.lblDescription{
+							display: none;
+						}
+					}
+					.lblStatus{
+						display: none;
+					}
+					.lblGrade{
+						width: @gradeWidth + @detailsPanelMargin + 2px;
+					}
+					.lblActions{
+						width: @actionsWidth + @detailsPanelMargin + 2px;
+					}
+				}
+			}
+
+			.libraryPanel{
+				clear: both;
+				.detailsInfo{
+					width: auto;
+					padding: 0px 15px;
+				}
+				.filesPanel{
+					width: auto;
+					margin-left: 10px;
+					.filesHeader{
+						.btnIcon{
+							width: 45px;
+						}
+						.btnName{
+							width: 230px;
+						}
+						.btnSize{
+							display: none;
+						}
+						.btnPublishingDate{
+							display: none;
+						}
+					}
+					.filesWrapper{
+						.fileWrapper{
+							.fileIcon{
+								width: 25px;
+								padding: 20px 5px 20px 12px;
+							}
+							.pnlFileName{
+								width: 215px;
+								.fileName{
+									width: auto;
+								}
+							}
+							.fileSize{
+								display: none;
+							}
+							.publishingDate{
+								display: none;
+							}
+						}
+					}
+				}
+			}
+		}	
 	}
 }
 
