@@ -67,7 +67,6 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 	}
 
 	private ActomEntries lookupActomEntries(String enrollmentUUID, String actomKey) {
-		GWT.log(actomKey);
 		Map<String, EnrollmentEntries> enrollmentEntriesMap = entries.getEnrollmentEntriesMap();
 		EnrollmentEntries enrollmentEntries = enrollmentEntriesMap.get(enrollmentUUID);
 		if(enrollmentEntries != null){
