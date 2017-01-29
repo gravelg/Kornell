@@ -361,10 +361,6 @@
 				}
 			}
 		}
-		.libraryPanel{
-			float: left;
-			margin-top: 20px;
-		}
 		.detailsInfo{
 			width: @rightPanelWidth;
 			margin-top: @detailsPanelMargin;
@@ -382,6 +378,116 @@
 		}
 	}
 }
+
+.libraryPanel{
+	float: left;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	@libraryPanelMargin: 20px;
+	@buttonsPanelWidth: .18 * @wrapperWidth;
+	@filesPanelWidth: .75 * @wrapperWidth;
+	@fileIconWidth: .09 * @filesPanelWidth - @libraryPanelMargin;
+	@pnlFileNameWidth: .60 * @filesPanelWidth - @libraryPanelMargin;
+	@fileSizeWidth: .11 * @filesPanelWidth - @libraryPanelMargin;
+	@publishingDateWidth: .19 * @filesPanelWidth - @libraryPanelMargin;
+
+	.buttonsPanel{
+		width: @buttonsPanelWidth;
+		margin-left: @libraryPanelMargin;
+		margin-right: @libraryPanelMargin;
+		float: left;
+		.btnLibrary{
+			width: @buttonsPanelWidth - (@libraryPanelMargin * 2);
+			font-size: 14px;
+			text-align: right;
+			margin-top: @libraryPanelMargin;
+			padding: 4px 12px;
+			border-radius: 8px;
+			display: inline-block;
+			&:hover{
+				text-decoration: none;
+			}
+			.btnTitle{
+				font-weight: bold;
+				color: @plainTextColor;
+				height: 60px;
+				line-height: 60px;
+			}
+		}
+
+	}	
+	.filesPanel{
+		width: @filesPanelWidth - 7px;
+		float: left;
+		.filesHeader{
+			.btnLibraryHeader{
+				border: 0;
+				border-radius: 0px !important;
+				text-align: left;
+				color: @niceTextColor;
+				padding-left: @libraryPanelMargin / 4;
+				font-size: 12px;
+				font-weight: bold;
+				border-left: 1px solid @buttonBorderLeftColor !important;
+				border-right: 1px solid @buttonBorderRightColor !important;
+				float: left;
+				margin-bottom: 10px;
+			}
+			.btnIcon{width: @fileIconWidth + @libraryPanelMargin;}
+			.btnName{width: @pnlFileNameWidth + @libraryPanelMargin;}
+			.btnSize{width: @fileSizeWidth + @libraryPanelMargin;}
+			.btnPublishingDate{width: @publishingDateWidth + @libraryPanelMargin;}
+		}
+		.filesWrapper{
+			clear: both;
+			.fileWrapper{
+				@fileWrapperHeight: 70px;
+				height: @fileWrapperHeight;
+				line-height: @fileWrapperHeight;
+				background-color: @contentBoxBackgroundColor;
+				margin-top: @libraryPanelMargin / 2;
+				color: @niceTextColor;
+				font-size: 13px;
+				.fileIcon{
+					float: left;
+					padding: 15px 10px;
+				}
+				.pnlFileName{
+					float: left;
+					width: @pnlFileNameWidth;
+					height: @fileWrapperHeight - @libraryPanelMargin;
+					padding: @libraryPanelMargin / 2;
+					.fileName{
+						line-height: 26px;
+						overflow: hidden;
+						width: @pnlFileNameWidth;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+					.fileDescription{
+						color: @textHighlightDiscreteColor;
+						font-size: 10px;
+						line-height: 12px;
+					}
+				}
+				.fileSize{
+					float: left;
+					width: @fileSizeWidth;
+					padding-left: @libraryPanelMargin / 2;
+					padding-right: @libraryPanelMargin / 2;
+				}
+				.publishingDate{
+					float: left;
+					width: @publishingDateWidth;
+					padding-left: @libraryPanelMargin / 2;
+					padding-right: @libraryPanelMargin / 2;
+				}
+			}
+		}
+	}
+}
+
+
 
 @media screen and (max-width: @wrapperWidth) {
 	.detailsPanel{
@@ -493,15 +599,15 @@
 					width: auto;
 				}
 				.certificationHeaderPanel{
-					.btnItem{width: 120px;}
+					.btnItem{width: 115px;}
 					.btnStatus{display: none;}
-					.btnGrade{width: @gradeWidth + @detailsPanelMargin;}
-					.btnActions{width: @actionsWidth + @detailsPanelMargin;}
+					.btnGrade{width: 24px;}
+					.btnActions{width: 83px;}
 				}
 				.certificationWrapper{
-					width: 295px;
+					width: 285px;
 					.itemPanel{
-						width: 125px;
+						width: 115px;
 						.certificationIcon{
 						}
 						.lblName{
@@ -526,6 +632,7 @@
 
 			.libraryPanel{
 				clear: both;
+				width: 300px;
 				.detailsInfo{
 					width: auto;
 					padding: 0px 15px;
@@ -536,9 +643,13 @@
 					.filesHeader{
 						.btnIcon{
 							width: 45px;
+							border-radius: 2px!important;
+    						float: left;
 						}
 						.btnName{
-							width: 230px;
+							width: 245px;
+							border-radius: 2px!important;
+    						float: left;
 						}
 						.btnSize{
 							display: none;
@@ -549,14 +660,22 @@
 					}
 					.filesWrapper{
 						.fileWrapper{
+							 float: left;
 							.fileIcon{
-								width: 25px;
-								padding: 20px 5px 20px 12px;
+								width: 24px;
+								padding: 20px 20px 20px 12px;
+								float: left;
 							}
 							.pnlFileName{
-								width: 215px;
+								width: 210px;
+								float: left;
+								color: white;
 								.fileName{
 									width: auto;
+									font-size: 12px;
+								}
+								.fileDescription{
+									font-size: 10px;
 								}
 							}
 							.fileSize{
