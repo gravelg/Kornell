@@ -114,7 +114,7 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 			boolean isOk = "true".equals(value);
 			disableNextButton = !isOk;
 			bus.fireEvent(NavigationAuthorizationEvent.next(isOk));
-		} else if ("knl.prevEnabled".equals(key)){
+		} else if (key != null && key.endsWith(".prevEnabled")){
 			boolean isOk = "true".equals(value);
 			disablePrevButton = !isOk;
 			bus.fireEvent(NavigationAuthorizationEvent.prev(isOk));
