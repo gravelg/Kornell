@@ -132,21 +132,36 @@
 		}
 	}
 }
-/*@media screen and (max-width: @wrapperWidth) {
-	.pnlCourses { 
-		@wrapperWidth: @wrapperWidthUnder990;
-		width: @wrapperWidth;
-		.courseSummary {
-			.ellipsis { 
-				margin-bottom: 0px;
-			}
-		}
-		.courseSummary {
-		width: @wrapperWidth !important;
-			//width: 314px !important;
-			.description {
-				overflow: hidden;
+
+
+@media screen and (max-width: @wrapperWidth) {
+	.welcomePanel {
+		width: 100%;
+		.coursesWrapper {
+			.pnlCourses {
+				width: 100%;
+				.courseSummary {
+					width: auto;
+					height: auto;
+					.thumbWrapper {
+						float: left;
+					    width: 100%;
+					    text-align: center;
+					    margin: 0;
+					    .thumb {
+					    	margin-bottom: 20px;
+						    margin-left: auto;
+						    margin-right: auto;
+						    float: none;
+					    }
+					}
+					.courseSummaryBar {
+						.profileSeparatorBar {
+							width: @wrapperWidth;
+						}
+					}
+				}
 			}
 		}
 	}
-}*/
+}
