@@ -31,7 +31,7 @@ object LibraryFilesRepository {
     try {
       val structureSrc = repo.source(filesURL, "libraryFiles.knl")
       val libraryFilesText = structureSrc.get.mkString("")
-      val fullURL = repo.url(version.getDistributionPrefix(), "library")
+      val fullURL = repo.url(version.getDistributionPrefix(), "classroom", "library")
       val contents = LibraryFilesParser.parse(fullURL, libraryFilesText)
       contents
     } catch {
