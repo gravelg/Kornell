@@ -88,7 +88,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 
 	private Course course;
 
-	private KornellFormFieldWrapper code, title, description, childCourse;
+	private KornellFormFieldWrapper code, title, description, childCourse, infoJson;
 	
 	private List<KornellFormFieldWrapper> fields;
 	private String courseUUID;
@@ -183,6 +183,12 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 		description.addStyleName("marginBottom25");
 		fields.add(description);
 		courseFields.add(description);
+		
+		infoJson = new KornellFormFieldWrapper("Info", formHelper.createTextAreaFormField(course.getInfoJson(), 20), isInstitutionAdmin);
+		infoJson.addStyleName("heightAuto");
+		infoJson.addStyleName("marginBottom25");
+		fields.add(infoJson);
+		courseFields.add(infoJson);
 
 		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
 			childCourse = new KornellFormFieldWrapper("Curso Filho?", formHelper.createCheckBoxFormField(course.isChildCourse()), isInstitutionAdmin);
@@ -243,6 +249,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 		course.setCode(code.getFieldPersistText());
 		course.setTitle(title.getFieldPersistText());
 		course.setDescription(description.getFieldPersistText());
+		course.setInfoJson(infoJson.getFieldPersistText());
 		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
 			course.setChildCourse(childCourse.getFieldPersistText().equals("true"));
 		}
