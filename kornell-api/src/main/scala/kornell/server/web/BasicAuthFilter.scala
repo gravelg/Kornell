@@ -39,7 +39,8 @@ class BasicAuthFilter extends Filter {
     "/institutions",
     "/healthCheck",
     "/auth",
-    "/log")
+    "/log",
+    "/postback")
 
   override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) =
     (sreq, sres) match {

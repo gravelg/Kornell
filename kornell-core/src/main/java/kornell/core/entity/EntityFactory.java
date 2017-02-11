@@ -37,7 +37,7 @@ public interface EntityFactory extends AutoBeanFactory {
 	AutoBean<ObserverRole> newObserverRole();
 	
 	AutoBean<ControlPanelAdminRole> newControlPanelAdminRole();
-
+	
 	AutoBean<CourseVersion> newCourseVersion();
 	
 	AutoBean<CourseClass> newCourseClass();
@@ -59,4 +59,6 @@ public interface EntityFactory extends AutoBeanFactory {
 	AutoBean<EnrollmentsEntries> newEnrollmentsEntries();
 	
 	AutoBean<EnrollmentEntries> newEnrollmentEntries();
+	
+	AutoBean<PostbackConfig> newPostbackConfig();
 }
