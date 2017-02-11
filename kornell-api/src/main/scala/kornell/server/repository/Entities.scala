@@ -30,6 +30,7 @@ import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.repository.CourseRepo
 import kornell.core.entity.RepositoryType
 import kornell.core.entity.EnrollmentSource
+import kornell.core.entity.PostbackType
 
 
 //TODO: Remove this class without spreading dependency on AutoBeanFactorySource
@@ -384,7 +385,7 @@ object Entities {
 
   def newChatThreadParticipant(uuid: String = null, chatThreadUUID: String = null, personUUID: String = null, 
       chatThreadName: String = null, lastReadAt: Date = null, active: Boolean = false, lastJoinDate: Date = null) = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
+    val dateConverter = new DateConverter(personUUID)
     val chatThreadParticipant = factory.newChatThreadParticipant.as
     chatThreadParticipant.setUUID(uuid)
     chatThreadParticipant.setThreadUUID(chatThreadUUID)
@@ -416,6 +417,15 @@ object Entities {
     val eEntries = factory.newEnrollmentEntries.as
     eEntries.setActomEntriesMap(new HashMap[String,ActomEntries]())
     eEntries
+  }
+  
+  def newPostbackConfig(uuid: String, instutionUUID: String, postbackType: PostbackType, contents: String) = {
+    val config = factory.newPostbackConfig.as
+    config.setUUID(uuid)
+    config.setInstitutionUUID(uuid)
+    config.setPostbackType(postbackType)
+    config.setContents(contents)
+    config
   }
 }
 

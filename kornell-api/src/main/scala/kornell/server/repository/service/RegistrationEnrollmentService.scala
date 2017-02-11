@@ -36,9 +36,14 @@ import kornell.server.jdbc.repository.InstitutionRepo
 import kornell.core.entity.InstitutionType
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.core.entity.EnrollmentSource
+import kornell.server.jdbc.repository.PostbackConfigRepo
+import kornell.core.entity.PostbackType
+import java.util.logging.Logger
 
 object RegistrationEnrollmentService {
 
+  val logger = Logger.getLogger("kornell.server.repository.service.RegistrationEnrollmentService")
+  
   def deanRequestEnrollments(enrollmentRequests: EnrollmentRequestsTO, dean: Person) = {
     val courseClassUUID = enrollmentRequests.getEnrollmentRequests.get(0).getCourseClassUUID
     val courseClass = CourseClassRepo(courseClassUUID).get
@@ -62,10 +67,20 @@ object RegistrationEnrollmentService {
       RoleCategory.isCourseClassAdmin(roles, enrollmentRequest.getCourseClassUUID))
   }
 
-  def postbackRequestEnrollment(req: EnrollmentRequestTO, notes: String) = {
-    val institutionUUID = new CourseClassRepo(req.getCourseClassUUID).get.getInstitutionUUID
-    req.setInstitutionUUID(institutionUUID)
-    deanRequestEnrollment(req, null, EnrollmentSource.POSTBACK, notes)
+  // From request we get a value that is <token>_<course class UUID>
+  // Need to split, check token validity and set real course class uuid back in TO for enrollment
+  def postbackRequestEnrollment(req: EnrollmentRequestTO, postbackType: PostbackType, payload: String) = {
+    val token = req.getCourseClassUUID.split("_")(0)
+    val courseClassUUID = req.getCourseClassUUID.split("_")(1)
+    val institutionUUID = new CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+    val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).getOrElse(null)
+    if (postbackConfig != null) {
+      req.setCourseClassUUID(courseClassUUID)
+      req.setInstitutionUUID(institutionUUID)
+      deanRequestEnrollment(req, null, EnrollmentSource.POSTBACK, payload)
+    } else {
+      logger.severe("Mismatched token for institution " + payload)
+    }
   }
   
   private def deanRequestEnrollment(req: EnrollmentRequestTO, dean: Person, enrollmentSource: EnrollmentSource, notes: String = null) = {

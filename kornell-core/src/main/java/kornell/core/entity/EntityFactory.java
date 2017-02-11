@@ -59,4 +59,6 @@ public interface EntityFactory extends AutoBeanFactory {
 	AutoBean<EnrollmentsEntries> newEnrollmentsEntries();
 	
 	AutoBean<EnrollmentEntries> newEnrollmentEntries();
+	
+	AutoBean<PostbackConfig> newPostbackConfig();
 }

@@ -11,16 +11,19 @@ import kornell.server.repository.TOs
 import kornell.core.entity.RegistrationType
 import java.util.logging.Logger
 import java.util.logging.Level
-
+import kornell.core.entity.PostbackType
+import kornell.server.jdbc.repository.PostbackConfigRepo
+import org.apache.http.client.methods.HttpGet
 
 
 object PostbackService {
   
   val logger = Logger.getLogger("kornell.server.repository.service.PostbackService")
   
+  //Paypal URLs
   //One URL for sandbox transactions, one for live
-  val sandbox_validation_url = "https://www.sandbox.paypal.com/cgi-bin/webscr"
-  val validation_url = "https://www.paypal.com/cgi-bin/webscr"
+  val paypal_sandbox_validation_url = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+  val paypal_validation_url = "https://www.paypal.com/cgi-bin/webscr"
 
   
   def paypalPostback(env: String, payload: String) = {
@@ -29,7 +32,8 @@ object PostbackService {
     val hello = new Thread(new Runnable {
       def run() {
         try {
-          val current_url = if (env != "live") sandbox_validation_url else validation_url
+          val current_url = if (env != "live") paypal_sandbox_validation_url else paypal_validation_url
+          val postbackType = if (env != "live") PostbackType.PAYPAL_SANDBOX else PostbackType.PAYPAL
           val client = HttpClients.createDefault
           val request = new HttpPost(current_url + validation_message)
           val response = client.execute(request)
@@ -46,7 +50,7 @@ object PostbackService {
             enrollmentRequest.setCourseClassUUID(payloadMap("item_number"))
             enrollmentRequest.setRegistrationType(RegistrationType.email)
             enrollmentRequest.setCancelEnrollment(false)
-            RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, payload)
+            RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, postbackType, payload)
           } else {
             logger.warning("Invalid request " + payload)
           }
