@@ -18,6 +18,64 @@ import org.apache.http.client.methods.HttpGet
 
 object PostbackService {
   
+  val test_xml = <transaction>  
+    <date>2011-02-10T16:13:41.000-03:00</date>  
+    <code>9E884542-81B3-4419-9A75-BCC6FB495EF1</code>  
+    <reference>REF1234</reference>
+    <type>1</type>  
+    <status>3</status>  
+    <paymentMethod>  
+        <type>1</type>  
+        <code>101</code>  
+    </paymentMethod>  
+    <grossAmount>49900.00</grossAmount>  
+    <discountAmount>0.00</discountAmount>
+    <creditorFees>
+        <intermediationRateAmount>0.40</intermediationRateAmount>
+        <intermediationFeeAmount>1644.80</intermediationFeeAmount>
+    </creditorFees> 
+    <netAmount>49900.00</netAmount>  
+    <extraAmount>0.00</extraAmount>  
+    <installmentCount>1</installmentCount>  
+    <itemCount>2</itemCount>  
+    <items>  
+        <item>  
+            <id>0001</id>  
+            <description>Produto PagSeguroI</description>  
+            <quantity>1</quantity>  
+            <amount>99999.99</amount>  
+        </item>  
+        <item>  
+            <id>0002</id>  
+            <description>Produto PagSeguroII</description>  
+            <quantity>1</quantity>  
+            <amount>99999.98</amount>  
+        </item>  
+    </items>  
+    <sender>  
+        <name>José Comprador</name>  
+        <email>comprador@uol.com.br</email>  
+        <phone>  
+            <areaCode>99</areaCode>  
+            <number>99999999</number>  
+        </phone>  
+    </sender>  
+    <shipping>  
+        <address>  
+            <street>Av. PagSeguro</street>  
+            <number>9999</number>  
+            <complement>99o andar</complement>  
+            <district>Jardim Internet</district>  
+            <postalCode>99999999</postalCode>  
+            <city>Cidade Exemplo</city>  
+            <state>SP</state>  
+            <country>ATA</country>  
+        </address>  
+        <type>1</type>  
+        <cost>21.50</cost>  
+    </shipping>
+</transaction>
+  
   val logger = Logger.getLogger("kornell.server.repository.service.PostbackService")
   
   //Paypal URLs
@@ -25,6 +83,10 @@ object PostbackService {
   val paypal_sandbox_validation_url = "https://www.sandbox.paypal.com/cgi-bin/webscr"
   val paypal_validation_url = "https://www.paypal.com/cgi-bin/webscr"
 
+  //PagSeguro URLs
+  //One for sandbox, one for live
+  val pag_sandbox_get_trans_url = "https://ws.sandbox.pagseguro.uol.com.br/v3/transactions/notifications/"
+  val pag_get_trans_url = "https://ws.pagseguro.uol.com.br/v3/transactions/notifications/"
   
   def paypalPostback(env: String, payload: String) = {
     //Need to prepend a string to message we send back to validate authenticity
@@ -60,5 +122,22 @@ object PostbackService {
       }
     })
     hello.start
+  }
+  
+  def pagseguroPostback(env: String, institutionUUID: String, transactionId: String) = {
+    val postbackType = if (env != "live") PostbackType.PAGSEGURO_SANDBOX else PostbackType.PAGESGURO
+    val current_url = if (env != "live") pag_sandbox_get_trans_url else pag_get_trans_url
+    val postbackConfig = PostbackConfigRepo.getConfig(institutionUUID, postbackType).getOrElse(null)
+    if (postbackConfig == null) {
+      logger.log(Level.SEVERE, "Missing postback config for Pagseguro transaction ID  " + transactionId + ", could not process")
+    } else {
+      val email = postbackConfig.getContents.split("##")(0)
+      val token = postbackConfig.getContents.split("##")(1)
+      val get_url = current_url + transactionId + "?email=" + email + "&token=" + token
+           
+      println((test_xml \\ "sender" \\ "email").text)
+      println((test_xml \\ "sender" \\ "name").text)
+    }
+    
   }
 }

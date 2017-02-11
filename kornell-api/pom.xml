@@ -22,7 +22,7 @@
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<beanstalk.versionLabel>${maven.build.timestamp}</beanstalk.versionLabel>
 		<buildNumber>Development Build</buildNumber>
-		<scala.version>2.11.7</scala.version>
+		<scala.version>2.11.8</scala.version>
 		<aws.sdk.version>1.10.77</aws.sdk.version>
 		<version.swarm>1.0.0.Final</version.swarm>
 		<jasper.version>5.0.4</jasper.version>
@@ -220,6 +220,12 @@
 			<version>2.2.2</version>
 			<scope>compile</scope>
 			<type>pom</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.scala-lang.modules</groupId>
+			<artifactId>scala-xml_2.11</artifactId>
+			<version>1.0.6</version>
 		</dependency>
 	</dependencies>
 
