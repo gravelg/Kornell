@@ -14,6 +14,7 @@ import java.util.logging.Level
 import kornell.core.entity.PostbackType
 import kornell.server.jdbc.repository.PostbackConfigRepo
 import org.apache.http.client.methods.HttpGet
+import kornell.server.jdbc.repository.CourseClassRepo
 
 
 object PostbackService {
@@ -44,13 +45,24 @@ object PostbackService {
             logger.info("Verified request " + payload)
             //create enrollment
             val payloadMap = URLEncodedUtils.parse(payload, Charset.forName("utf-8")).asScala.map(t => t.getName -> t.getValue).toMap
-            val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
-            enrollmentRequest.setFullName(payloadMap("address_name"))
-            enrollmentRequest.setUsername(payloadMap("payer_email"))
-            enrollmentRequest.setCourseClassUUID(payloadMap("item_number"))
-            enrollmentRequest.setRegistrationType(RegistrationType.email)
-            enrollmentRequest.setCancelEnrollment(false)
-            RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, postbackType, payload)
+            
+            val token = payloadMap("custom")
+            val courseClassUUID = payloadMap("item_number")
+            val institutionUUID = new CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+            val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).getOrElse(null)
+            
+            if (postbackConfig != null) {
+              val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
+              enrollmentRequest.setFullName(payloadMap("address_name"))
+              enrollmentRequest.setUsername(payloadMap("payer_email"))
+              enrollmentRequest.setCourseClassUUID(courseClassUUID)
+              enrollmentRequest.setInstitutionUUID(institutionUUID)
+              enrollmentRequest.setRegistrationType(RegistrationType.email)
+              enrollmentRequest.setCancelEnrollment(false)
+              RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, payload)
+            } else {
+              logger.severe("Mismatched token for institution " + payload)
+            }
           } else {
             logger.warning("Invalid request " + payload)
           }
