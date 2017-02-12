@@ -29,6 +29,8 @@ import kornell.server.util.DateConverter
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.repository.CourseRepo
 import kornell.core.entity.RepositoryType
+import kornell.core.entity.EnrollmentSource
+import kornell.core.entity.PostbackType
 
 
 //TODO: Remove this class without spreading dependency on AutoBeanFactorySource
@@ -142,27 +144,28 @@ object Entities {
     assessmentScore: BigDecimal = null, certifiedAt: Date = null,
     courseVersionUUID: String = null, parentEnrollmentUUID:String = null,
     startDate:Date=null,endDate:Date=null,
-    preAssessment:BigDecimal=null,postAssessment:BigDecimal=null): Enrollment = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
+    preAssessment:BigDecimal=null,postAssessment:BigDecimal=null, enrollmentSource:EnrollmentSource=null): Enrollment = {
+    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null))
     val e = factory.enrollment.as
     e.setUUID(uuid)
-    e.setEnrolledOn(dateConverter.dateToInstitutionTimezone(enrolledOn))
+    e.setEnrolledOn(dateConverter.dateToInstitutionTimezoneFromCourseClass(enrolledOn, courseClassUUID))
     e.setCourseClassUUID(courseClassUUID)
     e.setPersonUUID(personUUID)
     e.setProgress(progress)
     e.setNotes(notes)
     e.setState(state)
-    e.setLastProgressUpdate(dateConverter.dateToInstitutionTimezone(lastProgressUpdate))
+    e.setLastProgressUpdate(dateConverter.dateToInstitutionTimezoneFromCourseClass(lastProgressUpdate, courseClassUUID))
     e.setAssessment(assessment)
-    e.setLastAssessmentUpdate(dateConverter.dateToInstitutionTimezone(lastAssessmentUpdate))
+    e.setLastAssessmentUpdate(dateConverter.dateToInstitutionTimezoneFromCourseClass(lastAssessmentUpdate, courseClassUUID))
     e.setAssessmentScore(assessmentScore)
-    e.setCertifiedAt(dateConverter.dateToInstitutionTimezone(certifiedAt))
+    e.setCertifiedAt(dateConverter.dateToInstitutionTimezoneFromCourseClass(certifiedAt, courseClassUUID))
     e.setCourseVersionUUID(courseVersionUUID)
     e.setParentEnrollmentUUID(parentEnrollmentUUID)
     e.setStartDate(startDate)
     e.setEndDate(endDate)
     e.setPreAssessmentScore(preAssessment)
     e.setPostAssessmentScore(postAssessment)
+    e.setEnrollmentSource(enrollmentSource)
     e
   }
 
@@ -368,10 +371,10 @@ object Entities {
   }
 
   def newChatThread(uuid: String = null, createdAt: Date = null, institutionUUID: String = null, courseClassUUID: String = null, personUUID: String = null, threadType: String = null, active: Boolean = true) = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
+    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null))
     val chatThread = factory.newChatThread.as
     chatThread.setUUID(uuid)
-    chatThread.setCreatedAt(dateConverter.dateToInstitutionTimezone(createdAt))
+    chatThread.setCreatedAt(dateConverter.dateToInstitutionTimezoneFromCourseClass(createdAt, courseClassUUID))
     chatThread.setInstitutionUUID(institutionUUID)
     chatThread.setCourseClassUUID(courseClassUUID)
     chatThread.setPersonUUID(personUUID)
@@ -382,7 +385,7 @@ object Entities {
 
   def newChatThreadParticipant(uuid: String = null, chatThreadUUID: String = null, personUUID: String = null, 
       chatThreadName: String = null, lastReadAt: Date = null, active: Boolean = false, lastJoinDate: Date = null) = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
+    val dateConverter = new DateConverter(personUUID)
     val chatThreadParticipant = factory.newChatThreadParticipant.as
     chatThreadParticipant.setUUID(uuid)
     chatThreadParticipant.setThreadUUID(chatThreadUUID)
@@ -414,6 +417,15 @@ object Entities {
     val eEntries = factory.newEnrollmentEntries.as
     eEntries.setActomEntriesMap(new HashMap[String,ActomEntries]())
     eEntries
+  }
+  
+  def newPostbackConfig(uuid: String, instutionUUID: String, postbackType: PostbackType, contents: String) = {
+    val config = factory.newPostbackConfig.as
+    config.setUUID(uuid)
+    config.setInstitutionUUID(uuid)
+    config.setPostbackType(postbackType)
+    config.setContents(contents)
+    config
   }
 }
 

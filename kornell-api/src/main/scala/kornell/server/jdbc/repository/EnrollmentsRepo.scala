@@ -24,6 +24,7 @@ import kornell.core.error.exception.ServerErrorException
 import kornell.core.entity.InstitutionType
 import kornell.core.to.DashboardLeaderboardTO
 import kornell.core.to.DashboardLeaderboardItemTO
+import kornell.core.entity.EnrollmentSource
 
 object EnrollmentsRepo {
 
@@ -126,8 +127,9 @@ object EnrollmentsRepo {
         personUUID:String,
         enrollmentState:EnrollmentState, 
         courseVersionUUID:String,
-        parentEnrollmentUUID:String):Enrollment = 
-     create(Entities.newEnrollment(null, null, courseClassUUID, personUUID, null, "", EnrollmentState.notEnrolled, null, null, null, null, null, courseVersionUUID,parentEnrollmentUUID))
+        parentEnrollmentUUID:String,
+        enrollmentSource: EnrollmentSource):Enrollment = 
+     create(Entities.newEnrollment(null, null, courseClassUUID, personUUID, null, "", EnrollmentState.notEnrolled, null, null, null, null, null, courseVersionUUID,parentEnrollmentUUID, null, null, null, null, enrollmentSource))
 
       
   def create(enrollment: Enrollment):Enrollment = {
@@ -136,7 +138,7 @@ object EnrollmentsRepo {
     if (enrollment.getCourseClassUUID != null && enrollment.getCourseVersionUUID != null)
       throw new EntityConflictException("doubleEnrollmentCriteria")
     sql""" 
-    	insert into Enrollment(uuid,class_uuid,person_uuid,enrolledOn,state,courseVersionUUID,parentEnrollmentUUID)
+    	insert into Enrollment(uuid,class_uuid,person_uuid,enrolledOn,state,courseVersionUUID,parentEnrollmentUUID,enrollmentSource)
     	values(
     		${enrollment.getUUID},
     		${enrollment.getCourseClassUUID},
@@ -144,7 +146,8 @@ object EnrollmentsRepo {
     		now(),
     		${enrollment.getState.toString},
     		${enrollment.getCourseVersionUUID},
-        	${enrollment.getParentEnrollmentUUID}
+        ${enrollment.getParentEnrollmentUUID},
+        ${enrollment.getEnrollmentSource.toString}
     	)""".executeUpdate
     	if (enrollment.getCourseClassUUID != null)
     		ChatThreadsRepo.addParticipantsToCourseClassThread(CourseClassesRepo(enrollment.getCourseClassUUID).get)

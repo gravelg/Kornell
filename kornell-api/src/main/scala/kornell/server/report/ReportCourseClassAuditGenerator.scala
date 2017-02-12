@@ -15,6 +15,7 @@ import kornell.core.entity.CourseClass
 import kornell.core.to.report.CourseClassAuditTO
 import kornell.server.jdbc.repository.InstitutionsRepo
 import kornell.core.entity.EnrollmentState
+import kornell.core.entity.EnrollmentSource
 
 object ReportCourseClassAuditGenerator {
 
@@ -114,6 +115,7 @@ object ReportCourseClassAuditGenerator {
 			join CourseClass ccTo on ccTo.uuid = et.toCourseClassUUID and (et.toCourseClassUUID = ${courseClassUUID} or et.fromCourseClassUUID = ${courseClassUUID})
 			join Person participant on participant.uuid = e.person_uuid
 			left join Password participantPwd on participantPwd.person_uuid = participant.uuid
+    where e.enrollmentSource = ${EnrollmentSource.WEBSITE.toString}
 		order by eventFiredAt desc
 	    """.map[CourseClassAuditTO](toCourseClassAuditTO)
 

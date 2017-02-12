@@ -105,7 +105,6 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
 	// TODO: Smell - Activity Bar shows only after this fires.
 	@Override
 	public void fireProgressEvent() {
-		GWT.log("FIRE!");
 		if (actoms == null)
 			return;
 		int pagesVisitedCount = 0;

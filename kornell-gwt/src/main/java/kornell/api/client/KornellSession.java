@@ -225,6 +225,10 @@ public class KornellSession extends KornellClient {
 
 	public void setCurrentUser(UserInfoTO userInfo) {
 		this.currentUser = userInfo;
+		if(userInfo != null && userInfo.getPerson() != null){
+	        ClientProperties.set(PREFIX + ClientProperties.SEPARATOR + ClientProperties.CURRENT_SESSION, 
+	        		userInfo.getPerson().getUUID());
+		}
 	}
 
 }

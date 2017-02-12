@@ -34,9 +34,11 @@ import scala.collection.mutable.ListBuffer
 import kornell.server.jdbc.repository.RolesRepo
 import kornell.server.jdbc.repository.InstitutionRepo
 import kornell.core.entity.InstitutionType
+import kornell.server.authentication.ThreadLocalAuthenticator
+import kornell.core.entity.EnrollmentSource
 
 object RegistrationEnrollmentService {
-
+  
   def deanRequestEnrollments(enrollmentRequests: EnrollmentRequestsTO, dean: Person) = {
     val courseClassUUID = enrollmentRequests.getEnrollmentRequests.get(0).getCourseClassUUID
     val courseClass = CourseClassRepo(courseClassUUID).get
@@ -45,7 +47,7 @@ object RegistrationEnrollmentService {
     if ((currentEnrollmentCount + enrollmentRequests.getEnrollmentRequests.size) > courseClass.getMaxEnrollments()) {
       throw new EntityConflictException("tooManyEnrollments")
     }
-    enrollmentRequests.getEnrollmentRequests.asScala.foreach(e => deanRequestEnrollment(e, dean))
+    enrollmentRequests.getEnrollmentRequests.asScala.foreach(e => deanRequestEnrollment(e, dean, EnrollmentSource.WEBSITE))
     //send email for over 50 enrollments on DEFAULT institutions, but 3 on DASHBOARD institutions
     //@TODO refactor this after improvements on child enrollment generation with hundreds of scorm attributes
     if (enrollmentRequests.getEnrollmentRequests.size > 50 || 
@@ -60,15 +62,21 @@ object RegistrationEnrollmentService {
       RoleCategory.isCourseClassAdmin(roles, enrollmentRequest.getCourseClassUUID))
   }
 
-  private def deanRequestEnrollment(req: EnrollmentRequestTO, dean: Person) = {
+
+  def postbackRequestEnrollment(req: EnrollmentRequestTO, payload: String) = {
+      deanRequestEnrollment(req, null, EnrollmentSource.POSTBACK, payload)
+  }
+  
+  private def deanRequestEnrollment(req: EnrollmentRequestTO, dean: Person, enrollmentSource: EnrollmentSource, notes: String = null) = {
+    req.setEnrollmentSource(enrollmentSource)
     req.setUsername(req.getUsername.trim)
     PeopleRepo.get(req.getInstitutionUUID, req.getUsername) match {
-      case Some(one) => deanEnrollExistingPerson(one, req, dean)
-      case None => deanEnrollNewPerson(req, dean)
+      case Some(one) => deanEnrollExistingPerson(one, req, dean, notes)
+      case None => deanEnrollNewPerson(req, dean, notes)
     }
   }
 
-  private def deanEnrollNewPerson(enrollmentRequest: EnrollmentRequestTO, dean: Person) = {
+  private def deanEnrollNewPerson(enrollmentRequest: EnrollmentRequestTO, dean: Person, notes: String = null) = {
     if(!enrollmentRequest.isCancelEnrollment){
 	    val person = enrollmentRequest.getRegistrationType match {
 	      case RegistrationType.email => PeopleRepo.createPerson(enrollmentRequest.getInstitutionUUID, enrollmentRequest.getUsername, enrollmentRequest.getFullName)
@@ -79,20 +87,20 @@ object RegistrationEnrollmentService {
 	    if (!enrollmentRequest.getRegistrationType.equals(RegistrationType.email)) {
 	      personRepo.setPassword(enrollmentRequest.getInstitutionUUID, enrollmentRequest.getUsername, enrollmentRequest.getPassword)
 	    }
-	    val enrollment = createEnrollment(personRepo.get.getUUID, enrollmentRequest.getCourseClassUUID, null, EnrollmentState.enrolled, dean.getUUID)
+	    val enrollment = createEnrollment(personRepo.get.getUUID, enrollmentRequest.getCourseClassUUID, null, EnrollmentState.enrolled, dean, null, enrollmentRequest.getEnrollmentSource, notes)
 	    if (enrollmentRequest.getCourseVersionUUID != null) {
-	      createChildEnrollments(enrollment, enrollmentRequest.getCourseVersionUUID, person.getUUID, dean.getUUID)
+	      createChildEnrollments(enrollment, enrollmentRequest.getCourseVersionUUID, person.getUUID, dean)
 	    }
     }
   }
 
-  private def deanEnrollExistingPerson(person: Person, enrollmentRequest: EnrollmentRequestTO, dean: Person) = {
+  private def deanEnrollExistingPerson(person: Person, enrollmentRequest: EnrollmentRequestTO, dean: Person, notes: String = null) = {
     val personRepo = PersonRepo(person.getUUID)
     if (enrollmentRequest.getCourseVersionUUID == null) {
       EnrollmentsRepo.byCourseClassAndPerson(enrollmentRequest.getCourseClassUUID, person.getUUID, true) match {
         case Some(enrollment) => deanUpdateExistingEnrollment(person, enrollment, enrollmentRequest.getInstitutionUUID, dean, enrollmentRequest.isCancelEnrollment)
         case None => {
-          createEnrollment(person.getUUID, enrollmentRequest.getCourseClassUUID, null, EnrollmentState.enrolled, dean.getUUID)
+          createEnrollment(person.getUUID, enrollmentRequest.getCourseClassUUID, null, EnrollmentState.enrolled, dean, null, enrollmentRequest.getEnrollmentSource, notes)
         }
       }
     } else {
@@ -103,8 +111,8 @@ object RegistrationEnrollmentService {
       EnrollmentsRepo.byCourseClassAndPerson(enrollmentRequest.getCourseClassUUID, person.getUUID, true) match {
         case Some(enrollment) => deanUpdateExistingEnrollment(person, enrollment, enrollmentRequest.getInstitutionUUID, dean, enrollmentRequest.isCancelEnrollment)
         case None => {
-          val enrollment = createEnrollment(person.getUUID, enrollmentRequest.getCourseClassUUID, null, EnrollmentState.enrolled, dean.getUUID)
-          createChildEnrollments(enrollment, enrollmentRequest.getCourseVersionUUID, person.getUUID, dean.getUUID)
+          val enrollment = createEnrollment(person.getUUID, enrollmentRequest.getCourseClassUUID, null, EnrollmentState.enrolled, dean, null, enrollmentRequest.getEnrollmentSource)
+          createChildEnrollments(enrollment, enrollmentRequest.getCourseVersionUUID, person.getUUID, dean)
         }
       }
     }
@@ -124,7 +132,7 @@ object RegistrationEnrollmentService {
   type ActomId = (EnrollmentUUID,ActomKey)
   
   //TODO: This method is generating ~1000 lines for enrollment in CVS course, consider using references instead of copies
-  private def createChildEnrollments(enrollment: Enrollment, courseVersionUUID: String, personUUID: String, deanUUID: String) = {
+  private def createChildEnrollments(enrollment: Enrollment, courseVersionUUID: String, personUUID: String, dean: Person) = {
     val enrollmentMap = collection.mutable.Map[String, String]()
     val enrolls = new ListBuffer[String]() 
     var moduleCounter = 0
@@ -134,7 +142,7 @@ object RegistrationEnrollmentService {
     
     CourseVersionRepo(courseVersionUUID).getChildren.foreach(cv => {
       for (i <- 0 until cv.getInstanceCount) {
-        val childEnrollment = createEnrollment(personUUID, null, cv.getUUID, EnrollmentState.enrolled, deanUUID, parentEnrollmentUUID)
+        val childEnrollment = createEnrollment(personUUID, null, cv.getUUID, EnrollmentState.enrolled, dean, parentEnrollmentUUID, enrollment.getEnrollmentSource)
         val childUUID = childEnrollment.getUUID
         enrollmentMap(s"knl.module.${moduleCounter}.name") = cv.getLabel + SEP + i
         enrollmentMap(s"knl.module.${moduleCounter}.index") = s"$i"
@@ -155,12 +163,12 @@ object RegistrationEnrollmentService {
 
   private def deanUpdateExistingEnrollment(person: Person, enrollment: Enrollment, institutionUUID: String, dean: Person, cancelEnrollment: Boolean) = {
     if (cancelEnrollment && !EnrollmentState.cancelled.equals(enrollment.getState))
-      EventsRepo.logEnrollmentStateChanged(UUID.random, dean.getUUID, enrollment.getUUID, enrollment.getState, EnrollmentState.cancelled, enrollment.getCourseVersionUUID == null)
+      EventsRepo.logEnrollmentStateChanged(UUID.random, dean.getUUID, enrollment.getUUID, enrollment.getState, EnrollmentState.cancelled, enrollment.getCourseVersionUUID == null, null)
     else if (!cancelEnrollment && (EnrollmentState.cancelled.equals(enrollment.getState)
       || EnrollmentState.deleted.equals(enrollment.getState())
       || EnrollmentState.requested.equals(enrollment.getState())
       || EnrollmentState.denied.equals(enrollment.getState()))) {
-      EventsRepo.logEnrollmentStateChanged(UUID.random, dean.getUUID, enrollment.getUUID, enrollment.getState, EnrollmentState.enrolled, enrollment.getCourseVersionUUID == null)
+      EventsRepo.logEnrollmentStateChanged(UUID.random, dean.getUUID, enrollment.getUUID, enrollment.getState, EnrollmentState.enrolled, enrollment.getCourseVersionUUID == null, null)
     }
   }
 
@@ -215,16 +223,18 @@ object RegistrationEnrollmentService {
     user
   }
 
-  private def createEnrollment(personUUID: String, courseClassUUID: String, courseVersionUUID: String, enrollmentState: EnrollmentState, enrollerUUID: String, parentEnrollmentUUID: String = null) = {
+  private def createEnrollment(personUUID: String, courseClassUUID: String, courseVersionUUID: String, enrollmentState: EnrollmentState, enroller: Person, parentEnrollmentUUID: String = null, enrollmentSource: EnrollmentSource = null, notes: String = null) = {
+    val enrollerUUID = if (enroller == null) null else enroller.getUUID
     val enrollment = EnrollmentsRepo.create(
       courseClassUUID = courseClassUUID,
       personUUID = personUUID,
       enrollmentState = EnrollmentState.notEnrolled,
       courseVersionUUID = courseVersionUUID,
-      parentEnrollmentUUID = parentEnrollmentUUID)
+      parentEnrollmentUUID = parentEnrollmentUUID,
+      enrollmentSource = enrollmentSource)
     EventsRepo.logEnrollmentStateChanged(
       UUID.random, enrollerUUID,
-      enrollment.getUUID, enrollment.getState, enrollmentState, courseVersionUUID == null)
+      enrollment.getUUID, enrollment.getState, enrollmentState, courseVersionUUID == null, notes)
     enrollment
   }
 }

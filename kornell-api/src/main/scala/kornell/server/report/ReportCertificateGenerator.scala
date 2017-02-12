@@ -98,7 +98,7 @@ object ReportCertificateGenerator {
     val institutionURL: String = composeURL(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/"
     parameters.put("institutionURL", institutionURL)
     
-    val assetsURL: String = composeURL(institutionURL, certificateData.head.getDistributionPrefix, "/reports") + "/"
+    val assetsURL: String = composeURL(institutionURL, certificateData.head.getDistributionPrefix, "/classroom/reports") + "/"
     parameters.put("assetsURL", assetsURL) 
 	  
     val fileName = Settings.tmpDir + "tmp-" + certificateData.head.getCourseVersionUUID + (new Date).getTime + ".jasper"

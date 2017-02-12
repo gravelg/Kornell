@@ -115,6 +115,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     }
 
     private void getEnrollments(final String courseClassUUID) {
+    	
         ClientProperties.set(getLocalStoragePropertyName(), courseClassUUID);
         LoadingPopup.show();
         session.enrollments().getEnrollmentsByCourseClass(courseClassUUID, pageSize, pageNumber, searchTerm, new Callback<EnrollmentsTO>() {
@@ -167,7 +168,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     }
 
     private String getLocalStoragePropertyName() {
-        return PREFIX + ClientProperties.SEPARATOR + session.getInstitution().getUUID()
+        return PREFIX + ClientProperties.SEPARATOR + session.getCurrentUser().getPerson().getUUID()
                 + ClientProperties.SEPARATOR + ClientProperties.SELECTED_COURSE_CLASS;
     }
 

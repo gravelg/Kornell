@@ -1,0 +1,1 @@
+alter table EnrollmentStateChanged modify column person_uuid char(36) null;

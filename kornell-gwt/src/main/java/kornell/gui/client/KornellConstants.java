@@ -790,6 +790,8 @@ public interface KornellConstants extends ConstantsWithLookup {
 	String userAlreadyEnrolledInClass();
 	@DefaultStringValue("Could not complete the request. Check the amount of enrollments available in this class.")
 	String tooManyEnrollments();
+	@DefaultStringValue("Enrollment for this class is only available on a Parent version.")
+	String cannotEnrollOnChildVersion();
 	
 	/**
 	 * Errors 500

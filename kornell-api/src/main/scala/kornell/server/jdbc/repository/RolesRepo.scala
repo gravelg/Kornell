@@ -60,7 +60,7 @@ object RolesRepo {
 	        | where r.institution_uuid = ${institutionUUID}
 	  			| and r.role = ${RoleType.platformAdmin.toString}
 	  		| order by r.role, pw.username
-            """.map[RoleTO](toRoleTO(_,bindMode)))   
+            """.map[RoleTO](toRoleTO(_,bindMode)))
   	
   def getCourseClassSupportThreadParticipants(courseClassUUID: String, institutionUUID: String, bindMode: String) =
 	  TOs.newRolesTO(sql"""

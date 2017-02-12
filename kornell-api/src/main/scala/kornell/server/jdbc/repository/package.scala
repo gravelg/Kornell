@@ -41,6 +41,9 @@ import kornell.core.to.DashboardLeaderboardTO
 import kornell.core.to.DashboardLeaderboardItemTO
 import kornell.core.entity.ContentRepository
 import kornell.core.entity.RepositoryType
+import kornell.core.entity.EnrollmentSource
+import kornell.core.entity.PostbackType
+import kornell.core.entity.PostbackConfig
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -212,7 +215,8 @@ package object repository {
       rs.getDate("start_date"),
       rs.getDate("end_date"),
       rs.getBigDecimal("preAssessmentScore"),
-      rs.getBigDecimal("postAssessmentScore")
+      rs.getBigDecimal("postAssessmentScore"),
+      EnrollmentSource.valueOf(rs.getString("enrollmentSource"))
     )
   }
     
@@ -361,5 +365,11 @@ package object repository {
     rs.getString("toValue"),
     rs.getString("entityName"),
     rs.getString("fromPersonName"),
-    rs.getString("fromUsername")) 
+    rs.getString("fromUsername"))
+    
+  implicit def toPostbackConfig(rs: ResultSet): PostbackConfig = newPostbackConfig(
+      rs.getString("uuid"),
+      rs.getString("institutionUUID"),
+      PostbackType.valueOf(rs.getString("postbackType")),
+      rs.getString("contents"))
 }

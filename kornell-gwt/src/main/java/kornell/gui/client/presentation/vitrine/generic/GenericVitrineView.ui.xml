@@ -11,7 +11,7 @@
 			<b:Alert ui:field="alertError" type="ERROR" close="false" animation="true" visible="false"></b:Alert>
 			<g:FlowPanel ui:field="loginPanel">
 				<b:Form ui:field="frmLogin">
-					<g:Label addStyleNames="inputLabel"><ui:msg description="Username">Usuário (email ou cpf)</ui:msg></g:Label>
+					<g:Label addStyleNames="inputLabel"><ui:msg description="Username">Usuário</ui:msg></g:Label>
 					<g:FlowPanel addStyleNames="inputWrapper">
 						<b:TextBox ui:field="txtUsername"></b:TextBox>
 					</g:FlowPanel>
