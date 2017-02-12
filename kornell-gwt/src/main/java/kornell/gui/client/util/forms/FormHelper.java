@@ -225,9 +225,7 @@ public class FormHelper {
   }
 
 	public static void hideTab(Tab tab) {
-		tab.setHideOn(Device.DESKTOP);
 		tab.setHideOn(Device.PHONE);
-		tab.setHideOn(Device.TABLET);
 	}
 
 	public String getElapsedTimeSince(Date date, Date now) {

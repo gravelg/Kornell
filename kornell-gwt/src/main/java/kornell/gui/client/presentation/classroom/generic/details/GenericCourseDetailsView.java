@@ -428,9 +428,11 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 			displayButton(btnCertification, constants.btnCertification(), constants.printCertificateButton(), false);
 			if (courseClassTO.getCourseClass().isCourseClassChatEnabled()) {
 				displayButton(btnChat, constants.btnChat(), constants.classChatButton(), false);
+				btnChat.addStyleName("btnChat");
 			}
 			if (courseClassTO.getCourseClass().isTutorChatEnabled()) {
 				displayButton(btnTutor, constants.btnTutor(), constants.tutorChatButton(), false);
+				btnTutor.addStyleName("btnChat");
 			}
 			displayButton(btnLibrary, constants.btnLibrary(), constants.libraryButton(), false);
 			displayButton(btnGoToCourse, constants.goToClassButton(), "", false);

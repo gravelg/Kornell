@@ -47,7 +47,7 @@
 			&:not(.btnAction):not(.disabled):hover{
 				.gradient (@barGradientEndColor, @barGradientEndColor);
 			}
-			.label{
+			.activityBarButtonItem{
 				background: transparent;
 				color: @niceTextColor;
 				font-size: 11px;
@@ -305,6 +305,9 @@
 		.centerBar{
     		width: @wrapperWidthUnder990;
     		.separator, .subtitle {
+    			display: none;
+    		}
+    		.btnPanel{
     			display: none;
     		}
 		}

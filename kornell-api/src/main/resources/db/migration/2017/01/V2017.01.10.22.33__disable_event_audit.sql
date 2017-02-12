@@ -1,5 +1,5 @@
-DROP TABLE ActomEntryChangedEvent;
-CREATE TABLE `ActomEntryChangedEvent` (
+DROP TABLE IF EXISTS ActomEntryChangedEvent;
+CREATE TABLE IF NOT EXISTS `ActomEntryChangedEvent` (
   `uuid` char(36) NOT NULL,
   `enrollment_uuid` char(36) DEFAULT NULL,
   `actomKey` varchar(127) DEFAULT NULL,

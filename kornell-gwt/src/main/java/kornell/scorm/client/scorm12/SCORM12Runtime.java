@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Timer;
 import com.google.web.bindery.event.shared.EventBus;
@@ -84,6 +85,11 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 	}
 
 	public CMITree getDataModel(String targetUUID,String actomKey) {
+		//trim query params when building cache key
+		int index = actomKey.indexOf("?");
+		if (index != -1) {
+			actomKey= actomKey.substring(0 , index); 
+		}
 		String cacheKey = StringUtils.hash(targetUUID,actomKey);
 		CMITree dataModel = forestCache.get(cacheKey);
 		if (dataModel == null){
@@ -104,11 +110,11 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 			bus.fireEvent(NavigationRequest.next());
 		} else if ("knl.prev".equals(key)){
 			bus.fireEvent(NavigationRequest.prev());
-		} else if ("knl.nextEnabled".equals(key)){
+		} else if (key != null && key.endsWith(".nextEnabled")){
 			boolean isOk = "true".equals(value);
 			disableNextButton = !isOk;
 			bus.fireEvent(NavigationAuthorizationEvent.next(isOk));
-		} else if ("knl.prevEnabled".equals(key)){
+		} else if (key != null && key.endsWith(".prevEnabled")){
 			boolean isOk = "true".equals(value);
 			disablePrevButton = !isOk;
 			bus.fireEvent(NavigationAuthorizationEvent.prev(isOk));
