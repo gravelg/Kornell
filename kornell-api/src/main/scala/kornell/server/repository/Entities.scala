@@ -148,17 +148,13 @@ object Entities {
     val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null))
     val e = factory.enrollment.as
     e.setUUID(uuid)
-    e.setEnrolledOn(dateConverter.dateToInstitutionTimezoneFromCourseClass(enrolledOn, courseClassUUID))
     e.setCourseClassUUID(courseClassUUID)
     e.setPersonUUID(personUUID)
     e.setProgress(progress)
     e.setNotes(notes)
     e.setState(state)
-    e.setLastProgressUpdate(dateConverter.dateToInstitutionTimezoneFromCourseClass(lastProgressUpdate, courseClassUUID))
     e.setAssessment(assessment)
-    e.setLastAssessmentUpdate(dateConverter.dateToInstitutionTimezoneFromCourseClass(lastAssessmentUpdate, courseClassUUID))
     e.setAssessmentScore(assessmentScore)
-    e.setCertifiedAt(dateConverter.dateToInstitutionTimezoneFromCourseClass(certifiedAt, courseClassUUID))
     e.setCourseVersionUUID(courseVersionUUID)
     e.setParentEnrollmentUUID(parentEnrollmentUUID)
     e.setStartDate(startDate)
@@ -166,6 +162,17 @@ object Entities {
     e.setPreAssessmentScore(preAssessment)
     e.setPostAssessmentScore(postAssessment)
     e.setEnrollmentSource(enrollmentSource)
+    if (courseClassUUID != null){
+      e.setEnrolledOn(dateConverter.dateToInstitutionTimezoneFromCourseClass(enrolledOn, courseClassUUID))
+      e.setLastProgressUpdate(dateConverter.dateToInstitutionTimezoneFromCourseClass(lastProgressUpdate, courseClassUUID))
+      e.setLastAssessmentUpdate(dateConverter.dateToInstitutionTimezoneFromCourseClass(lastAssessmentUpdate, courseClassUUID))
+      e.setCertifiedAt(dateConverter.dateToInstitutionTimezoneFromCourseClass(certifiedAt, courseClassUUID))
+    } else {
+      e.setEnrolledOn(dateConverter.dateToInstitutionTimezone(enrolledOn))
+      e.setLastProgressUpdate(dateConverter.dateToInstitutionTimezone(lastProgressUpdate))
+      e.setLastAssessmentUpdate(dateConverter.dateToInstitutionTimezone(lastAssessmentUpdate))
+      e.setCertifiedAt(dateConverter.dateToInstitutionTimezone(certifiedAt))
+    }
     e
   }
 
