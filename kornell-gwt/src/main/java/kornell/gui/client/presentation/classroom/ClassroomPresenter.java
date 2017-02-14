@@ -130,7 +130,8 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 	
 				private void loadContents(final String enrollmentUUID, final Contents contents) {
 					// check if user has a valid enrollment to this course
-					GenericClientFactoryImpl.EVENT_BUS.fireEvent(new HideSouthBarEvent());
+					boolean shouldHideSouthBar = (session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null);
+					GenericClientFactoryImpl.EVENT_BUS.fireEvent(new HideSouthBarEvent(shouldHideSouthBar));
 					setContents(contents);
 					view.display(showCourseClassContent);	
 					view.asWidget().setVisible(true);

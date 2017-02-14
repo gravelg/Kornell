@@ -244,7 +244,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         } else if ("Certificado".equals(actionName)) {
             return EnrollmentCategory.isFinished(enrollmentTO.getEnrollment()) && (session.isCourseClassAdmin() || session.isCourseClassObserver() || session.isCourseClassTutor());
         } else if("Transferir".equals(actionName)){
-            return session.isCourseClassAdmin();
+            return session.isCourseClassAdmin() && (!InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()));
         }
         return false;
     }
