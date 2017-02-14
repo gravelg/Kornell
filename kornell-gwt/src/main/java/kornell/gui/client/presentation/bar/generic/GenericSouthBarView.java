@@ -75,7 +75,8 @@ public class GenericSouthBarView extends Composite implements SouthBarView, Hide
 			}
 		} else if (newPlace instanceof ClassroomPlace && session.getCurrentCourseClass() != null && 
 				session.getCurrentCourseClass().getEnrollment() != null &&
-				EnrollmentState.enrolled.equals(session.getCurrentCourseClass().getEnrollment().getState())) {
+				EnrollmentState.enrolled.equals(session.getCurrentCourseClass().getEnrollment().getState()) &&
+				session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null) {
 			if(currentSouthBar != ACTIVITY_BAR){
 				currentSouthBar = ACTIVITY_BAR;
 				barView = getActivityBarView();
