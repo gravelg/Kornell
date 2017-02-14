@@ -41,7 +41,7 @@ object PostbackService {
     <itemCount>2</itemCount>  
     <items>  
         <item>  
-            <id>0001</id>  
+            <id>aucb1f1e-b36b-11e6-bd35-768f6b6cd8f9</id>  
             <description>Produto PagSeguroI</description>  
             <quantity>1</quantity>  
             <amount>99999.99</amount>  
@@ -143,12 +143,25 @@ object PostbackService {
     if (postbackConfig == null) {
       logger.log(Level.SEVERE, "Missing postback config for Pagseguro transaction ID  " + transactionId + ", could not process")
     } else {
-      val email = postbackConfig.getContents.split("##")(0)
-      val token = postbackConfig.getContents.split("##")(1)
-      val get_url = current_url + transactionId + "?email=" + email + "&token=" + token
-           
-      println((test_xml \\ "sender" \\ "email").text)
-      println((test_xml \\ "sender" \\ "name").text)
+      val creds_email = postbackConfig.getContents.split("##")(0)
+      val creds_token = postbackConfig.getContents.split("##")(1)
+      val get_url = current_url + transactionId + "?email=" + creds_email + "&token=" + creds_token
+      
+      //do GET to pagseguro API
+      val user_email = (test_xml \\ "sender" \\ "email").text
+      val name = (test_xml \\ "sender" \\ "name").text
+      val courseClassUUID = ((test_xml \\ "items" \\ "item")(0) \\ "id").text
+      
+      println(courseClassUUID)
+      
+      val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
+      enrollmentRequest.setFullName(name)
+      enrollmentRequest.setUsername(user_email)
+      enrollmentRequest.setCourseClassUUID(courseClassUUID)
+      enrollmentRequest.setInstitutionUUID(institutionUUID)
+      enrollmentRequest.setRegistrationType(RegistrationType.email)
+      enrollmentRequest.setCancelEnrollment(false)
+      RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, test_xml.text)
     }
     
   }
