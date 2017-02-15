@@ -402,8 +402,9 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		Label infoTitle = new Label(title);
 		infoTitle.addStyleName("infoTitle");
 		info.add(infoTitle);
-
-		Label infoText = new Label(text);
+		
+		Label infoText = new Label();
+		infoText.getElement().setInnerHTML(text);
 		infoText.addStyleName("infoText");
 		info.add(infoText);
 
