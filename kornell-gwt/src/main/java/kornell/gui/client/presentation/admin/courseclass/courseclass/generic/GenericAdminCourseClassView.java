@@ -60,6 +60,7 @@ import kornell.core.entity.CourseClassState;
 import kornell.core.entity.EnrollmentCategory;
 import kornell.core.entity.EnrollmentProgressDescription;
 import kornell.core.entity.EnrollmentState;
+import kornell.core.entity.InstitutionType;
 import kornell.core.entity.RegistrationType;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.CourseClassesTO;
@@ -687,7 +688,8 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		return new Delegate<EnrollmentTO>() {
 			@Override
 			public void execute(EnrollmentTO object) {
-				if (canPerformEnrollmentAction) {
+				if (canPerformEnrollmentAction && 
+						(!InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()))) {
 					selectedEnrollment = object;
 					transferModal.setTitle("Transferir Matrícula");
 					txtModalTransfer1.setText("Selecione a turma para qual deseja transferir esse participante:");

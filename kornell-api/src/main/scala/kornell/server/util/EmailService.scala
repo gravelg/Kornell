@@ -191,7 +191,7 @@ object EmailService {
   private def getInstitutionLogoImage(institution: Institution): java.io.File = {
     val logoImageName: String = "logo300x80.png"
     val tempDir: Path = Paths.get(System.getProperty("java.io.tmpdir"))
-    val imgPath = tempDir.resolve(institution.getFullName + "-" + logoImageName)
+    val imgPath = tempDir.resolve(institution.getUUID + "-" + logoImageName)
     val imgFile: File = imgPath.toFile()
     
     val purgeTime = System.currentTimeMillis - (1 * 24 * 60 * 60 * 1000) //one day

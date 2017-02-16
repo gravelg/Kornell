@@ -385,7 +385,8 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 			btnNotes.removeStyleName("last");
 		}
 		shouldShowActivityBar = isEnrolled && session.getCurrentCourseClass() != null
-				&& !CourseClassState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState());
+				&& !CourseClassState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState())
+				&& session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null;
 		clientFactory.getEventBus().fireEvent(new HideSouthBarEvent(!shouldShowActivityBar));
 		this.setVisible(shouldShowActivityBar);
 	}

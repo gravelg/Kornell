@@ -105,26 +105,7 @@ object PostbackService {
           client.close()
           if (paypal_confirmation == "VERIFIED") {
             logger.info("Verified request " + payload)
-            //create enrollment
-            val payloadMap = URLEncodedUtils.parse(payload, Charset.forName("utf-8")).asScala.map(t => t.getName -> t.getValue).toMap
-            
-            val token = payloadMap("custom")
-            val courseClassUUID = payloadMap("item_number")
-            val institutionUUID = new CourseClassRepo(courseClassUUID).get.getInstitutionUUID
-            val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).getOrElse(null)
-            
-            if (postbackConfig != null) {
-              val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
-              enrollmentRequest.setFullName(payloadMap("address_name"))
-              enrollmentRequest.setUsername(payloadMap("payer_email"))
-              enrollmentRequest.setCourseClassUUID(courseClassUUID)
-              enrollmentRequest.setInstitutionUUID(institutionUUID)
-              enrollmentRequest.setRegistrationType(RegistrationType.email)
-              enrollmentRequest.setCancelEnrollment(false)
-              RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, payload)
-            } else {
-              logger.severe("Mismatched token for institution " + payload)
-            }
+            createEnrollment(payload, postbackType)
           } else {
             logger.warning("Invalid request " + payload)
           }
@@ -136,6 +117,7 @@ object PostbackService {
     hello.start
   }
   
+            
   def pagseguroPostback(env: String, institutionUUID: String, transactionId: String) = {
     val postbackType = if (env != "live") PostbackType.PAGSEGURO_SANDBOX else PostbackType.PAGESGURO
     val current_url = if (env != "live") pag_sandbox_get_trans_url else pag_get_trans_url
@@ -162,7 +144,45 @@ object PostbackService {
       enrollmentRequest.setRegistrationType(RegistrationType.email)
       enrollmentRequest.setCancelEnrollment(false)
       RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, test_xml.text)
-    }
-    
+    }  
   }
+  
+  def createEnrollment(payload: String, postbackType: PostbackType) = {
+    val payloadMap = URLEncodedUtils.parse(payload, Charset.forName("utf-8")).asScala.map(t => t.getName -> t.getValue).toMap
+            
+    val token = getValueFromPayloadMap(payloadMap, "custom").get
+    val courseClassUUID = getValueFromPayloadMap(payloadMap, "item_number").get
+    val institutionUUID = new CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+    val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).getOrElse(null)
+    
+    if (postbackConfig != null) {
+      val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
+      val firstName = getValueFromPayloadMap(payloadMap, "first_name")
+      val lastName = getValueFromPayloadMap(payloadMap, "last_name")
+      if(firstName.isDefined){
+        if (lastName.isDefined){
+          enrollmentRequest.setFullName(firstName.get + " " + lastName.get)
+        } else {
+          enrollmentRequest.setFullName(firstName.get)
+        }
+      }
+      enrollmentRequest.setUsername(getValueFromPayloadMap(payloadMap, "payer_email").get)
+      enrollmentRequest.setCourseClassUUID(courseClassUUID)
+      enrollmentRequest.setInstitutionUUID(institutionUUID)
+      enrollmentRequest.setRegistrationType(RegistrationType.email)
+      enrollmentRequest.setCancelEnrollment(false)
+      RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, payload)
+    } else {
+      logger.severe("Mismatched token for institution " + payload)
+    }
+  }
+  
+  def getValueFromPayloadMap(payloadMap: Map[String, String], key: String): Option[String] = {
+    try {
+        Some(payloadMap(key))
+    } catch {
+      case e: Throwable => { None }
+    }
+  }
+  
 }
