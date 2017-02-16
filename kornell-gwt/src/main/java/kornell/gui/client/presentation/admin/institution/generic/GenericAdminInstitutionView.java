@@ -114,7 +114,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	private Institution institution;
 	private ContentRepository repo;
 
-	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, useEmailWhitelist, timeZone, skin;
+	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, useEmailWhitelist, timeZone, skin, replyTo;
 	
 	private List<KornellFormFieldWrapper> fields;
 	private GenericInstitutionReportsView reportsView;
@@ -397,6 +397,10 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			}
 		});
 		
+		replyTo = new KornellFormFieldWrapper("Responder ao e-mail", formHelper.createTextBoxFormField(institution.getReplyTo()), isPlatformAdmin);
+		fields.add(replyTo);
+		institutionFields.add(replyTo);
+		
 		institutionFields.add(formHelper.getImageSeparator());
 
 		institutionFields.setVisible(true);
@@ -451,6 +455,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			institution.setAllowRegistrationByUsername(allowRegistrationByUsername.getFieldPersistText().equals("true"));
 			institution.setUseEmailWhitelist(useEmailWhitelist.getFieldPersistText().equals("true"));
 			institution.setSkin(skin.getFieldPersistText());
+			institution.setReplyTo(replyTo.getFieldPersistText());
 		}
 		return institution;
 	}
