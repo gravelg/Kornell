@@ -67,15 +67,12 @@ object PostbackService {
       val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
       val firstName = getValueFromPayloadMap(payloadMap, "first_name")
       val lastName = getValueFromPayloadMap(payloadMap, "last_name")
-      val addressName = getValueFromPayloadMap(payloadMap, "address_name")
       if(firstName.isDefined){
         if (lastName.isDefined){
           enrollmentRequest.setFullName(firstName.get + " " + lastName.get)
         } else {
           enrollmentRequest.setFullName(firstName.get)
         }
-      } else if (addressName.isDefined) {
-        enrollmentRequest.setFullName(addressName.get)
       }
       println(enrollmentRequest.getFullName)
       enrollmentRequest.setUsername(getValueFromPayloadMap(payloadMap, "payer_email").get)
