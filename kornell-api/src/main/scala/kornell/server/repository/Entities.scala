@@ -317,7 +317,7 @@ object Entities {
     allowBatchCancellation: Boolean = false,
     tutorChatEnabled: Boolean = false,
     approveEnrollmentsAutomatically: Boolean = false,
-    startDate:Date = null) = {
+    startDate:Date = null, pagseguroId: String = null) = {
     val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(""))
     val createdAtConverted = {
       if(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.isDefined) dateConverter.dateToInstitutionTimezone(createdAt)
@@ -344,6 +344,7 @@ object Entities {
 	  clazz.setTutorChatEnabled(tutorChatEnabled)
 	  clazz.setApproveEnrollmentsAutomatically(approveEnrollmentsAutomatically)
 	  clazz.setStartDate(startDate);
+    clazz.setPagseguroId(pagseguroId)
     clazz
   }
 

@@ -15,6 +15,8 @@ import kornell.core.entity.PostbackType
 import kornell.server.jdbc.repository.PostbackConfigRepo
 import org.apache.http.client.methods.HttpGet
 import kornell.server.jdbc.repository.CourseClassRepo
+import scala.xml.XML
+import kornell.server.jdbc.repository.CourseClassesRepo
 
 
 object PostbackService {
@@ -86,7 +88,7 @@ object PostbackService {
 
   //PagSeguro URLs
   //One for sandbox, one for live
-  val pag_sandbox_get_trans_url = "https://ws.sandbox.pagseguro.uol.com.br/v3/transactions/notifications/"
+  val pag_sandbox_get_trans_url = "https://ws.pagseguro.uol.com.br/v3/transactions/notifications/"
   val pag_get_trans_url = "https://ws.pagseguro.uol.com.br/v3/transactions/notifications/"
   
   def paypalPostback(env: String, payload: String) = {
@@ -127,23 +129,32 @@ object PostbackService {
     } else {
       val creds_email = postbackConfig.getContents.split("##")(0)
       val creds_token = postbackConfig.getContents.split("##")(1)
-      val get_url = current_url + transactionId + "?email=" + creds_email + "&token=" + creds_token
+      val get_url = current_url + transactionId + "?email=" + creds_email + "&token=" + creds_token      
       
       //do GET to pagseguro API
-      val user_email = (test_xml \\ "sender" \\ "email").text
-      val name = (test_xml \\ "sender" \\ "name").text
-      val courseClassUUID = ((test_xml \\ "items" \\ "item")(0) \\ "id").text
+      val client = HttpClients.createDefault
+      val request = new HttpGet(get_url)
+      val response = client.execute(request)
+      val response_contents = EntityUtils.toString(response.getEntity)
+      val response_xml = XML.loadString(response_contents)
       
-      println(courseClassUUID)
+      val user_email = (response_xml \\ "sender" \\ "email").text
+      val name = (response_xml \\ "sender" \\ "name").text
+      val courseClassToken = ((response_xml \\ "items" \\ "item")(0) \\ "id").text
       
-      val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
-      enrollmentRequest.setFullName(name)
-      enrollmentRequest.setUsername(user_email)
-      enrollmentRequest.setCourseClassUUID(courseClassUUID)
-      enrollmentRequest.setInstitutionUUID(institutionUUID)
-      enrollmentRequest.setRegistrationType(RegistrationType.email)
-      enrollmentRequest.setCancelEnrollment(false)
-      RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, test_xml.text)
+      val courseClass = CourseClassesRepo.byPagseguroId(courseClassToken)
+      if (courseClass.isDefined) {
+        val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
+        enrollmentRequest.setFullName(name)
+        enrollmentRequest.setUsername(user_email)
+        enrollmentRequest.setCourseClassUUID(courseClass.get.getUUID)
+        enrollmentRequest.setInstitutionUUID(institutionUUID)
+        enrollmentRequest.setRegistrationType(RegistrationType.email)
+        enrollmentRequest.setCancelEnrollment(false)
+        RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, response_xml.text)
+      } else {
+        
+      }
     }  
   }
   
