@@ -74,7 +74,6 @@ object PostbackService {
           enrollmentRequest.setFullName(firstName.get)
         }
       }
-      println(enrollmentRequest.getFullName)
       enrollmentRequest.setUsername(getValueFromPayloadMap(payloadMap, "payer_email").get)
       enrollmentRequest.setCourseClassUUID(courseClassUUID)
       enrollmentRequest.setInstitutionUUID(institutionUUID)
