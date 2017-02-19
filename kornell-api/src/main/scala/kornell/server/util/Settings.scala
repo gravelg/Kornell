@@ -95,6 +95,7 @@ object Settings extends Enum {
   val REPLY_TO = settting("REPLY_TO")
   val HEALTH_TO = SMTP_FROM
   val BUILD_NUM = settting("build.number")
+  val BUILT_ON = settting("built.on")
   
   
   //??  
