@@ -17,9 +17,13 @@ import kornell.core.entity.ChatThread
 import kornell.server.util.Settings._
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.logging.Logger
+import java.util.logging.Level
 
 
 object EmailService {
+  
+  val logger = Logger.getLogger("kornell.server.email")
   
   def sendEmailBatchEnrollment(person: Person, institution: Institution, courseClass: CourseClass) = {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
@@ -196,12 +200,16 @@ object EmailService {
     
     val purgeTime = System.currentTimeMillis - (1 * 24 * 60 * 60 * 1000) //one day
     if(imgFile.lastModified < purgeTime && !imgFile.delete)
-      System.err.println("Unable to delete file: " + imgFile)
+      logger.warning("Unable to delete file: " + imgFile)
       
     if (!imgFile.exists) {
       //TODO: Use ContentStore API
-      val url = new URL(mkurl(institution.getBaseURL, "repository", institution.getAssetsRepositoryUUID, logoImageName))      
-      FileUtils.copyURLToFile(url, imgFile)
+      val url = new URL(mkurl(institution.getBaseURL, "repository", institution.getAssetsRepositoryUUID, logoImageName))
+      try {
+        FileUtils.copyURLToFile(url, imgFile)
+      } catch {
+        case e: Exception => logger.log(Level.SEVERE, "Cannot copy institution logo ", e)
+      }
     }
     imgFile
   }
