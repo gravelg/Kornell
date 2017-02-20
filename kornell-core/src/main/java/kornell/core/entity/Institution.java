@@ -53,4 +53,7 @@ public interface Institution extends Named {
 	
 	String getTimeZone();
 	void setTimeZone(String timeZone);
+	
+	String getInstitutionSupportEmail();
+	void setInstitutionSupportEmail(String institutionSupportEmail);
 }

@@ -175,7 +175,12 @@ object EmailService {
     }
   }
   
-  private def getFromEmail(institution: kornell.core.entity.Institution):String = SMTP_FROM.get
+  private def getFromEmail(institution: kornell.core.entity.Institution):String = {
+    if (institution.getInstitutionSupportEmail != null)
+      institution.getInstitutionSupportEmail
+    else
+      SMTP_FROM.get
+  }
   
   
   private def wrapBody(bodyText: String) = 
