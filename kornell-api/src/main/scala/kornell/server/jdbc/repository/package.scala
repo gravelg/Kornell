@@ -79,7 +79,7 @@ package object repository {
         rs.getBoolean("useEmailWhitelist"),
         rs.getString("assetsRepositoryUUID"),
         rs.getString("timeZone"),
-        rs.getString("replyTo"))
+        rs.getString("institutionSupportEmail"))
         
   implicit def toContentRepository(rs:ResultSet):ContentRepository = 
     newContentRepository(rs.getString("uuid"),

@@ -186,7 +186,7 @@ object Entities {
   def newInstitution(uuid: String = randUUID, name: String, fullName: String, terms: String, baseURL: String, 
       demandsPersonContactDetails: Boolean, validatePersonContactDetails: Boolean, allowRegistration: Boolean, allowRegistrationByUsername: Boolean, 
       activatedAt: Date, skin: String, billingType: BillingType, institutionType: InstitutionType, dashboardVersionUUID: String, internationalized: Boolean, 
-      useEmailWhitelist: Boolean = false,assetsRepositoryUUID:String=null, timeZone: String, replyTo: String) = {
+      useEmailWhitelist: Boolean = false,assetsRepositoryUUID:String=null, timeZone: String, institutionSupportEmail: String) = {
     val i = factory.newInstitution.as
     i.setName(name)
     i.setFullName(fullName)
@@ -207,7 +207,7 @@ object Entities {
     i.setInternationalized(internationalized)
     i.setUseEmailWhitelist(useEmailWhitelist)
     i.setTimeZone(timeZone)
-    i.setReplyTo(replyTo)
+    i.setInstitutionSupportEmail(institutionSupportEmail)
     i
   }
 

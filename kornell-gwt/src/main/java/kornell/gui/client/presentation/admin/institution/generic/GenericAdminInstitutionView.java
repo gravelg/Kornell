@@ -114,7 +114,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	private Institution institution;
 	private ContentRepository repo;
 
-	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, useEmailWhitelist, timeZone, skin, replyTo;
+	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, useEmailWhitelist, timeZone, skin, institutionSupportEmail;
 	
 	private List<KornellFormFieldWrapper> fields;
 	private GenericInstitutionReportsView reportsView;
@@ -397,9 +397,9 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			}
 		});
 		
-		replyTo = new KornellFormFieldWrapper("Responder ao e-mail", formHelper.createTextBoxFormField(institution.getReplyTo()), isPlatformAdmin);
-		fields.add(replyTo);
-		institutionFields.add(replyTo);
+		institutionSupportEmail = new KornellFormFieldWrapper("E-mail de suporte", formHelper.createTextBoxFormField(institution.getInstitutionSupportEmail()), isPlatformAdmin);
+		fields.add(institutionSupportEmail);
+		institutionFields.add(institutionSupportEmail);
 		
 		institutionFields.add(formHelper.getImageSeparator());
 
@@ -455,7 +455,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			institution.setAllowRegistrationByUsername(allowRegistrationByUsername.getFieldPersistText().equals("true"));
 			institution.setUseEmailWhitelist(useEmailWhitelist.getFieldPersistText().equals("true"));
 			institution.setSkin(skin.getFieldPersistText());
-			institution.setReplyTo(replyTo.getFieldPersistText());
+			institution.setInstitutionSupportEmail(institutionSupportEmail.getFieldPersistText());
 		}
 		return institution;
 	}

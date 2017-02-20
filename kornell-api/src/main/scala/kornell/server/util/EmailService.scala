@@ -172,8 +172,8 @@ object EmailService {
   }
   
   private def getFromEmail(institution: kornell.core.entity.Institution):String = {
-    if (institution.getReplyTo != null)
-      institution.getReplyTo
+    if (institution.getInstitutionSupportEmail != null)
+      institution.getInstitutionSupportEmail
     else
       SMTP_FROM.get
   }
