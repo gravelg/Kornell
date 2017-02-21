@@ -860,19 +860,18 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		switch (registrationType) {
 		case email:
 			infoPanel.add(getLabel("Formato:", false));
-			infoPanel.add(getLabel("\"nome;email\" ou somente \"email\".", true));
+			infoPanel.add(getLabel("nome completo;email", true));
 			infoPanel.add(getLabel("* Um participante por linha", true));
 			infoPanel.add(getLabel("Exemplo:", false));
 			infoPanel.add(getLabel("Nome Sobrenome;email@example.com", true));
-			infoPanel.add(getLabel("email1@example.com", true));
-			infoPanel.add(getLabel("email2@example.com", true));
+			infoPanel.add(getLabel("Nome2 Sobrenome2;email2@example.com", true));
 			break;
 		case cpf:
 			infoPanel.add(getLabel("Formato:", false));
-			infoPanel.add(getLabel("\"nome;cpf\"", true));
+			infoPanel.add(getLabel("nome completo;cpf", true));
 			infoPanel.add(getLabel("* Um participante por linha", true));
 			infoPanel.add(getLabel("Exemplo:", false));
-			infoPanel.add(getLabel("Nome Sobrenome;123.456.789-13", true));
+			infoPanel.add(getLabel("Nome Sobrenome;123.456.789-12", true));
 			infoPanel.add(getLabel("Nome2 Sobrenome2;12345687913", true));
 			break;
 		case username:

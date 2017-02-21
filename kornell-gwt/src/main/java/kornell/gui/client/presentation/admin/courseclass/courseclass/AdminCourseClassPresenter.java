@@ -290,7 +290,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         populateEnrollmentsList(txtAddEnrollmentBatch, false);
         if (batchEnrollmentErrors == null || !"".equals(batchEnrollmentErrors)) {
             view.setModalErrors("Erros ao inserir matrículas", "As seguintes linhas contém erros:",
-                    batchEnrollmentErrors, "Deseja ignorar essas linhas e continuar?");
+                    batchEnrollmentErrors, "Deseja ignorar essas linhas e continuar? Todas as linhas que não contêm erros serão processadas.");
             overriddenEnrollmentsModalShown = false;
             view.showModal(true, "error");
         } else {
@@ -366,7 +366,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
                 enrollmentRequestTO.setUsername(username);
                 batchEnrollments.add(enrollmentRequestTO);
-            } else if (isUsernameValid(username) && (email == null || FormHelper.isEmailValid(email))) {
+            } else if (isUsernameValid(username) && fullName.length() > 1 && (email == null || FormHelper.isEmailValid(email))) {
                 batchEnrollments.add(createEnrollment(fullName, username, email, false));
             } else {
                 batchEnrollmentErrors += enrollmentsA[i] + "\n";
