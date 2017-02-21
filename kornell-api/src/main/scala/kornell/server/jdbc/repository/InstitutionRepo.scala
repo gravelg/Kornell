@@ -32,7 +32,8 @@ class InstitutionRepo(uuid: String) {
     | i.internationalized = ${institution.isInternationalized},
     | i.useEmailWhitelist = ${institution.isUseEmailWhitelist},
     | i.assetsRepositoryUUID = ${institution.getAssetsRepositoryUUID},
-    | i.timeZone = ${institution.getTimeZone()}
+    | i.timeZone = ${institution.getTimeZone},
+    | i.institutionSupportEmail = ${institution.getInstitutionSupportEmail}
     | where i.uuid = ${institution.getUUID}""".executeUpdate
 	    
     //log entity change

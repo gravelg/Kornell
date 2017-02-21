@@ -3,7 +3,6 @@ package kornell.server.api
 import java.util.Collections
 import scala.collection.JavaConverters.setAsJavaSetConverter
 import javax.ws.rs.core.Application
-import kornell.server.api.ProbesResource
 import kornell.server.ws.rs.AutoBeanWriter
 import kornell.server.ws.rs.TOReader
 import kornell.server.ws.rs.exception.EntityConflictMapper
@@ -47,10 +46,8 @@ class KornellAPI extends Application {
     classOf[EventsResource],
     classOf[ActomResource],
     classOf[ChatThreadsResource],
-    classOf[ProbesResource],
     classOf[HealthCheckResource],
     classOf[TokenResource],
-    classOf[LoggerResource],
     classOf[ContentRepositoriesResource],
     classOf[PostbackResource]
   )
