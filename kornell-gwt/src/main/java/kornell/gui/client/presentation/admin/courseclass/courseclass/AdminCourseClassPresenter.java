@@ -187,7 +187,11 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                             LoadingPopup.hide();
                             getEnrollments(session.getCurrentCourseClass().getCourseClass().getUUID());
                             view.setCanPerformEnrollmentAction(true);
-                            KornellNotification.show("Alteração feita com sucesso.", 2000);
+                            if(enrollmentTO.getEnrollment().getState().equals(toState)){
+                                KornellNotification.show("Email enviado com sucesso.", 2000);
+                            } else {
+                                KornellNotification.show("Alteração feita com sucesso.", 2000);
+                            }
                         }
                     });
         }
@@ -245,6 +249,8 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
             return EnrollmentCategory.isFinished(enrollmentTO.getEnrollment()) && (session.isCourseClassAdmin() || session.isCourseClassObserver() || session.isCourseClassTutor());
         } else if("Transferir".equals(actionName)){
             return session.isCourseClassAdmin() && (!InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()));
+        } else if("Reenviar Email de Matrícula".equals(actionName)){
+            return session.isCourseClassAdmin();
         }
         return false;
     }
