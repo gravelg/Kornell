@@ -19,6 +19,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.logging.Logger
 import java.util.logging.Level
+import kornell.core.util.StringUtils
 
 
 object EmailService {
@@ -176,7 +177,7 @@ object EmailService {
   }
   
   private def getFromEmail(institution: kornell.core.entity.Institution):String = {
-    if (institution.getInstitutionSupportEmail != null)
+    if (StringUtils.isSome(institution.getInstitutionSupportEmail))
       institution.getInstitutionSupportEmail
     else
       SMTP_FROM.get

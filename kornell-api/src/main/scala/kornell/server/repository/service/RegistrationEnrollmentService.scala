@@ -85,7 +85,7 @@ object RegistrationEnrollmentService {
 	    }
 	    val personRepo = PersonRepo(person.getUUID)
 	    if (!enrollmentRequest.getRegistrationType.equals(RegistrationType.email)) {
-	      personRepo.setPassword(enrollmentRequest.getInstitutionUUID, enrollmentRequest.getUsername, enrollmentRequest.getPassword)
+	      personRepo.setPassword(enrollmentRequest.getPassword, true)
 	    }
 	    val enrollment = createEnrollment(personRepo.get.getUUID, enrollmentRequest.getCourseClassUUID, null, EnrollmentState.enrolled, dean, null, enrollmentRequest.getEnrollmentSource, notes)
 	    if (enrollmentRequest.getCourseVersionUUID != null) {
@@ -190,7 +190,7 @@ object RegistrationEnrollmentService {
     val username = usernameOf(regReq)
     user.setPerson(person)
     user.setUsername(username)
-    PersonRepo(person.getUUID).setPassword(regReq.getInstitutionUUID, username, regReq.getPassword)
+    PersonRepo(person.getUUID).setPassword(regReq.getPassword)
     user
   }
 
@@ -218,7 +218,7 @@ object RegistrationEnrollmentService {
     user.setPerson(person)
     user.setUsername(username)
 
-    personRepo.setPassword(regReq.getInstitutionUUID, username, regReq.getPassword)
+    personRepo.setPassword(regReq.getPassword)
 
     user
   }

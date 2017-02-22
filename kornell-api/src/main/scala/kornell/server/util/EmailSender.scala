@@ -110,6 +110,7 @@ object EmailSender {
       props.put("mail.smtp.port", SMTP_PORT.get)
       props.put("mail.smtp.ssl.enable", "true");
       props.put("mail.transport.protocol", "smtp");
+      props.put("mail.smtp.starttls.enable", "true");      
       Session.getDefaultInstance(props);
     }
 
