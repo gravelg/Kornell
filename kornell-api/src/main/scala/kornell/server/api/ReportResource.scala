@@ -168,7 +168,8 @@ class ReportResource {
 	  }
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseUUID, courseClassUUID)), AccessDeniedErr())
      .or(isInstitutionAdmin(getInstitutionUUID(courseUUID, courseClassUUID)), AccessDeniedErr())
-     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr()).get
+     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr())
+     .or(isCourseClassObserver(courseClassUUID), AccessDeniedErr()).get
      
   def getInstitutionUUID(courseUUID: String, courseClassUUID: String) = {
     if(courseUUID != null){
