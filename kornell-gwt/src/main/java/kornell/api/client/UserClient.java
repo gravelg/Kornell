@@ -11,7 +11,7 @@ public class UserClient extends RESTClient {
 
 	// TODO: Is this safe?
 	public void getUser(String userUUID, Callback<UserInfoTO> cb) {
-		GET("/user/" + userUUID).sendRequest(null, cb);
+		GET("/user/get/" + userUUID).sendRequest(null, cb);
 	}
 
 	public void getUserHello(String name, String hostName, Callback<UserHelloTO> cb) {

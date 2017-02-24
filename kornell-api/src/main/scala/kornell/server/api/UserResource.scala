@@ -96,7 +96,7 @@ class UserResource(private val authRepo: AuthRepo) {
   }
 
   @GET
-  @Path("{personUUID}")
+  @Path("get/{personUUID}")
   @Produces(Array(UserInfoTO.TYPE))
   def getByPersonUUID(implicit @Context sc: SecurityContext,
     @PathParam("personUUID") personUUID: String): Option[UserInfoTO] =
