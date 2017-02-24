@@ -15,6 +15,7 @@ import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Tooltip;
 import com.github.gwtbootstrap.client.ui.base.IconAnchor;
+import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.github.gwtbootstrap.client.ui.constants.Placement;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -322,6 +323,13 @@ public class GenericVitrineView extends Composite implements VitrineView {
 	@Override
 	public void setMessage(String msg) {
 		alertError.setHTML(msg);
+		alertError.setType(AlertType.ERROR);
+	}
+
+	@Override
+	public void setMessage(String msg, AlertType alertType) {
+		alertError.setHTML(msg);
+		alertError.setType(alertType);
 	}
 	
 	@Override
@@ -330,6 +338,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
 		for (String error : msgs) {
 			errorsStr += error+"<br>";
 		}
+		alertError.setType(AlertType.ERROR);
 		alertError.setHTML(errorsStr);
 	}
 	
