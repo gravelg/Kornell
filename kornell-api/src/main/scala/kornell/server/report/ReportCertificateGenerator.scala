@@ -12,6 +12,7 @@ import kornell.server.jdbc.PreparedStmt
 import kornell.server.jdbc.SQL.SQLHelper
 import kornell.server.repository.TOs
 import kornell.server.util.Settings
+import kornell.server.repository.Entities._
 import kornell.server.util.DateConverter
 import kornell.server.authentication.ThreadLocalAuthenticator
 import java.util.Date
@@ -19,6 +20,7 @@ import kornell.core.entity.CertificateDetails
 import kornell.server.jdbc.repository.CertificatesDetailsRepo
 import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.error.exception.EntityNotFoundException
+import kornell.core.entity.CertificateType
 
 object ReportCertificateGenerator {
 
@@ -63,7 +65,8 @@ object ReportCertificateGenerator {
       if (!details.isDefined) {
         details = CertificatesDetailsRepo.getForEntity(certificateInformationTO.getCourseUUID, CourseDetailsEntityType.COURSE)
         if (!details.isDefined) {
-          throw new EntityNotFoundException("No configured background image for requested certificate")
+          //build default one
+          details = Option(newCertificateDetails(null, "reports/", CertificateType.NO_BG, CourseDetailsEntityType.COURSE_CLASS,  null))
         }
       }
     }
@@ -116,14 +119,9 @@ object ReportCertificateGenerator {
     	return null
     }
     val parameters: HashMap[String, Object] = new HashMap()
-
-    //parameters.put("assetsURL", certificateDetails.getBgImage)
-
-    val institutionURL: String = composeURL(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/"
-    parameters.put("institutionURL", institutionURL)
     
-    val assetsURL: String = composeURL(institutionURL, certificateData.head.getDistributionPrefix, "/classroom/reports") + "/"
-    parameters.put("assetsURL", assetsURL) 
+    parameters.put("institutionURL", composeURL(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/")
+    parameters.put("assetsURL", certificateDetails.getBgImage)
 	  
     val cl = Thread.currentThread.getContextClassLoader
     val stream = cl.getResourceAsStream(certificateDetails.getCertificateType.getPath)

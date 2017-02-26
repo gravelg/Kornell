@@ -1,7 +1,8 @@
 package kornell.core.entity;
 
 public enum CertificateType {
-	DEFAULT ("reports/certificate.jasper");
+	DEFAULT ("reports/certificate.jasper"),
+	NO_BG ("reports/certificate-noBg.jasper");
 	
 	private final String path;
 	
