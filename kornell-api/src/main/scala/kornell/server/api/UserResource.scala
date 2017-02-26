@@ -96,7 +96,7 @@ class UserResource(private val authRepo: AuthRepo) {
   }
 
   @GET
-  @Path("{personUUID}")
+  @Path("get/{personUUID}")
   @Produces(Array(UserInfoTO.TYPE))
   def getByPersonUUID(implicit @Context sc: SecurityContext,
     @PathParam("personUUID") personUUID: String): Option[UserInfoTO] =
@@ -137,7 +137,12 @@ class UserResource(private val authRepo: AuthRepo) {
     val person = PeopleRepo.getByEmail(institution.get.getUUID, email)
     if (person.isDefined && institution.isDefined) {
       val requestPasswordChangeUUID = UUID.random
-      authRepo.updateRequestPasswordChangeUUID(person.get.getUUID, requestPasswordChangeUUID)
+      
+      AuthRepo().getUsernameByPersonUUID(person.get.getUUID) match {
+        case Some(one) => authRepo.updateRequestPasswordChangeUUID(person.get.getUUID, requestPasswordChangeUUID)
+        case None => authRepo.setPlainPassword(institution.get.getUUID, person.get.getUUID, person.get.getEmail, null, false, requestPasswordChangeUUID)
+    	}
+      
       EmailService.sendEmailRequestPasswordChange(person.get, institution.get, requestPasswordChangeUUID)
     } else {
       throw new EntityNotFoundException("personOrInstitutionNotFound")
@@ -150,9 +155,9 @@ class UserResource(private val authRepo: AuthRepo) {
   def resetPassword(@PathParam("passwordChangeUUID") passwordChangeUUID: String, password: String) = {
     val person = authRepo.getPersonByPasswordChangeUUID(passwordChangeUUID)
     if (person.isDefined) {
-      PersonRepo(person.get.getUUID).updatePassword(person.get.getUUID, password)
+      PersonRepo(person.get.getUUID).setPassword(password, false)
 
-      //log entity change
+      //log entity change 
       EventsRepo.logEntityChange(person.get.getInstitutionUUID, AuditedEntityType.password, person.get.getUUID, null, null, person.get.getUUID)
 
       val user = newUserInfoTO
@@ -173,13 +178,10 @@ class UserResource(private val authRepo: AuthRepo) {
         throw new UnauthorizedAccessException("passwordChangeDenied")
       else {
         val targetPersonRepo = PersonRepo(targetPersonUUID)
-        val person = targetPersonRepo.get
-        val username = authRepo.getUsernameByPersonUUID(targetPersonUUID).getOrElse(person.getEmail)
-
-        targetPersonRepo.setPassword(person.getInstitutionUUID, username, password)
+        targetPersonRepo.setPassword(password, true)
 
         //log entity change
-        EventsRepo.logEntityChange(person.getInstitutionUUID, AuditedEntityType.password, targetPersonUUID, null, null)
+        EventsRepo.logEntityChange(targetPersonRepo.get.getInstitutionUUID, AuditedEntityType.password, targetPersonUUID, null, null)
 
       }
     }

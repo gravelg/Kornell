@@ -26,6 +26,7 @@ import kornell.gui.client.event.HideSouthBarEvent;
 import kornell.gui.client.presentation.vitrine.VitrinePlace;
 import kornell.gui.client.sequence.Sequencer;
 import kornell.gui.client.sequence.SequencerFactory;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.LoadingPopup;
 import kornell.scorm.client.scorm12.SCORM12Runtime;
@@ -33,6 +34,7 @@ import kornell.scorm.client.scorm12.SCORM12Runtime;
 public class ClassroomPresenter implements ClassroomView.Presenter {
 	
 	private static KornellConstants constants = GWT.create(KornellConstants.class);
+	private static final String PREFIX = ClientProperties.PREFIX + "Classroom";
 
 	private ClassroomView view;
 	private ClassroomPlace place;
@@ -86,6 +88,11 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 	}
 
 	private void courseClassFetched(CourseClassTO courseClassTO) {
+		
+        ClientProperties.set(PREFIX + ClientProperties.SEPARATOR + session.getCurrentUser().getPerson().getUUID()
+                + ClientProperties.SEPARATOR + ClientProperties.CURRENT_ENROLLMENT,
+        		courseClassTO.getEnrollment().getUUID());
+		
 		Enrollment enrollment = courseClassTO != null ? courseClassTO.getEnrollment() : null;
 		boolean isEnrolled = enrollment != null && EnrollmentState.enrolled.equals(enrollment.getState());
 		if(enrollment == null){
@@ -123,7 +130,8 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 	
 				private void loadContents(final String enrollmentUUID, final Contents contents) {
 					// check if user has a valid enrollment to this course
-					GenericClientFactoryImpl.EVENT_BUS.fireEvent(new HideSouthBarEvent());
+					boolean shouldHideSouthBar = (session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null);
+					GenericClientFactoryImpl.EVENT_BUS.fireEvent(new HideSouthBarEvent(shouldHideSouthBar));
 					setContents(contents);
 					view.display(showCourseClassContent);	
 					view.asWidget().setVisible(true);

@@ -252,6 +252,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	private void createCourseVersionsField(CourseVersionsTO to) {
 		final ListBox courseVersions = new ListBox();
 		if(to != null){
+			courseVersions.addItem("Nenhuma", "null");
 			for (CourseVersion courseVersion : to.getCourseVersions()) {
 				courseVersions.addItem(courseVersion.getName(), courseVersion.getUUID());
 			}
@@ -263,7 +264,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 			courseVersionFields.getElement().removeChild(parentCourseVersion.getElement());
 		}
 		if (!isCreationMode) {
-			courseVersions.setSelectedValue(courseVersion.getParentVersionUUID());
+			courseVersions.setSelectedValue(courseVersion.getParentVersionUUID() == null? "null" : courseVersion.getParentVersionUUID());
 		}
 		parentCourseVersion = new KornellFormFieldWrapper("Versão Pai do Curso", new ListBoxFormField(courseVersions), (isCreationMode || isInstitutionAdmin));
 		
@@ -350,7 +351,8 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		version.setContentSpec(ContentSpec.valueOf(contentSpec.getFieldPersistText()));
 		version.setDisabled(disabled.getFieldPersistText().equals("true"));
 		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
-			version.setParentVersionUUID(parentCourseVersion.getFieldPersistText());
+			String parentVersionUUID = (parentCourseVersion.getFieldPersistText().equals("null") ? null : parentCourseVersion.getFieldPersistText());
+			version.setParentVersionUUID(parentVersionUUID);
 			version.setInstanceCount(instanceCount.getFieldPersistText().length() > 0 ?
 					Integer.parseInt(instanceCount.getFieldPersistText()) :
 						null);

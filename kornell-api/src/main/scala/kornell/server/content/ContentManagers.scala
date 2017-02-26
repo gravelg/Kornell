@@ -28,7 +28,7 @@ object ContentManagers {
   lazy val USER_CONTENT_URL = mkurl("https://s3.amazonaws.com", USER_CONTENT_BUCKET, "") 
   
   def certsRepo(institutionUUID:String) = 
-    Entities.newContentRepository(null, RepositoryType.S3, null, null, USER_CONTENT_BUCKET, "usercontent/certificates", USER_CONTENT_REGION, institutionUUID, null)
+    Entities.newContentRepository(null, RepositoryType.S3, USER_CONTENT_ACCESS_KEY.getOpt.getOrElse(null), USER_CONTENT_SECRET_ACCESS_KEY.getOpt.getOrElse(null), USER_CONTENT_BUCKET, "usercontent/certificates", USER_CONTENT_REGION, institutionUUID, null)
   
   def forCertificates(institutionUUID:String): SyncContentManager = new S3ContentManager(certsRepo(institutionUUID))
   

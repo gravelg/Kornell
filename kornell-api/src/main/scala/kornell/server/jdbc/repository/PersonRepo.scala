@@ -19,16 +19,6 @@ import kornell.core.error.exception.EntityConflictException
 
 class PersonRepo(val uuid: String) {
 
-  def setPassword(institutionUUID: String, username: String, password: String): PersonRepo = {
-    AuthRepo().setPlainPassword(institutionUUID, uuid, username, password)
-    PersonRepo.this
-  }
-  
-  def updatePassword(personUUID: String, plainPassword: String, disableForceUpdatePassword: Boolean = false): PersonRepo = {
-    AuthRepo().updatePassword(personUUID, plainPassword, disableForceUpdatePassword)
-    PersonRepo.this
-  }
-
   def get: Person = first.get
 
   def first: Option[Person] = PeopleRepo.getByUUID(uuid)
@@ -47,8 +37,19 @@ class PersonRepo(val uuid: String) {
     PersonRepo.this
   }
 
+  def setPassword(password: String, forcePasswordUpdate: Boolean = false): PersonRepo = {
+    val username = AuthRepo().getUsernameByPersonUUID(uuid).getOrElse(get.getEmail)
+    AuthRepo().setPlainPassword(get.getInstitutionUUID, uuid, username, password, forcePasswordUpdate)
+    PersonRepo.this
+  }
+  
+  def updatePassword(personUUID: String, plainPassword: String, disableForceUpdatePassword: Boolean = false): PersonRepo = {
+  	AuthRepo().updatePassword(personUUID, plainPassword, disableForceUpdatePassword)
+    PersonRepo.this
+  }
+
   def hasPassword(institutionUUID: String): Boolean = {
-    var sql = s"select count(*) from Person p join Password pw on pw.person_uuid = p.uuid where p.uuid = '${uuid}' and p.institutionUUID = '${institutionUUID}'"
+    var sql = s"select count(*) from Person p join Password pw on pw.person_uuid = p.uuid where p.uuid = '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null"
     val pstmt = new PreparedStmt(sql,List())    
     val result = pstmt.get[Boolean]
     result
@@ -58,7 +59,7 @@ class PersonRepo(val uuid: String) {
   //TODO: Better dynamic queries
   //TODO: Teste BOTH args case!!
   def isRegistered(institutionUUID: String, cpf: String,email:String): Boolean = {
-    var sql = s"select count(*) from Person p left join Password pw on pw.person_uuid = p.uuid where p.uuid != '${uuid}' and p.institutionUUID = '${institutionUUID}' "
+    var sql = s"select count(*) from Person p left join Password pw on pw.person_uuid = p.uuid where p.uuid != '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null "
     if (isSome(cpf)) {
       sql = sql + s"and (p.cpf = '${digitsOf(cpf)}' or pw.username = '${digitsOf(cpf)}')";
     }

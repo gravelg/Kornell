@@ -17,9 +17,14 @@ import kornell.core.entity.ChatThread
 import kornell.server.util.Settings._
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.logging.Logger
+import java.util.logging.Level
+import kornell.core.util.StringUtils
 
 
 object EmailService {
+  
+  val logger = Logger.getLogger("kornell.server.email")
   
   def sendEmailBatchEnrollment(person: Person, institution: Institution, courseClass: CourseClass) = {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
@@ -171,7 +176,12 @@ object EmailService {
     }
   }
   
-  private def getFromEmail(institution: kornell.core.entity.Institution):String = SMTP_FROM.get
+  private def getFromEmail(institution: kornell.core.entity.Institution):String = {
+    if (StringUtils.isSome(institution.getInstitutionSupportEmail))
+      institution.getInstitutionSupportEmail
+    else
+      SMTP_FROM.get
+  }
   
   
   private def wrapBody(bodyText: String) = 
@@ -191,17 +201,21 @@ object EmailService {
   private def getInstitutionLogoImage(institution: Institution): java.io.File = {
     val logoImageName: String = "logo300x80.png"
     val tempDir: Path = Paths.get(System.getProperty("java.io.tmpdir"))
-    val imgPath = tempDir.resolve(institution.getFullName + "-" + logoImageName)
+    val imgPath = tempDir.resolve(institution.getUUID + "-" + logoImageName)
     val imgFile: File = imgPath.toFile()
     
     val purgeTime = System.currentTimeMillis - (1 * 24 * 60 * 60 * 1000) //one day
     if(imgFile.lastModified < purgeTime && !imgFile.delete)
-      System.err.println("Unable to delete file: " + imgFile)
+      logger.warning("Unable to delete file: " + imgFile)
       
     if (!imgFile.exists) {
       //TODO: Use ContentStore API
-      val url = new URL(mkurl(institution.getBaseURL, "repository", institution.getAssetsRepositoryUUID, logoImageName))      
-      FileUtils.copyURLToFile(url, imgFile)
+      val url = new URL(mkurl(institution.getBaseURL, "repository", institution.getAssetsRepositoryUUID, logoImageName))
+      try {
+        FileUtils.copyURLToFile(url, imgFile)
+      } catch {
+        case e: Exception => logger.log(Level.SEVERE, "Cannot copy institution logo ", e)
+      }
     }
     imgFile
   }
@@ -210,7 +224,7 @@ object EmailService {
     """
 		<div style="width: 300px;margin: 0 auto;margin-bottom: 50px;margin-top: 50px;text-align: center;display: block;height: auto;">
 			<a href="""" + actionLink + """" target="_blank" style="text-decoration: none;">
-				<div style="display: block;width: 220px;height: 30px;line-height: 28px;margin-right: 30px;text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);font-size: 14px;font-weight: bold;color: #e9e9e9;border-radius: 5px;display: block;border: 0px;background: #9b020a;background: -moz-linear-gradient(top, #9b020a 0%, #4b0105 100%);background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #9b020a), color-stop(100%, #4b0105));background: -webkit-linear-gradient(top, #9b020a 0%, #4b0105 100%);background: -o-linear-gradient(top, #9b020a 0%, #4b0105 100%);background: -ms-linear-gradient(top, #9b020a 0%, #4b0105 100%);background: linear-gradient(to bottom, #9b020a 0%, #4b0105 100%);filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@colorStart', endColorstr='@colorEnd',GradientType=0 );margin: 0 auto;">""" + actionButtonText + """</div>
+				<div style="display: block;width: 220px;height: 30px;line-height: 28px;margin-right: 30px;text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);font-size: 14px;font-weight: bold;color: #e9e9e9;border-radius: 5px;display: block;border: 0px;background: #4c4f54;background: -moz-linear-gradient(top, #4c4f54 0%, #252629 100%);background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c4f54), color-stop(100%, #252629));background: -webkit-linear-gradient(top, #4c4f54 0%, #252629 100%);background: -o-linear-gradient(top, #4c4f54 0%, #252629 100%);background: -ms-linear-gradient(top, #4c4f54 0%, #252629 100%);background: linear-gradient(to bottom, #4c4f54 0%, #252629 100%);filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4c4f54', endColorstr='#252629',GradientType=0 );margin: 0 auto;">""" + actionButtonText + """</div>
 			</a>
 		</div>
 	"""

@@ -132,21 +132,66 @@
 		}
 	}
 }
-/*@media screen and (max-width: @wrapperWidth) {
-	.pnlCourses { 
-		@wrapperWidth: @wrapperWidthUnder990;
-		width: @wrapperWidth;
-		.courseSummary {
-			.ellipsis { 
-				margin-bottom: 0px;
-			}
-		}
-		.courseSummary {
-		width: @wrapperWidth !important;
-			//width: 314px !important;
-			.description {
-				overflow: hidden;
+
+
+@media screen and (max-width: @wrapperWidth) {
+	.welcomePanel {
+		width: 100%;
+		.coursesWrapper {
+			.pnlCourses {
+				width: 100%;
+				.courseSummary {
+					width: auto;
+					height: auto;
+					.thumbWrapper {
+						float: left;
+					    width: 100%;
+					    text-align: center;
+					    margin: 0;
+					    .thumb {
+					    	margin-bottom: 20px;
+						    margin-left: auto;
+						    margin-right: auto;
+						    float: none;
+					    }
+					}
+					.courseSummaryBar {
+						.progress{
+							width: 210px;
+						}
+						.profileSeparatorBar {
+							width: @wrapperWidth;
+						}
+					}
+				}
 			}
 		}
 	}
-}*/
+}
+
+
+@media screen and (min-width: 500px) and (max-width: @wrapperWidth) {
+	.welcomePanel {
+		width: 100%;
+		.coursesWrapper {
+			.pnlCourses {
+				width: 100%;
+				.courseSummary {
+					width: auto;
+					height: auto;
+					.thumbWrapper {
+						width: auto;
+					    .thumb {
+					    	margin-bottom: 0px;
+					    }
+					}
+					.details {    
+						width: ~"calc(100% - 150px)";
+					    float: left;
+					    margin-left: 15px;
+					}
+				}
+			}
+		}
+	}
+}

@@ -47,7 +47,7 @@
 			&:not(.btnAction):not(.disabled):hover{
 				.gradient (@barGradientEndColor, @barGradientEndColor);
 			}
-			.label{
+			.activityBarButtonItem{
 				background: transparent;
 				color: @niceTextColor;
 				font-size: 11px;
@@ -76,7 +76,7 @@
 			margin-left: 288px;
 		}
 		.disabled {
-			.label{
+			.activityBarButtonItem{
 				color: darken(@niceTextColor, 30%);
 			}
 			.btnPanel{
@@ -134,7 +134,9 @@
 					}
 				}
 			}
-
+			.firstMonoSCO{
+				margin-left: 0px;
+			}
 		}
 	}
 }
@@ -305,6 +307,9 @@
 		.centerBar{
     		width: @wrapperWidthUnder990;
     		.separator, .subtitle {
+    			display: none;
+    		}
+    		.btnPanel{
     			display: none;
     		}
 		}

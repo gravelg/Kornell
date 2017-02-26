@@ -116,7 +116,14 @@ object ReportCertificateGenerator {
     	return null
     }
     val parameters: HashMap[String, Object] = new HashMap()
-    parameters.put("assetsURL", certificateDetails.getBgImage)
+
+    //parameters.put("assetsURL", certificateDetails.getBgImage)
+
+    val institutionURL: String = composeURL(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/"
+    parameters.put("institutionURL", institutionURL)
+    
+    val assetsURL: String = composeURL(institutionURL, certificateData.head.getDistributionPrefix, "/classroom/reports") + "/"
+    parameters.put("assetsURL", assetsURL) 
 	  
     val cl = Thread.currentThread.getContextClassLoader
     val stream = cl.getResourceAsStream(certificateDetails.getCertificateType.getPath)

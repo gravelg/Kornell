@@ -1,6 +1,6 @@
-@import "../../utils/mixins";
-@import "../../utils/colors";
-@import "../../utils/forms";
+@import "../utils/mixins";
+@import "../utils/colors";
+@import "../utils/forms";
 
 .detailsPanel{
     width: @wrapperWidth;
@@ -89,6 +89,7 @@
 			width: @infoPanelWidth;
 			margin-top: @detailsPanelMargin;
 			float: left;
+			margin-bottom: 20px;
 			.infoDetails{
 				margin-top: @detailsPanelMargin;
 				.infoTitle{
@@ -145,6 +146,7 @@
 			width: @topicsPanelWidth;
 			margin-top: @detailsPanelMargin * 1.5;
 			float: left;
+			margin-bottom: 20px;
 			.topicsHeaderPanel{
 				@topicsHeaderPanelHeight: 24px;
 				height: @topicsHeaderPanelHeight;
@@ -360,10 +362,6 @@
 				}
 			}
 		}
-		.libraryPanel{
-			float: left;
-			margin-top: 20px;
-		}
 		.detailsInfo{
 			width: @rightPanelWidth;
 			margin-top: @detailsPanelMargin;
@@ -382,8 +380,117 @@
 	}
 }
 
+.libraryPanel{
+	float: left;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	@libraryPanelMargin: 20px;
+	@buttonsPanelWidth: .18 * @wrapperWidth;
+	@filesPanelWidth: .75 * @wrapperWidth;
+	@fileIconWidth: .09 * @filesPanelWidth - @libraryPanelMargin;
+	@pnlFileNameWidth: .60 * @filesPanelWidth - @libraryPanelMargin;
+	@fileSizeWidth: .11 * @filesPanelWidth - @libraryPanelMargin;
+	@publishingDateWidth: .19 * @filesPanelWidth - @libraryPanelMargin;
 
-/*@media screen and (max-width: @wrapperWidth) {
+	.buttonsPanel{
+		width: @buttonsPanelWidth;
+		margin-left: @libraryPanelMargin;
+		margin-right: @libraryPanelMargin;
+		float: left;
+		.btnLibrary{
+			width: @buttonsPanelWidth - (@libraryPanelMargin * 2);
+			font-size: 14px;
+			text-align: right;
+			margin-top: @libraryPanelMargin;
+			padding: 4px 12px;
+			border-radius: 8px;
+			display: inline-block;
+			&:hover{
+				text-decoration: none;
+			}
+			.btnTitle{
+				font-weight: bold;
+				color: @plainTextColor;
+				height: 60px;
+				line-height: 60px;
+			}
+		}
+
+	}	
+	.filesPanel{
+		width: @filesPanelWidth - 7px;
+		float: left;
+		.filesHeader{
+			.btnLibraryHeader{
+				border: 0;
+				border-radius: 0px !important;
+				text-align: left;
+				color: @niceTextColor;
+				padding-left: @libraryPanelMargin / 4;
+				font-size: 12px;
+				font-weight: bold;
+				border-left: 1px solid @buttonBorderLeftColor !important;
+				border-right: 1px solid @buttonBorderRightColor !important;
+				float: left;
+				margin-bottom: 10px;
+			}
+			.btnIcon{width: @fileIconWidth + @libraryPanelMargin;}
+			.btnName{width: @pnlFileNameWidth + @libraryPanelMargin;}
+			.btnSize{width: @fileSizeWidth + @libraryPanelMargin;}
+			.btnPublishingDate{width: @publishingDateWidth + @libraryPanelMargin;}
+		}
+		.filesWrapper{
+			clear: both;
+			.fileWrapper{
+				@fileWrapperHeight: 70px;
+				height: @fileWrapperHeight;
+				line-height: @fileWrapperHeight;
+				background-color: @contentBoxBackgroundColor;
+				margin-top: @libraryPanelMargin / 2;
+				color: @niceTextColor;
+				font-size: 13px;
+				.fileIcon{
+					float: left;
+					padding: 15px 10px;
+				}
+				.pnlFileName{
+					float: left;
+					width: @pnlFileNameWidth;
+					height: @fileWrapperHeight - @libraryPanelMargin;
+					padding: @libraryPanelMargin / 2;
+					.fileName{
+						line-height: 26px;
+						overflow: hidden;
+						width: @pnlFileNameWidth;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+					.fileDescription{
+						color: @textHighlightDiscreteColor;
+						font-size: 10px;
+						line-height: 12px;
+					}
+				}
+				.fileSize{
+					float: left;
+					width: @fileSizeWidth;
+					padding-left: @libraryPanelMargin / 2;
+					padding-right: @libraryPanelMargin / 2;
+				}
+				.publishingDate{
+					float: left;
+					width: @publishingDateWidth;
+					padding-left: @libraryPanelMargin / 2;
+					padding-right: @libraryPanelMargin / 2;
+				}
+			}
+		}
+	}
+}
+
+
+
+@media screen and (max-width: @wrapperWidth) {
 	.detailsPanel{
 		@detailsPanelWidth: @wrapperWidthUnder990 - 18px;
 		@buttonsPanelWidth: @detailsPanelWidth;
@@ -392,43 +499,95 @@
 		@hintsPanelWidth: @detailsPanelWidth * 2 / 3;
 		@rightPanelWidth: .85 * @wrapperWidthUnder990;
 		@detailsPanelMargin: 10px;
-		width:	@detailsPanelWidth;
-		.buttonsPanel{
-			width: @buttonsPanelWidth - 17px;
-			margin-left: 17px;
-			margin-right: 0px;
-			margin-top: @detailsPanelMargin;
-			.btnDetails{
-				width: @buttonsPanelWidth / 4;
-				margin-left: @detailsPanelMargin;
-				text-align: center;
+		width:	auto;
+		.titlePanel{
+			.titleImage{
+				height: 20px;
+    			width: 20px;
+			}
+			.titleLabel{
+				font-size: 13px
+			}
+			.courseNameLabel{
+				font-size: 13px;
+				padding-left: 53px;
+				clear: both;
+			}
+			.subTitleLabel{
+				font-size: 11px;
+				margin-left: 45px;
+			}
+			.courseClassNameLabel{
+				font-size: 10px;
 			}
 		}
-		.contentPanel{
+		.buttonsPanel{
+			width: auto;
+			margin-left: 5px;
+			margin-right: 20px;
+			margin-top: @detailsPanelMargin;
+			.btnDetails{
+				width: 70px;
+				margin-left: 5px;
+				text-align: center;
+				margin-top: 7px;
+				.btnTitle{
+					line-height: 15px;
+					font-size: 10px;
+				}
+				.btnLabel{
+					display: none;
+				}
+			}
+			.btnChat{
+				display: none;
+			}
+		}
+		.detailsContentPanel{
 			.infoPanel{
 				margin-left: @detailsPanelMargin;
-				width:  .85 * @wrapperWidthUnder990;
+				width: auto;
+				padding: 0px 15px;
+				margin-bottom: -20px;
 			}
-			.hintsPanel{
-				width: @hintsPanelWidth;
-				margin-top: @detailsPanelMargin; 
-				margin-bottom: @detailsPanelMargin * 3;
-				margin-right: @detailsPanelMargin * 3;
-				margin-left: @detailsPanelMargin * 3;
+			.sidePanel{
+				.hintsPanel{
+					width: auto;
+					margin-top: @detailsPanelMargin; 
+					margin-bottom: @detailsPanelMargin * 3;
+					margin-right: @detailsPanelMargin * 3;
+					margin-left: 10px;
+				}
 			}
 			.topicsPanel{
-				width: @topicsPanelWidth + @detailsPanelMargin + 2px;
+				width: ~"calc(100% - 20px)";
 				padding-left: @detailsPanelMargin / 2;
 				padding-right: @detailsPanelMargin / 2;
-				margin-left: 35px;
-				.topicsHeaderPanel{
-					.btnTopicsHeader{width: @topicsPanelWidth}
-					.btnForumComments{display: none}
-					.btnNotes{display: none}
-				}					
+				margin-left: 5px;
 				.topicWrapper{
-					.pnlForumComments{display: none}
-					.lblNotes{display: none}
+					width: auto;
+					height: auto;
+					min-height: 30px;
+					.identImage {
+						display: none;
+					}
+					.topicPanel{
+						width: 100% !important;
+						float: none;
+						.lblTopic{
+							float: none;
+							padding-left: 35px;
+							font-size: 12px;
+						}
+					}
+				}
+				.pageWrapper{
+					margin-left: 15px;
+					.topicPanel{
+						.lblTopic{
+							font-size: 10px;
+						}
+					}
 				}
 			}
 
@@ -438,21 +597,23 @@
 			@actionsWidth: .18 * @rightPanelWidth - (@detailsPanelMargin * 2) - 2px;
 			.certificationPanel{
 				margin-left: @detailsPanelMargin;
-				.certificationInfo{
-					width: @rightPanelWidth;
+				.detailsInfo{
+					width: auto;
 				}
 				.certificationHeaderPanel{
-					.btnItem{width: @itemWidth + @detailsPanelMargin;}
-					.btnStatus{width: @statusWidth + @detailsPanelMargin;}
-					.btnGrade{width: @gradeWidth + @detailsPanelMargin;}
-					.btnActions{width: @actionsWidth + @detailsPanelMargin;}
+					.btnItem{width: 115px;}
+					.btnStatus{display: none;}
+					.btnGrade{width: 24px;}
+					.btnActions{width: 83px;}
 				}
 				.certificationWrapper{
+					width: 285px;
 					.itemPanel{
-						width: @itemWidth + @detailsPanelMargin + 2px;
+						width: 115px;
 						.certificationIcon{
 						}
 						.lblName{
+							font-size: 12px;
 							line-height: 54px;
 						}
 						.lblDescription{
@@ -460,7 +621,7 @@
 						}
 					}
 					.lblStatus{
-						width: @statusWidth + @detailsPanelMargin + 2px;
+						display: none;
 					}
 					.lblGrade{
 						width: @gradeWidth + @detailsPanelMargin + 2px;
@@ -470,7 +631,68 @@
 					}
 				}
 			}
+
+			.libraryPanel{
+				clear: both;
+				width: 300px;
+				.detailsInfo{
+					width: auto;
+					padding: 0px 15px;
+				}
+				.filesPanel{
+					width: auto;
+					margin-left: 10px;
+					.filesHeader{
+						.btnIcon{
+							width: 45px;
+							border-radius: 2px!important;
+    						float: left;
+						}
+						.btnName{
+							width: 245px;
+							border-radius: 2px!important;
+    						float: left;
+						}
+						.btnSize{
+							display: none;
+						}
+						.btnPublishingDate{
+							display: none;
+						}
+					}
+					.filesWrapper{
+						.fileWrapper{
+							 float: left;
+							.fileIcon{
+								width: 24px;
+								padding: 20px 20px 20px 12px;
+								float: left;
+							}
+							.pnlFileName{
+								width: 210px;
+								float: left;
+								color: white;
+								.fileName{
+									width: auto;
+									font-size: 12px;
+								}
+								.fileDescription{
+									font-size: 10px;
+								}
+							}
+							.fileSize{
+								display: none;
+							}
+							.publishingDate{
+								display: none;
+							}
+						}
+					}
+				}
+			}
 		}	
 	}
-}*/
+}
+
+
 

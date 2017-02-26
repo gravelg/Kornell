@@ -29,6 +29,7 @@ import kornell.core.entity.CourseClassState;
 import kornell.core.entity.Enrollment;
 import kornell.core.entity.EnrollmentProgress;
 import kornell.core.entity.EnrollmentProgressDescription;
+import kornell.core.entity.EnrollmentSource;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.entity.EntityFactory;
 import kornell.core.to.CourseClassTO;
@@ -124,7 +125,7 @@ public class GenericCourseSummaryView extends Composite {
 	}
 
 	private void onEnrolledOrNot() {
-		imgThumb.setUrl(StringUtils.mkurl("/",courseClassTO.getCourseVersionTO().getDistributionURL(),courseClassTO.getCourseVersionTO().getCourseVersion().getDistributionPrefix(),"/images/thumb.jpg"));
+		imgThumb.setUrl(StringUtils.mkurl("/",courseClassTO.getCourseVersionTO().getDistributionURL(),courseClassTO.getCourseVersionTO().getCourseVersion().getDistributionPrefix(),"/classroom/images/thumb.jpg"));
 		imgIconCourse.setUrl(iconCourseURL);
 
 		sinkEvents(Event.ONCLICK);
@@ -145,7 +146,8 @@ public class GenericCourseSummaryView extends Composite {
 	}
 
 	private void onNotEnrolled() {
-		Button requestEnrollmentBtn = getRequestEnrollmentButton();
+		Button requestEnrollmentBtn = new Button(courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically() ? constants.startCourseLabel() : constants.requestEnrollmentLabel());
+		requestEnrollmentBtn.addStyleName("right btnAction");
 		pnlCourseSummaryBar.add(requestEnrollmentBtn);
 
 		pStatus.setText(constants.availableClassLabel());
@@ -207,19 +209,6 @@ public class GenericCourseSummaryView extends Composite {
 		iconCourseURL = mkurl(ICON_COURSE_URL, "iconFinished.png");
 	}
 
-	private Button getRequestEnrollmentButton() {
-		Button requestEnrollmentBtn = new Button(courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically() ? constants.startCourseLabel() : constants.requestEnrollmentLabel());
-		requestEnrollmentBtn.addStyleName("right btnAction");
-
-		requestEnrollmentBtn.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				requestEnrollment();
-			}
-		});
-		return requestEnrollmentBtn;
-	}
-
 	private void requestEnrollment() {
 		EntityFactory entityFactory = GWT.create(EntityFactory.class);
 		Enrollment enrollment = entityFactory.enrollment().as();
@@ -227,6 +216,7 @@ public class GenericCourseSummaryView extends Composite {
 				.getUUID());
 		enrollment.setPersonUUID(session.getCurrentUser().getPerson().getUUID());
 		enrollment.setState(courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically() ? EnrollmentState.enrolled : EnrollmentState.requested);
+		enrollment.setEnrollmentSource(EnrollmentSource.WEBSITE);
 		session.enrollments().createEnrollment(enrollment,
 				new Callback<Enrollment>() {
 					@Override

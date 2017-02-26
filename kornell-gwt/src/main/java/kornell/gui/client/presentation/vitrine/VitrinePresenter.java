@@ -99,7 +99,7 @@ public class VitrinePresenter implements VitrineView.Presenter {
 				logger.info(this.getClass().getName() + " - " + KornellConstantsHelper.getErrorMessage(kornellErrorTO));
 				view.setForcedPasswordUpdate(true);
 				view.displayView(VitrineViewType.newPassword);
-				view.setMessage(KornellConstantsHelper.getMessage("forcedPasswordChange"));
+				view.setMessage(KornellConstantsHelper.getMessage("forcedPasswordChange"), AlertType.SUCCESS);
 				view.showMessage();
 			}
 		};
@@ -236,6 +236,15 @@ public class VitrinePresenter implements VitrineView.Presenter {
 
 	@Override
 	public void onRequestPasswordChangeButtonClicked() {
+
+		view.hideMessage();
+		if(StringUtils.isNone(view.getFpEmail().trim())){
+			view.setMessage(KornellConstantsHelper.getMessage("invalidEmail"));
+			view.showMessage();
+			return;
+		}
+		
+		
 		session.user().requestPasswordChange(
 				view.getFpEmail().toLowerCase().trim(),
 				session.getInstitution().getName(),
@@ -245,6 +254,7 @@ public class VitrinePresenter implements VitrineView.Presenter {
 						view.displayView(VitrineViewType.login);
 						KornellNotification
 								.show(KornellConstantsHelper.getMessage("requestPasswordReset"));
+						view.hideMessage();
 					}
 
 					@Override

@@ -78,7 +78,7 @@ class ReportResource {
     	throw new UnauthorizedAccessException("unauthorizedAccessReport")
     else {
       try {
-        var filename = p.getUUID + courseClassUUID + ".pdf"
+        val filename = p.getUUID + courseClassUUID + ".pdf"
         //S3.certificates.delete(filename)
         val people = peopleTO.getSimplePeopleTO
         val enrollmentUUIDs = {
@@ -109,7 +109,8 @@ class ReportResource {
             "application/pdf",
             "Content-Disposition: attachment; filename=\"" + filename + ".pdf\"",
             Map("certificatedata" -> "09/01/1980", "requestedby" -> p.getFullName()),filename)
-           mkurl(ContentManagers.USER_CONTENT_URL, repo.url(filename)) 
+           
+            mkurl(InstitutionRepo(p.getInstitutionUUID).get.getBaseURL, ContentManagers.forCertificates(p.getInstitutionUUID).url(filename)) 
         }
       } catch {
         case e: Exception =>
@@ -122,9 +123,8 @@ class ReportResource {
   @Path("courseClassCertificateExists")
   def fileExists(@QueryParam("courseClassUUID") courseClassUUID: String) = AuthRepo().withPerson { p =>
     try {
-      var filename = p.getUUID + courseClassUUID + ".pdf"
-      
-      val url = mkurl(ContentManagers.USER_CONTENT_URL, ContentManagers.forCertificates(p.getInstitutionUUID).url(filename)) 
+      val filename = p.getUUID + courseClassUUID + ".pdf"
+      val url = mkurl(InstitutionRepo(p.getInstitutionUUID).get.getBaseURL, ContentManagers.forCertificates(p.getInstitutionUUID).url(filename)) 
 
       HttpURLConnection.setFollowRedirects(false);
       val con = new URL(url).openConnection.asInstanceOf[HttpURLConnection]
@@ -168,7 +168,8 @@ class ReportResource {
 	  }
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseUUID, courseClassUUID)), AccessDeniedErr())
      .or(isInstitutionAdmin(getInstitutionUUID(courseUUID, courseClassUUID)), AccessDeniedErr())
-     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr()).get
+     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr())
+     .or(isCourseClassObserver(courseClassUUID), AccessDeniedErr()).get
      
   def getInstitutionUUID(courseUUID: String, courseClassUUID: String) = {
     if(courseUUID != null){

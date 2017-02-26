@@ -114,7 +114,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	private Institution institution;
 	private ContentRepository repo;
 
-	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, useEmailWhitelist, timeZone, skin;
+	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, useEmailWhitelist, timeZone, skin, institutionSupportEmail;
 	
 	private List<KornellFormFieldWrapper> fields;
 	private GenericInstitutionReportsView reportsView;
@@ -330,6 +330,17 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 		});
 
 		if(isPlatformAdmin){
+			useEmailWhitelist = new KornellFormFieldWrapper("Configurar domínios para emails?", formHelper.createCheckBoxFormField(institution.isUseEmailWhitelist()), isInstitutionAdmin);
+			fields.add(useEmailWhitelist);
+			institutionFields.add(useEmailWhitelist);
+			((CheckBox)useEmailWhitelist.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
+					if(event.getValue()){
+					}
+				}
+			});
+			
 			allowRegistrationByUsername = new KornellFormFieldWrapper("Permitir Registro por Usuário", formHelper.createCheckBoxFormField(institution.isAllowRegistrationByUsername()), isPlatformAdmin);
 			fields.add(allowRegistrationByUsername);
 			institutionFields.add(allowRegistrationByUsername);
@@ -341,17 +352,6 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 				}
 			});
 		}
-
-		useEmailWhitelist = new KornellFormFieldWrapper("Configurar domínios para emails?", formHelper.createCheckBoxFormField(institution.isUseEmailWhitelist()), isInstitutionAdmin);
-		fields.add(useEmailWhitelist);
-		institutionFields.add(useEmailWhitelist);
-		((CheckBox)useEmailWhitelist.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				if(event.getValue()){
-				}
-			}
-		});
 		
 		terms = new KornellFormFieldWrapper("Termos de Uso", formHelper.createTextAreaFormField(institution.getTerms(), 20), isInstitutionAdmin);
 		terms.addStyleName("heightAuto");
@@ -369,35 +369,37 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 		institutionFields.add(timeZone);
 
 
-		if(isPlatformAdmin){
-			final ListBox skins = formHelper.getSkinsList();
-			if(institution.getSkin() != null){
-				skins.setSelectedValue(institution.getSkin());
-			} else {
-				skins.setSelectedValue("");
-			}
-			skin = new KornellFormFieldWrapper("Tema visual", new ListBoxFormField(skins), isInstitutionAdmin);
-			fields.add(skin);
-			institutionFields.add(skin);
-			((ListBox)skin.getFieldWidget()).addChangeHandler(new ChangeHandler() {
-				@Override
-				public void onChange(ChangeEvent event) {
-					Dean.showContentNative(false);
-
-					Callback<Void, Exception> callback = new Callback<Void, Exception>() {
-						public void onFailure(Exception reason) {
-							Window.Location.reload();
-						}
-
-						public void onSuccess(Void result) {
-							Dean.showContentNative(true);
-						}
-					};
-					
-					CSSInjector.updateSkin(skin.getFieldPersistText(), callback);
-				}
-			});
+		final ListBox skins = formHelper.getSkinsList();
+		if(institution.getSkin() != null){
+			skins.setSelectedValue(institution.getSkin());
+		} else {
+			skins.setSelectedValue("");
 		}
+		skin = new KornellFormFieldWrapper("Tema visual", new ListBoxFormField(skins), isPlatformAdmin);
+		fields.add(skin);
+		institutionFields.add(skin);
+		((ListBox)skin.getFieldWidget()).addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				Dean.showContentNative(false);
+
+				Callback<Void, Exception> callback = new Callback<Void, Exception>() {
+					public void onFailure(Exception reason) {
+						Window.Location.reload();
+					}
+
+					public void onSuccess(Void result) {
+						Dean.showContentNative(true);
+					}
+				};
+				
+				CSSInjector.updateSkin(skin.getFieldPersistText(), callback);
+			}
+		});
+		
+		institutionSupportEmail = new KornellFormFieldWrapper("E-mail de suporte", formHelper.createTextBoxFormField(institution.getInstitutionSupportEmail()), isPlatformAdmin);
+		fields.add(institutionSupportEmail);
+		institutionFields.add(institutionSupportEmail);
 		
 		institutionFields.add(formHelper.getImageSeparator());
 
@@ -445,14 +447,15 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 		institution.setDemandsPersonContactDetails(demandsPersonContactDetails.getFieldPersistText().equals("true"));
 		institution.setValidatePersonContactDetails(validatePersonContactDetails.getFieldPersistText().equals("true"));
 		institution.setAllowRegistration(allowRegistration.getFieldPersistText().equals("true"));
-		institution.setUseEmailWhitelist(useEmailWhitelist.getFieldPersistText().equals("true"));
 		institution.setTimeZone(timeZone.getFieldPersistText());
-		institution.setSkin(skin.getFieldPersistText());
 		if(isPlatformAdmin){
 			institution.setAssetsRepositoryUUID(assetsRepositoryUUID.getFieldPersistText());
 			institution.setBillingType(BillingType.valueOf(billingType.getFieldPersistText()));
 			institution.setInstitutionType(InstitutionType.valueOf(institutionType.getFieldPersistText()));
 			institution.setAllowRegistrationByUsername(allowRegistrationByUsername.getFieldPersistText().equals("true"));
+			institution.setUseEmailWhitelist(useEmailWhitelist.getFieldPersistText().equals("true"));
+			institution.setSkin(skin.getFieldPersistText());
+			institution.setInstitutionSupportEmail(institutionSupportEmail.getFieldPersistText());
 		}
 		return institution;
 	}

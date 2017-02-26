@@ -48,6 +48,9 @@ import kornell.core.entity.ContentRepository
 import kornell.core.entity.RepositoryType
 import kornell.core.entity.CertificateDetails
 import kornell.core.entity.CertificateType
+import kornell.core.entity.EnrollmentSource
+import kornell.core.entity.PostbackType
+import kornell.core.entity.PostbackConfig
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -82,7 +85,8 @@ package object repository {
         rs.getBoolean("internationalized"),
         rs.getBoolean("useEmailWhitelist"),
         rs.getString("assetsRepositoryUUID"),
-        rs.getString("timeZone"))
+        rs.getString("timeZone"),
+        rs.getString("institutionSupportEmail"))
         
   implicit def toContentRepository(rs:ResultSet):ContentRepository = 
     newContentRepository(rs.getString("uuid"),
@@ -222,7 +226,8 @@ package object repository {
       rs.getDate("start_date"),
       rs.getDate("end_date"),
       rs.getBigDecimal("preAssessmentScore"),
-      rs.getBigDecimal("postAssessmentScore")
+      rs.getBigDecimal("postAssessmentScore"),
+      EnrollmentSource.valueOf(rs.getString("enrollmentSource"))
     )
   }
     
@@ -407,4 +412,10 @@ package object repository {
       CertificateType.valueOf(rs.getString("certificateType")),
       CourseDetailsEntityType.valueOf(rs.getString("entityType")), 
       rs.getString("entityUUID"))
+    
+  implicit def toPostbackConfig(rs: ResultSet): PostbackConfig = newPostbackConfig(
+      rs.getString("uuid"),
+      rs.getString("institutionUUID"),
+      PostbackType.valueOf(rs.getString("postbackType")),
+      rs.getString("contents"))
 }

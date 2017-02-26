@@ -26,8 +26,6 @@ class BasicAuthFilter extends Filter {
   val pubPaths = Set(
     "/newrelic",
     "/api",
-    "/probes",
-    "/sync",
     "/user/login",
     "/user/check",
     "/user/registrationRequest",
@@ -39,7 +37,7 @@ class BasicAuthFilter extends Filter {
     "/institutions",
     "/healthCheck",
     "/auth",
-    "/log")
+    "/postback")
 
   override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) =
     (sreq, sres) match {

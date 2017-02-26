@@ -242,12 +242,18 @@ object CourseClassesRepo {
 				| where cv.uuid = ${courseVersion.get.getUUID}
 			    """.first[Course](toCourse)
 			
-			val parentCourseClass = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "", courseVersion.get.getParentVersionUUID, null).getCourseClasses.get(0).getCourseClass
+			val parentCourseClass = sql"""
+        select cc.* from Enrollment e
+        left join Enrollment pe on e.parentEnrollmentUUID = pe.uuid
+        left join CourseClass cc on cc.uuid = pe.class_uuid 
+        where e.uuid = ${enrollmentUUID}
+      """.first[CourseClass]
+			  
 			val courseClassesTO = TOs.newCourseClassesTO
 			val list = new ArrayList[CourseClassTO]
-			val courseClassTO = TOs.newCourseClassTO(course.get, courseVersion.get, parentCourseClass, null)
+			val courseClassTO = TOs.newCourseClassTO(course.get, courseVersion.get, parentCourseClass.get, null)
 			courseClassTO.setEnrolledOnCourseVersion(true)
-		    bindEnrollment(personUUID, courseClassTO)
+		  bindEnrollment(personUUID, courseClassTO)
 			list.add(courseClassTO)
 			courseClassesTO.setCourseClasses(list)
 		    courseClassesTO.setCount(1)

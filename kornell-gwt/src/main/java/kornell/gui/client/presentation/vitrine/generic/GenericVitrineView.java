@@ -9,12 +9,18 @@ import java.util.Map;
 
 import com.github.gwtbootstrap.client.ui.Alert;
 import com.github.gwtbootstrap.client.ui.Form;
+import com.github.gwtbootstrap.client.ui.Icon;
 import com.github.gwtbootstrap.client.ui.Image;
 import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.TextBox;
+import com.github.gwtbootstrap.client.ui.Tooltip;
+import com.github.gwtbootstrap.client.ui.base.IconAnchor;
+import com.github.gwtbootstrap.client.ui.constants.AlertType;
+import com.github.gwtbootstrap.client.ui.constants.Placement;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
@@ -22,6 +28,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -29,6 +36,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.Widget;
 
+import kornell.core.util.StringUtils;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.presentation.vitrine.VitrineView;
@@ -49,6 +57,9 @@ public class GenericVitrineView extends Composite implements VitrineView {
 
 	@UiField
 	FlowPanel vitrineWrapper;
+	
+	@UiField
+	FlowPanel boxLogin;
 	
 	@UiField
 	FlowPanel flagWrapper;
@@ -119,6 +130,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
 	
 	public GenericVitrineView() {
 		initWidget(uiBinder.createAndBindUi(this));
+		buildSupportIcon();
 		buildFlagsPanel();
 		displayView(VitrineViewType.login);
 		
@@ -148,6 +160,26 @@ public class GenericVitrineView extends Composite implements VitrineView {
 		
 		txtUsername.getElement().setAttribute("autocorrect", "off");
 		txtUsername.getElement().setAttribute("autocapitalize", "off");
+	}
+	
+	private void buildSupportIcon(){
+		String supportEmail = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getInstitutionSupportEmail();
+		supportEmail = StringUtils.isSome(supportEmail) ? supportEmail : "suporte@craftware.com.br";
+		
+		Icon icon = new Icon();
+		icon.addStyleName("fa fa-question-circle");
+
+		IconAnchor anchor = new IconAnchor();
+		anchor.addStyleName("vitrine-support-icon");
+		anchor.setHref("mailto:"+supportEmail);
+		anchor.clear();
+		anchor.add(icon);
+				
+		Tooltip tooltip = new Tooltip(supportEmail);
+		tooltip.setPlacement(Placement.LEFT);
+		tooltip.add(anchor);
+		
+		boxLogin.add(tooltip);
 	}
 
 	private void buildFlagsPanel() {
@@ -291,6 +323,13 @@ public class GenericVitrineView extends Composite implements VitrineView {
 	@Override
 	public void setMessage(String msg) {
 		alertError.setHTML(msg);
+		alertError.setType(AlertType.ERROR);
+	}
+
+	@Override
+	public void setMessage(String msg, AlertType alertType) {
+		alertError.setHTML(msg);
+		alertError.setType(alertType);
 	}
 	
 	@Override
@@ -299,6 +338,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
 		for (String error : msgs) {
 			errorsStr += error+"<br>";
 		}
+		alertError.setType(AlertType.ERROR);
 		alertError.setHTML(errorsStr);
 	}
 	

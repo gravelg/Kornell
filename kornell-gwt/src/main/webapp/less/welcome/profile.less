@@ -4,7 +4,8 @@
 .profileForm{
 	@profileWidth: @wrapperWidth - 18px;
 	@profilePadding: 20px;
-	width: @profileWidth;
+	max-width: @profileWidth;
+	width: 95%;
 	height: 100%;
 	margin: 0 auto;
 	margin-top: 15px;
@@ -27,5 +28,54 @@
 			margin-bottom: 25px;
 			float: left;
 		}
+	}
+}
+
+
+@media screen and (max-width: @wrapperWidth) {
+	.profileForm{
+		.fieldsWrapper{
+			padding-left: 20px;
+		}
+	}
+	.forgotPasswordModal{
+    	h3{
+    		font-size: 16px;
+    		line-height: 20px;
+    	}
+    	.modal-body{
+    		padding-left: 10px;
+			.fieldsWrapper{
+				margin-top: 5px;
+			 	.fieldPanelWrapper{
+					height: 55px;
+				}
+				img{
+					display: none;
+				}
+		 	}
+		 	.standardButtonBar{
+		 		margin-top: 15px;
+		 	}
+    	}
+	}
+}
+@media screen and (max-width: 767px) {
+	.forgotPasswordModal {
+    	margin-top: 80px !important;
+    }
+}
+@media screen and (max-width: 550px) {
+	.forgotPasswordModal{
+    	.modal-body{
+			.fieldsWrapper{
+			 	.fieldPanelWrapper{
+					height: 85px;
+				}
+		 	}
+    	}
+    	.btnStandard {
+    		margin-top: 15px !important;
+    	}
 	}
 }

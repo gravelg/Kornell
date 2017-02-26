@@ -402,8 +402,9 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		Label infoTitle = new Label(title);
 		infoTitle.addStyleName("infoTitle");
 		info.add(infoTitle);
-
-		Label infoText = new Label(text);
+		
+		Label infoText = new Label();
+		infoText.getElement().setInnerHTML(text);
 		infoText.addStyleName("infoText");
 		info.add(infoText);
 
@@ -428,9 +429,11 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 			displayButton(btnCertification, constants.btnCertification(), constants.printCertificateButton(), false);
 			if (courseClassTO.getCourseClass().isCourseClassChatEnabled()) {
 				displayButton(btnChat, constants.btnChat(), constants.classChatButton(), false);
+				btnChat.addStyleName("btnChat");
 			}
 			if (courseClassTO.getCourseClass().isTutorChatEnabled()) {
 				displayButton(btnTutor, constants.btnTutor(), constants.tutorChatButton(), false);
+				btnTutor.addStyleName("btnChat");
 			}
 			displayButton(btnLibrary, constants.btnLibrary(), constants.libraryButton(), false);
 			displayButton(btnGoToCourse, constants.goToClassButton(), "", false);

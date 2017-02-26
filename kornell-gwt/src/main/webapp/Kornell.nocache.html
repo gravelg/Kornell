@@ -55,6 +55,13 @@
     <![endif]-->
   </body>
   <script>
+  if(localStorage){
+	  for(key in localStorage){
+	    if(!key.startsWith("KNL")){
+		  delete localStorage[key];
+	    }
+	  }
+  }
   var stripIdFromVideoURL = function(url){
 	var r, rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
 	try {
@@ -62,6 +69,12 @@
 	} catch(err){
 		return "";
 	}
+  }
+  var knl = function(){
+	return JSON.stringify({
+	  "KNL" : (localStorage["KNL" ] && JSON.parse(atob(localStorage["KNL" ]))),
+	  "KNLc": (localStorage["KNLc"] && JSON.parse(atob(localStorage["KNLc"])))
+	}, null, 2);
   }
   </script>
 </html>

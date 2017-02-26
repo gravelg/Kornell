@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS FSContentRepository;
+DROP TABLE IF EXISTS S3ContentRepository;

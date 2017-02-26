@@ -128,6 +128,7 @@ class AuthRepo() {
     	select pwd.username from Password pwd
     	where pwd.username = $username
     	and pwd.institutionUUID = $institutionUUID
+    	and pwd.password is not null
     """.first[String].isDefined
 
   def updatePassword(personUUID: String, plainPassword: String, disableForceUpdatePassword: Boolean) = {
@@ -141,20 +142,31 @@ class AuthRepo() {
     }
   }
     
-  def setPlainPassword(institutionUUID: String, personUUID: String, username: String, plainPassword: String) = {
+  def setPlainPassword(institutionUUID: String, personUUID: String, username: String, plainPassword: String, forcePasswordUpdate: Boolean, requestPasswordChangeUUID: String = null) = {
+    val pwd = Option(plainPassword) match {
+      case Some(one) => BCrypt.hashpw(SHA256(plainPassword), BCrypt.gensalt())
+      case None => null
+    }
     sql"""
 	  	insert into Password (uuid,person_uuid,username,password,requestPasswordChangeUUID,institutionUUID)
-	  	values (${randomUUID},$personUUID,$username,${BCrypt.hashpw(SHA256(plainPassword), BCrypt.gensalt())}, null, ${institutionUUID})
+	  	values (${randomUUID},$personUUID,$username,$pwd,$requestPasswordChangeUUID,$institutionUUID)
 	  	on duplicate key update
-	  	username=$username,password=${BCrypt.hashpw(SHA256(plainPassword), BCrypt.gensalt())},requestPasswordChangeUUID=null
+	  	username = $username, password = $pwd, requestPasswordChangeUUID = $requestPasswordChangeUUID
 	  """.executeUpdate
+	  
+	  if (forcePasswordUpdate) {
+      sql"""
+        update Person set forcePasswordUpdate = true
+        where uuid = $personUUID
+      """.executeUpdate
+	  }
   }
 
-  def updateRequestPasswordChangeUUID(personUUID: String, requestPasswordChangeUUID: String) =
-    sql"""
-	  	update Password set requestPasswordChangeUUID = $requestPasswordChangeUUID
-    	where person_uuid = $personUUID
-	  """.executeUpdate
+  def updateRequestPasswordChangeUUID(personUUID: String, requestPasswordChangeUUID: String) = 
+      sql"""
+        update Password set requestPasswordChangeUUID = $requestPasswordChangeUUID
+        where person_uuid = $personUUID
+      """.executeUpdate  
 
   def grantPlatformAdmin(personUUID: String, institutionUUID: String) = {
     sql"""

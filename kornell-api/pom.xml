@@ -278,6 +278,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
 				<executions>
 					<execution>
 						<phase>compile</phase>
@@ -294,7 +295,7 @@
 								<echo file="${project.build.outputDirectory}/kornell.properties"
 									message="built.on=${last.updated}" />
 								<echo file="${project.build.outputDirectory}/kornell.properties"
-									message="build.number=${buildNumber}" />
+									message="${line.separator}build.number=${buildNumber}" append="true"/> 
 							</tasks>
 						</configuration>
 					</execution>
@@ -370,7 +371,7 @@
 											maven-antrun-plugin
 										</artifactId>
 										<versionRange>
-											[1.3,)
+											[1.8,)
 										</versionRange>
 										<goals>
 											<goal>run</goal>

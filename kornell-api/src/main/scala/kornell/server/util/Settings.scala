@@ -85,6 +85,8 @@ object Settings extends Enum {
   val JDBC_PASSWORD = settting("JDBC_PASSWORD")
   val JDBC_DRIVER =   settting("JDBC_DRIVER","com.mysql.jdbc.Driver")
   val USER_CONTENT_BUCKET = settting("USER_CONTENT_BUCKET","us-east-1.usercontent-develop")
+  val USER_CONTENT_ACCESS_KEY = settting("USER_CONTENT_ACCESS_KEY")
+  val USER_CONTENT_SECRET_ACCESS_KEY = settting("USER_CONTENT_SECRET_ACCESS_KEY")
   val USER_CONTENT_REGION = settting("USER_CONTENT_REGION","us-east-1")
   val TEST_MODE = settting("TEST_MODE")
   val SMTP_HOST = settting("SMTP_HOST")
@@ -95,6 +97,7 @@ object Settings extends Enum {
   val REPLY_TO = settting("REPLY_TO")
   val HEALTH_TO = SMTP_FROM
   val BUILD_NUM = settting("build.number")
+  val BUILT_ON = settting("built.on")
   
   
   //??  
