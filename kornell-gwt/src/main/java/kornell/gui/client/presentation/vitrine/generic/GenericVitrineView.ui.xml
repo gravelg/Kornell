@@ -5,7 +5,7 @@
     ui:generateLocales='default'>
 
 	<g:FlowPanel ui:field="vitrineWrapper" addStyleNames="vitrine">
-		<g:FlowPanel addStyleNames="boxLogin">
+		<g:FlowPanel ui:field="boxLogin" addStyleNames="boxLogin">
 			<g:FlowPanel ui:field="flagWrapper" addStyleNames="flagWrapper"></g:FlowPanel>
 			<b:Image ui:field="imgLogo" addStyleNames="logo"></b:Image>
 			<b:Alert ui:field="alertError" type="ERROR" close="false" animation="true" visible="false"></b:Alert>

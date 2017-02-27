@@ -168,3 +168,30 @@
 		}
 	}
 }
+
+
+@media screen and (min-width: 500px) and (max-width: @wrapperWidth) {
+	.welcomePanel {
+		width: 100%;
+		.coursesWrapper {
+			.pnlCourses {
+				width: 100%;
+				.courseSummary {
+					width: auto;
+					height: auto;
+					.thumbWrapper {
+						width: auto;
+					    .thumb {
+					    	margin-bottom: 0px;
+					    }
+					}
+					.details {    
+						width: ~"calc(100% - 150px)";
+					    float: left;
+					    margin-left: 15px;
+					}
+				}
+			}
+		}
+	}
+}

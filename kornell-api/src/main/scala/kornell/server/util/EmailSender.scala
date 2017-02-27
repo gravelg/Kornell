@@ -103,13 +103,14 @@ object EmailSender {
 
   private def getEmailSession =
     SMTP_HOST.getOpt map { host =>
-      println (s"Creating smtp session for host [$host]")
+      logger.finer(s"Creating smtp session for host [$host]")
       val props = new Properties()
       props.put("mail.smtp.auth", "true")
       props.put("mail.smtp.host", host)
       props.put("mail.smtp.port", SMTP_PORT.get)
       props.put("mail.smtp.ssl.enable", "true");
       props.put("mail.transport.protocol", "smtp");
+      props.put("mail.smtp.starttls.enable", "true");      
       Session.getDefaultInstance(props);
     }
 

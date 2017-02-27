@@ -2,6 +2,7 @@ package kornell.gui.client.presentation.vitrine;
 
 import java.util.List;
 
+import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.user.client.ui.IsWidget;
 
 public interface VitrineView extends IsWidget {
@@ -32,6 +33,7 @@ public interface VitrineView extends IsWidget {
 	void hideMessage();
 	void showMessage();
 	void setMessage(String msg);
+	void setMessage(String msg, AlertType alertType);
 	void setMessage(List<String> msgs);
 	void setLogoURL(String assetsURL);
 	void displayView(VitrineViewType type);

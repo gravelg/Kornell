@@ -13,8 +13,10 @@ import com.github.gwtbootstrap.client.ui.Tab;
 import com.github.gwtbootstrap.client.ui.TabPanel;
 import com.github.gwtbootstrap.client.ui.TextArea;
 import com.github.gwtbootstrap.client.ui.TextBox;
+import com.github.gwtbootstrap.client.ui.Tooltip;
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
+import com.github.gwtbootstrap.client.ui.constants.Placement;
 import com.github.gwtbootstrap.client.ui.resources.ButtonSize;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.ActionCell.Delegate;
@@ -467,6 +469,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		}, "Data da Matrícula");
 
 		List<HasCell<EnrollmentTO, ?>> cells = new LinkedList<HasCell<EnrollmentTO, ?>>();
+		cells.add(new EnrollmentActionsHasCell("Reenviar Email de Matrícula", getStateChangeDelegate(EnrollmentState.enrolled)));
 		cells.add(new EnrollmentActionsHasCell("Transferir", getTransferDelegate()));
 		cells.add(new EnrollmentActionsHasCell("Perfil", getGoToProfileDelegate()));
 		cells.add(new EnrollmentActionsHasCell("Certificado", getGenerateCertificateDelegate()));
@@ -692,7 +695,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 						(!InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()))) {
 					selectedEnrollment = object;
 					transferModal.setTitle("Transferir Matrícula");
-					txtModalTransfer1.setText("Selecione a turma para qual deseja transferir esse participante:");
+					txtModalTransfer1.setText("Selecione a turma desejada para transferir esse participante:");
 					LoadingPopup.show();
 					session.courseClasses().getAdministratedCourseClassesTOByCourseVersion(
 							courseClassTO.getCourseVersionTO().getCourseVersion().getUUID(),
@@ -706,7 +709,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 													.getCourseClass().getUUID()
 													.equals(courseClassTO.getCourseClass().getUUID()))) {
 										KornellNotification
-												.show("Nenhuma turma encontrada para qual esse usuário possa ser transferido.",
+												.show("Nenhuma turma encontrada para a qual esse usuário possa ser transferido.",
 														AlertType.ERROR);
 									} else {
 										courseClassListBox.clear();
@@ -818,9 +821,12 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 					} else if ("Transferir".equals(actionName)) {
 						btn.setIcon(IconType.EXCHANGE);
 						btn.addStyleName("btnNotSelected");
+					} else if ("Reenviar Email de Matrícula".equals(actionName)) {
+						btn.setIcon(IconType.ENVELOPE);
+						btn.addStyleName("btnNotSelected");
 					}
 
-					btn.addStyleName("btnIconSolo");
+					btn.addStyleName("btnIconSolo");					
 					return btn.toString();
 				}
 			};
@@ -860,19 +866,18 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		switch (registrationType) {
 		case email:
 			infoPanel.add(getLabel("Formato:", false));
-			infoPanel.add(getLabel("\"nome;email\" ou somente \"email\".", true));
+			infoPanel.add(getLabel("nome completo;email", true));
 			infoPanel.add(getLabel("* Um participante por linha", true));
 			infoPanel.add(getLabel("Exemplo:", false));
 			infoPanel.add(getLabel("Nome Sobrenome;email@example.com", true));
-			infoPanel.add(getLabel("email1@example.com", true));
-			infoPanel.add(getLabel("email2@example.com", true));
+			infoPanel.add(getLabel("Nome2 Sobrenome2;email2@example.com", true));
 			break;
 		case cpf:
 			infoPanel.add(getLabel("Formato:", false));
-			infoPanel.add(getLabel("\"nome;cpf\"", true));
+			infoPanel.add(getLabel("nome completo;cpf", true));
 			infoPanel.add(getLabel("* Um participante por linha", true));
 			infoPanel.add(getLabel("Exemplo:", false));
-			infoPanel.add(getLabel("Nome Sobrenome;123.456.789-13", true));
+			infoPanel.add(getLabel("Nome Sobrenome;123.456.789-12", true));
 			infoPanel.add(getLabel("Nome2 Sobrenome2;12345687913", true));
 			break;
 		case username:

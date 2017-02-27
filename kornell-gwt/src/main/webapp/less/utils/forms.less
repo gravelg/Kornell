@@ -128,14 +128,17 @@
 	}
 	.fieldPanel{
 		float: left;
-		width: 450px;
+		width: 100%;
+    	max-width: 462px;
     	margin-left: 20px;
 		.textField{
-			width: 448px;
+			width: 100%;
+    		max-width: 448px;
 			margin-bottom: 0px;
 		}
 		.selectField{
-			width: 462px;;
+			width: 100%;
+    		max-width: 462px;
 		}
 		.lblValue{
 			color:	@profileLabelValueColor;
@@ -149,11 +152,11 @@
 		.datePicker{
 			.dropBoxDay{
 				width: 60px;
-				margin-right: 8px;
+				margin-right: 5px;
 			}
 			.dropBoxMonth{
-				width: 120px;
-				margin-right: 8px;
+				width: 110px;
+				margin-right: 5px;
 			}
 			.dropBoxYear{
 				width: 80px;
@@ -171,53 +174,33 @@
     	margin-right: 6px;
     }
 }
-/*@media screen and (max-width: @wrapperWidth) {
+@media screen and (max-width: @wrapperWidth) {
 	.fieldPanelWrapper{
-			width: @wrapperWidthUnder990;
-			height: auto;
-		.labelPanelImg{
-			height: auto;
-		}
+		width: 85%;
+	    height: 100px;
+	    float: left;
 		.labelPanel{
-			width: auto;
-			float: none;
-			text-align: left;
-			.lblLabelImg{
-				float: left;
-				padding-right: 40px;
-				padding-left: 15px;
-				text-decoration: underline;
-			}
+			width: 100%;
 			.lblLabel{
-				float: none;
-				padding-left: 15px;
-				text-decoration: underline;
-			}
-			.lblExtraInfo{
-				float: none;
+				margin-bottom: 6px;
 				text-align: left;
-				padding-left: 20px;
+			}	
+		}
+		.fieldPanel{
+
+			.selectField{
+
 			}
-		}
-		.labelPanelImg{
-			float: left;
-		}
-		.lblValue{
-			width: auto;
-			float: none;
-			padding-left: 50px;
-		}
-		.lblValueAdd{
-			width: auto;
-			float: none;
-			padding-left: 50px;
-		}
-		.publicPanel{
-			float: none;
-			padding-left: 50px;
 		}
 	}
-}*/
+	.btnPanelBottom{
+		width: auto;
+		padding: 0px 0 30px 20px;
+		.btnBottom{
+			margin-top: 25px;
+		}
+	}
+}
 .fileUploadPanel {
 	input {
 		color: @profileLabelColor;
@@ -338,7 +321,8 @@
 	filter: alpha(opacity=50) !important;
 }
 .modal{
-	width: 480px !important;
+	width: 90%;
+	max-width: 480px !important;
 	background: @modalBackgroundColor !important;
 	.modal-body{
 		color: @niceTextColor;
