@@ -59,4 +59,7 @@ public interface CourseClass extends Named{
 	
 	Date getStartDate();
 	void setStartDate(Date startDate);
+	
+	String getPagseguroId();
+	void setPagseguroId(String pagseguroId);
 }
