@@ -48,7 +48,10 @@ object ContentRepositoriesRepo {
 		select * from ContentRepository where uuid=$repoUUID
 	""".first[ContentRepository]
 	
-  
+	def firstRepositoryByInstitution(institutionUUID:String) = sql"""
+		select * from ContentRepository where institutionUUID=${institutionUUID}
+	""".first[ContentRepository]
+
   val cacheBuilder = CacheBuilder
     .newBuilder()
     .expireAfterAccess(5, MINUTES)
