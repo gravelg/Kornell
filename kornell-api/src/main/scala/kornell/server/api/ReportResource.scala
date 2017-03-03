@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest
 import kornell.core.util.StringUtils.mkurl
 import kornell.server.util.Conditional.toConditional
 import kornell.server.util.AccessDeniedErr
+import kornell.server.jdbc.repository.ContentRepositoriesRepo
 
 
 @Path("/report")
@@ -103,14 +104,15 @@ class ReportResource {
         } else {
           val report = ReportCertificateGenerator.generateCertificate(certificateInformationTOsByCourseClass)
           val bs = new ByteArrayInputStream(report)
-          val repo = ContentManagers.forCertificates(p.getInstitutionUUID())
+          val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(p.getInstitutionUUID()).get.getUUID)
+          val key = "knl-institution/certificates/" + filename
           repo.put(
             bs,
             "application/pdf",
             "Content-Disposition: attachment; filename=\"" + filename + ".pdf\"",
-            Map("certificatedata" -> "09/01/1980", "requestedby" -> p.getFullName()),filename)
+            Map("certificatedata" -> "09/01/1980", "requestedby" -> p.getFullName()), key)
            
-            mkurl(InstitutionRepo(p.getInstitutionUUID).get.getBaseURL, ContentManagers.forCertificates(p.getInstitutionUUID).url(filename)) 
+            mkurl(InstitutionRepo(p.getInstitutionUUID).get.getBaseURL, repo.url(key))
         }
       } catch {
         case e: Exception =>
@@ -124,7 +126,8 @@ class ReportResource {
   def fileExists(@QueryParam("courseClassUUID") courseClassUUID: String) = AuthRepo().withPerson { p =>
     try {
       val filename = p.getUUID + courseClassUUID + ".pdf"
-      val url = mkurl(InstitutionRepo(p.getInstitutionUUID).get.getBaseURL, ContentManagers.forCertificates(p.getInstitutionUUID).url(filename)) 
+      val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(p.getInstitutionUUID()).get.getUUID)
+      val url = mkurl(InstitutionRepo(p.getInstitutionUUID).get.getBaseURL, repo.url("knl-institution/certificates/" + filename))
 
       HttpURLConnection.setFollowRedirects(false);
       val con = new URL(url).openConnection.asInstanceOf[HttpURLConnection]
