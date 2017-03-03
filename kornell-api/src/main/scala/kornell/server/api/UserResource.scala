@@ -31,7 +31,7 @@ import kornell.server.repository.Entities.newEnrollments
 import kornell.server.repository.TOs
 import kornell.server.repository.TOs.newUserHelloTO
 import kornell.server.repository.TOs.newUserInfoTO
-import kornell.server.repository.service.RegistrationEnrollmentService
+import kornell.server.service.RegistrationEnrollmentService
 import kornell.server.util.EmailService
 import kornell.server.web.BasicAuthFilter
 import kornell.core.to.UserHelloTO
