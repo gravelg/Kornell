@@ -25,6 +25,7 @@ import kornell.server.jdbc.repository.PersonRepo
 import kornell.core.to.SimplePeopleTO
 import java.net.HttpURLConnection
 import javax.servlet.http.HttpServletResponse
+import kornell.server.jdbc.repository.ContentRepositoriesRepo
 
 object ReportCertificateGenerator {
 
@@ -160,7 +161,8 @@ object ReportCertificateGenerator {
           val report = ReportCertificateGenerator.generateCertificate(certificateInformationTOsByCourseClass)
           val bs = new ByteArrayInputStream(report)
           val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
-          val repo = ContentManagers.forCertificates(person.getInstitutionUUID())
+          val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
+          
           repo.put(
             bs,
             "application/pdf",
@@ -192,9 +194,10 @@ object ReportCertificateGenerator {
   }
   
   def getCourseClassCertificateReportURL(courseClassUUID: String) = {
-      val filename = getCourseClassCertificateReportFileName(courseClassUUID)
       val institutionUUID = getInstitutionUUID(courseClassUUID)
-      mkurl(InstitutionRepo(institutionUUID).get.getBaseURL, ContentManagers.forCertificates(institutionUUID).url(filename)) 
+      val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(institutionUUID).get.getUUID)
+      val key = "knl-institution/certificates/" + getCourseClassCertificateReportFileName(courseClassUUID)
+      mkurl(InstitutionRepo(institutionUUID).get.getBaseURL, repo.url(key))
   }
   
 }
