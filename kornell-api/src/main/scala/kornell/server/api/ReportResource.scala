@@ -89,7 +89,6 @@ class ReportResource {
 
   @GET
   @Path("/clear")
-  @Produces(Array("application/pdf"))
   def clear = clearJasperFiles
 
 }
