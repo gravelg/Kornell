@@ -23,7 +23,7 @@ import kornell.core.to.InstitutionHostNamesTO
 import kornell.core.to.InstitutionEmailWhitelistTO
 import kornell.server.jdbc.repository.InstitutionEmailWhitelistRepo
 import kornell.core.entity.ChatThreadType
-import kornell.server.repository.service.UploadService
+import kornell.server.service.UploadService
 import javax.ws.rs.PathParam
 
 

@@ -60,7 +60,8 @@ object CourseClassesRepo {
                 allowBatchCancellation, 
                 tutorChatEnabled,
                 approveEnrollmentsAutomatically,
-                startDate)
+                startDate,
+                pagseguroId)
 	    	values(${courseClass.getUUID},
 	             ${courseClass.getName},
 	             ${courseClass.getCourseVersionUUID},
@@ -79,7 +80,8 @@ object CourseClassesRepo {
 	             ${courseClass.isAllowBatchCancellation},
 	             ${courseClass.isTutorChatEnabled},
 	             ${courseClass.isApproveEnrollmentsAutomatically},
-               ${courseClass.getStartDate}
+               ${courseClass.getStartDate},
+               ${courseClass.getPagseguroId}
                )
 	    """.executeUpdate
       ChatThreadsRepo.addParticipantsToCourseClassThread(courseClass)
@@ -192,6 +194,10 @@ object CourseClassesRepo {
 
   def byPersonAndInstitution(personUUID: String, institutionUUID: String) = {
     bindEnrollments(personUUID, getAllClassesByInstitution(institutionUUID))
+  }
+  
+  def byPagseguroId(pagseguroId: String) = {
+    sql"""select * from CourseClass where pagseguroId = ${pagseguroId}""".first[CourseClass](toCourseClass)
   }
   
   def byEnrollment(enrollmentUUID: String) = {

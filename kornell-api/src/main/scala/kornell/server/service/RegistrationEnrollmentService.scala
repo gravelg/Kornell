@@ -1,4 +1,4 @@
-package kornell.server.repository.service
+package kornell.server.service
 
 import kornell.server.jdbc.repository.EventsRepo
 import kornell.server.repository.Entities._

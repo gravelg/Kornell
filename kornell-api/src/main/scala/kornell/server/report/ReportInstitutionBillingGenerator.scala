@@ -12,10 +12,15 @@ import kornell.core.to.report.InstitutionBillingMonthlyReportTO
 import kornell.core.entity.BillingType
 import kornell.core.entity.Institution
 import kornell.core.entity.EnrollmentState
+import javax.servlet.http.HttpServletResponse
 
 object ReportInstitutionBillingGenerator {
   
-  def generateInstitutionBillingReport(institution: Institution, periodStart: String, periodEnd: String): Array[Byte] = {
+  def generateInstitutionBillingReport(institutionUUID: String, periodStart: String, periodEnd: String, resp: HttpServletResponse) = {
+    val institution = InstitutionRepo(institutionUUID).get
+    resp.addHeader("Content-disposition", "attachment; filename=" + institution.getName + " - " + periodStart + ".xls")
+    resp.setContentType("application/vnd.ms-excel")    
+    
     val parameters: HashMap[String, Object] = new HashMap()
     parameters.put("institutionName", institution.getName)
     parameters.put("periodStart", periodStart)
@@ -53,7 +58,7 @@ object ReportInstitutionBillingGenerator {
 		  
     val cl = Thread.currentThread.getContextClassLoader
     val jasperStream = cl.getResourceAsStream("reports/institutionBillingXLS_monthly.jasper")
-    ReportGenerator.getReportBytesFromStream(institutionBillingReportTO, parameters, jasperStream, "xls")
+    getReportBytesFromStream(institutionBillingReportTO, parameters, jasperStream, "xls")
   }
 
   private def generateInstitutionBillingEnrollmentReport(institutionUUID: String, periodStart: String, periodEnd: String, parameters: HashMap[String,Object]): Array[Byte] = {
@@ -101,7 +106,7 @@ object ReportInstitutionBillingGenerator {
 		  
     val cl = Thread.currentThread.getContextClassLoader
     val jasperStream = cl.getResourceAsStream("reports/institutionBillingXLS_enrollment.jasper")
-    ReportGenerator.getReportBytesFromStream(institutionBillingReportTO, parameters, jasperStream, "xls")
+    getReportBytesFromStream(institutionBillingReportTO, parameters, jasperStream, "xls")
   }
  
 }

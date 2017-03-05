@@ -13,7 +13,7 @@ import kornell.core.to.CourseVersionTO
 import kornell.server.util.AccessDeniedErr
 import kornell.core.to.CourseVersionUploadTO
 import javax.ws.rs.Path
-import kornell.server.repository.service.UploadService
+import kornell.server.service.UploadService
 
 class CourseVersionResource(uuid: String) {
 
