@@ -79,13 +79,13 @@ class ReportResource {
     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr()).get
 
   @GET
-  @Path("/institutionBilling")
+  @Path("/institutionBilling")      
   def getInstitutionBilling(@Context resp: HttpServletResponse,
     @QueryParam("institutionUUID") institutionUUID: String,
     @QueryParam("periodStart") periodStart: String,
     @QueryParam("periodEnd") periodEnd: String) = {
     ReportInstitutionBillingGenerator.generateInstitutionBillingReport(institutionUUID, periodStart, periodEnd, resp)
-  }.requiring(isPlatformAdmin(institutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(institutionUUID), AccessDeniedErr()).get
 
   @GET
   @Path("/clear")
