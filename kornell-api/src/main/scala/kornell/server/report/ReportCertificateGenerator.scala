@@ -135,8 +135,6 @@ object ReportCertificateGenerator {
   
    def generateCourseClassCertificates(courseClassUUID: String, peopleTO: SimplePeopleTO) = {
       try {
-        val filename = ReportCertificateGenerator.getCourseClassCertificateReportFileName(courseClassUUID)
-        //S3.certificates.delete(filename)
         val people = peopleTO.getSimplePeopleTO
         val enrollmentUUIDs = {
           if(people != null && people.size > 0) {
@@ -162,7 +160,8 @@ object ReportCertificateGenerator {
           val bs = new ByteArrayInputStream(report)
           val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
           val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
-          
+          val filename = ReportCertificateGenerator.getCourseClassCertificateReportFileName(courseClassUUID)
+        
           repo.put(
             bs,
             "application/pdf",
@@ -190,13 +189,13 @@ object ReportCertificateGenerator {
   }
   
   def getCourseClassCertificateReportFileName(courseClassUUID: String) = {
-      ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get + courseClassUUID + ".pdf"
+      "knl-institution/certificates/" + ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get + courseClassUUID + ".pdf"
   }
   
   def getCourseClassCertificateReportURL(courseClassUUID: String) = {
       val institutionUUID = getInstitutionUUID(courseClassUUID)
       val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(institutionUUID).get.getUUID)
-      val key = "knl-institution/certificates/" + getCourseClassCertificateReportFileName(courseClassUUID)
+      val key = getCourseClassCertificateReportFileName(courseClassUUID)
       mkurl(InstitutionRepo(institutionUUID).get.getBaseURL, repo.url(key))
   }
   

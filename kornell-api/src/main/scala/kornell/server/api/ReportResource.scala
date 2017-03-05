@@ -62,8 +62,8 @@ class ReportResource {
   def getCourseClassInfo(@Context resp: HttpServletResponse,
     @QueryParam("courseUUID") courseUUID: String,
     @QueryParam("courseClassUUID") courseClassUUID: String,
-    @QueryParam("fileType") fileTypeParam: String) = {
-    ReportCourseClassGenerator.generateCourseClassReport(courseUUID, courseClassUUID, fileTypeParam, resp)
+    @QueryParam("fileType") fileType: String) = {
+    ReportCourseClassGenerator.generateCourseClassReport(courseUUID, courseClassUUID, fileType, resp)
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseClassUUID, courseUUID)), AccessDeniedErr())
     .or(isInstitutionAdmin(getInstitutionUUID(courseClassUUID, courseUUID)), AccessDeniedErr())
     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr())
