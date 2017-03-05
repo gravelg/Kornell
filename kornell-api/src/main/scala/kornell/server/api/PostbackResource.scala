@@ -3,7 +3,7 @@ package kornell.server.api
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 import javax.ws.rs.POST
-import kornell.server.repository.service.PostbackService
+import kornell.server.service.PostbackService
 import javax.ws.rs.FormParam
 
 @Path("/postback")
