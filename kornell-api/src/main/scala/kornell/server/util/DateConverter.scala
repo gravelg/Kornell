@@ -31,8 +31,12 @@ class DateConverter(personUUID: String) {
     Option(date) match {
       case Some(s) => {
         val st = s.getTime
-        val institutionUUID = CourseClassRepo(courseClassUUID).get.getInstitutionUUID
-        new Date(st - DateTimeZone.forID(InstitutionRepo(institutionUUID).get.getTimeZone).getStandardOffset(st))
+        if(courseClassUUID != null) { 
+          val institutionUUID = CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+          new Date(st - DateTimeZone.forID(InstitutionRepo(institutionUUID).get.getTimeZone).getStandardOffset(st))
+        } else {
+          dateToInstitutionTimezone(date)
+        }
       }
       case None => null
     }
