@@ -17,6 +17,7 @@ public class Positioning {
 	public static final int BAR_WIDTH = 962;
 	public static final int NOTES_MIN_HEIGHT = 300;
 	public static final int BAR_ANIMATION_LENGTH = 600;
+	public static final int MOBILE_CHAT_THRESHOLD = 568;
 
 	
 	

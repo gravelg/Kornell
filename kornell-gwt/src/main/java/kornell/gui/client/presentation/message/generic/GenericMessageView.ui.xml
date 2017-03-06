@@ -4,7 +4,7 @@
     ui:generateKeys='com.google.gwt.i18n.server.keygen.MD5KeyGenerator'
     ui:generateLocales='default'>
 	<g:FlowPanel addStyleNames="messageInboxPanel">
-		<g:ScrollPanel addStyleNames="sidePanelScroll left">
+		<g:ScrollPanel ui:field="sidePanelScroll" addStyleNames="sidePanelScroll left">
 			<g:FlowPanel ui:field="sidePanel" addStyleNames="sidePanel left"></g:FlowPanel>
 		</g:ScrollPanel>
 		<g:FlowPanel ui:field="threadPanel" addStyleNames="threadPanel left">

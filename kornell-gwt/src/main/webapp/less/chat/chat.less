@@ -5,7 +5,7 @@
 
 .MessagePlace {
 	.messageInboxPanel{
-		width: @wrapperWidth;
+		max-width: @wrapperWidth;
 		max-height: 1000px;
 		height: ~"calc(100vh - 105px)";
 		.threadPanel {
@@ -31,7 +31,6 @@
 }
 .ClassroomPlace {
 	.messageInboxPanel{
-		width: @rightPanelWidth;
 		max-height: 1000px;
 		height: ~"calc(100vh - 220px)";
 		min-height: 460px;
@@ -66,6 +65,7 @@
 	.boxSizing;
 	.sidePanelScroll{
 		width: 22%;
+		min-width: 140px;
 		height: ~"calc(100% - 11px)";
 		padding: 5px;
 		border-radius: 8px 0px 0px 8px;
@@ -275,10 +275,40 @@
 	}
 }
 
+@media screen and (max-width: 962px) {
+	.ClassroomPlace {
+		.messageInboxPanel {
+			.threadPanel {
+				width: ~"calc(100vw - 25px)";
+	    	}
+	    }
+	}
+}
 
+@media screen and (max-width: 700px) {
+	.messageInboxPanel {
+		.threadPanel {
+			width: ~"calc(74% - 12px)";
+			 .sendMessageWrapper {
+			 	.messageTextArea {
+			 		width: 80%;
+			 	}
+			 }
+		}
+	}
+}
 
-
-
+/* threshold for mobile chat */
+@media screen and (max-width: 568px) {
+	.messageInboxPanel {
+		.sidePanelScroll {
+	    	width: 96%;
+		}
+		.threadPanel {
+			width: 98%;
+		}
+	}
+}
 
 
 
