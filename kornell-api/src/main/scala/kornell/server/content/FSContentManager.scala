@@ -22,8 +22,12 @@ class FSContentManager(fsRepo:ContentRepository) extends SyncContentManager {
 		 else throw new IllegalArgumentException(s"$path not found")
 	 }
 
-	 def put(input: InputStream, contentType: String, contentDisposition: String, metadataMap: Map[String, String],keys: String*) = 
-		 Files.copy(input,Paths.get(url(keys:_*))) 
+	 def put(input: InputStream, contentType: String, contentDisposition: String, metadataMap: Map[String, String], keys: String*) = {
+	   val fullFilePath = (if (fsRepo.getPath.endsWith("/")) fsRepo.getPath else fsRepo.getPath + "/") + url(keys:_*)
+	   val directory = Paths.get(fullFilePath).toFile.getParentFile
+	   if (!directory.exists) directory.mkdirs
+		 Files.copy(input, Paths.get(fullFilePath))
+	 }
 	 
 	 def getPrefix = fsRepo.getPrefix
 }
