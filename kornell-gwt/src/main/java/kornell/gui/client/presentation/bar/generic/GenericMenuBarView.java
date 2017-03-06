@@ -403,7 +403,12 @@ public class GenericMenuBarView extends Composite implements MenuBarView,
 
 	@Override
 	public void setPlaceBarWidgets(List<IsWidget> widgets) {
-		placeBar.setWidgets(widgets);
+		placeBar.setWidgets(widgets, false);
+	}
+
+	@Override
+	public void setPlaceBarWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets) {
+		placeBar.setWidgets(widgets, alwaysShowWidgets);
 	}
 
 }

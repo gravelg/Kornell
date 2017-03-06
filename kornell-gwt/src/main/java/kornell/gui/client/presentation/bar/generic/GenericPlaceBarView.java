@@ -31,6 +31,8 @@ public class GenericPlaceBarView extends Composite implements PlaceBarView {
 	FlowPanel btnPanel;
 	
 	public GenericPlaceBarView() {
+
+		//if(placeCtrl)
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
@@ -51,10 +53,15 @@ public class GenericPlaceBarView extends Composite implements PlaceBarView {
 		btnPanel.clear();
 	}
 	
-	public void setWidgets(List<IsWidget> widgets){
+	public void setWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets){
 		btnPanel.clear();
 		for (IsWidget widget : widgets) {
 			btnPanel.add(widget);
+		}
+		if(alwaysShowWidgets){
+			btnPanel.setStyleName("btnPanel");
+		} else {
+			btnPanel.setStyleName("btnPanel hideOnSmallerScreens");
 		}
 	}
 
