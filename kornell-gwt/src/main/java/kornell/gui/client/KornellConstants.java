@@ -629,6 +629,8 @@ public interface KornellConstants extends ConstantsWithLookup {
 	String recipient();
 	@DefaultStringValue("Message:")
 	String message();
+	@DefaultStringValue("Back")
+	String backButton();
 	
 	
 	/**

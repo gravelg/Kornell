@@ -203,7 +203,7 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 			if(selectedChatThreadInfo != null && Window.getClientWidth() <= Positioning.MOBILE_CHAT_THRESHOLD){
 				List<IsWidget> widgets = new ArrayList<IsWidget>();
 				Button btn = new Button();
-				btn.setText(selectedChatThreadInfo.getEntityName());
+				btn.setText(constants.backButton());
 				btn.setVisible(true);
 				btn.addStyleName("btnNotSelected btnPlaceBar btnStandard");
 				btn.addClickHandler(new ClickHandler() {
