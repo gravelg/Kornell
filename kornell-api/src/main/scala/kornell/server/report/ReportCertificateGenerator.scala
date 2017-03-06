@@ -161,14 +161,14 @@ object ReportCertificateGenerator {
           val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
           val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
           val filename = ReportCertificateGenerator.getCourseClassCertificateReportFileName(courseClassUUID)
-        
+
           repo.put(
             bs,
             "application/pdf",
             "Content-Disposition: attachment; filename=\"" + filename + "\"",
-            Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()),filename)
+            Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), filename)
            
-            ReportCertificateGenerator.getCourseClassCertificateReportURL(courseClassUUID)
+          ReportCertificateGenerator.getCourseClassCertificateReportURL(courseClassUUID)
         }
       } catch {
         case e: Exception =>
