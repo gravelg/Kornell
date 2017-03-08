@@ -1,27 +1,26 @@
-package kornell.server.report
+package kornell.server
 
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.HashMap
+
 import scala.collection.JavaConverters.seqAsJavaListConverter
+
+import kornell.core.util.UUID
+import kornell.server.jdbc.repository.CourseClassRepo
+import kornell.server.jdbc.repository.CourseRepo
+import kornell.server.util.Settings
 import net.sf.jasperreports.engine.JRExporterParameter
 import net.sf.jasperreports.engine.JasperFillManager
 import net.sf.jasperreports.engine.JasperReport
 import net.sf.jasperreports.engine.JasperRunManager
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource
-import net.sf.jasperreports.engine.export.JRXlsAbstractExporterParameter
 import net.sf.jasperreports.engine.export.JRXlsExporter
 import net.sf.jasperreports.engine.util.JRLoader
-import net.sf.jasperreports.engine.export.JRXlsExporterParameter
-import kornell.core.util.UUID
-import java.io.FileInputStream
-import kornell.server.util.Settings
 
 
-object ReportGenerator {
-
+package object report {
+  
   def getReportBytes(certificateData: List[Any], parameters: HashMap[String, Object], jasperFile: File): Array[Byte] =
     runReportToPdf(certificateData, parameters, JRLoader.loadObject(jasperFile).asInstanceOf[JasperReport], "pdf")
     
@@ -64,5 +63,27 @@ object ReportGenerator {
     ) 
     deleted
   }
-    
+  
+  def getFileType(fileType: String) = {
+    if(fileType == "xls")
+      "xls"
+    else
+      "pdf"
+  }
+
+  def getContentType(fileType: String) = {
+    if(getFileType(fileType)  == "xls")
+      "application/vnd.ms-excel"
+    else
+    	"application/pdf"
+  }
+  
+  def getInstitutionUUID(courseClassUUID: String, courseUUID: String = null) = {
+    if(courseUUID != null){
+      CourseRepo(courseUUID).get.getInstitutionUUID
+    } else {
+      CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+    }
+  }
+  
 }

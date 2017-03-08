@@ -16,18 +16,30 @@ import kornell.core.to.report.CourseClassAuditTO
 import kornell.server.jdbc.repository.InstitutionsRepo
 import kornell.core.entity.EnrollmentState
 import kornell.core.entity.EnrollmentSource
+import javax.servlet.http.HttpServletResponse
+import kornell.server.jdbc.repository.CourseClassRepo
+import java.text.SimpleDateFormat
 
 object ReportCourseClassAuditGenerator {
 
-  def generateCourseClassAuditReport(courseClass: CourseClass): Array[Byte] = {
-    val parameters: HashMap[String, Object] = new HashMap()
-    parameters.put("courseClassName", courseClass.getName)
-    parameters.put("institutionBaseURL", InstitutionRepo(courseClass.getInstitutionUUID).get.getBaseURL)
-
-    generateCourseClassAuditReport(courseClass.getUUID, parameters)
+  def generateCourseClassAuditReport(courseClassUUID: String, resp: HttpServletResponse) = {
+	  if(courseClassUUID != null){
+	    val courseClass = CourseClassRepo(courseClassUUID).get
+	    val fileName = courseClass.getName + " - Audit - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())+ ".xls"
+	    resp.addHeader("Content-disposition", "attachment; filename=" + fileName)
+	    resp.setContentType("application/vnd.ms-excel")
+	    
+      val parameters: HashMap[String, Object] = new HashMap()
+      parameters.put("courseClassName", courseClass.getName)
+      parameters.put("institutionBaseURL", InstitutionRepo(courseClass.getInstitutionUUID).get.getBaseURL)
+  
+      generateCourseClassAuditReportWithParameters(courseClass.getUUID, parameters)
+	  }
+    
+    
   }
 
-  private def generateCourseClassAuditReport(courseClassUUID: String, parameters: HashMap[String, Object]): Array[Byte] = {
+  private def generateCourseClassAuditReportWithParameters(courseClassUUID: String, parameters: HashMap[String, Object]) = {
 
     implicit def toCourseClassAuditTO(rs: ResultSet): CourseClassAuditTO =
       TOs.newCourseClassAuditTO(
@@ -121,7 +133,7 @@ object ReportCourseClassAuditGenerator {
 
     val cl = Thread.currentThread.getContextClassLoader
     val jasperStream = cl.getResourceAsStream("reports/courseClassAuditXLS.jasper")
-    ReportGenerator.getReportBytesFromStream(courseClassAuditTO, parameters, jasperStream, "xls")
+    getReportBytesFromStream(courseClassAuditTO, parameters, jasperStream, "xls")
   }
 
 }

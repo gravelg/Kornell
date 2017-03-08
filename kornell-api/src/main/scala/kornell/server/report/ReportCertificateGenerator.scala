@@ -21,6 +21,17 @@ import kornell.server.jdbc.repository.CertificatesDetailsRepo
 import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.error.exception.EntityNotFoundException
 import kornell.core.entity.CertificateType
+import kornell.core.util.StringUtils.mkurl
+import kornell.server.jdbc.repository.InstitutionRepo
+import kornell.server.content.ContentManagers
+import java.io.ByteArrayInputStream
+import kornell.core.error.exception.ServerErrorException
+import kornell.server.jdbc.repository.EnrollmentsRepo
+import kornell.server.jdbc.repository.PersonRepo
+import kornell.core.to.SimplePeopleTO
+import java.net.HttpURLConnection
+import javax.servlet.http.HttpServletResponse
+import kornell.server.jdbc.repository.ContentRepositoriesRepo
 
 object ReportCertificateGenerator {
 
@@ -73,7 +84,9 @@ object ReportCertificateGenerator {
     details.get
   }
       
-  def generateCertificate(userUUID: String, courseClassUUID: String): Array[Byte] = {
+  def generateCertificate(userUUID: String, courseClassUUID: String, resp: HttpServletResponse): Array[Byte] = {
+    resp.addHeader("Content-disposition", "attachment; filename=Certificado.pdf")
+    
     val certificateData = sql"""
 				select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL
 	    		from Person p
@@ -125,7 +138,73 @@ object ReportCertificateGenerator {
 	  
     val cl = Thread.currentThread.getContextClassLoader
     val stream = cl.getResourceAsStream(certificateDetails.getCertificateType.getPath)
-    ReportGenerator.getReportBytesFromStream(certificateData, parameters, stream)
+    getReportBytesFromStream(certificateData, parameters, stream, "pdf")
+  }
+  
+   def generateCourseClassCertificates(courseClassUUID: String, peopleTO: SimplePeopleTO) = {
+      try {
+        val people = peopleTO.getSimplePeopleTO
+        val enrollmentUUIDs = {
+          if(people != null && people.size > 0) {
+            var enrollmentUUIDsVar = ""
+    		    for (i <- 0 until people.size) {
+    		      val person = people.get(i)
+    		      val enrollmentUUID = EnrollmentsRepo.byCourseClassAndUsername(courseClassUUID, person.getUsername)
+    		      if(enrollmentUUID.isDefined){
+    		        if(enrollmentUUIDsVar.length != 0) enrollmentUUIDsVar += ","
+    		    	  enrollmentUUIDsVar += "'" + enrollmentUUID.get + "'"
+    		      }
+    		    }
+            enrollmentUUIDsVar
+          }
+          else null
+        }
+      
+        val certificateInformationTOsByCourseClass = ReportCertificateGenerator.getCertificateInformationTOsByCourseClass(courseClassUUID, enrollmentUUIDs)
+        if (certificateInformationTOsByCourseClass.length == 0) {
+          throw new ServerErrorException("errorGeneratingReport")
+        } else {
+          val report = ReportCertificateGenerator.generateCertificate(certificateInformationTOsByCourseClass)
+          val bs = new ByteArrayInputStream(report)
+          val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
+          val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
+          val filename = ReportCertificateGenerator.getCourseClassCertificateReportFileName(courseClassUUID)
+
+          repo.put(
+            bs,
+            "application/pdf",
+            "Content-Disposition: attachment; filename=\"" + filename + "\"",
+            Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), filename)
+           
+          ReportCertificateGenerator.getCourseClassCertificateReportURL(courseClassUUID)
+        }
+      } catch {
+        case e: Exception =>
+          throw new ServerErrorException("errorGeneratingReport", e)
+      }
+   }
+   
+   def courseClassCertificateExists(courseClassUUID: String) = {
+    try {
+      val url = getCourseClassCertificateReportURL(courseClassUUID)
+      HttpURLConnection.setFollowRedirects(false);
+      val con = new URL(url).openConnection.asInstanceOf[HttpURLConnection]
+      con.setRequestMethod("HEAD")
+      if (con.getResponseCode() == HttpURLConnection.HTTP_OK) url else ""
+    } catch {
+      case e: Exception => throw new ServerErrorException("errorCheckingCerts", e)
+    }
+  }
+  
+  def getCourseClassCertificateReportFileName(courseClassUUID: String) = {
+      "knl-institution/certificates/" + ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get + courseClassUUID + ".pdf"
+  }
+  
+  def getCourseClassCertificateReportURL(courseClassUUID: String) = {
+      val institutionUUID = getInstitutionUUID(courseClassUUID)
+      val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(institutionUUID).get.getUUID)
+      val key = getCourseClassCertificateReportFileName(courseClassUUID)
+      mkurl(InstitutionRepo(institutionUUID).get.getBaseURL, repo.url(key))
   }
   
 }

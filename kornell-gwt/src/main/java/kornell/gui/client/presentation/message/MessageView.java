@@ -21,7 +21,8 @@ public interface MessageView  extends IsWidget {
 	}
 
 	void setPresenter(Presenter presenter);
-	void updateSidePanel(List<UnreadChatThreadTO> unreadChatThreadsTO, String selectedChatThreadUUID, String currentUserFullName);
+	void refreshSidePanel();
+	void updateSidePanel(List<UnreadChatThreadTO> unreadChatThreadsTO, String currentUserFullName);
 	void updateThreadPanel(UnreadChatThreadTO unreadChatThreadTO, String currentUserFullName);
 	void addMessagesToThreadPanel(ChatThreadMessagesTO chatThreadMessagesTO, String currentUserFullName, boolean insertOnTop);
 	void scrollToBottom();
@@ -29,4 +30,5 @@ public interface MessageView  extends IsWidget {
 	void setMessagePanelType(MessagePanelType messagePanelType);
 	void displayThreadPanel(boolean display);
 	void sendSidePanelItemToTop(String chatThreadUUID);
+	void determineMobileChatBehaviour(boolean forceSidePanelAppearance);
 }

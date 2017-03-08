@@ -7,6 +7,8 @@ import scala.collection.JavaConverters._
 import java.util.logging.Logger
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.repository.RolesRepo
+import kornell.server.jdbc.repository.CourseRepo
+import kornell.server.jdbc.repository.CourseClassRepo
 
 package object api {
   val logger = Logger.getLogger("kornell.server.api")
@@ -29,5 +31,6 @@ package object api {
     
   def getAuthenticatedPersonUUID = ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null)
   
+  def getInstitutionUUID(courseClassUUID: String, courseUUID: String = null) = if (courseUUID != null) CourseRepo(courseUUID).get.getInstitutionUUID else CourseClassRepo(courseClassUUID).get.getInstitutionUUID
  
 }

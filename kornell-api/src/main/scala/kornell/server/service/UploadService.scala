@@ -1,4 +1,4 @@
-package kornell.server.repository.service
+package kornell.server.service
 
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
 import com.amazonaws.HttpMethod

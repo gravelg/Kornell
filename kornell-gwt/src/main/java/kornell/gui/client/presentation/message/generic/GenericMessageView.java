@@ -29,9 +29,11 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -50,6 +52,7 @@ import kornell.gui.client.presentation.message.MessagePanelType;
 import kornell.gui.client.presentation.message.MessageView;
 import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
+import kornell.gui.client.util.view.Positioning;
 
 
 public class GenericMessageView extends Composite implements MessageView, ShowChatDockEventHandler {
@@ -75,6 +78,7 @@ public class GenericMessageView extends Composite implements MessageView, ShowCh
 
 	@UiField FlowPanel sidePanel;
 	@UiField FlowPanel threadPanel;
+	@UiField ScrollPanel sidePanelScroll;
 	@UiField ScrollPanel threadPanelItemsScroll;
 	@UiField FlowPanel threadPanelItems;
 	@UiField Label threadTitle;
@@ -87,6 +91,8 @@ public class GenericMessageView extends Composite implements MessageView, ShowCh
 	private FlowPanel searchPanel;
 	@SuppressWarnings("unused")
 	private MessagePanelType messagePanelType;
+	private List<UnreadChatThreadTO> unreadChatThreadsTO;
+	private String currentUserFullName;
 
 	public GenericMessageView(EventBus eventBus, KornellSession session) {
 		this.bus = eventBus;
@@ -190,7 +196,11 @@ public class GenericMessageView extends Composite implements MessageView, ShowCh
 	}
 
 	@Override
-	public void updateSidePanel(List<UnreadChatThreadTO> unreadChatThreadsTO, String selectedChatThreadUUID, final String currentUserFullName) {
+	public void updateSidePanel(List<UnreadChatThreadTO> unreadChatThreadsTO, final String currentUserFullName) {
+		if(unreadChatThreadsTO == null) return;
+		this.unreadChatThreadsTO = unreadChatThreadsTO;
+		this.currentUserFullName = currentUserFullName;
+		
 		sidePanel.clear();
 		initSearch();
 		sidePanel.add(searchPanel);
@@ -217,11 +227,13 @@ public class GenericMessageView extends Composite implements MessageView, ShowCh
 					}
 					label.addStyleName("selected");
 					presenter.threadClicked(unreadChatThreadTO);
+					determineMobileChatBehaviour(false);
 					setLabelContent(unreadChatThreadTO, label, true, currentUserFullName);
 					
 					currentLabel = label;
 				}
 			});
+			String selectedChatThreadUUID = presenter.getThreadSelection() == null ? null : presenter.getThreadSelection().getChatThreadUUID();
 			if(unreadChatThreadTO.getChatThreadUUID().equals(selectedChatThreadUUID)){
 				label.addStyleName("selected");
 				setLabelContent(unreadChatThreadTO, label, true, currentUserFullName);
@@ -440,5 +452,34 @@ public class GenericMessageView extends Composite implements MessageView, ShowCh
 		if(event.isShowChatDock()){
 			scrollToBottom();
 		}
+	}
+
+	@Override
+	public void determineMobileChatBehaviour(boolean forceSidePanelAppearance) {
+		if(Window.getClientWidth() <= Positioning.MOBILE_CHAT_THRESHOLD) {
+			if(presenter.getThreadSelection() != null){
+				sidePanelScroll.setVisible(false);
+				threadPanel.setVisible(true);
+			} else {
+				sidePanelScroll.setVisible(true);
+				threadPanel.setVisible(false);
+			}
+		} else {
+			threadPanel.setVisible(true);
+			sidePanelScroll.setVisible(true);
+		}
+		
+		if(forceSidePanelAppearance) {
+			for (Label lbl : sideItems) {
+				lbl.removeStyleName("selected");
+			}
+		}
+		
+		refreshSidePanel();
+	}
+
+	@Override
+	public void refreshSidePanel() {
+		updateSidePanel(unreadChatThreadsTO, currentUserFullName);
 	}
 }

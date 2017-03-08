@@ -103,7 +103,8 @@ public class GenericCourseClassConfigView extends Composite {
     private CourseClassTO courseClassTO;
     private CourseClass courseClass;
     private KornellFormFieldWrapper course, courseVersion, name, publicClass, approveEnrollmentsAutomatically,
-    requiredScore, registrationType, institutionRegistrationPrefix, maxEnrollments, overrideEnrollments, invisible, allowBatchCancellation, courseClassChatEnabled, chatDockEnabled, tutorChatEnabled;
+    requiredScore, registrationType, institutionRegistrationPrefix, maxEnrollments, overrideEnrollments, invisible, 
+    allowBatchCancellation, courseClassChatEnabled, chatDockEnabled, tutorChatEnabled, pagseguroId;
     private List<KornellFormFieldWrapper> fields;
     private String modalMode;
     private ListBox institutionRegistrationPrefixes;
@@ -298,6 +299,10 @@ public class GenericCourseClassConfigView extends Composite {
 	            }
 	        });
             ((CheckBox)chatDockEnabled.getFieldWidget()).setEnabled(isCourseClassChatEnabled);
+            
+            pagseguroId = new KornellFormFieldWrapper("PagSeguro ID", formHelper.createTextBoxFormField(courseClass.getPagseguroId()), isInstitutionAdmin);
+            fields.add(pagseguroId);
+            profileFields.add(pagseguroId);
         }
         
         final ListBox registrationTypes = new ListBox();
@@ -470,6 +475,7 @@ public class GenericCourseClassConfigView extends Composite {
         if(allowPrefixEdit) {
             courseClass.setInstitutionRegistrationPrefixUUID(institutionRegistrationPrefix.getFieldPersistText());
         }
+        courseClass.setPagseguroId(pagseguroId.getFieldPersistText());
         return courseClass;
     }
 

@@ -7,11 +7,19 @@ import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -32,6 +40,7 @@ import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourse
 import kornell.gui.client.presentation.classroom.ClassroomPlace;
 import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.LoadingPopup;
+import kornell.gui.client.util.view.Positioning;
 
 public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPerThreadFetchedEventHandler{
 	private MessageView view;
@@ -79,6 +88,21 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 					updateMessages = false;
 				else
 					updateMessages = true;
+			}
+		});
+		
+
+		Window.addResizeHandler(new ResizeHandler() {
+			@Override
+			public void onResize(ResizeEvent event) {
+				if(placeCtrl.getWhere() instanceof MessagePlace){
+					Scheduler.get().scheduleDeferred(new Command() {
+						@Override
+						public void execute() {
+							determineMobileChatBehaviour(null);
+						}
+					});
+				}
 			}
 		});
 		
@@ -150,16 +174,8 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 			}
 			
 			if(newUnreadChatThreadTOs.size() > 0){
-				// if no thread is selected, "click" the first one
-				if(selectedChatThreadInfo == null && !(placeCtrl.getWhere() instanceof ClassroomPlace)
-						&& (MessagePanelType.inbox.equals(messagePanelType) ||
-								MessagePanelType.courseClassSupport.equals(messagePanelType))){
-					threadClicked(newUnreadChatThreadTOs.get(0));
-				}
-				selectedChatThreadInfo = newUnreadChatThreadTOs.get(0);
-				if(selectedChatThreadInfo != null){
-					view.updateSidePanel(newUnreadChatThreadTOs, selectedChatThreadInfo.getChatThreadUUID(), session.getCurrentUser().getPerson().getFullName());
-				}
+				determineMobileChatBehaviour(newUnreadChatThreadTOs);
+				view.updateSidePanel(newUnreadChatThreadTOs, session.getCurrentUser().getPerson().getFullName());
 			} else if(placeCtrl.getWhere() instanceof MessagePlace && MessagePanelType.inbox.equals(messagePanelType)){
 				KornellNotification.show(constants.noThreadsMessage(), AlertType.WARNING, 5000);
 			} 
@@ -168,9 +184,51 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 		}
 	}
 
+	private void determineMobileChatBehaviour(List<UnreadChatThreadTO> newUnreadChatThreadTOs) {
+		
+		if(Window.getClientWidth() > Positioning.MOBILE_CHAT_THRESHOLD) {
+			if(newUnreadChatThreadTOs != null){
+				// if no thread is selected, "click" the first one
+				if(selectedChatThreadInfo == null && !(placeCtrl.getWhere() instanceof ClassroomPlace)
+						&& (MessagePanelType.inbox.equals(messagePanelType) ||
+								MessagePanelType.courseClassSupport.equals(messagePanelType))){
+					threadClicked(newUnreadChatThreadTOs.get(0));
+				}
+				selectedChatThreadInfo = newUnreadChatThreadTOs.get(0);
+			}
+		}
+
+		if(placeCtrl.getWhere() instanceof MessagePlace && MessagePanelType.inbox.equals(messagePanelType) ){
+			GWT.log(Window.getClientWidth() +" - "+ Positioning.MOBILE_CHAT_THRESHOLD + " - " + (selectedChatThreadInfo != null) + " - " + messagePanelType);
+			if(selectedChatThreadInfo != null && Window.getClientWidth() <= Positioning.MOBILE_CHAT_THRESHOLD){
+				List<IsWidget> widgets = new ArrayList<IsWidget>();
+				Button btn = new Button();
+				btn.setText(constants.backButton());
+				btn.setVisible(true);
+				btn.addStyleName("btnNotSelected btnPlaceBar btnStandard");
+				btn.addClickHandler(new ClickHandler() {
+					@Override public void onClick(ClickEvent e) {
+						GWT.log(" CLICKED " );
+						selectedChatThreadInfo = null; 
+						determineMobileChatBehaviour(null);
+						view.determineMobileChatBehaviour(true);
+						view.refreshSidePanel();
+					}
+				});
+				widgets.add(btn);
+				viewFactory.getMenuBarView().setPlaceBarWidgets(widgets, true);
+			} else {
+				viewFactory.getMenuBarView().setPlaceBarWidgets(new ArrayList<IsWidget>(), true);
+			}
+			view.determineMobileChatBehaviour(false);
+		}
+		
+	}
+
 	@Override
 	public void threadClicked(final UnreadChatThreadTO unreadChatThreadTO) {
 		if(unreadChatThreadTO != null){
+			GWT.log(" threadClicked " );
 			this.selectedChatThreadInfo = unreadChatThreadTO;
 		}
 		
@@ -182,6 +240,8 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 			view.updateThreadPanel(selectedChatThreadInfo, session.getCurrentUser().getPerson().getFullName());
 			onScrollToTop(true);
 		}
+		
+		determineMobileChatBehaviour(null);
 	}
 
 	public void getChatThreadMessagesSinceLast() {
@@ -314,11 +374,12 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 	@Override
 	public void clearThreadSelection(){
 		this.selectedChatThreadInfo = null;
+		GWT.log(" clearThreadSelection " );
 	}
 
 	@Override
 	public UnreadChatThreadTO getThreadSelection(){
-		return this.selectedChatThreadInfo = null;
+		return this.selectedChatThreadInfo;
 	}
 
 	private Date lastFetchedMessageSentAt() {
