@@ -165,7 +165,9 @@ package object repository {
 			rs.getBoolean("chatDockEnabled"),
 			rs.getBoolean("allowBatchCancellation"),  
 			rs.getBoolean("tutorChatEnabled"),
-			rs.getBoolean("approveEnrollmentsAutomatically"))
+			rs.getBoolean("approveEnrollmentsAutomatically"),
+			null,
+			rs.getString("pagseguroId"))
     		
     TOs.newCourseClassTO(course, version, clazz, rs.getString("institutionRegistrationPrefixName"))
   }
