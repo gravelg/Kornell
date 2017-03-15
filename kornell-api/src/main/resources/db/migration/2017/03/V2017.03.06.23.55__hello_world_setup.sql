@@ -22,5 +22,5 @@ insert ignore into Password values ('admin@helloworlduni.com','$2a$10$ovZmMwCwvs
 insert ignore into Role values ('7f54er69-c77c-11e5-9q57-10bf4818bdd1','platformAdmin',@iUUID,NULL,@pUUID);
 
 insert ignore into Course values (@cUUID,'helloworld','Hello World!','Learn about Kornell and how it works!','{"topics":[{"index":"1","title":"Welcome!"}],"hints":[{"type":"fa fa-clock-o","text":"Estimated time: 30 minutes."},{"type":"fa fa-certificate","text":"Course with certificate"},{"type":"fa fa-question-circle","text":"If you need to contact us, click help in the menu above."},{"type":"fa fa-warning","text":"This course contains video and audio, make sure your device can play them."}],"infos":[{"type":"About the course","text":"Kornell is a complicated platform. This easy course is an example of all the features it has to offer."}]}', @iUUID,0);
-insert ignore into CourseVersion values (@cvUUID,'HelloWorld - Version 0.1',@cUUID,now(),'hello-world/v0.1','KNL',0,null,1,null);
+insert ignore into CourseVersion values (@cvUUID,'HelloWorld - Version 0.1',@cUUID,now(),'helloWorld/v0.1','KNL',0,null,1,null);
 insert ignore into CourseClass values (@ccUUID,'Hello World - First class',@cvUUID, @iUUID,1,60,20,now(),@pUUID,'active',0,0,'email',null,1,0,0,1,0,null,null);
