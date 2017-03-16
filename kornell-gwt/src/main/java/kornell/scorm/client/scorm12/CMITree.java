@@ -38,11 +38,9 @@ public abstract class CMITree {
 			Map<String, String> acc, boolean dirtyOnly) {
 		if (tree.isLeaf()) {
 			CMILeaf leaf = (CMILeaf) tree;
-			if (!dirtyOnly || leaf.isDirty()) {
-				
+			if ((dirtyOnly && leaf.isDirty()) || !dirtyOnly) {
+				acc.put(key, tree.getValue(null));
 			}
-
-			acc.put(key, tree.getValue(null));
 		} else {
 			CMINode node = (CMINode) tree;
 			for (Map.Entry<String, CMITree> child : node.children.entrySet()) {
