@@ -55,6 +55,11 @@ public abstract class CMITree {
 	public static Map<String, String> collectDirty(CMITree tree) {
 		Map<String, String> acc = new HashMap<String, String>();
 		collectValues("", tree, acc, true);
+		for (Map.Entry<String, String> entry : acc.entrySet()) {
+			if (entry.getKey().startsWith("knl.action.")) {
+				acc.remove(entry.getKey());
+			}
+		}
 		return acc;
 	}
 }
