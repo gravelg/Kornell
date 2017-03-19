@@ -151,15 +151,18 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 			
 			if(newUnreadChatThreadTOs.size() > 0){
 				// if no thread is selected, "click" the first one
-				if(selectedChatThreadInfo == null && !(placeCtrl.getWhere() instanceof ClassroomPlace)
+				if(selectedChatThreadInfo == null){
+					selectedChatThreadInfo = newUnreadChatThreadTOs.get(0);
+					
+					if(!(placeCtrl.getWhere() instanceof ClassroomPlace)
 						&& (MessagePanelType.inbox.equals(messagePanelType) ||
 								MessagePanelType.courseClassSupport.equals(messagePanelType))){
-					threadClicked(newUnreadChatThreadTOs.get(0));
+						threadClicked(selectedChatThreadInfo);
+					}
 				}
-				selectedChatThreadInfo = newUnreadChatThreadTOs.get(0);
-				if(selectedChatThreadInfo != null){
-					view.updateSidePanel(newUnreadChatThreadTOs, selectedChatThreadInfo.getChatThreadUUID(), session.getCurrentUser().getPerson().getFullName());
-				}
+				view.updateSidePanel(newUnreadChatThreadTOs, selectedChatThreadInfo.getChatThreadUUID(), session.getCurrentUser().getPerson().getFullName());
+				
+				
 			} else if(placeCtrl.getWhere() instanceof MessagePlace && MessagePanelType.inbox.equals(messagePanelType)){
 				KornellNotification.show(constants.noThreadsMessage(), AlertType.WARNING, 5000);
 			} 
