@@ -474,7 +474,9 @@ public class GenericCourseClassConfigView extends Composite {
         if(allowPrefixEdit) {
             courseClass.setInstitutionRegistrationPrefixUUID(institutionRegistrationPrefix.getFieldPersistText());
         }
-        courseClass.setPagseguroId(pagseguroId.getFieldPersistText());
+		if(session.isPlatformAdmin()){
+	        courseClass.setPagseguroId(pagseguroId.getFieldPersistText());
+		}
         return courseClass;
     }
 
