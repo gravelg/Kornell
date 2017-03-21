@@ -70,6 +70,7 @@ class EnrollmentRepo(uuid: String) {
   } cv.getContentSpec match {
     case KNL => updateKNLProgress(e)
     case SCORM12 => updateSCORM12Progress(e)
+    case WIZARD => throw new Exception("Not supported")
   }
 
   def updateKNLProgress(e: Enrollment) = {
@@ -81,8 +82,7 @@ class EnrollmentRepo(uuid: String) {
     setEnrollmentProgress(e, newProgressPerc)
   }
 
-  def findProgressMilestone(e: Enrollment, actomKey: String): Option[Int] =
-    try {
+  def findProgressMilestone(e: Enrollment, actomKey: String): Option[Int] = {
       val actomLike = "%" + actomKey
       val enrollmentUUID = e.getUUID
       val progress = sql"""

@@ -189,12 +189,14 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 		if(Window.getClientWidth() > Positioning.MOBILE_CHAT_THRESHOLD) {
 			if(newUnreadChatThreadTOs != null){
 				// if no thread is selected, "click" the first one
-				if(selectedChatThreadInfo == null && !(placeCtrl.getWhere() instanceof ClassroomPlace)
-						&& (MessagePanelType.inbox.equals(messagePanelType) ||
-								MessagePanelType.courseClassSupport.equals(messagePanelType))){
-					threadClicked(newUnreadChatThreadTOs.get(0));
+				if(selectedChatThreadInfo == null){
+					selectedChatThreadInfo = newUnreadChatThreadTOs.get(0);
+					if(!(placeCtrl.getWhere() instanceof ClassroomPlace)
+							&& (MessagePanelType.inbox.equals(messagePanelType) ||
+									MessagePanelType.courseClassSupport.equals(messagePanelType))){
+						threadClicked(selectedChatThreadInfo);
+					}
 				}
-				selectedChatThreadInfo = newUnreadChatThreadTOs.get(0);
 			}
 		}
 
