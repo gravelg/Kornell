@@ -1,7 +1,0 @@
-#!/bin/bash
-
-svn checkout https://github.com/Craftware/Kornell/trunk/kornell-tools  /mnt/bamboo-ebs/kornell-tools --non-interactive --trust-server-cert
-
-
-export AWS_ACCESS_KEY_ID="AKIAJQP3BHOB4EVVTS4Q"
-export AWS_SECRET_KEY="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"

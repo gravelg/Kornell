@@ -26,11 +26,12 @@ import kornell.core.to.SimplePeopleTO
 import java.net.HttpURLConnection
 import javax.servlet.http.HttpServletResponse
 import kornell.server.jdbc.repository.ContentRepositoriesRepo
+import kornell.core.entity.RepositoryType
 
 object ReportCertificateGenerator {
 
   def newCertificateInformationTO: CertificateInformationTO = new CertificateInformationTO
-  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsURL: String, distributionPrefix: String, courseVersionUUID: String, baseURL: String): CertificateInformationTO = {
+  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsURL: String, distributionPrefix: String, courseVersionUUID: String, baseURL: String, repositoryType: RepositoryType): CertificateInformationTO = {
     val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
     val to = newCertificateInformationTO
     to.setPersonFullName(personFullName)
@@ -43,6 +44,7 @@ object ReportCertificateGenerator {
     to.setCourseVersionUUID(courseVersionUUID)
     to.setBaseURL(baseURL)
     to.setCourseClassFinishedDate(dateConverter.dateToInstitutionTimezone(courseClassFinishedDate))
+    to.setRepositoryType(repositoryType)
     to
   }
   
@@ -57,13 +59,14 @@ object ReportCertificateGenerator {
       rs.getString("assetsRepositoryUUID"),
       rs.getString("distributionPrefix"),
       rs.getString("courseVersionUUID"),
-      rs.getString("baseURL"))
+      rs.getString("baseURL"),
+      RepositoryType.valueOf(rs.getString("repositoryType")))
       
    def generateCertificate(userUUID: String, courseClassUUID: String, resp: HttpServletResponse): Array[Byte] = {
     resp.addHeader("Content-disposition", "attachment; filename=Certificado.pdf")
     
     generateCertificateReport(sql"""
-				select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, i.baseURL
+				select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, i.baseURL, s.repositoryType
 	    		from Person p
 					join Enrollment e on p.uuid = e.person_uuid
 					join CourseClass cc on cc.uuid = e.class_uuid
@@ -86,13 +89,14 @@ object ReportCertificateGenerator {
   }
   
   def getCertificateInformationTOsByCourseClass(courseClassUUID: String, enrollments: String) = {
-    var sql = """select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, i.baseURL
+    var sql = """select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, i.baseURL, s.repositoryType
       from Person p 
       join Enrollment e on p.uuid = e.person_uuid 
       join CourseClass cc on cc.uuid = e.class_uuid 
       join CourseVersion cv on cv.uuid = cc.courseVersion_uuid  
       join Course c on c.uuid = cv.course_uuid  
       join Institution i on i.uuid = cc.institution_uuid 
+		  join ContentRepository s on s.uuid = i.assetsRepositoryUUID
       where e.certifiedAt is not null and  
       e.state <> 'cancelled' and """ +
 		s"""cc.uuid = '$courseClassUUID' """
@@ -108,7 +112,13 @@ object ReportCertificateGenerator {
     	return null
     }
     val parameters: HashMap[String, Object] = new HashMap()
-    val institutionURL: String = composeURL(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/"
+    val institutionURL: String = {
+      if (certificateData.head.getRepositoryType == RepositoryType.FS) {
+        composeURL("http://localhost:8888/repository", certificateData.head.getAssetsURL) + "/"
+      } else {
+        composeURL(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/"
+      }
+    }
     parameters.put("institutionURL", institutionURL)
     
     val assetsURL: String = composeURL(institutionURL, certificateData.head.getDistributionPrefix, "/classroom/reports") + "/"

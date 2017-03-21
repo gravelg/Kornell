@@ -14,7 +14,6 @@
 	<name>API Server</name>
 
 	<properties>
-		<resteasy.version>3.0.8.Final</resteasy.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -97,12 +96,6 @@
 			<version>${scala.version}</version>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.scala-lang</groupId> <artifactId>scala-reflect</artifactId> 
-			<version>${scala.version}</version> </dependency> -->
-		<!-- <dependency> <groupId>org.scalatest</groupId> <artifactId>scalatest_2.11</artifactId> 
-			<version>2.2.6</version> </dependency> -->
-		<!-- <dependency> <groupId>org.jboss.resteasy</groupId> <artifactId>resteasy-jaxrs</artifactId> 
-			<version>${resteasy.version}</version> </dependency> -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -159,18 +152,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-iam</artifactId>
-			<version>${aws.sdk.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.2</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.3.1</version>
@@ -200,9 +181,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.jboss.spec.javax.ejb</groupId> <artifactId>jboss-ejb-api_3.1_spec</artifactId> 
-			<version>1.0.2.Final</version> </dependency> -->
-
 		<dependency>
 			<groupId>org.wildfly.swarm</groupId>
 			<artifactId>jaxrs-cdi</artifactId>
@@ -227,6 +205,12 @@
 			<artifactId>scala-xml_2.11</artifactId>
 			<version>1.0.6</version>
 		</dependency>
+		
+		<dependency>
+    		<groupId>net.lingala.zip4j</groupId>
+    		<artifactId>zip4j</artifactId>
+    		<version>1.3.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -235,10 +219,6 @@
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
 
 		<plugins>
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-compiler-plugin</artifactId> 
-				<version>2.1</version> <configuration> <source>1.8</source> <target>1.8</target> 
-				</configuration> </plugin> -->
-
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
@@ -253,10 +233,6 @@
 				</executions>
 				<configuration>
 					<scalaVersion>${scala.version}</scalaVersion>
-					<!-- <javacArgs> <javacArg>-source 1.7</javacArg> <javacArg>-target 
-						1.7</javacArg> </javacArgs> -->
-					<!-- <args> <arg>-make:transitive</arg> <arg>-dependencyfile</arg> <arg>${project.build.directory}/.scala_dependencies</arg> 
-						</args> <jvmArgs> <jvmArg>-Xms64m</jvmArg> <jvmArg>-Xmx1024m</jvmArg> </jvmArgs> -->
 				</configuration>
 			</plugin>
 
@@ -315,14 +291,6 @@
 					<packagingExcludes>WEB-INF/lib/mysql-connector-java-5.1.25.jar</packagingExcludes>
 				</configuration>
 			</plugin>
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-enforcer-plugin</artifactId> 
-				<version>1.3.1</version> <executions> <execution> <id>enforce-versions</id> 
-				<goals> <goal>enforce</goal> </goals> <configuration> <rules> <requireMavenVersion> 
-				<version>[3.0.4,)</version> </requireMavenVersion> <requireJavaVersion> <version>[1.7,)</version> 
-				</requireJavaVersion> </rules> </configuration> </execution> </executions> 
-				</plugin> -->
-
-
 			<plugin>
 				<groupId>org.wildfly.swarm</groupId>
 				<artifactId>wildfly-swarm-plugin</artifactId>
