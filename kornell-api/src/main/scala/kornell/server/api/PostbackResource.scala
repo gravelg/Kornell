@@ -21,10 +21,14 @@ class PostbackResource {
   @Path("/pagseguro/{institutionUUID}/{env}")
   @POST
   def pagseguro(@PathParam("env") env: String, @PathParam("institutionUUID") institutionUUID: String,
-      @FormParam("notificationCode") notificationCode: String, @FormParam("notificationType") notificationType: String) = {
+      @FormParam("notificationCode") notificationCode: String, @FormParam("notificationType") notificationType: String, payload: String) = {
     //This call needs to return a 200 with empty response immediately
     //Service launches thread for rest of processing
-    PostbackService.pagseguroPostback(env, institutionUUID, notificationCode)
+    if (env == "xml") {
+      PostbackService.processPagseguroResponse(institutionUUID, payload)
+    } else {
+      PostbackService.pagseguroPostback(env, institutionUUID, notificationCode)
+    }
     ""
   }
 }
