@@ -20,7 +20,7 @@ class InstitutionHostnameFilter extends Filter {
   override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) = 
     (sreq, sres) match {
       case (hreq: HttpServletRequest, hres: HttpServletResponse) => {
-        if (hreq.getRequestURI.startsWith("/api")) {
+        if (hreq.getRequestURI.startsWith("/api") && !hreq.getRequestURI.equals("/api")) {
         	doFilter(hreq, hres, chain)
         } else {
           chain.doFilter(hreq, hres)
@@ -29,6 +29,7 @@ class InstitutionHostnameFilter extends Filter {
     }
   
   def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
+//    debugLogRequest(req)
     val institution = getInstitution(req)
     
     if (institution.isDefined) {
@@ -45,6 +46,19 @@ class InstitutionHostnameFilter extends Filter {
     chain.doFilter(req, resp)
   }
   
+  def debugLogRequest(request: HttpServletRequest) = {
+    val pathString = {
+      if (request.getQueryString != null) request.getMethod + " " + request.getRequestURI + "?" + request.getQueryString
+      else request.getMethod + " " + request.getRequestURI
+    }
+    logger.info(pathString)
+    val headers = request.getHeaderNames
+    while(headers.hasMoreElements) {
+      val header = headers.nextElement
+      logger.info(header + ": " + request.getHeader(header))
+    }
+  }
+
   def getInstitution(req: HttpServletRequest): Option[Institution] = {
     if (req.getHeader(DOMAIN_HEADER) != null) {
       InstitutionsRepo.getByHostName(req.getHeader(DOMAIN_HEADER))
@@ -67,17 +81,7 @@ class InstitutionHostnameFilter extends Filter {
       None
     }
   }
-  
-//  def getInstitution(req: HttpServletRequest): Option[Institution] = {
-//    if (req.getHeader(DOMAIN_HEADER) != null) {
-//      InstitutionsRepo.getByHostName(req.getHeader(DOMAIN_HEADER))
-//    } else if (req.getHeader("Referer") != null && req.getParameter("institution") != null) {
-//      InstitutionsRepo.getByName(req.getParameter("institution"))
-//    } else {
-//      None
-//    }
-//  }
-  
+
   override def init(cfg: FilterConfig) {}
 
   override def destroy() {}
