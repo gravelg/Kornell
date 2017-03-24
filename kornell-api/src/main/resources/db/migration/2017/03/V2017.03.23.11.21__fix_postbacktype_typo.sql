@@ -1,1 +1,1 @@
-update PostbackType set postbackType = 'PAGSEGURO' where postbackType = 'PAGESGURO';
+update PostbackConfig set postbackType = 'PAGSEGURO' where postbackType = 'PAGESGURO';
