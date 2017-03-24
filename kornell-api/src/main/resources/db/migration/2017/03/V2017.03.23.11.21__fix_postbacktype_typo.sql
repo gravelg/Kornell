@@ -1,0 +1,1 @@
+update PostbackType set postbackType = 'PAGSEGURO' where postbackType = 'PAGESGURO';
