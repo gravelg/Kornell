@@ -66,7 +66,6 @@ object Entities {
     receiveEmailCommunication: Boolean = true,
     forcePasswordUpdate: Boolean = false) = {
     //in some case, we new a person and no one is authenticated
-	val dateConverter = DateConverter()
     val person = factory.newPerson.as
     person.setUUID(uuid)
     person.setFullName(fullName)
@@ -86,7 +85,7 @@ object Entities {
     person.setPostalCode(postalCode)
     person.setCPF(cpf)
     person.setInstitutionUUID(institutionUUID)
-    person.setTermsAcceptedOn(dateConverter.dateToInstitutionTimezone(termsAcceptedOn, institutionUUID))
+    person.setTermsAcceptedOn(DateConverter.convertDate(termsAcceptedOn))
     person.setRegistrationType(registrationType)
     person.setInstitutionRegistrationPrefixUUID(institutionRegistrationPrefixUUID)
     person.setReceiveEmailCommunication(receiveEmailCommunication)
@@ -145,7 +144,6 @@ object Entities {
     courseVersionUUID: String = null, parentEnrollmentUUID:String = null,
     startDate:Date=null,endDate:Date=null,
     preAssessment:BigDecimal=null,postAssessment:BigDecimal=null, enrollmentSource:EnrollmentSource=null): Enrollment = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null))
     val e = factory.enrollment.as
     e.setUUID(uuid)
     e.setCourseClassUUID(courseClassUUID)
@@ -163,15 +161,15 @@ object Entities {
     e.setPostAssessmentScore(postAssessment)
     e.setEnrollmentSource(enrollmentSource)
     if (courseClassUUID != null){
-      e.setEnrolledOn(dateConverter.dateToInstitutionTimezoneFromCourseClass(enrolledOn, courseClassUUID))
-      e.setLastProgressUpdate(dateConverter.dateToInstitutionTimezoneFromCourseClass(lastProgressUpdate, courseClassUUID))
-      e.setLastAssessmentUpdate(dateConverter.dateToInstitutionTimezoneFromCourseClass(lastAssessmentUpdate, courseClassUUID))
-      e.setCertifiedAt(dateConverter.dateToInstitutionTimezoneFromCourseClass(certifiedAt, courseClassUUID))
+      e.setEnrolledOn(DateConverter.convertDate(enrolledOn))
+      e.setLastProgressUpdate(DateConverter.convertDate(lastProgressUpdate))
+      e.setLastAssessmentUpdate(DateConverter.convertDate(lastAssessmentUpdate))
+      e.setCertifiedAt(DateConverter.convertDate(certifiedAt))
     } else {
-      e.setEnrolledOn(dateConverter.dateToInstitutionTimezone(enrolledOn))
-      e.setLastProgressUpdate(dateConverter.dateToInstitutionTimezone(lastProgressUpdate))
-      e.setLastAssessmentUpdate(dateConverter.dateToInstitutionTimezone(lastAssessmentUpdate))
-      e.setCertifiedAt(dateConverter.dateToInstitutionTimezone(certifiedAt))
+      e.setEnrolledOn(DateConverter.convertDate(enrolledOn))
+      e.setLastProgressUpdate(DateConverter.convertDate(lastProgressUpdate))
+      e.setLastAssessmentUpdate(DateConverter.convertDate(lastAssessmentUpdate))
+      e.setCertifiedAt(DateConverter.convertDate(certifiedAt))
     }
     e
   }
@@ -282,16 +280,11 @@ object Entities {
     courseUUID: String = null, versionCreatedAt: Date = new Date, distributionPrefix: String = null, 
     contentSpec: String = null, disabled: Boolean = false, parentVersionUUID: String = null,
     instanceCount: Integer = 1, label: String = null) = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(""))
-    val versionCreatedAtConverted = {
-      if(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.isDefined) dateConverter.dateToInstitutionTimezone(versionCreatedAt)
-      else dateConverter.dateToInstitutionTimezone(versionCreatedAt, CourseRepo(courseUUID).get.getInstitutionUUID)
-    }
     val version = factory.newCourseVersion.as
     version.setUUID(uuid);
     version.setName(name);
     version.setCourseUUID(courseUUID);
-    version.setVersionCreatedAt(versionCreatedAtConverted)
+    version.setVersionCreatedAt(DateConverter.convertDate(versionCreatedAt))
     version.setDistributionPrefix(distributionPrefix)
     version.setDisabled(disabled)
     version.setParentVersionUUID(parentVersionUUID)
@@ -319,11 +312,6 @@ object Entities {
     tutorChatEnabled: Boolean = false,
     approveEnrollmentsAutomatically: Boolean = false,
     startDate:Date = null, pagseguroId: String = null) = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(""))
-    val createdAtConverted = {
-      if(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.isDefined) dateConverter.dateToInstitutionTimezone(createdAt)
-      else dateConverter.dateToInstitutionTimezone(createdAt, institutionUUID)
-    }
     val clazz = factory.newCourseClass.as
     clazz.setUUID(uuid)
     clazz.setName(name)
@@ -334,7 +322,7 @@ object Entities {
     clazz.setOverrideEnrollments(overrideEnrollments)
     clazz.setInvisible(invisible)
     clazz.setMaxEnrollments(maxEnrollments)
-    clazz.setCreatedAt(createdAtConverted)
+    clazz.setCreatedAt(DateConverter.convertDate(createdAt))
     clazz.setCreatedBy(createdBy)
     clazz.setState(state)
     clazz.setRegistrationType(registrationType)
@@ -380,10 +368,9 @@ object Entities {
   }
 
   def newChatThread(uuid: String = null, createdAt: Date = null, institutionUUID: String = null, courseClassUUID: String = null, personUUID: String = null, threadType: String = null, active: Boolean = true) = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null))
     val chatThread = factory.newChatThread.as
     chatThread.setUUID(uuid)
-    chatThread.setCreatedAt(dateConverter.dateToInstitutionTimezoneFromCourseClass(createdAt, courseClassUUID))
+    chatThread.setCreatedAt(DateConverter.convertDate(createdAt))
     chatThread.setInstitutionUUID(institutionUUID)
     chatThread.setCourseClassUUID(courseClassUUID)
     chatThread.setPersonUUID(personUUID)
@@ -394,14 +381,13 @@ object Entities {
 
   def newChatThreadParticipant(uuid: String = null, chatThreadUUID: String = null, personUUID: String = null, 
       chatThreadName: String = null, lastReadAt: Date = null, active: Boolean = false, lastJoinDate: Date = null) = {
-    val dateConverter = new DateConverter(personUUID)
     val chatThreadParticipant = factory.newChatThreadParticipant.as
     chatThreadParticipant.setUUID(uuid)
     chatThreadParticipant.setThreadUUID(chatThreadUUID)
     chatThreadParticipant.setPersonUUID(personUUID)
-    chatThreadParticipant.setLastReadAt(dateConverter.dateToInstitutionTimezone(lastReadAt))
+    chatThreadParticipant.setLastReadAt(DateConverter.convertDate(lastReadAt))
     chatThreadParticipant.setActive(active)
-    chatThreadParticipant.setLastJoinDate(dateConverter.dateToInstitutionTimezone(lastJoinDate))
+    chatThreadParticipant.setLastJoinDate(DateConverter.convertDate(lastJoinDate))
     chatThreadParticipant
   }
 

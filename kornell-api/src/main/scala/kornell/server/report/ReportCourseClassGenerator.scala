@@ -31,7 +31,6 @@ object ReportCourseClassGenerator {
       certifiedAt: Date, enrolledAt: Date, courseName: String, courseVersionName: String, courseClassName: String, 
       company: String, title: String, sex: String, birthDate: String, telephone: String, country: String, stateProvince: String, 
       city: String, addressLine1: String, addressLine2: String, postalCode: String): CourseClassReportTO = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
     val to = newCourseClassReportTO
     to.setFullName(fullName)
     to.setUsername(username)
@@ -43,8 +42,8 @@ object ReportCourseClassGenerator {
     to.setAssessmentScore(assessmentScore)
     to.setPreAssessmentScore(preAssessmentScore)
     to.setPostAssessmentScore(postAssessmentScore)
-    to.setCertifiedAt(dateConverter.dateToInstitutionTimezone(certifiedAt))
-    to.setEnrolledAt(dateConverter.dateToInstitutionTimezone(enrolledAt))
+    to.setCertifiedAt(DateConverter.convertDate(certifiedAt))
+    to.setEnrolledAt(DateConverter.convertDate(enrolledAt))
     to.setCourseName(courseName)
     to.setCourseVersionName(courseVersionName)
     to.setCourseClassName(courseClassName)

@@ -32,7 +32,6 @@ object ReportCertificateGenerator {
 
   def newCertificateInformationTO: CertificateInformationTO = new CertificateInformationTO
   def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsURL: String, distributionPrefix: String, courseVersionUUID: String, baseURL: String, repositoryType: RepositoryType): CertificateInformationTO = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
     val to = newCertificateInformationTO
     to.setPersonFullName(personFullName)
     to.setPersonCPF(personCPF)
@@ -43,7 +42,7 @@ object ReportCertificateGenerator {
     to.setDistributionPrefix(distributionPrefix)
     to.setCourseVersionUUID(courseVersionUUID)
     to.setBaseURL(baseURL)
-    to.setCourseClassFinishedDate(dateConverter.dateToInstitutionTimezone(courseClassFinishedDate))
+    to.setCourseClassFinishedDate(DateConverter.convertDate(courseClassFinishedDate))
     to.setRepositoryType(repositoryType)
     to
   }
