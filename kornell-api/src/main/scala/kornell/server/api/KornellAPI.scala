@@ -49,7 +49,8 @@ class KornellAPI extends Application {
     classOf[HealthCheckResource],
     classOf[TokenResource],
     classOf[ContentRepositoriesResource],
-    classOf[PostbackResource]
+    classOf[PostbackResource],
+    classOf[CacheResource]
   )
     
   override def getClasses() = 

@@ -21,7 +21,7 @@ object TokenRepo {
 
   def apply() = new TokenRepo(newTokenCache)
 
-  def newTokenCache() = cacheBuilder.build(tokenLoader)
+  def newTokenCache = cacheBuilder.build(tokenLoader)
 
   type TokenID = String
   type TokenCache = LoadingCache[TokenID, Option[TokenTO]]
@@ -30,6 +30,8 @@ object TokenRepo {
     override def load(token: TokenID): Option[TokenTO] =
       lookupToken(token)
   }
+
+  def clearCache() = newTokenCache.invalidateAll()
 
   def lookupToken(token: TokenID) = {
     sql"""select * from Token where token = ${token}""".first[TokenTO]

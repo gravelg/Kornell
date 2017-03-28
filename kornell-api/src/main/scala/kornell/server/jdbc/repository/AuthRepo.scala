@@ -3,8 +3,6 @@ package kornell.server.jdbc.repository
 import java.sql.ResultSet
 import java.util.concurrent.TimeUnit.MINUTES
 import scala.collection.JavaConverters.setAsJavaSetConverter
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
 import kornell.core.entity.Person
@@ -13,7 +11,6 @@ import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.SQL._
 import kornell.server.repository.Entities.newPerson
 import kornell.server.util.SHA256
-import com.google.common.cache.LoadingCache
 import scala.util.Try
 import kornell.core.entity.RoleType
 import kornell.core.error.exception.EntityNotFoundException
@@ -37,7 +34,6 @@ object AuthRepo {
   type UsrPassword = String
   type PersonUUID = String
   type PasswordResetRequired = Boolean
-  type PasswordCache = LoadingCache[UsrKey, Option[UsrValue]]
 
   def authByEmail(institutionUUID: String, email: String) = 
    sql"""
