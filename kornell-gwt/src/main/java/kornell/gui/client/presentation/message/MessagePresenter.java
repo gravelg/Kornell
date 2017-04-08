@@ -210,7 +210,6 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 				btn.addStyleName("btnNotSelected btnPlaceBar btnStandard");
 				btn.addClickHandler(new ClickHandler() {
 					@Override public void onClick(ClickEvent e) {
-						GWT.log(" CLICKED " );
 						selectedChatThreadInfo = null; 
 						determineMobileChatBehaviour(null);
 						view.determineMobileChatBehaviour(true);
