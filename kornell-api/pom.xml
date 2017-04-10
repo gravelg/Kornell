@@ -23,7 +23,7 @@
 		<buildNumber>Development Build</buildNumber>
 		<scala.version>2.11.8</scala.version>
 		<aws.sdk.version>1.10.77</aws.sdk.version>
-		<version.swarm>1.0.0.Final</version.swarm>
+		<version.swarm>2016.10.0</version.swarm>
 		<jasper.version>5.0.4</jasper.version>
 	</properties>
 
