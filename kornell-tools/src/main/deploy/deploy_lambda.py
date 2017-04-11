@@ -12,8 +12,8 @@ def lambda_handler(event, context):
     print "Starting S3 upload"
     tmp_dir = tempfile.mkdtemp()
     zip_path = tmp_dir + '/archive.zip'
-    s3_resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
-    s3_resource.meta.client.download_file(os.environ['VERSION_BUCKET'], os.environ['GWT_VERSION_KEY'], zip_path)
+    s3_resource = boto3.resource('s3', config=Config(signature_version='s3v4')).meta.client
+    s3_resource.download_file(os.environ['VERSION_BUCKET'], os.environ['GWT_VERSION_KEY'], zip_path)
     zip_ref = zipfile.ZipFile(zip_path, 'r')
     zip_ref.extractall(tmp_dir)
     zip_ref.close()
@@ -37,13 +37,18 @@ def lambda_handler(event, context):
                 print "Content Type not found for " + upload_path
                 content_type = "application/octet-stream"
             print "Uploading " + os.path.join(path, name) + " to " + upload_path
-            s3_resource.meta.client.upload_file(os.path.join(path, name), os.environ['GWT_BUCKET'], upload_path,
+            s3_resource.upload_file(os.path.join(path, name), os.environ['GWT_BUCKET'], upload_path,
                 ExtraArgs={'CacheControl': "max-age=" + max_age, 'ContentType': content_type})
 
     print "S3 upload complete"
     print "Starting API release"
     version_label = 'kornell-api-' + datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
-    source_bundle = {"S3Bucket": os.environ['VERSION_BUCKET'], "S3Key": os.environ['API_VERSION_KEY']}
+    new_filename = os.environ['API_VERSION_KEY'].replace('kornell-api-eb.zip', version_label + ".zip")
+    s3_resource.copy_object(
+        Bucket=os.environ['VERSION_BUCKET'],
+        CopySource=os.environ['VERSION_BUCKET'] + "/" + os.environ['API_VERSION_KEY'],
+        Key=new_filename)
+    source_bundle = {"S3Bucket": os.environ['VERSION_BUCKET'], "S3Key": new_filename}
     ebc_client = boto3.client('elasticbeanstalk')
     response = ebc_client.create_application_version(
         ApplicationName=os.environ['API_APPLICATION_NAME'],
@@ -55,3 +60,4 @@ def lambda_handler(event, context):
         EnvironmentName=os.environ['ENV_NAME'],
         VersionLabel=version_label)
     print "API release complete"
+    return "success"
