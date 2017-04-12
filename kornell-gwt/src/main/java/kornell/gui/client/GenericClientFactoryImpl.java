@@ -149,6 +149,11 @@ public class GenericClientFactoryImpl implements ClientFactory {
 				KornellMaintenance.show();
 			}
 
+			@Override
+			public void badGateway() {
+				KornellMaintenance.show();
+			}
+
 			private void doCallbackOk(final UserHelloTO userHelloTO) {
 				Institution institution = userHelloTO.getInstitution();				
 				if (institution == null) {
