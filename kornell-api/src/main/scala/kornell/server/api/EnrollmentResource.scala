@@ -35,6 +35,8 @@ import kornell.server.ep.EnrollmentSEP
 import kornell.server.jdbc.repository.CourseClassesRepo
 import kornell.core.to.DashboardLeaderboardTO
 import kornell.server.jdbc.repository.EnrollmentsRepo
+import kornell.server.jdbc.repository.CourseVersionRepo
+import kornell.core.entity.ContentSpec
 
 @Produces(Array(Enrollment.TYPE))
 class EnrollmentResource(uuid: String) {
@@ -128,32 +130,36 @@ class EnrollmentResource(uuid: String) {
       actomEntries.setEntries(entriesMap)
     }
     
-    //initialize the enrollmentEntries map if no attribute exists
-    val enrollmentEntries = Option(eEntries.getEnrollmentEntriesMap.get(enrollment.getUUID)) match {
-      case Some(ee) => ee
-      case None => {
-        val ee = Entities.newEnrollmentEntries
-        eEntries.getEnrollmentEntriesMap.put(enrollment.getUUID, ee)
-        ee
-      }
-    }
-    
-    //initialize for each actom
-    eContents.getChildren.asScala.foreach { topic =>  
-      topic.getTopic.getChildren.asScala.foreach { externalPage =>  
-        val key = externalPage.getExternalPage.getKey
-        val actomEntries = Option(enrollmentEntries.getActomEntriesMap.get(key)) match {
-          case Some(ae) => ae
-          case None => {
-            val entriesMap = new HashMap[String,String]()
-            val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
-            entriesMap.putAll(launchedMap)
-            val ae = Entities.newActomEntries(enrollment.getUUID, key, entriesMap)
-            enrollmentEntries.getActomEntriesMap.put(key, ae)
-            ae
-          }
+    //if the enrollment is on a class and it's a SCORM12 version
+    if(courseClass != null &&
+        ContentSpec.SCORM12.equals(CourseVersionRepo(courseClass.getCourseVersionUUID).get.getContentSpec)) {
+      //initialize the enrollmentEntries map if no attribute exists
+      val enrollmentEntries = Option(eEntries.getEnrollmentEntriesMap.get(enrollment.getUUID)) match {
+        case Some(ee) => ee
+        case None => {
+          val ee = Entities.newEnrollmentEntries
+          eEntries.getEnrollmentEntriesMap.put(enrollment.getUUID, ee)
+          ee
         }
-      }  
+      }
+      
+      //initialize for each actom
+      eContents.getChildren.asScala.foreach { topic =>  
+        topic.getTopic.getChildren.asScala.foreach { externalPage =>  
+          val key = externalPage.getExternalPage.getKey
+          val actomEntries = Option(enrollmentEntries.getActomEntriesMap.get(key)) match {
+            case Some(ae) => ae
+            case None => {
+              val entriesMap = new HashMap[String,String]()
+              val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
+              entriesMap.putAll(launchedMap)
+              val ae = Entities.newActomEntries(enrollment.getUUID, key, entriesMap)
+              enrollmentEntries.getActomEntriesMap.put(key, ae)
+              ae
+            }
+          }
+        }  
+      }
     }
 
     eLaunch.setEnrollmentEntries(eEntries)
