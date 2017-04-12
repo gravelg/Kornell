@@ -1,0 +1,1 @@
+alter table ActomEntries modify entryValue text default null;
