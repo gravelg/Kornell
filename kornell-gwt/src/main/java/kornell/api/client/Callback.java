@@ -8,6 +8,7 @@ import static com.google.gwt.http.client.Response.SC_NO_CONTENT;
 import static com.google.gwt.http.client.Response.SC_OK;
 import static com.google.gwt.http.client.Response.SC_SERVICE_UNAVAILABLE;
 import static com.google.gwt.http.client.Response.SC_UNAUTHORIZED;
+import static com.google.gwt.http.client.Response.SC_BAD_GATEWAY;
 
 import java.util.logging.Logger;
 
@@ -61,6 +62,9 @@ public abstract class Callback<T> implements RequestCallback {
 			break;
 		case SC_SERVICE_UNAVAILABLE:
 			serviceUnavailable();
+			break;
+		case SC_BAD_GATEWAY:
+			badGateway();
 			break;
 		case 0:
 			failed();
@@ -148,6 +152,9 @@ public abstract class Callback<T> implements RequestCallback {
 	}
 
 	protected void serviceUnavailable() {
+	}
+
+	protected void badGateway() {
 	}
 
 	private T bool(String responseText) {
