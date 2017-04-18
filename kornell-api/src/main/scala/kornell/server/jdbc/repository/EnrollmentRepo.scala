@@ -132,7 +132,6 @@ class EnrollmentRepo(uuid: String) {
     progress
   }
 
-  //TODO: Consider lesson_status
   def updateSCORM12Progress(e: Enrollment) = 
     progressFromSuspendData(e)
       .orElse(progressFromMilestones(e))
@@ -186,18 +185,6 @@ class EnrollmentRepo(uuid: String) {
       Assessment.FAILED
     (maxScore, assessment)
   }
-
-//  def findLastEventTime(e: Enrollment) = {
-//    val lastActomEntered = sql"""
-//		select max(ingestedAt) as latestEvent
-//		from ActomEntryChangedEvent 
-//		where 
-//		  entryKey='cmi.core.score.raw' 
-//		  and enrollment_uuid=${e.getUUID()} 
-//    """
-//      .first[String] { rs => rs.getString("latestEvent") }
-//    lastActomEntered
-//  }
 
   def checkCompletion(e: Enrollment) = {
     val isPassed = Assessment.PASSED == e.getAssessment
