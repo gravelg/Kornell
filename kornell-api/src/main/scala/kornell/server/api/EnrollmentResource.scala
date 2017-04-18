@@ -35,6 +35,8 @@ import kornell.server.ep.EnrollmentSEP
 import kornell.server.jdbc.repository.CourseClassesRepo
 import kornell.core.to.DashboardLeaderboardTO
 import kornell.server.jdbc.repository.EnrollmentsRepo
+import kornell.server.jdbc.repository.CourseVersionRepo
+import kornell.core.entity.ContentSpec
 
 @Produces(Array(Enrollment.TYPE))
 class EnrollmentResource(uuid: String) {
@@ -99,15 +101,7 @@ class EnrollmentResource(uuid: String) {
   @Path("launch")
   @Produces(Array(EnrollmentLaunchTO.TYPE))
   def launch() = AuthRepo().withPerson { person =>
-    val eLaunch: EnrollmentLaunchTO = TOs.newEnrollmentLaunchTO
     
-    val eContents = contents.get
-    eLaunch.setContents(eContents)
-    
-    val enrollments:List[String] = findEnrollmentsFamilyUUIDs
-    val eEntries = getEntries(enrollments)
-
-    val mEntries = eEntries.getEnrollmentEntriesMap.asScala
     val classUUID = Option(enrollment.getCourseClassUUID).getOrElse {
       val parent = EnrollmentRepo(enrollment.getParentEnrollmentUUID).first
       parent.map{_.getCourseClassUUID()}.getOrElse(null)
@@ -115,35 +109,62 @@ class EnrollmentResource(uuid: String) {
     val courseClass = if(classUUID != null){
       CourseClassesRepo(classUUID).get
     } else null
+        
+    
+    val eLaunch: EnrollmentLaunchTO = TOs.newEnrollmentLaunchTO
+    
+    val eContents = contents.get
+    eLaunch.setContents(eContents)
+    
+    val enrollments:List[String] = findEnrollmentsFamilyUUIDs
+    val eEntries = getEntries(enrollments)
+    val mEntries = eEntries.getEnrollmentEntriesMap.asScala    
     
     for {
       (enrollmentUUID, enrollmentEntries) <- mEntries.par
       (actomKey,actomEntries) <- enrollmentEntries.getActomEntriesMap.asScala
     } {
       val entriesMap = actomEntries.getEntries
-      val launchedMap = SCORM12.initialize(entriesMap,person,enrollment, courseClass)
+      val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
       entriesMap.putAll(launchedMap)
       actomEntries.setEntries(entriesMap)
+    }
+    
+    //if the enrollment is on a class and it's a SCORM12 version
+    if(courseClass != null &&
+        ContentSpec.SCORM12.equals(CourseVersionRepo(courseClass.getCourseVersionUUID).get.getContentSpec)) {
+      //initialize the enrollmentEntries map if no attribute exists
+      val enrollmentEntries = Option(eEntries.getEnrollmentEntriesMap.get(enrollment.getUUID)) match {
+        case Some(ee) => ee
+        case None => {
+          val ee = Entities.newEnrollmentEntries
+          eEntries.getEnrollmentEntriesMap.put(enrollment.getUUID, ee)
+          ee
+        }
+      }
+      
+      //initialize for each actom
+      eContents.getChildren.asScala.foreach { topic =>  
+        topic.getTopic.getChildren.asScala.foreach { externalPage =>  
+          val key = externalPage.getExternalPage.getKey
+          val actomEntries = Option(enrollmentEntries.getActomEntriesMap.get(key)) match {
+            case Some(ae) => ae
+            case None => {
+              val entriesMap = new HashMap[String,String]()
+              val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
+              entriesMap.putAll(launchedMap)
+              val ae = Entities.newActomEntries(enrollment.getUUID, key, entriesMap)
+              enrollmentEntries.getActomEntriesMap.put(key, ae)
+              ae
+            }
+          }
+        }  
+      }
     }
 
     eLaunch.setEnrollmentEntries(eEntries)
     EnrollmentSEP.onProgress(uuid)
     eLaunch
-  }
-
-  @GET
-  @Path("approved")
-  @Produces(Array("application/octet-stream"))
-  def approved = {
-    val e = first.get
-    if (Assessment.PASSED == e.getAssessment) {
-      if (e.getAssessmentScore != null)
-        e.getAssessmentScore.toString
-      else
-        ""
-    } else {
-      ""
-    }
   }
 
   def getEntries(es:List[String]):EnrollmentsEntries = {
@@ -185,6 +206,21 @@ class EnrollmentResource(uuid: String) {
       actomEntries.getEntries.put(entryKey, entryValue)
     }
     esEntries   
+  }
+
+  @GET
+  @Path("approved")
+  @Produces(Array("application/octet-stream"))
+  def approved = {
+    val e = first.get
+    if (Assessment.PASSED == e.getAssessment) {
+      if (e.getAssessmentScore != null)
+        e.getAssessmentScore.toString
+      else
+        ""
+    } else {
+      ""
+    }
   }
     
   @GET
