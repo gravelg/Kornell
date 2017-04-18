@@ -556,7 +556,8 @@ public class FormHelper {
 	public ListBox getSkinsList(){
 		ListBox skins = new ListBox();
 
-		skins.addItem("Escuro - Verde", "");
+		skins.addItem("Escuro - Padrão", "");
+		skins.addItem("Escuro - Verde", "_green");
 		skins.addItem("Escuro - Azul", "_blue");
 		skins.addItem("Escuro - Amarelo", "_yellow");
 		skins.addItem("Escuro - Vermelho", "_red");
