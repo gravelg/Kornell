@@ -132,7 +132,7 @@ public class GenericMenuBarView extends Composite implements MenuBarView,
 			String assetsURL = session.getAssetsURL();
 			String skin = session.getInstitution().getSkin();
 			boolean isLightSkin = skin == null || !skin.contains("_light");
-			String barLogoFileName = "logo300x45"
+			String barLogoFileName = "logo250x45"
 					+ (isLightSkin ? "_light" : "") + ".png";
 			imgMenuBarUrl = StringUtils.mkurl(assetsURL, barLogoFileName);
 		}

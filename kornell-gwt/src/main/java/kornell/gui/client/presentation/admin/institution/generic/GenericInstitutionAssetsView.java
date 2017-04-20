@@ -64,8 +64,8 @@ public class GenericInstitutionAssetsView extends Composite {
 
 	public void initData() {
 		assetsFields.clear();
-		assetsFields.add(buildFileUploadPanel("logo300x45.png", "image/png", "Logo 300x45 - escura"));
-		assetsFields.add(buildFileUploadPanel("logo300x45_light.png", "image/png", "Logo 300x45 - clara"));
+		assetsFields.add(buildFileUploadPanel("logo250x45.png", "image/png", "Logo 250x45 - escura"));
+		assetsFields.add(buildFileUploadPanel("logo250x45_light.png", "image/png", "Logo 250x45 - clara"));
 		assetsFields.add(buildFileUploadPanel("logo300x80.png", "image/png", "Logo 300x80 - escura"));
 		assetsFields.add(buildFileUploadPanel("logo300x80_light.png", "image/png", "Logo 300x80 - clara"));
 		assetsFields.add(buildFileUploadPanel("bgVitrine.jpg", "image/jpg", "Background da Vitrine"));
