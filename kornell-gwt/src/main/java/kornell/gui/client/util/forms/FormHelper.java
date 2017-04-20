@@ -561,10 +561,10 @@ public class FormHelper {
 		skins.addItem("Escuro - Azul", "_blue");
 		skins.addItem("Escuro - Amarelo", "_yellow");
 		skins.addItem("Escuro - Vermelho", "_red");
-		/*skins.addItem("Claro - Cinza", "_light");
+		skins.addItem("Claro - Cinza", "_light");
 		skins.addItem("Claro - Verde", "_light_green");
 		skins.addItem("Claro - Azul", "_light_blue");
-		skins.addItem("Claro - Vermelho", "_light_red");*/
+		skins.addItem("Claro - Vermelho", "_light_red");
 
 		return skins;
 	}

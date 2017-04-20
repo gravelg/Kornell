@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
@@ -28,9 +29,9 @@ import kornell.core.entity.RoleType;
 import kornell.core.entity.Roles;
 import kornell.core.to.RoleTO;
 import kornell.core.to.RolesTO;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.util.forms.formfield.PeopleMultipleSelect;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericInstitutionAdminsView extends Composite {
 	interface MyUiBinder extends UiBinder<Widget, GenericInstitutionAdminsView> {
@@ -54,10 +55,12 @@ public class GenericInstitutionAdminsView extends Composite {
 	Button btnCancel;
 
 	private Institution institution;
+	private EventBus bus;
 	
-	public GenericInstitutionAdminsView(final KornellSession session,
+	public GenericInstitutionAdminsView(final KornellSession session, EventBus bus,
 			kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter, Institution institution) {
 		this.session = session;
+		this.bus = bus;
 		this.institution = institution;
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -81,7 +84,7 @@ public class GenericInstitutionAdminsView extends Composite {
 		fieldPanelWrapper.add(labelPanel);
 		
 
-		LoadingPopup.show();
+		bus.fireEvent(new ShowPacifierEvent(true));
 		session.institution(institution.getUUID()).getAdmins(RoleCategory.BIND_WITH_PERSON,
 				new Callback<RolesTO>() {
 			@Override
@@ -93,7 +96,7 @@ public class GenericInstitutionAdminsView extends Composite {
 					}
 					peopleMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
 				}
-				LoadingPopup.hide();
+				bus.fireEvent(new ShowPacifierEvent(false));
 			}
 		});
 		peopleMultipleSelect = new PeopleMultipleSelect(session);

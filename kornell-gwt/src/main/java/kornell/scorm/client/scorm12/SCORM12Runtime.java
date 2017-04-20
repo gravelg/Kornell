@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Timer;
 import com.google.web.bindery.event.shared.EventBus;

@@ -35,9 +35,9 @@ import kornell.core.to.SimplePeopleTO;
 import kornell.core.to.SimplePersonTO;
 import kornell.core.to.TOFactory;
 import kornell.core.util.StringUtils;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.util.ClientConstants;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericCourseClassReportItemView extends Composite {
 	interface MyUiBinder extends UiBinder<Widget, GenericCourseClassReportItemView> {
@@ -47,6 +47,7 @@ public class GenericCourseClassReportItemView extends Composite {
 	private String ADMIN_IMAGES_PATH = StringUtils.mkurl(ClientConstants.IMAGES_PATH, "admin/");
 	private String LIBRARY_IMAGES_PATH = StringUtils.mkurl(ClientConstants.IMAGES_PATH, "courseLibrary/");
 	private KornellSession session;
+	private EventBus bus;
 	private CourseClassTO currentCourseClass;
 	private String type;
 	private String name;
@@ -76,9 +77,10 @@ public class GenericCourseClassReportItemView extends Composite {
 	private TextArea usernamesTextArea;
 
 
-	public GenericCourseClassReportItemView(EventBus eventBus, KornellSession session, CourseClassTO currentCourseClass,
+	public GenericCourseClassReportItemView(EventBus bus, KornellSession session, CourseClassTO currentCourseClass,
 			String type) {
 		this.session = session;
+		this.bus = bus;
 		this.currentCourseClass = currentCourseClass;
 		this.type = type;
 		initWidget(uiBinder.createAndBindUi(this));
@@ -216,7 +218,7 @@ public class GenericCourseClassReportItemView extends Composite {
 			@Override
 			public void onClick(ClickEvent event) {
 				displayCertificateActionCell(null);
-				LoadingPopup.show();
+				bus.fireEvent(new ShowPacifierEvent(true));
 				SimplePeopleTO simplePeopleTO = buildSimplePeopleTO();
 				session.report().generateCourseClassCertificate(currentCourseClass.getCourseClass().getUUID(), simplePeopleTO, new Callback<String>() {
 					
@@ -224,14 +226,14 @@ public class GenericCourseClassReportItemView extends Composite {
 					public void ok(String url) {
 						KornellNotification.show("Os certificados foram gerados.", AlertType.WARNING, 2000);
 						displayCertificateActionCell(url);
-						LoadingPopup.hide();
+						bus.fireEvent(new ShowPacifierEvent(false));
 					}
 					
 					@Override
 					public void internalServerError(KornellErrorTO kornellErrorTO) {
 						KornellNotification.show("Erro na geração dos certificados. Certifique-se que existem alunos que concluíram o curso nessa turma.", AlertType.ERROR, 3000);
 						displayCertificateActionCell(null);
-						LoadingPopup.hide();
+						bus.fireEvent(new ShowPacifierEvent(false));
 					}
 				});
 			}

@@ -5,14 +5,15 @@ import java.util.logging.Logger;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.to.CourseVersionsTO;
 import kornell.core.to.TOFactory;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.util.forms.FormHelper;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Presenter {
 	Logger logger = Logger.getLogger(AdminCourseVersionsPresenter.class.getName());
@@ -27,12 +28,14 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
+	private EventBus bus;
 
 
-	public AdminCourseVersionsPresenter(KornellSession session,
+	public AdminCourseVersionsPresenter(KornellSession session, EventBus bus,
 			PlaceController placeController, Place defaultPlace,
 			TOFactory toFactory, ViewFactory viewFactory) {
 		this.session = session;
+		this.bus = bus;
 		this.placeController = placeController;
 		this.defaultPlace = defaultPlace;
 		this.toFactory = toFactory;
@@ -45,7 +48,7 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 		if (session.isInstitutionAdmin()) {
 			view = getView();
 			view.setPresenter(this);
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			getCourseVersions();
       
 		} else {
@@ -61,7 +64,7 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
   			public void ok(CourseVersionsTO to) {
   				courseVersionsTO = to;
   				view.setCourseVersions(courseVersionsTO.getCourseVersions(), to.getCount(), to.getSearchCount());
-  				LoadingPopup.hide();
+  				bus.fireEvent(new ShowPacifierEvent(false));
   			}
   		});
 	}

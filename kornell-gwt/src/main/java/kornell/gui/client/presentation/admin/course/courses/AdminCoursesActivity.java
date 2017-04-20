@@ -25,7 +25,7 @@ public class AdminCoursesActivity extends AbstractActivity {
 		KornellSession session = clientFactory.getKornellSession();
 		PlaceController placeController = clientFactory.getPlaceController();
 		ViewFactory viewFactory = clientFactory.getViewFactory();
-		AdminCoursesPresenter presenter = new AdminCoursesPresenter(session,placeController,toFactory,viewFactory);
+		AdminCoursesPresenter presenter = new AdminCoursesPresenter(session,clientFactory.getEventBus(),placeController,toFactory,viewFactory);
 		panel.setWidget(presenter);
 		
 	}

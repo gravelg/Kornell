@@ -8,7 +8,6 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
-import kornell.core.entity.CourseVersion;
 import kornell.core.to.CourseClassesTO;
 import kornell.gui.client.event.CourseClassesFetchedEvent;
 import kornell.gui.client.event.CourseClassesFetchedEventHandler;

@@ -27,7 +27,7 @@ public class AdminAuditActivity extends AbstractActivity {
 		PlaceController placeController = clientFactory.getPlaceController();
 		Place defaultPlace = clientFactory.getDefaultPlace();
 		ViewFactory viewFactory = clientFactory.getViewFactory();
-		AdminAuditPresenter presenter = new AdminAuditPresenter(session,placeController,defaultPlace,toFactory,viewFactory);
+		AdminAuditPresenter presenter = new AdminAuditPresenter(session,placeController,defaultPlace,toFactory,viewFactory, clientFactory.getEventBus());
 		panel.setWidget(presenter);
 		
 	}

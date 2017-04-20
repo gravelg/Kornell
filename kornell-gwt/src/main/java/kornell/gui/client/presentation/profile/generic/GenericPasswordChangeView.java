@@ -13,16 +13,17 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.to.UserInfoTO;
 import kornell.gui.client.KornellConstants;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.profile.ProfileView;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericPasswordChangeView extends Composite implements ProfileView {
 	interface MyUiBinder extends UiBinder<Widget, GenericPasswordChangeView> {
@@ -32,6 +33,7 @@ public class GenericPasswordChangeView extends Composite implements ProfileView 
 	private static KornellConstants constants = GWT.create(KornellConstants.class);
 
 	private KornellSession session;
+	private EventBus bus;
 	private FormHelper formHelper;
 
 	@UiField
@@ -58,8 +60,9 @@ public class GenericPasswordChangeView extends Composite implements ProfileView 
 			passwordChangeModal.show();
 	}
 
-	public void initData(KornellSession session, UserInfoTO user) {
+	public void initData(KornellSession session, EventBus bus, UserInfoTO user) {
 		this.session = session;
+		this.bus = bus;
 		this.user = user;
 		formHelper = new FormHelper();
 		fields = new ArrayList<KornellFormFieldWrapper>();
@@ -99,11 +102,11 @@ public class GenericPasswordChangeView extends Composite implements ProfileView 
 		formHelper.clearErrors(fields);
 
 		if(validateFields()){
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			session.user().changeTargetPassword(user.getPerson().getUUID(), modalNewPassword.getFieldPersistText(), new Callback<Void>() {
 				@Override
 				public void ok(Void to) {
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					passwordChangeModal.hide();
 					KornellNotification.show(constants.confirmPasswordChange());
 				}

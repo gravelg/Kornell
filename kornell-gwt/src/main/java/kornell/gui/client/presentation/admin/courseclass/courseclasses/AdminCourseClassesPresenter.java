@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
@@ -14,8 +15,8 @@ import kornell.core.to.CourseClassTO;
 import kornell.core.to.CourseClassesTO;
 import kornell.core.to.TOFactory;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.util.forms.FormHelper;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class AdminCourseClassesPresenter implements AdminCourseClassesView.Presenter {
 	Logger logger = Logger.getLogger(AdminCourseClassesPresenter.class.getName());
@@ -26,15 +27,17 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	private Place defaultPlace;
 	TOFactory toFactory;
 	private ViewFactory viewFactory;
+	private EventBus bus;
 	private CourseClassesTO courseClassesTO;
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
 
-	public AdminCourseClassesPresenter(KornellSession session,
+	public AdminCourseClassesPresenter(KornellSession session, EventBus bus,
 			PlaceController placeController, Place defaultPlace,
 			TOFactory toFactory, ViewFactory viewFactory) {
 		this.session = session;
+		this.bus = bus;
 		this.placeController = placeController;
 		this.defaultPlace = defaultPlace;
 		this.toFactory = toFactory;
@@ -64,7 +67,7 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 
 	@Override
 	public void updateCourseClass(final String courseClassUUID) {
-		LoadingPopup.show();
+		bus.fireEvent(new ShowPacifierEvent(true));
 		view.setCourseClasses(null, 0, 0);
 		session.courseClasses().getAdministratedCourseClassesTOPaged(pageSize, pageNumber, searchTerm, 
 				new Callback<CourseClassesTO>() {
@@ -72,7 +75,7 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 			public void ok(CourseClassesTO to) {
 				courseClassesTO = to;
 				view.setCourseClasses(courseClassesTO.getCourseClasses(), to.getCount(), to.getSearchCount());
-				LoadingPopup.hide();
+				bus.fireEvent(new ShowPacifierEvent(false));
 				if(courseClassesTO.getCourseClasses().size() == 0){
 				} else {
 					for (CourseClassTO courseClassTO : courseClassesTO.getCourseClasses()) {

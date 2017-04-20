@@ -5,7 +5,6 @@ import static kornell.core.util.StringUtils.mkurl;
 
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.user.client.Timer;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;

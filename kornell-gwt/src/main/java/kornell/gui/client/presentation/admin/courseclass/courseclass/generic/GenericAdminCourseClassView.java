@@ -13,10 +13,8 @@ import com.github.gwtbootstrap.client.ui.Tab;
 import com.github.gwtbootstrap.client.ui.TabPanel;
 import com.github.gwtbootstrap.client.ui.TextArea;
 import com.github.gwtbootstrap.client.ui.TextBox;
-import com.github.gwtbootstrap.client.ui.Tooltip;
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
-import com.github.gwtbootstrap.client.ui.constants.Placement;
 import com.github.gwtbootstrap.client.ui.resources.ButtonSize;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.ActionCell.Delegate;
@@ -70,6 +68,7 @@ import kornell.core.to.EnrollmentTO;
 import kornell.core.to.UnreadChatThreadTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.event.UnreadMessagesCountChangedEvent;
 import kornell.gui.client.event.UnreadMessagesCountChangedEventHandler;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEvent;
@@ -81,7 +80,6 @@ import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.KornellPagination;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericAdminCourseClassView extends Composite implements AdminCourseClassView,
 		UnreadMessagesPerThreadFetchedEventHandler, UnreadMessagesCountChangedEventHandler {
@@ -364,7 +362,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		adminsPanel.clear();
 		if (!session.isInstitutionAdmin())
 			return;
-		adminsPanel.add(new GenericCourseClassAdminsView(session, presenter, session.getCurrentCourseClass()));
+		adminsPanel.add(new GenericCourseClassAdminsView(session, bus, presenter, session.getCurrentCourseClass()));
 	}
 
 	private void initSearch() {
@@ -696,13 +694,13 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 					selectedEnrollment = object;
 					transferModal.setTitle("Transferir Matrícula");
 					txtModalTransfer1.setText("Selecione a turma desejada para transferir esse participante:");
-					LoadingPopup.show();
+					bus.fireEvent(new ShowPacifierEvent(true));
 					session.courseClasses().getAdministratedCourseClassesTOByCourseVersion(
 							courseClassTO.getCourseVersionTO().getCourseVersion().getUUID(),
 							new Callback<CourseClassesTO>() {
 								@Override
 								public void ok(CourseClassesTO to) {
-									LoadingPopup.hide();
+									bus.fireEvent(new ShowPacifierEvent(false));
 									if (to.getCourseClasses() == null
 											|| to.getCourseClasses().size() == 0
 											|| (to.getCourseClasses().size() == 1 && to.getCourseClasses().get(0)

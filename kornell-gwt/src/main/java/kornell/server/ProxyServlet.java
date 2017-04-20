@@ -68,7 +68,7 @@ import org.apache.http.util.EntityUtils;
  *
  * @author David Smiley dsmiley@mitre.org
  */
-@SuppressWarnings({"rawtypes","deprecation", "serial","resource","unchecked"})
+@SuppressWarnings({"rawtypes","deprecation", "serial","unchecked"})
 public class ProxyServlet extends HttpServlet {
 
   /* INIT PARAMETER NAME CONSTANTS */

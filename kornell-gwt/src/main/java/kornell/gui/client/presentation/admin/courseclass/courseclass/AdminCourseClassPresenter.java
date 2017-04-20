@@ -37,6 +37,7 @@ import kornell.core.to.TOFactory;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.KornellConstantsHelper;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.mvp.PlaceUtils;
 import kornell.gui.client.presentation.admin.courseclass.courseclasses.AdminCourseClassesPlace;
 import kornell.gui.client.presentation.classroom.ClassroomPlace;
@@ -45,7 +46,6 @@ import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter {
     Logger logger = Logger.getLogger(AdminCourseClassPresenter.class.getName());
@@ -117,11 +117,11 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     private void getEnrollments(final String courseClassUUID) {
     	
         ClientProperties.set(getLocalStoragePropertyName(), courseClassUUID);
-        LoadingPopup.show();
+        bus.fireEvent(new ShowPacifierEvent(true));
         session.enrollments().getEnrollmentsByCourseClass(courseClassUUID, pageSize, pageNumber, searchTerm, new Callback<EnrollmentsTO>() {
             @Override
             public void ok(EnrollmentsTO enrollments) {
-                LoadingPopup.hide();
+                bus.fireEvent(new ShowPacifierEvent(false));
                 if (courseClassUUID.equals(session.getCurrentCourseClass().getCourseClass().getUUID())) {
                     showEnrollments(enrollments, true);
                 }
@@ -138,12 +138,12 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     @Override
     public void updateCourseClass(final String courseClassUUID) {
         if(placeController.getWhere() instanceof AdminCourseClassPlace){
-            LoadingPopup.show();
+            bus.fireEvent(new ShowPacifierEvent(true));
             view.showEnrollmentsPanel(false);
             session.courseClass(courseClassUUID).getTO(new Callback<CourseClassTO>() {
                 @Override            
                 public void ok(CourseClassTO courseClassTO) {
-                    LoadingPopup.hide();
+                    bus.fireEvent(new ShowPacifierEvent(false));
                     updateCourseClassUI(courseClassTO);
                 }
             });
@@ -175,16 +175,16 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     @Override
     public void changeEnrollmentState(final EnrollmentTO enrollmentTO, final EnrollmentState toState) {
         if(session.isCourseClassAdmin()){
-            LoadingPopup.show();
+            bus.fireEvent(new ShowPacifierEvent(true));
 
             String personUUID = session.getCurrentUser().getPerson().getUUID();
-            LoadingPopup.show();
+            bus.fireEvent(new ShowPacifierEvent(true));
             session.events()
             .enrollmentStateChanged(enrollmentTO.getEnrollment().getUUID(), personUUID,
                     enrollmentTO.getEnrollment().getState(), toState).fire(new Callback<Void>() {
                         @Override
                         public void ok(Void to) {
-                            LoadingPopup.hide();
+                            bus.fireEvent(new ShowPacifierEvent(false));
                             getEnrollments(session.getCurrentCourseClass().getCourseClass().getUUID());
                             view.setCanPerformEnrollmentAction(true);
                             if(enrollmentTO.getEnrollment().getState().equals(toState)){
@@ -199,7 +199,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
     @Override
     public void changeCourseClassState(final CourseClassTO courseClassTO, final CourseClassState toState) {
-        LoadingPopup.show();
+        bus.fireEvent(new ShowPacifierEvent(true));
 
         String personUUID = session.getCurrentUser().getPerson().getUUID();
         session.events()
@@ -207,7 +207,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                 courseClassTO.getCourseClass().getState(), toState).fire(new Callback<Void>() {
                     @Override
                     public void ok(Void to) {
-                        LoadingPopup.hide();
+                        bus.fireEvent(new ShowPacifierEvent(false));
                         if(CourseClassState.inactive.equals(toState)){
                             KornellNotification.show("Turma desabilitada com sucesso!");
                             updateCourseClass(courseClassTO.getCourseClass().getUUID());
@@ -219,7 +219,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
                     @Override
                     public void unauthorized(KornellErrorTO kornellErrorTO) {
-                        LoadingPopup.hide();
+                        bus.fireEvent(new ShowPacifierEvent(false));
                         KornellNotification.show("Erro ao tentar excluir a turma.", AlertType.ERROR);
                         logger.severe(this.getClass().getName() + " - "
                                 + KornellConstantsHelper.getErrorMessage(kornellErrorTO));
@@ -313,11 +313,11 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         	enrollmentRequestTO.setCancelEnrollment(true);
         }
         
-        LoadingPopup.show();
+        bus.fireEvent(new ShowPacifierEvent(true));
         final int requestsThreshold = 200;
         if(enrollmentRequestsTO.getEnrollmentRequests().size() > requestsThreshold){
             KornellNotification.show("Solicitação de cancelamento de matrículas enviada para o servidor.", AlertType.WARNING, 20000);
-            LoadingPopup.hide();
+            bus.fireEvent(new ShowPacifierEvent(false));
             view.clearEnrollmentFields();
         }
 
@@ -328,7 +328,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                     getEnrollments(session.getCurrentCourseClass().getCourseClass().getUUID());
                     KornellNotification.show("Matrículas canceladas com sucesso.", 1500);
                     view.clearEnrollmentFields();
-                    LoadingPopup.hide();
+                    bus.fireEvent(new ShowPacifierEvent(false));
                     PlaceUtils.reloadCurrentPlace(bus, placeController);
                 }
 
@@ -337,7 +337,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                     logger.severe("Error AdminHomePresenter: "
                             + KornellConstantsHelper.getErrorMessage(kornellErrorTO));
                     KornellNotification.show("Erro ao cancelar matrícula(s).", AlertType.ERROR, 2500);
-                    LoadingPopup.hide();
+                    bus.fireEvent(new ShowPacifierEvent(false));
                 }
             });
         }
@@ -496,7 +496,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
             }
 
         }
-        LoadingPopup.show();
+        bus.fireEvent(new ShowPacifierEvent(true));
         //send email for over 50 enrollments on DEFAULT institutions, but 3 on DASHBOARD institutions
         //@TODO refactor this after improvements on child enrollment generation with hundreds of scorm attributes
         final int requestsThreshold = InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()) ? 3 : 50;
@@ -506,7 +506,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
             } else {
                 KornellNotification.show("Favor configurar um email no seu perfil para que possa receber as mensagens de confirmação de matrículas em lote.", AlertType.WARNING, 8000);
             }
-            LoadingPopup.hide();
+            bus.fireEvent(new ShowPacifierEvent(false));
             confirmedEnrollmentsModal = false;
             view.clearEnrollmentFields();
         } else if (RegistrationType.email.equals(session.getCurrentCourseClass().getCourseClass().getRegistrationType())
@@ -525,7 +525,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                         confirmedEnrollmentsModal = false;
                         KornellNotification.show("Matrículas feitas com sucesso.", 1500);
                         view.clearEnrollmentFields();
-                        LoadingPopup.hide();
+                        bus.fireEvent(new ShowPacifierEvent(false));
                         PlaceUtils.reloadCurrentPlace(bus, placeController);
                     }
                 }
@@ -535,7 +535,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                     logger.severe("Error AdminHomePresenter: "
                             + KornellConstantsHelper.getErrorMessage(kornellErrorTO));
                     KornellNotification.show("Erro ao criar matrícula(s).", AlertType.ERROR, 2500);
-                    LoadingPopup.hide();
+                    bus.fireEvent(new ShowPacifierEvent(false));
                 }
                 
                 @Override
@@ -574,7 +574,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     	    	            .fire(new Callback<Void>() {
     	    	                @Override
     	    	                public void ok(Void to) {
-    	    	                    LoadingPopup.hide();
+    	    	                    bus.fireEvent(new ShowPacifierEvent(false));
     	    	                    getEnrollments(session.getCurrentCourseClass()
     	    	                            .getCourseClass().getUUID());
     	    	                    view.setCanPerformEnrollmentAction(true);
@@ -655,7 +655,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
             session.courseClasses().create(courseClass, new Callback<CourseClass>() {
                 @Override
                 public void ok(CourseClass courseClass) {
-                    LoadingPopup.hide();
+                    bus.fireEvent(new ShowPacifierEvent(false));
                     KornellNotification.show("Turma criada com sucesso!");
                     CourseClassTO courseClassTO2 = session.getCurrentCourseClass();
                     if (courseClassTO2 != null)
@@ -665,7 +665,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
                 @Override
                 public void conflict(KornellErrorTO kornellErrorTO) {
-                    LoadingPopup.hide();
+                    bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO),
                             AlertType.ERROR, 2500);
                 }
@@ -674,7 +674,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
             session.courseClass(courseClass.getUUID()).update(courseClass, new Callback<CourseClass>() {
                 @Override
                 public void ok(CourseClass courseClass) {
-                    LoadingPopup.hide();
+                    bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show("Alterações salvas com sucesso!");
                     session.getCurrentCourseClass().setCourseClass(courseClass);
                     updateCourseClass(courseClass.getUUID());
@@ -682,7 +682,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
                 @Override
                 public void conflict(KornellErrorTO kornellErrorTO) {
-                    LoadingPopup.hide();
+                    bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO),
                             AlertType.ERROR, 2500);
                 }

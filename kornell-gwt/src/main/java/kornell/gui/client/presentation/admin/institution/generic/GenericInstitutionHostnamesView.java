@@ -16,15 +16,16 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.Institution;
 import kornell.core.to.InstitutionHostNamesTO;
 import kornell.core.to.TOFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.util.forms.formfield.SimpleMultipleSelect;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericInstitutionHostnamesView extends Composite {
 	interface MyUiBinder extends UiBinder<Widget, GenericInstitutionHostnamesView> {
@@ -34,6 +35,7 @@ public class GenericInstitutionHostnamesView extends Composite {
 	public static final TOFactory toFactory = GWT.create(TOFactory.class);
 
 	private KornellSession session;
+	private EventBus bus;
 	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 	
 	SimpleMultipleSelect simpleMultipleSelect;
@@ -49,9 +51,10 @@ public class GenericInstitutionHostnamesView extends Composite {
 
 	private Institution institution;
 	
-	public GenericInstitutionHostnamesView(final KornellSession session,
+	public GenericInstitutionHostnamesView(final KornellSession session, EventBus bus,
 			kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter, Institution institution) {
 		this.session = session;
+		this.bus = bus;
 		this.institution = institution;
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -75,14 +78,14 @@ public class GenericInstitutionHostnamesView extends Composite {
 		fieldPanelWrapper.add(labelPanel);
 		
 
-		LoadingPopup.show();
+		bus.fireEvent(new ShowPacifierEvent(true));
 		session.institution(institution.getUUID()).getHostnames(new Callback<InstitutionHostNamesTO>() {
 			@Override
 			public void ok(InstitutionHostNamesTO to) {
 				for (String institutionHostName : to.getInstitutionHostNames()) {
 					simpleMultipleSelect.addItem(institutionHostName, institutionHostName);
 				}
-				LoadingPopup.hide();
+				bus.fireEvent(new ShowPacifierEvent(false));
 			}
 		});
 		simpleMultipleSelect = new SimpleMultipleSelect();

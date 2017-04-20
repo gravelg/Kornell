@@ -19,6 +19,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
@@ -36,6 +37,8 @@ import kornell.gui.client.event.ComposeMessageEvent;
 import kornell.gui.client.event.CourseClassesFetchedEvent;
 import kornell.gui.client.event.CourseClassesFetchedEventHandler;
 import kornell.gui.client.event.LogoutEvent;
+import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.event.ShowPacifierEventHandler;
 import kornell.gui.client.event.UnreadMessagesCountChangedEvent;
 import kornell.gui.client.event.UnreadMessagesCountChangedEventHandler;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEvent;
@@ -58,7 +61,8 @@ import kornell.gui.client.util.view.Positioning;
 public class GenericMenuBarView extends Composite implements MenuBarView,
 		UnreadMessagesPerThreadFetchedEventHandler,
 		UnreadMessagesCountChangedEventHandler,
-		CourseClassesFetchedEventHandler {
+		CourseClassesFetchedEventHandler,
+		ShowPacifierEventHandler {
 
 	Logger logger = Logger.getLogger(GenericMenuBarView.class.getName());
 
@@ -73,6 +77,8 @@ public class GenericMenuBarView extends Composite implements MenuBarView,
 
 	@UiField
 	Label testEnvWarning;
+	@UiField
+	HTMLPanel knlPacifier;
 	@UiField
 	FlowPanel menuBar;
 	@UiField
@@ -117,6 +123,8 @@ public class GenericMenuBarView extends Composite implements MenuBarView,
 		bus.addHandler(UnreadMessagesPerThreadFetchedEvent.TYPE, this);
 		bus.addHandler(UnreadMessagesCountChangedEvent.TYPE, this);
 		bus.addHandler(CourseClassesFetchedEvent.TYPE, this);
+		bus.addHandler(ShowPacifierEvent.TYPE, this);
+		
 		initWidget(uiBinder.createAndBindUi(this));
 		display();
 		// TODO: Consider anonynous
@@ -409,6 +417,15 @@ public class GenericMenuBarView extends Composite implements MenuBarView,
 	@Override
 	public void setPlaceBarWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets) {
 		placeBar.setWidgets(widgets, alwaysShowWidgets);
+	}
+
+	@Override
+	public void onShowPacifier(ShowPacifierEvent event) {
+		if(event.isShowPacifier()){
+			knlPacifier.removeStyleName("shy");
+		} else {
+			knlPacifier.addStyleName("shy");
+		}
 	}
 
 }

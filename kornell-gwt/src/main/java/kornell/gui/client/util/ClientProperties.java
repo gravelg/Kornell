@@ -2,7 +2,6 @@ package kornell.gui.client.util;
 
 import java.util.Date;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.storage.client.Storage;

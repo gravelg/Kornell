@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Icon;
-import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.core.client.GWT;
 
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.Wizard;
@@ -17,11 +16,7 @@ import kornell.gui.client.presentation.admin.courseversion.courseversion.autobea
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardSlideItemType;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardSlideType;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardTopic;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.IWizardView;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.WizardSlideItemImageView;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.WizardSlideItemVideoLinkView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.WizardSlideItemView;
-import kornell.gui.client.util.view.KornellNotification;
 
 public class WizardUtils {
 	

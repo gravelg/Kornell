@@ -1,52 +1,32 @@
 package kornell.gui.client.presentation.admin.courseversion.courseversion.generic;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.FileUpload;
-import com.github.gwtbootstrap.client.ui.Form;
-import com.github.gwtbootstrap.client.ui.TextBox;
-import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dev.util.Name;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.ContentSpec;
 import kornell.core.entity.CourseVersion;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.Wizard;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardElement;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardSlide;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardSlideItem;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardTopic;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardMock;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.WizardView;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
-import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericAdminCourseVersionContentView extends Composite implements AdminCourseVersionContentView {
 	interface MyUiBinder extends UiBinder<Widget, GenericAdminCourseVersionContentView> {
@@ -54,7 +34,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	private EventBus bus;
+	private static EventBus bus;
 	private KornellSession session;
 	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 	private FormHelper formHelper = GWT.create(FormHelper.class);
@@ -140,18 +120,18 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 		if ($wnd.document.getElementById("versionUpdate").files.length != 1) {
         	@kornell.gui.client.util.view.KornellNotification::showError(Ljava/lang/String;)("Por favor selecione um arquivo");
 		} else {
-			@kornell.gui.client.util.view.LoadingPopup::show()();
+			@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.GenericAdminCourseVersionContentView::showPacifier()();
 			var file = $wnd.document.getElementById("versionUpdate").files[0];
 			if (file.name.indexOf(".zip") == -1) {
 	        	@kornell.gui.client.util.view.KornellNotification::showError(Ljava/lang/String;)("Faça o upload de um arquivo zip");
-				@kornell.gui.client.util.view.LoadingPopup::hide()();
+				@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.GenericAdminCourseVersionContentView::hidePacifier()();
 			} else {
 				var req = new XMLHttpRequest();
 				req.open('PUT', url);
 				req.setRequestHeader("Content-type", "application/zip");
 				req.onreadystatechange = function() {
     				if (req.readyState == 4 && req.status == 200) {
-        				@kornell.gui.client.util.view.LoadingPopup::hide()();
+        				@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.GenericAdminCourseVersionContentView::hidePacifier()();
         				@kornell.gui.client.util.view.KornellNotification::show(Ljava/lang/String;)("Atualização de versão completa");
     				}
 				}
@@ -159,6 +139,14 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 			}
 		}
 	}-*/;
+
+	public static void showPacifier(){
+		bus.fireEvent(new ShowPacifierEvent(true));
+	}
+	
+	public static void hidePacifier(){
+		bus.fireEvent(new ShowPacifierEvent(false));
+	}
 
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;

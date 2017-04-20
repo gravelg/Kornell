@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.CheckBox;
-import com.github.gwtbootstrap.client.ui.FileUpload;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.Modal;
@@ -40,17 +39,14 @@ import kornell.core.entity.InstitutionType;
 import kornell.core.to.CourseVersionTO;
 import kornell.core.to.CourseVersionsTO;
 import kornell.core.to.CoursesTO;
-import kornell.gui.client.presentation.admin.course.course.generic.GenericCourseReportsView;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentPresenter;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPlace;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPresenter;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionView;
 import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminCourseVersionsPlace;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 import kornell.gui.client.util.forms.formfield.ListBoxFormField;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericAdminCourseVersionView extends Composite implements AdminCourseVersionView {
 
@@ -336,7 +332,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	void doOK(ClickEvent e) {
 		formHelper.clearErrors(fields);
 		if (isInstitutionAdmin && validateFields()) {
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			CourseVersion courseVersion = getCourseVersionInfoFromForm();
 			presenter.upsertCourseVersion(courseVersion);
 		}

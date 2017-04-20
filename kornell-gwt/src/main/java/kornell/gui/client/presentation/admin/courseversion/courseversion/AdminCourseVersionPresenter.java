@@ -14,10 +14,10 @@ import kornell.core.entity.CourseVersion;
 import kornell.core.error.KornellErrorTO;
 import kornell.gui.client.KornellConstantsHelper;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.mvp.PlaceUtils;
 import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminCourseVersionsPlace;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class AdminCourseVersionPresenter implements AdminCourseVersionView.Presenter {
 	Logger logger = Logger.getLogger(AdminCourseVersionPresenter.class.getName());
@@ -67,14 +67,14 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
 			session.courseVersions().create(courseVersion, new Callback<CourseVersion>() {
 				@Override
 				public void ok(CourseVersion courseVersion) {
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show("Versão de curso criada com sucesso!");
 					PlaceUtils.reloadCurrentPlace(bus, placeController);
 				}
 
 				@Override
 				public void conflict(KornellErrorTO kornellErrorTO) {
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
 							2500);
 				}
@@ -83,14 +83,14 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
 			session.courseVersion(courseVersion.getUUID()).update(courseVersion, new Callback<CourseVersion>() {
 				@Override
 				public void ok(CourseVersion courseVersion) {
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show("Alterações salvas com sucesso!");
 					placeController.goTo(new AdminCourseVersionsPlace());
 				}
 
 				@Override
 				public void conflict(KornellErrorTO kornellErrorTO) {
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
 							2500);
 				}

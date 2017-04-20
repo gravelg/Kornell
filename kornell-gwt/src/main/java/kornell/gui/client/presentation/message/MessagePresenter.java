@@ -33,13 +33,13 @@ import kornell.core.to.UnreadChatThreadTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEvent;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEventHandler;
 import kornell.gui.client.presentation.admin.AdminPlace;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassPlace;
 import kornell.gui.client.presentation.classroom.ClassroomPlace;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 import kornell.gui.client.util.view.Positioning;
 
 public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPerThreadFetchedEventHandler{
@@ -47,6 +47,7 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 	private KornellSession session;
 	private PlaceController placeCtrl;
 	private ViewFactory viewFactory;
+	private EventBus bus;
 	private MessagePanelType messagePanelType;
 	private static TOFactory toFactory = GWT.create(TOFactory.class);
 	private KornellConstants constants = GWT.create(KornellConstants.class);
@@ -61,6 +62,7 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 	
 	public MessagePresenter(KornellSession session, EventBus bus, PlaceController placeCtrl, final ViewFactory viewFactory, final MessagePanelType messagePanelType) {
 		this.session = session;
+		this.bus = bus;
 		this.placeCtrl = placeCtrl;
 		this.viewFactory = viewFactory;
 		this.messagePanelType = messagePanelType;
@@ -256,7 +258,7 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 				) && updateMessages)){
 			if(selectedChatThreadInfo != null && selectedChatThreadInfo.getChatThreadUUID() != null){
 				final String chatThreadUUID = selectedChatThreadInfo.getChatThreadUUID();
-				LoadingPopup.show();
+				bus.fireEvent(new ShowPacifierEvent(true));
 				session.chatThreads().getChatThreadMessages(chatThreadUUID, lastFetchedMessageSentAt(), null, new Callback<ChatThreadMessagesTO>() {
 					@Override
 					public void ok(ChatThreadMessagesTO to) {
@@ -264,7 +266,7 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 							chatThreadMessageTOs.addAll(0, to.getChatThreadMessageTOs());
 							view.addMessagesToThreadPanel(to, session.getCurrentUser().getPerson().getFullName(), false);
 						}
-						LoadingPopup.hide();
+						bus.fireEvent(new ShowPacifierEvent(false));
 					}
 				});
 			}
@@ -276,7 +278,7 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 		if(!threadBeginningReached && selectedChatThreadInfo != null && selectedChatThreadInfo.getChatThreadUUID() != null){
 			final String chatThreadUUID = selectedChatThreadInfo.getChatThreadUUID();
 			//before
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			session.chatThreads().getChatThreadMessages(chatThreadUUID, null, firstFetchedMessageSentAt(), new Callback<ChatThreadMessagesTO>() {
 				@Override
 				public void ok(ChatThreadMessagesTO to) {
@@ -294,13 +296,13 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 							public void run() {
 								view.scrollToBottom();
 								view.displayThreadPanel(true);
-								LoadingPopup.hide();
+								bus.fireEvent(new ShowPacifierEvent(false));
 							}
 						};
 						scrollToBottomTimer.schedule(2000);
 					} else {
 						view.displayThreadPanel(true);
-						LoadingPopup.hide();
+						bus.fireEvent(new ShowPacifierEvent(false));
 					}
 				}
 			});
@@ -312,7 +314,7 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 	@Override
 	public void sendMessage(final String message) {
 		if(StringUtils.isSome(selectedChatThreadInfo.getChatThreadUUID())){
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			session.chatThreads().postMessageToChatThread(message, selectedChatThreadInfo.getChatThreadUUID(), lastFetchedMessageSentAt(), new Callback<ChatThreadMessagesTO>() {
 				@Override
 				public void ok(ChatThreadMessagesTO to) {
@@ -320,17 +322,17 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 					view.addMessagesToThreadPanel(to, session.getCurrentUser().getPerson().getFullName(), false);
 					view.scrollToBottom();
 					view.sendSidePanelItemToTop(selectedChatThreadInfo.getChatThreadUUID());
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 				}
 			});
 		} else if(MessagePanelType.courseClassTutor.equals(messagePanelType) && session.getCurrentCourseClass() != null){
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			session.chatThreads().postMessageToTutoringCourseClassThread(message, session.getCurrentCourseClass().getCourseClass().getUUID(), new Callback<String>() {
 				@Override
 				public void ok(String uuid) {
 					selectedChatThreadInfo.setChatThreadUUID(uuid);
 					threadClicked(selectedChatThreadInfo);
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 				}
 			});
 		}

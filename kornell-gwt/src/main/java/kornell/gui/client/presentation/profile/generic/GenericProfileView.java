@@ -53,6 +53,7 @@ import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.LogoutEvent;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.profile.ProfilePlace;
 import kornell.gui.client.presentation.profile.ProfileView;
 import kornell.gui.client.util.forms.FormHelper;
@@ -65,7 +66,6 @@ import kornell.gui.client.util.validation.CPFValidator;
 import kornell.gui.client.util.validation.EmailValidator;
 import kornell.gui.client.util.validation.ValidationChangedHandler;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericProfileView extends Composite implements ProfileView,ValidationChangedHandler {
 	
@@ -283,11 +283,11 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 		formHelper.clearErrors(fields);
 
 		if(isEditMode && validateFields()){
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			session.user().updateUser(getUserInfoFromForm(), new Callback<UserInfoTO>(){
 				@Override
 				public void ok(UserInfoTO userInfo){
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					user = userInfo;
 					KornellNotification.show(constants.confirmSaveProfile());
 					btnOK.setEnabled(true);
@@ -310,7 +310,7 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 				}
 				@Override
 				public void unauthorized(KornellErrorTO kornellErrorTO){
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(constants.errorSaveProfile(), AlertType.ERROR);
 				}
 			});   
@@ -502,8 +502,8 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 		form.removeStyleName("shy");
 		setValidity(true);
 
-		passwordChangeWidget.initData(session, user);
-		sendMessageWidget.initData(session, user, isCurrentUser);
+		passwordChangeWidget.initData(session, bus, user);
+		sendMessageWidget.initData(session, bus, user, isCurrentUser);
 		
 	}
 

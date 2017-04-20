@@ -27,7 +27,7 @@ public class AdminInstitutionActivity extends AbstractActivity {
 		PlaceController placeController = clientFactory.getPlaceController();
 		Place defaultPlace = clientFactory.getDefaultPlace();
 		ViewFactory viewFactory = clientFactory.getViewFactory();
-		AdminInstitutionPresenter presenter = new AdminInstitutionPresenter(session,placeController,defaultPlace,toFactory,viewFactory);
+		AdminInstitutionPresenter presenter = new AdminInstitutionPresenter(session,clientFactory.getEventBus(),placeController,defaultPlace,toFactory,viewFactory);
 		panel.setWidget(presenter);
 		
 	}

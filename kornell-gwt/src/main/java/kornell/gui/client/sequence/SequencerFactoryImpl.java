@@ -30,6 +30,7 @@ public class SequencerFactoryImpl implements SequencerFactory {
 				sequencer = new SCORM12Sequencer(bus, session);
 				break;
 			case KNL:
+			case WIZARD:
 				sequencer = new PrefetchSequencer(bus, session);
 				break;
 		}		

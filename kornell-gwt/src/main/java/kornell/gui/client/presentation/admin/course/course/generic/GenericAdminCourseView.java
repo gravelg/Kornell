@@ -32,12 +32,12 @@ import kornell.api.client.KornellSession;
 import kornell.core.entity.Course;
 import kornell.core.entity.EntityFactory;
 import kornell.core.entity.InstitutionType;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.presentation.admin.course.course.AdminCourseView;
 import kornell.gui.client.presentation.admin.course.courses.AdminCoursesPlace;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericAdminCourseView extends Composite implements AdminCourseView {
 
@@ -239,7 +239,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 	void doOK(ClickEvent e) {
 		formHelper.clearErrors(fields);
 		if (isInstitutionAdmin && validateFields()) {
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			Course course = getCourseInfoFromForm();
 			presenter.upsertCourse(course);
 		}

@@ -3,7 +3,6 @@ package kornell.scorm.client.scorm12;
 import static kornell.core.util.StringUtils.isSome;
 import static kornell.scorm.client.scorm12.Scorm12.logger;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Timer;
 
