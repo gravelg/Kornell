@@ -17,6 +17,9 @@ import org.apache.http.client.methods.HttpGet
 import kornell.server.jdbc.repository.CourseClassRepo
 import scala.xml.XML
 import kornell.server.jdbc.repository.CourseClassesRepo
+import kornell.server.jdbc.ConnectionHandler
+import kornell.server.util.DateConverter
+import kornell.server.jdbc.repository.InstitutionRepo
 
 
 object PostbackService {
@@ -116,6 +119,17 @@ object PostbackService {
           }
         } catch {
           case e: Throwable=>logger.log(Level.SEVERE, "Exception while processing postback " + payload, e)
+        } finally {
+          DateConverter.clearTimeZone
+          try {
+            // in new thread we get a new connection, no filter so we need to commit/rollback manually
+            ConnectionHandler.commit
+          } catch {
+            case e: Throwable => {
+              ConnectionHandler.rollback
+              logger.log(Level.SEVERE, "Exception while processing postback " + payload, e)
+            }
+          }
         }
       }
     })
@@ -175,6 +189,7 @@ object PostbackService {
     val token = getValueFromPayloadMap(payloadMap, "custom").get
     val courseClassUUID = getValueFromPayloadMap(payloadMap, "item_number").get
     val institutionUUID = new CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+    DateConverter.setTimeZone(new InstitutionRepo(institutionUUID).get.getTimeZone)
     val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).getOrElse(null)
     
     if (postbackConfig != null) {
