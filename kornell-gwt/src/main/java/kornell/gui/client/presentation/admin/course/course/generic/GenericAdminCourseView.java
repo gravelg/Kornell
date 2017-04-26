@@ -222,8 +222,8 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 	}
 	
 	private boolean validateFields() {		
-		if (!formHelper.isLengthValid(code.getFieldPersistText(), 2, 5)) {
-			code.setError("O código deve ter entre 2 e 5 caracteres");
+		if (!formHelper.isLengthValid(code.getFieldPersistText(), 2, 255)) {
+			code.setError("O código deve ter entre 2 e 255 caracteres");
 		}		
 		if (!formHelper.isLengthValid(title.getFieldPersistText(), 2, 100)) {
 			title.setError("Insira o título do curso");

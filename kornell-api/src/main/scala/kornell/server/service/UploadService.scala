@@ -18,7 +18,8 @@ object UploadService {
   
   def getCourseVersionUploadUrl(courseVersionUUID: String) = {
     val courseVersion = CourseVersionRepo(courseVersionUUID).get
-    val path = courseVersion.getDistributionPrefix + "upload" + new Date().getTime + ".zip";
+    val course = CourseRepo(courseVersion.getCourseUUID).get
+    val path = course.getCode + "/" + courseVersion.getDistributionPrefix + "upload" + new Date().getTime + ".zip";
     getUploadUrl(CourseRepo(courseVersion.getCourseUUID).get.getInstitutionUUID, path, "application/zip")
   }
   

@@ -31,7 +31,7 @@ import kornell.core.entity.RepositoryType
 object ReportCertificateGenerator {
 
   def newCertificateInformationTO: CertificateInformationTO = new CertificateInformationTO
-  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsURL: String, distributionPrefix: String, courseVersionUUID: String, baseURL: String, repositoryType: RepositoryType): CertificateInformationTO = {
+  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsURL: String, distributionPrefix: String, courseVersionUUID: String, baseURL: String, repositoryType: RepositoryType, courseCode: String): CertificateInformationTO = {
     val to = newCertificateInformationTO
     to.setPersonFullName(personFullName)
     to.setPersonCPF(personCPF)
@@ -44,6 +44,7 @@ object ReportCertificateGenerator {
     to.setBaseURL(baseURL)
     to.setCourseClassFinishedDate(DateConverter.convertDate(courseClassFinishedDate))
     to.setRepositoryType(repositoryType)
+    to.setCourseCode(courseCode)
     to
   }
   
@@ -59,13 +60,14 @@ object ReportCertificateGenerator {
       rs.getString("distributionPrefix"),
       rs.getString("courseVersionUUID"),
       rs.getString("baseURL"),
-      RepositoryType.valueOf(rs.getString("repositoryType")))
+      RepositoryType.valueOf(rs.getString("repositoryType")),
+      rs.getString("code"))
       
    def generateCertificate(userUUID: String, courseClassUUID: String, resp: HttpServletResponse): Array[Byte] = {
     resp.addHeader("Content-disposition", "attachment; filename=Certificado.pdf")
     
     generateCertificateReport(sql"""
-				select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, i.baseURL, s.repositoryType
+				select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, i.baseURL, s.repositoryType, c.code
 	    		from Person p
 					join Enrollment e on p.uuid = e.person_uuid
 					join CourseClass cc on cc.uuid = e.class_uuid
@@ -88,7 +90,7 @@ object ReportCertificateGenerator {
   }
   
   def getCertificateInformationTOsByCourseClass(courseClassUUID: String, enrollments: String) = {
-    var sql = """select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, i.baseURL, s.repositoryType
+    var sql = """select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, i.baseURL, s.repositoryType, c.code
       from Person p 
       join Enrollment e on p.uuid = e.person_uuid 
       join CourseClass cc on cc.uuid = e.class_uuid 
@@ -120,7 +122,7 @@ object ReportCertificateGenerator {
     }
     parameters.put("institutionURL", institutionURL)
     
-    val assetsURL: String = composeURL(institutionURL, certificateData.head.getDistributionPrefix, "/classroom/reports") + "/"
+    val assetsURL: String = composeURL(institutionURL, certificateData.head.getCourseCode, certificateData.head.getDistributionPrefix, "/classroom/reports") + "/"
     parameters.put("assetsURL", assetsURL) 
 	  
     val fileName = Settings.tmpDir + "tmp-" + certificateData.head.getCourseVersionUUID + (new Date).getTime + ".jasper"

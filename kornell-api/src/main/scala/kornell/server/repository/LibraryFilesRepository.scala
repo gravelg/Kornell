@@ -16,6 +16,7 @@ import kornell.core.to.LibraryFileTO
 import kornell.server.content.ContentManagers
 import kornell.core.util.StringUtils._
 import kornell.server.jdbc.repository.InstitutionsRepo
+import kornell.server.jdbc.repository.CourseRepo
 
 
 object LibraryFilesRepository {
@@ -27,11 +28,12 @@ object LibraryFilesRepository {
     val repo = ContentManagers.forRepository(repositoryUUID)
     val versionRepo = classRepo.version
     val version = versionRepo.get
-    val filesURL = StringUtils.composeURL(version.getDistributionPrefix(), "classroom/library")
+    val course = CourseRepo(version.getCourseUUID).get
+    val filesURL = StringUtils.composeURL(course.getCode, version.getDistributionPrefix(), "classroom/library")
     try {
       val structureSrc = repo.source(filesURL, "libraryFiles.knl")
       val libraryFilesText = structureSrc.get.mkString("")
-      val fullURL = repo.url(version.getDistributionPrefix(), "classroom", "library")
+      val fullURL = repo.url(course.getCode, version.getDistributionPrefix(), "classroom", "library")
       val contents = LibraryFilesParser.parse(fullURL, libraryFilesText)
       contents
     } catch {

@@ -16,6 +16,7 @@ public class CertificateInformationTO {
 	private String baseURL;
 	private String institutionName;
 	private RepositoryType repositoryType;
+	private String courseCode;
 	
 	public String getPersonFullName() {
 		return personFullName;
@@ -82,5 +83,11 @@ public class CertificateInformationTO {
 	}
 	public void setRepositoryType(RepositoryType repositoryType) {
 		this.repositoryType = repositoryType;
+	}
+	public String getCourseCode() {
+		return courseCode;
+	}
+	public void setCourseCode(String courseCode) {
+		this.courseCode = courseCode;
 	}
 }
