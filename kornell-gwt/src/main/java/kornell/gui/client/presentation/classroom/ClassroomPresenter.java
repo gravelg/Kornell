@@ -23,12 +23,12 @@ import kornell.core.to.EnrollmentLaunchTO;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.event.HideSouthBarEvent;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.vitrine.VitrinePlace;
 import kornell.gui.client.sequence.Sequencer;
 import kornell.gui.client.sequence.SequencerFactory;
 import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 import kornell.scorm.client.scorm12.SCORM12Runtime;
 
 public class ClassroomPresenter implements ClassroomView.Presenter {
@@ -71,17 +71,17 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 		
 		view.asWidget().setVisible(false);
 
-        LoadingPopup.show();
+        bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClasses().getByEnrollment(place.getEnrollmentUUID(), new Callback<CourseClassTO>() {
             @Override            
             public void ok(CourseClassTO courseClassTO) {
-                LoadingPopup.hide();
+                bus.fireEvent(new ShowPacifierEvent(false));
         		courseClassFetched(courseClassTO);
             }
             
             @Override
             public void notFound(KornellErrorTO kornellErrorTO){
-                LoadingPopup.hide();
+                bus.fireEvent(new ShowPacifierEvent(false));
         		courseClassFetched(null);
             }
         });
@@ -108,7 +108,7 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
         final boolean showCourseClassContent = enrollment == null || (isEnrolled && (courseClassState != null && !CourseClassState.inactive.equals(courseClassState)));
 
         if(showCourseClassContent){
-			LoadingPopup.show();		
+			bus.fireEvent(new ShowPacifierEvent(true));		
 			final PopupPanel popup = KornellNotification.show(constants.loadingTheCourse(), AlertType.WARNING, -1);
 			bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
 				@Override
@@ -135,7 +135,7 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 					setContents(contents);
 					view.display(showCourseClassContent);	
 					view.asWidget().setVisible(true);
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 				}
 	
 			});

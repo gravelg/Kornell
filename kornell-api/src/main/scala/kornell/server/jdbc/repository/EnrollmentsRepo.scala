@@ -233,4 +233,7 @@ object EnrollmentsRepo {
   def invalidateCache(enrollmentUUID: String) = {
     uuidCache.invalidate(enrollmentUUID)
   }
+
+  def clearCache() = uuidCache.invalidateAll()
+
 }

@@ -12,15 +12,9 @@ import kornell.server.jdbc.PreparedStmt
 import kornell.server.jdbc.SQL.SQLHelper
 import kornell.server.repository.TOs
 import kornell.server.util.Settings
-import kornell.server.repository.Entities._
 import kornell.server.util.DateConverter
 import kornell.server.authentication.ThreadLocalAuthenticator
 import java.util.Date
-import kornell.core.entity.CertificateDetails
-import kornell.server.jdbc.repository.CertificatesDetailsRepo
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.error.exception.EntityNotFoundException
-import kornell.core.entity.CertificateType
 import kornell.core.util.StringUtils.mkurl
 import kornell.server.jdbc.repository.InstitutionRepo
 import kornell.server.content.ContentManagers
@@ -32,12 +26,18 @@ import kornell.core.to.SimplePeopleTO
 import java.net.HttpURLConnection
 import javax.servlet.http.HttpServletResponse
 import kornell.server.jdbc.repository.ContentRepositoriesRepo
+import kornell.core.entity.RepositoryType
+import kornell.core.error.exception.EntityNotFoundException
+import kornell.core.entity.CertificateDetails
+import kornell.server.jdbc.repository.CertificatesDetailsRepo
+import kornell.core.entity.CourseDetailsEntityType
+import kornell.server.repository.Entities
+import kornell.core.entity.CertificateType
 
 object ReportCertificateGenerator {
 
   def newCertificateInformationTO: CertificateInformationTO = new CertificateInformationTO
-  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsURL: String, distributionPrefix: String, courseVersionUUID: String, courseClassUUID: String, courseUUID: String, baseURL: String): CertificateInformationTO = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
+  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsURL: String, distributionPrefix: String, courseVersionUUID: String, courseClassUUID: String, courseUUID: String, baseURL: String, repositoryType: RepositoryType): CertificateInformationTO = {
     val to = newCertificateInformationTO
     to.setPersonFullName(personFullName)
     to.setPersonCPF(personCPF)
@@ -50,7 +50,8 @@ object ReportCertificateGenerator {
     to.setCourseClassUUID(courseClassUUID)
     to.setCourseUUID(courseUUID)
     to.setBaseURL(baseURL)
-    to.setCourseClassFinishedDate(dateConverter.dateToInstitutionTimezone(courseClassFinishedDate))
+    to.setCourseClassFinishedDate(DateConverter.convertDate(courseClassFinishedDate))
+    to.setRepositoryType(repositoryType)
     to
   }
   
@@ -67,8 +68,9 @@ object ReportCertificateGenerator {
       rs.getString("courseVersionUUID"),
       rs.getString("courseClassUUID"),
       rs.getString("courseUUID"),
-      rs.getString("baseURL"))
-
+      rs.getString("baseURL"),
+      RepositoryType.valueOf(rs.getString("repositoryType")))
+   
   def findCertificateDetails(certificateInformationTO: CertificateInformationTO): CertificateDetails  = {
     var details = CertificatesDetailsRepo.getForEntity(certificateInformationTO.getCourseClassUUID, CourseDetailsEntityType.COURSE_CLASS)
     if (!details.isDefined) {
@@ -76,19 +78,18 @@ object ReportCertificateGenerator {
       if (!details.isDefined) {
         details = CertificatesDetailsRepo.getForEntity(certificateInformationTO.getCourseUUID, CourseDetailsEntityType.COURSE)
         if (!details.isDefined) {
-          //build default one
-          details = Option(newCertificateDetails(null, "reports/", CertificateType.NO_BG, CourseDetailsEntityType.COURSE_CLASS,  null))
+          details = Option(Entities.newCertificateDetails(null, "reports/", CertificateType.NO_BG, CourseDetailsEntityType.COURSE_CLASS,  null))
         }
       }
     }
     details.get
   }
-      
-  def generateCertificate(userUUID: String, courseClassUUID: String, resp: HttpServletResponse): Array[Byte] = {
+
+   def generateCertificate(userUUID: String, courseClassUUID: String, resp: HttpServletResponse): Array[Byte] = {
     resp.addHeader("Content-disposition", "attachment; filename=Certificado.pdf")
-    
+
     val certificateData = sql"""
-				select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL
+				select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType
 	    		from Person p
 					join Enrollment e on p.uuid = e.person_uuid
 					join CourseClass cc on cc.uuid = e.class_uuid
@@ -100,23 +101,28 @@ object ReportCertificateGenerator {
         		  p.uuid = $userUUID and
 				  cc.uuid = $courseClassUUID
 		    """.map[CertificateInformationTO](toCertificateInformationTO)
-    val certificateDetails = findCertificateDetails(certificateData.head)
+		    
+		val certificateDetails = findCertificateDetails(certificateData.head)
     generateCertificateReport(certificateData, certificateDetails)
+
   }
-  
+   
   def generateCertificate(certificateInformationTOs: List[CertificateInformationTO]): Array[Byte] = {
     val certificateDetails = findCertificateDetails(certificateInformationTOs.head)
     generateCertificateReport(certificateInformationTOs, certificateDetails)
+
   }
   
   def getCertificateInformationTOsByCourseClass(courseClassUUID: String, enrollments: String) = {
-    var sql = """select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL
+
+    var sql = """select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType
       from Person p 
       join Enrollment e on p.uuid = e.person_uuid 
       join CourseClass cc on cc.uuid = e.class_uuid 
       join CourseVersion cv on cv.uuid = cc.courseVersion_uuid  
       join Course c on c.uuid = cv.course_uuid  
       join Institution i on i.uuid = cc.institution_uuid 
+		  join ContentRepository s on s.uuid = i.assetsRepositoryUUID
       where e.certifiedAt is not null and  
       e.state <> 'cancelled' and """ +
 		s"""cc.uuid = '$courseClassUUID' """
@@ -126,19 +132,20 @@ object ReportCertificateGenerator {
     val pstmt = new PreparedStmt(sql,List())    
     pstmt.map[CertificateInformationTO](toCertificateInformationTO)
   }
-
+  
   private def generateCertificateReport(certificateData: List[CertificateInformationTO], certificateDetails: CertificateDetails): Array[Byte] = {
     if(certificateData.length == 0){
     	return null
     }
     val parameters: HashMap[String, Object] = new HashMap()
-    
     parameters.put("institutionURL", composeURL(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/")
     parameters.put("assetsURL", certificateDetails.getBgImage)
-	  
+    println("=============> " + certificateDetails.getBgImage)
+   
     val cl = Thread.currentThread.getContextClassLoader
     val stream = cl.getResourceAsStream(certificateDetails.getCertificateType.getPath)
-    getReportBytesFromStream(certificateData, parameters, stream, "pdf")
+    getReportBytesFromStream(certificateData, parameters, stream)
+
   }
   
    def generateCourseClassCertificates(courseClassUUID: String, peopleTO: SimplePeopleTO) = {

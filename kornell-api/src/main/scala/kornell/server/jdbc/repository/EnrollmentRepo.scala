@@ -56,12 +56,6 @@ class EnrollmentRepo(uuid: String) {
     e
   }
 
-  def findGrades: List[String] = sql"""
-    	select * from ActomEntries
-    	where enrollment_uuid = ${uuid}
-    	and entryKey = 'cmi.core.score.raw'
-    """.map { rs => rs.getString("entryValue") }
-
   //TODO: Convert to map/flatmat and dedup updateAssessment
   def updateProgress = for {
     e <- first
@@ -70,6 +64,7 @@ class EnrollmentRepo(uuid: String) {
   } cv.getContentSpec match {
     case KNL => updateKNLProgress(e)
     case SCORM12 => updateSCORM12Progress(e)
+    case WIZARD => throw new Exception("Not supported")
   }
 
   def updateKNLProgress(e: Enrollment) = {
@@ -81,17 +76,16 @@ class EnrollmentRepo(uuid: String) {
     setEnrollmentProgress(e, newProgressPerc)
   }
 
-  def findProgressMilestone(e: Enrollment, actomKey: String): Option[Int] =
-    try {
+  def findProgressMilestone(e: Enrollment, actomKey: String): Option[Int] = {
       val actomLike = "%" + actomKey
       val enrollmentUUID = e.getUUID
       val progress = sql"""
-	  select progress from ActomEntries AE
-		join ProgressMilestone PM on AE.actomKey = PM.actomKey and AE.entryValue = PM.entryValue
-      where AE.enrollment_uuid = ${enrollmentUUID}
-		and AE.actomKey LIKE ${actomLike}
-		and AE.entryKey = 'cmi.core.lesson_location'
-  """.map[Integer] { rs => rs.getInt("progress") }
+    	  select progress from ActomEntries AE
+    		join ProgressMilestone PM on AE.actomKey = PM.actomKey and AE.entryValue = PM.entryValue
+          where AE.enrollment_uuid = ${enrollmentUUID}
+    		and AE.actomKey LIKE ${actomLike}
+    		and AE.entryKey = 'cmi.core.lesson_location'
+      """.map[Integer] { rs => rs.getInt("progress") }
 
       if (progress.isEmpty) None else Some(progress.head)
     }
@@ -124,10 +118,24 @@ class EnrollmentRepo(uuid: String) {
     progress
   }
 
-  //TODO: Consider lesson_status
+  def progressFromLessonStatus(e: Enrollment): Option[Int] = {
+    val lesson_statuses = ActomEntriesRepo.getValues(e.getUUID, "%", "cmi.core.lesson_status")
+    val progresses = lesson_statuses.flatMap { _ match {
+        case "passed" => Option(100)
+        case _ => None
+      } 
+    }
+    val progress = if (progresses.isEmpty)
+      None
+    else
+      Some(progresses.max)
+    progress
+  }
+
   def updateSCORM12Progress(e: Enrollment) = 
     progressFromSuspendData(e)
       .orElse(progressFromMilestones(e))
+      .orElse(progressFromLessonStatus(e))
       .orElse(Some(1))
       .foreach { p => setEnrollmentProgress(e, p) }
   
@@ -177,18 +185,6 @@ class EnrollmentRepo(uuid: String) {
       Assessment.FAILED
     (maxScore, assessment)
   }
-
-//  def findLastEventTime(e: Enrollment) = {
-//    val lastActomEntered = sql"""
-//		select max(ingestedAt) as latestEvent
-//		from ActomEntryChangedEvent 
-//		where 
-//		  entryKey='cmi.core.score.raw' 
-//		  and enrollment_uuid=${e.getUUID()} 
-//    """
-//      .first[String] { rs => rs.getString("latestEvent") }
-//    lastActomEntered
-//  }
 
   def checkCompletion(e: Enrollment) = {
     val isPassed = Assessment.PASSED == e.getAssessment

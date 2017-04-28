@@ -4,7 +4,6 @@ package kornell.gui.client;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
-import kornell.core.entity.CourseVersion;
 import kornell.gui.client.presentation.admin.audit.AdminAuditView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePresenter;
 import kornell.gui.client.presentation.admin.course.course.AdminCourseView;

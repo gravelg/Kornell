@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.CheckBox;
-import com.github.gwtbootstrap.client.ui.FileUpload;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.Modal;
@@ -32,6 +31,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentRepository;
 import kornell.core.entity.ContentSpec;
 import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
@@ -41,17 +41,14 @@ import kornell.core.to.CourseTO;
 import kornell.core.to.CourseVersionTO;
 import kornell.core.to.CourseVersionsTO;
 import kornell.core.to.CoursesTO;
-import kornell.gui.client.presentation.admin.course.course.generic.GenericCourseReportsView;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentPresenter;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPlace;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPresenter;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionView;
 import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminCourseVersionsPlace;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 import kornell.gui.client.util.forms.formfield.ListBoxFormField;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericAdminCourseVersionView extends Composite implements AdminCourseVersionView {
 
@@ -64,7 +61,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	private PlaceController placeCtrl;
 	private EventBus bus;
 	private FormHelper formHelper = GWT.create(FormHelper.class);
-	private boolean isCreationMode, isInstitutionAdmin;
+	private boolean isCreationMode, isInstitutionAdmin, isPlatformAdmin;
 	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
 	private Presenter presenter;
@@ -111,6 +108,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	public GenericAdminCourseVersionView(final KornellSession session, EventBus bus, final PlaceController placeCtrl) {
 		this.session = session;
 		this.placeCtrl = placeCtrl;
+		this.isPlatformAdmin = session.isPlatformAdmin();
 		this.isInstitutionAdmin = session.isInstitutionAdmin();
 		this.bus = bus;
 		initWidget(uiBinder.createAndBindUi(this));
@@ -163,12 +161,17 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		if(!isCreationMode && ContentSpec.WIZARD.equals(courseVersion.getContentSpec()))
 			presenter.buildContentView(courseVersion);
 		
-		contentsTab.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				presenter.buildContentView(courseVersion);
-			}
-		});
+
+		if (isPlatformAdmin) {			
+			contentsTab.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					presenter.buildContentView(courseVersion);
+				}
+			});
+		} else {
+			FormHelper.hideTab(contentsTab);
+		}
 		
 		courseVersionFields.setVisible(false);
 		this.fields = new ArrayList<KornellFormFieldWrapper>();
@@ -337,7 +340,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	void doOK(ClickEvent e) {
 		formHelper.clearErrors(fields);
 		if (isInstitutionAdmin && validateFields()) {
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			CourseVersion courseVersion = getCourseVersionInfoFromForm();
 			presenter.upsertCourseVersion(courseVersion);
 		}

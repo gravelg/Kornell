@@ -1,7 +1,5 @@
 package kornell.gui.client.presentation.bar.generic;
 
-import static kornell.core.util.StringUtils.mkurl;
-
 import com.github.gwtbootstrap.client.ui.Icon;
 import com.github.gwtbootstrap.client.ui.ProgressBar;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
@@ -15,7 +13,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -24,7 +21,6 @@ import kornell.core.entity.CourseClassState;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.UserInfoTO;
-import kornell.core.util.StringUtils;
 import kornell.gui.client.ClientFactory;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.event.HideSouthBarEvent;
@@ -40,7 +36,6 @@ import kornell.gui.client.mvp.HistoryMapper;
 import kornell.gui.client.presentation.bar.ActivityBarView;
 import kornell.gui.client.presentation.classroom.generic.notes.NotesPopup;
 import kornell.gui.client.sequence.NavigationRequest;
-import kornell.gui.client.util.ClientConstants;
 
 public class GenericActivityBarView extends Composite implements ActivityBarView, ProgressEventHandler,
 		ShowDetailsEventHandler, ShowChatDockEventHandler, NavigationAuthorizationEventHandler {

@@ -1,4 +1,5 @@
 package kornell.server.jdbc.repository
+
 import kornell.server.jdbc.SQL._
 import kornell.core.entity.Person
 import java.sql.ResultSet
@@ -10,8 +11,6 @@ import scala.collection.JavaConverters._
 import kornell.core.entity.RoleType
 import java.text.SimpleDateFormat
 import java.text.DateFormat
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
 import java.util.concurrent.TimeUnit
 import kornell.server.jdbc.PreparedStmt
 import kornell.core.util.StringUtils._

@@ -2,7 +2,6 @@ package kornell.gui.client.presentation.admin.courseversion.courseversion;
 
 import java.util.logging.Logger;
 
-import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.ui.Widget;
@@ -12,16 +11,13 @@ import kornell.api.client.KornellSession;
 import kornell.core.entity.ContentSpec;
 import kornell.core.entity.CourseVersion;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.Wizard;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardElement;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardSlide;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardSlideItem;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardTopic;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardMock;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.WizardSlideItemView;
-import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class AdminCourseVersionContentPresenter implements AdminCourseVersionContentView.Presenter {
 	Logger logger = Logger.getLogger(AdminCourseVersionContentPresenter.class.getName());
@@ -31,7 +27,6 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
 	private EventBus bus;
 	Place defaultPlace;
 	private ViewFactory viewFactory;
-	private CourseVersion courseVersion;
 
 	private Wizard wizard;
 	private WizardElement selectedWizardElement;
@@ -79,7 +74,7 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
 		view.getWizardView().updateSidePanel();
 		view.getWizardView().updateSlidePanel();
 		view.getWizardView().displaySlidePanel(true);	
-		LoadingPopup.hide();
+		bus.fireEvent(new ShowPacifierEvent(false));
 	}
 
 	@Override

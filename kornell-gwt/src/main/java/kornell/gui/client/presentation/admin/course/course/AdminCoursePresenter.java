@@ -15,10 +15,10 @@ import kornell.core.error.KornellErrorTO;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstantsHelper;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.mvp.PlaceUtils;
 import kornell.gui.client.presentation.admin.course.courses.AdminCoursesPlace;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class AdminCoursePresenter implements AdminCourseView.Presenter {
 	Logger logger = Logger.getLogger(AdminCoursePresenter.class.getName());
@@ -69,19 +69,19 @@ public class AdminCoursePresenter implements AdminCourseView.Presenter {
 
 	@Override
   public void upsertCourse(Course course) {
-		LoadingPopup.show();
+		bus.fireEvent(new ShowPacifierEvent(true));
 		if(course.getUUID() == null){
 			session.courses().create(course, new Callback<Course>() {
 				@Override
 				public void ok(Course course) {
-						LoadingPopup.hide();
+						bus.fireEvent(new ShowPacifierEvent(false));
 						KornellNotification.show("Curso criado com sucesso!");
 						PlaceUtils.reloadCurrentPlace(bus, placeController);
 				}		
 				
 				@Override
 				public void unauthorized(KornellErrorTO kornellErrorTO){
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR, 2500);
 				}
 			});
@@ -89,14 +89,14 @@ public class AdminCoursePresenter implements AdminCourseView.Presenter {
 			session.course(course.getUUID()).update(course, new Callback<Course>() {
 				@Override
 				public void ok(Course course) {
-						LoadingPopup.hide();
+						bus.fireEvent(new ShowPacifierEvent(false));
 						KornellNotification.show("Alterações salvas com sucesso!");
 						placeController.goTo(new AdminCoursesPlace());
 				}		
 				
 				@Override
 				public void unauthorized(KornellErrorTO kornellErrorTO){
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR, 2500);
 				}
 			});

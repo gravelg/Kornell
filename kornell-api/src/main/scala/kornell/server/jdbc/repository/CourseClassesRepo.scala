@@ -142,6 +142,7 @@ object CourseClassesRepo {
 		  		cc.allowBatchCancellation as allowBatchCancellation, 
 		  		cc.tutorChatEnabled as tutorChatEnabled, 
 		  		cc.approveEnrollmentsAutomatically as approveEnrollmentsAutomatically,
+          cc.pagseguroId as pagseguroId,
       			irp.name as institutionRegistrationPrefixName
 			from Course c
 				join CourseVersion cv on cv.course_uuid = c.uuid

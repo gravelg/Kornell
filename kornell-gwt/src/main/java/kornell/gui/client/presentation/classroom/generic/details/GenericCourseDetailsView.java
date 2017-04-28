@@ -44,16 +44,13 @@ import kornell.gui.client.KornellConstants;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowDetailsEvent;
 import kornell.gui.client.event.ShowDetailsEventHandler;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.generic.GenericCourseClassMessagesView;
-import kornell.gui.client.presentation.classroom.ClassroomPlace;
 import kornell.gui.client.presentation.classroom.ClassroomView.Presenter;
-import kornell.gui.client.presentation.message.MessagePanelType;
-import kornell.gui.client.presentation.message.MessagePlace;
 import kornell.gui.client.presentation.message.MessagePresenter;
 import kornell.gui.client.presentation.profile.ProfilePlace;
 import kornell.gui.client.util.ClientConstants;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericCourseDetailsView extends Composite implements ShowDetailsEventHandler {
 	interface MyUiBinder extends UiBinder<Widget, GenericCourseDetailsView> {
@@ -221,7 +218,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 
 		if (libraryPanel != null)
 			libraryPanel.setVisible(btn.equals(btnLibrary));
-		LoadingPopup.hide();
+		bus.fireEvent(new ShowPacifierEvent(false));
 	}
 
 	private FlowPanel getAboutPanel() {
@@ -242,7 +239,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 	}
 
 	private void buildChatPanel() {
-		LoadingPopup.show();
+		bus.fireEvent(new ShowPacifierEvent(true));
 		messagePresenterClassroomGlobalChat.enableMessagesUpdate(true);
 		if (messagesGlobalChatView == null) {
 			messagesGlobalChatView = new GenericCourseClassMessagesView(session, bus, placeCtrl, viewFactory,
@@ -263,7 +260,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 	}
 
 	private void buildTutorPanel() {
-		LoadingPopup.show();
+		bus.fireEvent(new ShowPacifierEvent(true));
 		messagePresenterClassroomTutorChat.enableMessagesUpdate(true);
 		if (messagesTutorChatView == null) {
 			messagesTutorChatView = new GenericCourseClassMessagesView(session, bus, placeCtrl, viewFactory,

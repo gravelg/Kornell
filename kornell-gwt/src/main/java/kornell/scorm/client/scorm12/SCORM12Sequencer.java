@@ -1,6 +1,5 @@
 package kornell.scorm.client.scorm12;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.web.bindery.event.shared.EventBus;
 

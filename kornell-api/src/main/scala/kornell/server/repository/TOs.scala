@@ -247,7 +247,6 @@ object TOs {
 
   def newInstitutionBillingEnrollmentReportTO: InstitutionBillingEnrollmentReportTO = new InstitutionBillingEnrollmentReportTO
   def newInstitutionBillingEnrollmentReportTO(enrollmentUUID: String, courseTitle: String, courseVersionName: String, courseClassName: String, fullName: String, username: String, firstEventFiredAt: Date): InstitutionBillingEnrollmentReportTO = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
     val to = newInstitutionBillingEnrollmentReportTO
     to.setEnrollmentUUID(enrollmentUUID)
     to.setCourseTitle(courseTitle)
@@ -255,7 +254,7 @@ object TOs {
     to.setCourseClassName(courseClassName)
     to.setFullName(fullName)
     to.setUsername(username)
-    to.setFirstEventFiredAt(dateConverter.dateToInstitutionTimezone(firstEventFiredAt))
+    to.setFirstEventFiredAt(DateConverter.convertDate(firstEventFiredAt))
     to
   }
 
@@ -270,23 +269,22 @@ object TOs {
 
   def newCourseClassAuditTO: CourseClassAuditTO = new CourseClassAuditTO
   def newCourseClassAuditTO(eventFiredAt: Date, eventType: String, adminFullName: String, adminUsername: String, participantFullName: String, participantUsername: String, fromCourseClassName: String, toCourseClassName: String, fromState: String, toState: String, adminUUID: String, participantUUID: String, enrollmentUUID: String, fromCourseClassUUID: String, toCourseClassUUID: String): CourseClassAuditTO = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
     val to = newCourseClassAuditTO
-    to.setEventFiredAt(dateConverter.dateToInstitutionTimezone(eventFiredAt))
-	to.setEventType(eventType)
-	to.setAdminFullName(adminFullName)
-	to.setAdminUsername(adminUsername)
-	to.setParticipantFullName(participantFullName)
-	to.setParticipantUsername(participantUsername)
-	to.setFromCourseClassName(fromCourseClassName)
-	to.setToCourseClassName(toCourseClassName)
-	to.setFromState(fromState)
-	to.setToState(toState)
-	to.setAdminUUID(adminUUID)
-	to.setParticipantUUID(participantUUID)
-	to.setEnrollmentUUID(enrollmentUUID)
-	to.setFromCourseClassUUID(fromCourseClassUUID)
-	to.setToCourseClassUUID(toCourseClassUUID)
+    to.setEventFiredAt(DateConverter.convertDate(eventFiredAt))
+  	to.setEventType(eventType)
+  	to.setAdminFullName(adminFullName)
+  	to.setAdminUsername(adminUsername)
+  	to.setParticipantFullName(participantFullName)
+  	to.setParticipantUsername(participantUsername)
+  	to.setFromCourseClassName(fromCourseClassName)
+  	to.setToCourseClassName(toCourseClassName)
+  	to.setFromState(fromState)
+  	to.setToState(toState)
+  	to.setAdminUUID(adminUUID)
+  	to.setParticipantUUID(participantUUID)
+  	to.setEnrollmentUUID(enrollmentUUID)
+  	to.setFromCourseClassUUID(fromCourseClassUUID)
+  	to.setToCourseClassUUID(toCourseClassUUID)
     to
   }
 
@@ -346,19 +344,18 @@ object TOs {
   }
   
   def newEntityChanged(uuid: String, eventFiredAt: Date, institutionUUID: String, fromPersonUUID: String, entityType: AuditedEntityType, entityUUID: String, fromValue: String, toValue: String, entityName: String, fromPersonName: String, fromUsername: String) = {
-    val dateConverter = new DateConverter(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
     val event = events.newEntityChanged.as
     event.setUUID(uuid)
-    event.setEventFiredAt(dateConverter.dateToInstitutionTimezone(eventFiredAt))
-	event.setInstitutionUUID(institutionUUID)
-	event.setFromPersonUUID(fromPersonUUID)
-	event.setEntityType(entityType)
-	event.setEntityUUID(entityUUID)
-	event.setFromValue(fromValue)
-	event.setToValue(toValue)
-	event.setEntityName(entityName)
-	event.setFromPersonName(fromPersonName)
-	event.setFromUsername(fromUsername)
+    event.setEventFiredAt(DateConverter.convertDate(eventFiredAt))
+  	event.setInstitutionUUID(institutionUUID)
+  	event.setFromPersonUUID(fromPersonUUID)
+  	event.setEntityType(entityType)
+  	event.setEntityUUID(entityUUID)
+  	event.setFromValue(fromValue)
+  	event.setToValue(toValue)
+  	event.setEntityName(entityName)
+  	event.setFromPersonName(fromPersonName)
+  	event.setFromUsername(fromUsername)
     event
   }
 

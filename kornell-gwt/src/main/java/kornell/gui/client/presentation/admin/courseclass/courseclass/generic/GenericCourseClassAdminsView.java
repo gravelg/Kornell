@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
@@ -30,10 +31,10 @@ import kornell.core.entity.TutorRole;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.RoleTO;
 import kornell.core.to.RolesTO;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassView.Presenter;
 import kornell.gui.client.util.forms.formfield.PeopleMultipleSelect;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericCourseClassAdminsView extends Composite {
 	interface MyUiBinder extends UiBinder<Widget, GenericCourseClassAdminsView> {
@@ -41,6 +42,7 @@ public class GenericCourseClassAdminsView extends Composite {
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
+	private EventBus bus;
 
 	private KornellSession session;
 	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
@@ -78,9 +80,10 @@ public class GenericCourseClassAdminsView extends Composite {
 
 	private CourseClassTO courseClassTO;
 	
-	public GenericCourseClassAdminsView(final KornellSession session,
+	public GenericCourseClassAdminsView(final KornellSession session, EventBus bus,
 			Presenter presenter, CourseClassTO courseClassTO) {
 		this.session = session;
+		this.bus = bus;
 		this.courseClassTO = courseClassTO;
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -111,7 +114,7 @@ public class GenericCourseClassAdminsView extends Composite {
 		labelPanel.add(lblLabel);
 		fieldPanelWrapper.add(labelPanel);
 		
-		LoadingPopup.show();
+		bus.fireEvent(new ShowPacifierEvent(true));
 		session.courseClass(courseClassTO.getCourseClass().getUUID()).getAdmins(RoleCategory.BIND_WITH_PERSON,
 				new Callback<RolesTO>() {
 			@Override
@@ -123,7 +126,7 @@ public class GenericCourseClassAdminsView extends Composite {
 					}
 					courseClassAdminsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
 				}
-				LoadingPopup.hide();
+				bus.fireEvent(new ShowPacifierEvent(false));
 			}
 		});
 		courseClassAdminsMultipleSelect = new PeopleMultipleSelect(session);
@@ -144,7 +147,7 @@ public class GenericCourseClassAdminsView extends Composite {
         labelPanel.add(lblLabel);
         fieldPanelWrapper.add(labelPanel);
         
-        LoadingPopup.show();
+        bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClass(courseClassTO.getCourseClass().getUUID()).getTutors(RoleCategory.BIND_WITH_PERSON,
                 new Callback<RolesTO>() {
             @Override
@@ -156,7 +159,7 @@ public class GenericCourseClassAdminsView extends Composite {
                     }
                     tutorsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
                 }
-                LoadingPopup.hide();
+                bus.fireEvent(new ShowPacifierEvent(false));
             }
         });
         tutorsMultipleSelect = new PeopleMultipleSelect(session);
@@ -177,7 +180,7 @@ public class GenericCourseClassAdminsView extends Composite {
         labelPanel.add(lblLabel);
         fieldPanelWrapper.add(labelPanel);
         
-        LoadingPopup.show();
+        bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClass(courseClassTO.getCourseClass().getUUID()).getObservers(RoleCategory.BIND_WITH_PERSON,
                 new Callback<RolesTO>() {
             @Override
@@ -189,7 +192,7 @@ public class GenericCourseClassAdminsView extends Composite {
                     }
                     observersMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
                 }
-                LoadingPopup.hide();
+                bus.fireEvent(new ShowPacifierEvent(false));
             }
         });
         observersMultipleSelect = new PeopleMultipleSelect(session);

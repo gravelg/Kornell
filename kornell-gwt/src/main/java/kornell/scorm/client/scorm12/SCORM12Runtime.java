@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.Timer;
 import com.google.web.bindery.event.shared.EventBus;
@@ -106,9 +105,9 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 	}
 
 	public void onLMSSetValue(String key, String value) {
-		if ("knl.next".equals(key)){
+		if ("knl.next".equals(key) || "knl.action.next".equals(key)){ //.action
 			bus.fireEvent(NavigationRequest.next());
-		} else if ("knl.prev".equals(key)){
+		} else if ("knl.prev".equals(key) || "knl.action.prev".equals(key)){
 			bus.fireEvent(NavigationRequest.prev());
 		} else if (key != null && key.endsWith(".nextEnabled")){
 			boolean isOk = "true".equals(value);

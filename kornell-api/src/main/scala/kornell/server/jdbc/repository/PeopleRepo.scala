@@ -53,6 +53,14 @@ object PeopleRepo {
   val uuidCache = cacheBuilder.build(uuidLoader)
   val timezoneCache = cacheBuilder.build(timezoneLoader)
 
+  def clearCache() = {
+    usernameCache.invalidateAll()
+    cpfCache.invalidateAll()
+    emailCache.invalidateAll()
+    uuidCache.invalidateAll()
+    timezoneCache.invalidateAll()
+  }
+
   def getByUsername(institutionUUID: String, username: String) = Option(institutionUUID, username) flatMap usernameCache.get
   def getByEmail(institutionUUID: String, email: String) = Option(institutionUUID, email) flatMap emailCache.get
   def getByCPF(institutionUUID: String, cpf: String) = Option(institutionUUID, cpf) flatMap cpfCache.get

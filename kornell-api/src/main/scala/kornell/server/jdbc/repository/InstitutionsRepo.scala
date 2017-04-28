@@ -54,8 +54,12 @@ object InstitutionsRepo {
       	| join InstitutionHostName ihn on i.uuid = ihn.institutionUUID
       	| where ihn.hostName = ${hostName}
 	    """.first[Institution]
-  
 
+	def clearCache() = {
+    hostNameCache.invalidateAll()
+	  nameCache.invalidateAll()
+	  uuidCache.invalidateAll()
+  }
 	    
   def byType(institutionType: InstitutionType) = 
     sql"""

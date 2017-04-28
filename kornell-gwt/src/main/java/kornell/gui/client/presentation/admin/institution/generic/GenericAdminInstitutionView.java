@@ -9,7 +9,6 @@ import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.Modal;
 import com.github.gwtbootstrap.client.ui.Tab;
 import com.github.gwtbootstrap.client.ui.TabPanel;
-import com.github.gwtbootstrap.client.ui.constants.Device;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -39,6 +38,7 @@ import kornell.core.entity.EntityFactory;
 import kornell.core.entity.Institution;
 import kornell.core.entity.InstitutionType;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.personnel.Dean;
 import kornell.gui.client.presentation.admin.institution.AdminInstitutionPlace;
 import kornell.gui.client.presentation.admin.institution.AdminInstitutionView;
@@ -46,7 +46,6 @@ import kornell.gui.client.util.CSSInjector;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 import kornell.gui.client.util.forms.formfield.ListBoxFormField;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericAdminInstitutionView extends Composite implements AdminInstitutionView {
 
@@ -210,13 +209,13 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	}
 
 	public void buildHostnamesView() {
-		hostnamesView = new GenericInstitutionHostnamesView(session, presenter, institution);
+		hostnamesView = new GenericInstitutionHostnamesView(session, bus, presenter, institution);
 		hostnamesPanel.clear();
 		hostnamesPanel.add(hostnamesView);
 	}
 	
 	public void buildEmailWhitelistView() {
-		emailWhitelistView = new GenericInstitutionEmailWhitelistView(session, presenter, institution);
+		emailWhitelistView = new GenericInstitutionEmailWhitelistView(session, bus, presenter, institution);
 		emailWhitelistPanel.clear();
 		emailWhitelistPanel.add(emailWhitelistView);
 	}
@@ -238,13 +237,13 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	}
 
 	public void buildAdminsView() {
-		adminsView = new GenericInstitutionAdminsView(session, presenter, institution);
+		adminsView = new GenericInstitutionAdminsView(session, bus, presenter, institution);
 		adminsPanel.clear();
 		adminsPanel.add(adminsView);
 	}
 
 	public void buildAssetsView() {
-		assetsView = new GenericInstitutionAssetsView(session, presenter, institution);
+		assetsView = new GenericInstitutionAssetsView(session, bus, presenter, institution);
 		assetsPanel.clear();
 		assetsPanel.add(assetsView);
 	}
@@ -432,7 +431,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	void doOK(ClickEvent e) {
 		formHelper.clearErrors(fields);
 		if (isInstitutionAdmin && validateFields()) {
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			Institution institution = getInstitutionInfoFromForm();
 			presenter.updateInstitution(institution);
 

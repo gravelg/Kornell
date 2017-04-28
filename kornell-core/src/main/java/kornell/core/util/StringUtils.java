@@ -166,13 +166,13 @@ public class StringUtils {
 		return (i < 10 ? "0" : "") + i;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static String isoNow() {
 		Date now = new Date();
 		return toISO(now);
 	}
 		
 	//TODO: Differentiate client and server date formatting 
+	@SuppressWarnings("deprecation")
 	public static String toISO(Date date){
 		if (date == null) return "";
 		String year = i2s(1900 + date.getYear());

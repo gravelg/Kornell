@@ -44,13 +44,13 @@ import kornell.core.to.CoursesTO;
 import kornell.core.to.InstitutionRegistrationPrefixesTO;
 import kornell.core.to.RolesTO;
 import kornell.core.util.StringUtils;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.mvp.PlaceUtils;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassView.Presenter;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 import kornell.gui.client.util.forms.formfield.ListBoxFormField;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericCourseClassConfigView extends Composite {
     interface MyUiBinder extends UiBinder<Widget, GenericCourseClassConfigView> {
@@ -449,7 +449,7 @@ public class GenericCourseClassConfigView extends Composite {
     void doOK(ClickEvent e) {
         formHelper.clearErrors(fields);
         if (isInstitutionAdmin && validateFields()) {
-            LoadingPopup.show();
+            bus.fireEvent(new ShowPacifierEvent(true));
             CourseClass courseClass = getCourseClassInfoFromForm();
             presenter.upsertCourseClass(courseClass);
         }
@@ -475,7 +475,9 @@ public class GenericCourseClassConfigView extends Composite {
         if(allowPrefixEdit) {
             courseClass.setInstitutionRegistrationPrefixUUID(institutionRegistrationPrefix.getFieldPersistText());
         }
-        courseClass.setPagseguroId(pagseguroId.getFieldPersistText());
+		if(session.isPlatformAdmin()){
+	        courseClass.setPagseguroId(pagseguroId.getFieldPersistText());
+		}
         return courseClass;
     }
 
@@ -555,7 +557,7 @@ public class GenericCourseClassConfigView extends Composite {
             ((CheckBox)chatDockEnabled.getFieldWidget()).setValue(true);
         } else if (MODAL_TUTOR_CHAT_ENABLED.equals(modalMode)){
         	if(courseClassTO != null && courseClassTO.getCourseClass() != null && courseClassTO.getCourseClass().getUUID() != null){
-                LoadingPopup.show();
+                bus.fireEvent(new ShowPacifierEvent(true));
                 session.courseClass(courseClassTO.getCourseClass().getUUID()).getTutors(RoleCategory.BIND_WITH_PERSON,
                         new Callback<RolesTO>() {
                     @Override
@@ -565,7 +567,7 @@ public class GenericCourseClassConfigView extends Composite {
                         } else {
                             ((CheckBox)tutorChatEnabled.getFieldWidget()).setValue(true);
                         }
-                        LoadingPopup.hide();
+                        bus.fireEvent(new ShowPacifierEvent(false));
                     }
                 });
         	} else {

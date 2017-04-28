@@ -17,11 +17,16 @@ import org.apache.http.client.methods.HttpGet
 import kornell.server.jdbc.repository.CourseClassRepo
 import scala.xml.XML
 import kornell.server.jdbc.repository.CourseClassesRepo
+import kornell.server.jdbc.ConnectionHandler
+import kornell.server.util.DateConverter
+import kornell.server.jdbc.repository.InstitutionRepo
 
 
 object PostbackService {
   
-  val test_xml = <transaction>  
+  /**
+   * Example transaction XML
+  <transaction>
     <date>2011-02-10T16:13:41.000-03:00</date>  
     <code>9E884542-81B3-4419-9A75-BCC6FB495EF1</code>  
     <reference>REF1234</reference>
@@ -77,7 +82,8 @@ object PostbackService {
         <type>1</type>  
         <cost>21.50</cost>  
     </shipping>
-</transaction>
+	</transaction>
+*/
   
   val logger = Logger.getLogger("kornell.server.repository.service.PostbackService")
   
@@ -113,6 +119,17 @@ object PostbackService {
           }
         } catch {
           case e: Throwable=>logger.log(Level.SEVERE, "Exception while processing postback " + payload, e)
+        } finally {
+          DateConverter.clearTimeZone
+          try {
+            // in new thread we get a new connection, no filter so we need to commit/rollback manually
+            ConnectionHandler.commit
+          } catch {
+            case e: Throwable => {
+              ConnectionHandler.rollback
+              logger.log(Level.SEVERE, "Exception while processing postback " + payload, e)
+            }
+          }
         }
       }
     })
@@ -121,7 +138,7 @@ object PostbackService {
   
             
   def pagseguroPostback(env: String, institutionUUID: String, transactionId: String) = {
-    val postbackType = if (env != "live") PostbackType.PAGSEGURO_SANDBOX else PostbackType.PAGESGURO
+    val postbackType = if (env != "live") PostbackType.PAGSEGURO_SANDBOX else PostbackType.PAGSEGURO
     val current_url = if (env != "live") pag_sandbox_get_trans_url else pag_get_trans_url
     val postbackConfig = PostbackConfigRepo.getConfig(institutionUUID, postbackType).getOrElse(null)
     if (postbackConfig == null) {
@@ -136,34 +153,43 @@ object PostbackService {
       val request = new HttpGet(get_url)
       val response = client.execute(request)
       val response_contents = EntityUtils.toString(response.getEntity)
-      val response_xml = XML.loadString(response_contents)
-      
-      val user_email = (response_xml \\ "sender" \\ "email").text
-      val name = (response_xml \\ "sender" \\ "name").text
-      val courseClassToken = ((response_xml \\ "items" \\ "item")(0) \\ "id").text
-      
-      val courseClass = CourseClassesRepo.byPagseguroId(courseClassToken)
-      if (courseClass.isDefined) {
-        val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
-        enrollmentRequest.setFullName(name)
-        enrollmentRequest.setUsername(user_email)
-        enrollmentRequest.setCourseClassUUID(courseClass.get.getUUID)
-        enrollmentRequest.setInstitutionUUID(institutionUUID)
-        enrollmentRequest.setRegistrationType(RegistrationType.email)
-        enrollmentRequest.setCancelEnrollment(false)
-        RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, response_xml.text)
-      } else {
-        
+      try {
+        processPagseguroResponse(institutionUUID, response_contents)
+      } catch {
+        case e: Throwable=>logger.log(Level.SEVERE, "Exception while processing postback " + response_contents, e)
       }
     }  
   }
   
+  def processPagseguroResponse(institutionUUID: String, xmlResponse: String) = {
+    val response_xml = XML.loadString(xmlResponse)
+
+    val user_email = (response_xml \\ "sender" \\ "email").text
+    val name = (response_xml \\ "sender" \\ "name").text
+    val pagseguroId = ((response_xml \\ "items" \\ "item")(0) \\ "id").text
+
+    val courseClass = CourseClassesRepo.byPagseguroId(pagseguroId)
+    if (courseClass.isDefined) {
+      val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
+      enrollmentRequest.setFullName(name)
+      enrollmentRequest.setUsername(user_email)
+      enrollmentRequest.setCourseClassUUID(courseClass.get.getUUID)
+      enrollmentRequest.setInstitutionUUID(institutionUUID)
+      enrollmentRequest.setRegistrationType(RegistrationType.email)
+      enrollmentRequest.setCancelEnrollment(false)
+      RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, response_xml.text)
+    } else {
+      logger.log(Level.SEVERE, "No courseClass found for pagseguroId " + pagseguroId + ", could not process XML " + xmlResponse)
+    }
+  }
+
   def createEnrollment(payload: String, postbackType: PostbackType) = {
     val payloadMap = URLEncodedUtils.parse(payload, Charset.forName("utf-8")).asScala.map(t => t.getName -> t.getValue).toMap
             
     val token = getValueFromPayloadMap(payloadMap, "custom").get
     val courseClassUUID = getValueFromPayloadMap(payloadMap, "item_number").get
     val institutionUUID = new CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+    DateConverter.setTimeZone(new InstitutionRepo(institutionUUID).get.getTimeZone)
     val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).getOrElse(null)
     
     if (postbackConfig != null) {

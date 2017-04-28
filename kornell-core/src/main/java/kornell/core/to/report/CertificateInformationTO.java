@@ -2,6 +2,8 @@ package kornell.core.to.report;
 
 import java.util.Date;
 
+import kornell.core.entity.RepositoryType;
+
 public class CertificateInformationTO {
 	private String personFullName;
 	private String personCPF;
@@ -15,6 +17,7 @@ public class CertificateInformationTO {
 	private Date courseClassFinishedDate;
 	private String baseURL;
 	private String institutionName;
+	private RepositoryType repositoryType;
 	
 	public String getPersonFullName() {
 		return personFullName;
@@ -88,5 +91,10 @@ public class CertificateInformationTO {
 	public void setInstitutionName(String institutionName) {
 		this.institutionName = institutionName;
 	}
-	
+	public RepositoryType getRepositoryType() {
+		return repositoryType;
+	}
+	public void setRepositoryType(RepositoryType repositoryType) {
+		this.repositoryType = repositoryType;
+	}
 }

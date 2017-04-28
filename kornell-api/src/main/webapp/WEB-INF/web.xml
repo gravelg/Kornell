@@ -19,17 +19,20 @@
 	    <param-value>org.jboss.resteasy.plugins.providers.DataSourceProvider,org.jboss.resteasy.plugins.providers.DocumentProvider,org.jboss.resteasy.plugins.providers.DefaultTextPlain,org.jboss.resteasy.plugins.providers.StringTextStar,org.jboss.resteasy.plugins.providers.SourceProvider,org.jboss.resteasy.plugins.providers.InputStreamProvider,org.jboss.resteasy.plugins.providers.ReaderProvider,org.jboss.resteasy.plugins.providers.ByteArrayProvider,org.jboss.resteasy.plugins.providers.FormUrlEncodedProvider,org.jboss.resteasy.plugins.providers.JaxrsFormProvider,org.jboss.resteasy.plugins.providers.FileProvider,org.jboss.resteasy.plugins.providers.FileRangeWriter,org.jboss.resteasy.plugins.providers.StreamingOutputProvider,org.jboss.resteasy.plugins.providers.IIOImageProvider,org.jboss.resteasy.plugins.interceptors.CacheControlFeature,org.jboss.resteasy.plugins.interceptors.encoding.AcceptEncodingGZIPInterceptor,org.jboss.resteasy.plugins.interceptors.encoding.AcceptEncodingGZIPFilter,org.jboss.resteasy.plugins.interceptors.encoding.ClientContentEncodingAnnotationFeature,org.jboss.resteasy.plugins.interceptors.encoding.GZIPDecodingInterceptor,org.jboss.resteasy.plugins.interceptors.encoding.GZIPEncodingInterceptor,org.jboss.resteasy.plugins.interceptors.encoding.ServerContentEncodingAnnotationFeature</param-value>
 	</context-param>
 
-	<!-- <filter> <filter-name>SetCharacterEncodingFilter</filter-name> <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class> 
-		<init-param> <param-name>encoding</param-name> <param-value>UTF-8</param-value> 
-		</init-param> </filter> -->
-
 	<filter>
 		<filter-name>BasicAuth</filter-name>
 		<filter-class>kornell.server.web.BasicAuthFilter</filter-class>
 	</filter>
 
-	<!-- <filter> <filter-name>CacheControlFilter</filter-name> <filter-class>kornell.server.web.CacheControlFilter</filter-class> 
-		</filter> -->
+	<filter>
+		<filter-name>HostnameFilter</filter-name>
+		<filter-class>kornell.server.web.InstitutionHostnameFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>TransactionManagementFilter</filter-name>
+		<filter-class>kornell.server.web.TransactionManagementFilter</filter-class>
+	</filter>
 
 	<servlet>
 		<servlet-name>KornellAPI</servlet-name>
@@ -71,20 +74,16 @@
 	</servlet-mapping>
 
 	<filter-mapping>
+		<filter-name>TransactionManagementFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
 		<filter-name>BasicAuth</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	<filter-mapping>
+		<filter-name>HostnameFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-	<!-- <filter-mapping> <filter-name>SetCharacterEncodingFilter</filter-name> 
-		<url-pattern>/*</url-pattern> </filter-mapping> -->
-	<!-- <filter-mapping> <filter-name>CacheControlFilter</filter-name> <url-pattern>/*</url-pattern> 
-		</filter-mapping> -->
-	<!-- <security-role> <role-name>user</role-name> </security-role> <security-constraint> 
-		<web-resource-collection> <web-resource-name>All resources</web-resource-name> 
-		<description>Protects all resources</description> <url-pattern>/road-to-nowhere</url-pattern> 
-		</web-resource-collection> <auth-constraint> <role-name>user</role-name> 
-		</auth-constraint> </security-constraint> <login-config> <auth-method>BASIC</auth-method> 
-		<realm-name>KornellRealm</realm-name> </login-config> <resource-ref> <description>Kornell 
-		Datasource</description> <res-ref-name>jdbc/KornellDS</res-ref-name> <res-type>javax.sql.DataSource</res-type> 
-		<res-auth>Container</res-auth> </resource-ref> -->
 </web-app>

@@ -5,6 +5,9 @@ import javax.ws.rs.PathParam
 import javax.ws.rs.POST
 import kornell.server.service.PostbackService
 import javax.ws.rs.FormParam
+import kornell.server.util.Conditional.toConditional
+import kornell.server.util.AccessDeniedErr
+
 
 @Path("/postback")
 class PostbackResource {
@@ -27,4 +30,11 @@ class PostbackResource {
     PostbackService.pagseguroPostback(env, institutionUUID, notificationCode)
     ""
   }
+  
+  @Path("/reprocess/pagseguro/{institutionUUID}")
+  @POST
+  def reprocessPagseguro(@PathParam("institutionUUID") institutionUUID: String, payload: String) = {
+    PostbackService.processPagseguroResponse(institutionUUID, payload)
+    ""
+  }.requiring(isPlatformAdmin(institutionUUID), AccessDeniedErr()).get
 }

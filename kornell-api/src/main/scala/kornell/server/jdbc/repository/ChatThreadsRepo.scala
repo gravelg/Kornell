@@ -14,8 +14,6 @@ import kornell.server.repository.TOs
 import kornell.core.to.UnreadChatThreadTO
 import kornell.core.to.ChatThreadMessageTO
 import kornell.core.entity.CourseClass
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
 import java.util.concurrent.TimeUnit._
 import kornell.core.entity.Person
 import kornell.core.to.ChatThreadMessagesTO

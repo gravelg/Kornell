@@ -20,6 +20,13 @@
 				<b:Button ui:field="btnExit" addStyleNames="menuBarButton last" icon="OFF" title="Sair"><ui:attribute name='title' description='Logout button tooltip text'/></b:Button>		
 			</g:FlowPanel>
 	    	<g:Label ui:field="testEnvWarning" addStyleNames="testEnvWarning shy"></g:Label>
+	    	<g:HTMLPanel ui:field="knlPacifier" addStyleNames="knlPacifier shy">
+			  <div class="bounce1"></div>
+			  <div class="bounce2"></div>
+			  <div class="bounce3"></div>
+			  <div class="bounce4"></div>
+			  <div class="bounce5"></div>
+	    	</g:HTMLPanel>
 		</g:FlowPanel>
     	<knl:GenericPlaceBarView ui:field="placeBar"></knl:GenericPlaceBarView>
 	</g:FlowPanel>

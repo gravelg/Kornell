@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS `ebdb`.`InstitutionRegistrationPrefix`;
+DROP TABLE IF EXISTS `InstitutionRegistrationPrefix`;
 
-CREATE  TABLE IF NOT EXISTS `ebdb`.`InstitutionRegistrationPrefix` (
+CREATE  TABLE IF NOT EXISTS `InstitutionRegistrationPrefix` (
   `prefix` CHAR(29) NOT NULL ,
   `institutionUUID` CHAR(36) NOT NULL,
   PRIMARY KEY (`institutionUUID`, `prefix`) ,

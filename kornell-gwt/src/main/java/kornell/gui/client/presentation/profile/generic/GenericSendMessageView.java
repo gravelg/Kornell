@@ -11,15 +11,16 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.to.UserInfoTO;
 import kornell.gui.client.KornellConstants;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.profile.ProfileView;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.LoadingPopup;
 
 public class GenericSendMessageView extends Composite implements ProfileView {
 	interface MyUiBinder extends UiBinder<Widget, GenericSendMessageView> {
@@ -29,6 +30,7 @@ public class GenericSendMessageView extends Composite implements ProfileView {
 	private static KornellConstants constants = GWT.create(KornellConstants.class);
 
 	private KornellSession session;
+	private EventBus bus;
 	private FormHelper formHelper;
 
 	@UiField
@@ -54,8 +56,9 @@ public class GenericSendMessageView extends Composite implements ProfileView {
 			sendMessageModal.show();
 	}
 
-	public void initData(KornellSession session, UserInfoTO user, boolean isCurrentUser) {
+	public void initData(KornellSession session, EventBus bus, UserInfoTO user, boolean isCurrentUser) {
 		this.session = session;
+		this.bus = bus;
 		this.user = user;
 		formHelper = new FormHelper();
 		sendMessageFields.clear();
@@ -73,11 +76,11 @@ public class GenericSendMessageView extends Composite implements ProfileView {
 	@UiHandler("btnOK")
 	void doOK(ClickEvent e) { 
 		if(modalMessageTextArea.getText().length() > 0){
-			LoadingPopup.show();
+			bus.fireEvent(new ShowPacifierEvent(true));
 			session.chatThreads().postMessageToDirectThread(modalMessageTextArea.getText(), user.getPerson().getUUID(), new Callback<Void>() {
 				@Override
 				public void ok(Void to) {
-					LoadingPopup.hide();
+					bus.fireEvent(new ShowPacifierEvent(false));
 					modalMessageTextArea.setText("");
 					sendMessageModal.hide();
 					KornellNotification.show(constants.messageSentSuccess());

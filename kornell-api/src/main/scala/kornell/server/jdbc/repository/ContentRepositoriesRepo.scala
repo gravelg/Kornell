@@ -68,5 +68,6 @@ object ContentRepositoriesRepo {
     val optionRepo = Some(repo)
     contentRepositoryCache.put(repo.getUUID, optionRepo)
   }
-  	
+
+  def clearCache() = contentRepositoryCache.invalidateAll()
 }
