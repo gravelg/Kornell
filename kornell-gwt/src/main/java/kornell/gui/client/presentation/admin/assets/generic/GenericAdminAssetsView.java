@@ -67,20 +67,20 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	}
 
 	@Override
-	public void initThumb() {
+	public void initThumb(boolean exists) {
 		thumbSubTitle.setText(info.get("thumbSubTitle"));
 		thumbFieldPanel.clear();
-		thumbFieldPanel.add(buildFileUploadPanel(AdminAssetsPresenter.THUMB_FILENAME, AdminAssetsPresenter.IMAGE_JPG, AdminAssetsPresenter.THUMB_DESCRIPTION));
+		thumbFieldPanel.add(buildFileUploadPanel(AdminAssetsPresenter.THUMB_FILENAME, AdminAssetsPresenter.IMAGE_JPG, AdminAssetsPresenter.THUMB_DESCRIPTION, exists));
 	}
 
 	@Override
 	public void initCertificateDetails(CertificateDetails certificateDetails) {
 		certificateDetailsSubTitle.setText(info.get("certificateDetailsSubTitle"));
 		certificateDetailsFieldPanel.clear();
-		certificateDetailsFieldPanel.add(buildFileUploadPanel(AdminAssetsPresenter.CERTIFICATE_FILENAME, AdminAssetsPresenter.IMAGE_JPG, AdminAssetsPresenter.CERTIFICATE_DESCRIPTION));
+		certificateDetailsFieldPanel.add(buildFileUploadPanel(AdminAssetsPresenter.CERTIFICATE_FILENAME, AdminAssetsPresenter.IMAGE_JPG, AdminAssetsPresenter.CERTIFICATE_DESCRIPTION, certificateDetails.getUUID() != null));
 	}
 
-	private FlowPanel buildFileUploadPanel(final String fileName, final String contentType, String label) {
+	private FlowPanel buildFileUploadPanel(final String fileName, final String contentType, String label, boolean exists) {
 		// Create a FormPanel and point it at a service
 	    final FormPanel form = new FormPanel();
 	    final String elementId = fileName.replace('.', '-');
@@ -106,7 +106,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		fileUploadPanel.add(fileUpload);
 		fieldPanelWrapper.add(fileUpload);
 		
-	    // Add a submit button to the form
+	    // Add an ok button to the form
 		Button btnOK = new Button();
 		WizardUtils.createIcon(btnOK, "fa-floppy-o");
 		btnOK.addStyleName("btnAction");
@@ -118,12 +118,26 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		});
 		fieldPanelWrapper.add(btnOK);
 		
-		Anchor anchor = new Anchor();
-		anchor.setHTML("<icon class=\"fa fa-eye\"></i>");
-		anchor.setTitle("Visualizar");
-		anchor.setHref(presenter.getFileURL(fileName));
-		anchor.setTarget("_blank");
-		fieldPanelWrapper.add(anchor);
+		if(exists) {
+		    // Add an delete button to the form
+			Button btnDelete = new Button();
+			WizardUtils.createIcon(btnDelete, "fa-trash");
+			btnDelete.addStyleName("btnAction");
+			btnDelete.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					presenter.delete(fileName);
+				}
+			});
+			fieldPanelWrapper.add(btnDelete);
+			
+			Anchor anchor = new Anchor();
+			anchor.setHTML("<icon class=\"fa fa-eye\"></i>");
+			anchor.setTitle("Visualizar");
+			anchor.setHref(presenter.getFileURL(fileName));
+			anchor.setTarget("_blank");
+			fieldPanelWrapper.add(anchor);
+		}
 	    
 		return fieldPanelWrapper;
 	}

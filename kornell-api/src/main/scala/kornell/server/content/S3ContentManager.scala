@@ -46,6 +46,10 @@ class S3ContentManager(repo: ContentRepository)
     s3.putObject(repo.getBucketName(), url(keys:_*), value, metadata)
   }
   
+  def delete(keys: String*) = {
+    s3.deleteObject(repo.getBucketName(), url(keys:_*))
+  }
+  
   def getPrefix = repo.getPrefix
 
 }

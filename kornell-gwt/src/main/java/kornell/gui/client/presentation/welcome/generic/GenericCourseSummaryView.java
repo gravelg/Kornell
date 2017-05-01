@@ -35,7 +35,6 @@ import kornell.core.entity.EntityFactory;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.EnrollmentTO;
 import kornell.core.to.TOFactory;
-import kornell.core.util.StringUtils;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.personnel.Student;
 import kornell.gui.client.personnel.Teacher;

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.ui.Widget;
@@ -35,7 +36,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	public static final String THUMB_FILENAME = "thumb.jpg";
 	public static final EntityFactory ENTITY_FACTORY = GWT.create(EntityFactory.class);
 	Logger logger = Logger.getLogger(AdminAssetsPresenter.class.getName());
-	private AdminAssetsView view;
+	private static AdminAssetsView view;
 	FormHelper formHelper;
 	private static KornellSession session;
 	private static EventBus bus;
@@ -45,7 +46,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	private CourseDetailsEntityType courseDetailsEntityType;
 	private static String entityName;
 	private static  String entityUUID;
-	private Map<String, String> messages;
+	private Map<String, String> info;
 	private static String filePath;
 	private static CertificateDetails certificateDetails;
 	private static String entityType;
@@ -76,14 +77,14 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	}
 
 	@Override
-	public void init(CourseDetailsEntityType entityType, AssetsEntity entity) {
-		this.courseDetailsEntityType = entityType;
+	public void init(CourseDetailsEntityType courseDetailsEntityType, AssetsEntity entity) {
+		this.courseDetailsEntityType = courseDetailsEntityType;
 		this.entity = entity;
 		this.entityUUID = entity.getUUID();
 		String thumbSubTitle = null;
 		String certificateDetailsSubTitle = null;
 		
-		switch (entityType) {
+		switch (courseDetailsEntityType) {
 		case COURSE:
 			this.entityName = "courses";
 			this.entityType = Course.TYPE;
@@ -108,16 +109,16 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 				"knl-institution",
 				entityName, entity.getUUID());
 		
-		this.messages = new HashMap<>();
-		messages.put("thumbSubTitle", thumbSubTitle);
-		messages.put("certificateDetailsSubTitle", certificateDetailsSubTitle);
+		this.info = new HashMap<>();
+		info.put("thumbSubTitle", thumbSubTitle);
+		info.put("certificateDetailsSubTitle", certificateDetailsSubTitle);
 		
 		
 		view.initData();
 		
-		view.initThumb();
+		view.initThumb(entity.getThumbUrl() != null);
 		
-		session.certificatesDetails().findByEntityTypeAndUUID(entityType, entityUUID, new Callback<CertificateDetails>() {
+		session.certificatesDetails().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CertificateDetails>() {
 
 			@Override
 			public void ok(CertificateDetails to) {
@@ -127,14 +128,18 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 			
 			@Override
 			public void notFound(KornellErrorTO kornellErrorTO){
-				certificateDetails = ENTITY_FACTORY.newCertificateDetails().as();
-				certificateDetails.setEntityType(entityType);
-				certificateDetails.setEntityUUID(entityUUID);
-				certificateDetails.setCertificateType(CertificateType.DEFAULT);
-				certificateDetails.setBgImage(filePath);
+				creteNewCertificateDetails();
 				view.initCertificateDetails(certificateDetails);
 			}
 		});
+	}
+
+	private void creteNewCertificateDetails() {
+		certificateDetails = ENTITY_FACTORY.newCertificateDetails().as();
+		certificateDetails.setEntityType(courseDetailsEntityType);
+		certificateDetails.setEntityUUID(entityUUID);
+		certificateDetails.setCertificateType(CertificateType.DEFAULT);
+		certificateDetails.setBgImage(filePath);
 	}
 
 	@Override
@@ -163,15 +168,19 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 				req.onreadystatechange = function() {
 					if (req.readyState == 4 && req.status == 200) {
 	    				@kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter::postProcessImageUpload(Ljava/lang/String;)(fileName);
-					} else {
+					} else if (req.readyState != 2){
 	    				@kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter::hidePacifier()();
-	    				@kornell.gui.client.util.view.KornellNotification::show(Ljava/lang/String;)("Erro ao atualizar imagem.");
+	    				@kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter::errorUpdatingImage()();
 					}
 				}
 				req.send(file);
 			}
 		}
 	}-*/;
+
+	public static void errorUpdatingImage(){
+		KornellNotification.show("Erro ao atualizar imagem.", AlertType.ERROR);
+	}
 
 	public static void showPacifier(){
 		bus.fireEvent(new ShowPacifierEvent(true));
@@ -182,7 +191,6 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	}
 	
 	public static void postProcessImageUpload(String fileName){
-		GWT.log("postProcessImageUpload " + fileName);
 		if(THUMB_FILENAME.equals(fileName)){
 			updateThumbnail(fileName);
 		} else if(CERTIFICATE_FILENAME.equals(fileName)){
@@ -190,9 +198,24 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		}
 	}
 
+	@Override
+	public void delete(String fileName) {
+		if(THUMB_FILENAME.equals(fileName)){
+			deleteThumbnail();
+		} else if(CERTIFICATE_FILENAME.equals(fileName)){
+			deleteCertificateDetails();
+		}
+	}
+
 	private static void updateThumbnail(String fileName) {
-		GWT.log("updateThumbnail " + fileName);
 		entity.setThumbUrl(StringUtils.mkurl(filePath, fileName));
+		view.initThumb(entity.getThumbUrl() != null);
+		session.assets().updateThumbnail(entityName, entityUUID, entity, entityType, null);
+	}
+
+	private void deleteThumbnail() {
+		entity.setThumbUrl(null);
+		view.initThumb(entity.getThumbUrl() != null);
 		session.assets().updateThumbnail(entityName, entityUUID, entity, entityType, null);
 	}
 
@@ -201,19 +224,36 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 			session.certificatesDetails().create(certificateDetails, new Callback<CertificateDetails>() {
 				@Override
 				public void ok(CertificateDetails to) {
-					hidePacifier();
-					KornellNotification.show("Atualização de imagem completa.");
+					doSuccessUpsertCertificateDetails(to);
 				}
 			});
 		} else {
 			session.certificateDetails(certificateDetails.getUUID()).update(certificateDetails, new Callback<CertificateDetails>() {
 				@Override
 				public void ok(CertificateDetails to) {
-					hidePacifier();
-					KornellNotification.show("Atualização de imagem completa.");
+					doSuccessUpsertCertificateDetails(to);
 				}
 			});
 		}
+	}
+
+	private static void doSuccessUpsertCertificateDetails(CertificateDetails to) {
+		hidePacifier();
+		certificateDetails = to;
+		KornellNotification.show("Atualização de imagem completa.");
+		view.initCertificateDetails(certificateDetails);
+	}
+
+	private void deleteCertificateDetails() {
+		session.certificateDetails(certificateDetails.getUUID()).delete(new Callback<CertificateDetails>() {
+			@Override
+			public void ok(CertificateDetails to) {
+				hidePacifier();
+				creteNewCertificateDetails();
+				view.initCertificateDetails(certificateDetails);
+				KornellNotification.show("O plano de fundo do certificado foi apagado com sucesso.");
+			}
+		});
 	}
 
 	@Override
@@ -223,6 +263,6 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 
 	@Override
 	public Map<String, String> getInfo() {
-		return messages;
+		return info;
 	}
 }

@@ -28,6 +28,12 @@ class FSContentManager(fsRepo:ContentRepository) extends SyncContentManager {
 	   if (!directory.exists) directory.mkdirs
 		 Files.copy(input, Paths.get(fullFilePath))
 	 }
+  
+  def delete(keys: String*) = {
+	   val fullFilePath = (if (fsRepo.getPath.endsWith("/")) fsRepo.getPath else fsRepo.getPath + "/") + url(keys:_*)
+	   val file = Paths.get(fullFilePath).toFile
+	   if(file.exists) Files.delete(Paths.get(fullFilePath))
+  }
 	 
 	 def getPrefix = fsRepo.getPrefix
 }

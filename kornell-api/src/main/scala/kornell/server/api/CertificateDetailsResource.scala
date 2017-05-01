@@ -9,6 +9,7 @@ import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.util.AccessDeniedErr
 import kornell.server.jdbc.repository.CertificateDetailsRepo
 import kornell.server.util.Conditional.toConditional
+import javax.ws.rs.DELETE
 
 
 class CertificateDetailsResource(uuid: String) {
@@ -26,6 +27,14 @@ class CertificateDetailsResource(uuid: String) {
   @Produces(Array(CertificateDetails.TYPE))
   def update(certificateDetails: CertificateDetails) = {
     CertificateDetailsRepo(uuid).update(certificateDetails)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+
+  @DELETE
+  @Produces(Array(CertificateDetails.TYPE))
+  def delete() = {
+    CertificateDetailsRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

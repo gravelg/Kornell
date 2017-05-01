@@ -14,9 +14,10 @@ public interface AdminAssetsView extends IsWidget {
 		void getUploadURL(String contentType, String elementId, String fileName);
 		String getFileURL(String fileName);
 		Map<String, String> getInfo();
+		void delete(String fileName);
 	}
 	void setPresenter(Presenter presenter);
 	void initData();
-	void initThumb();
+	void initThumb(boolean exists);
 	void initCertificateDetails(CertificateDetails to);
 }
