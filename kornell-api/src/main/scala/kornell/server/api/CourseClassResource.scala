@@ -32,6 +32,8 @@ import kornell.server.util.AccessDeniedErr
 import kornell.server.util.Conditional.toConditional
 import kornell.core.to.CourseClassTO
 import kornell.server.jdbc.repository.CourseClassesRepo
+import javax.ws.rs.PathParam
+import kornell.server.service.UploadService
 
 
 class CourseClassResource(uuid: String) {
@@ -158,6 +160,15 @@ class CourseClassResource(uuid: String) {
         RolesRepo.getUsersWithRoleForCourseClass(uuid, bindMode, RoleType.observer)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+   
+   @GET
+   @Path("uploadUrl/{filename}")
+   @Produces(Array("application/octet-stream"))
+   def getUploadUrl(@PathParam("filename") filename: String) : String = {
+    UploadService.getCourseClassUploadUrl(uuid, filename)
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+   .or(isInstitutionAdmin(), AccessDeniedErr())
    .get
 }
 

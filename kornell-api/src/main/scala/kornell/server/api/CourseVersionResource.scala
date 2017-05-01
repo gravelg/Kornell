@@ -14,6 +14,7 @@ import kornell.server.util.AccessDeniedErr
 import kornell.core.to.CourseVersionUploadTO
 import javax.ws.rs.Path
 import kornell.server.service.UploadService
+import javax.ws.rs.PathParam
 
 class CourseVersionResource(uuid: String) {
 
@@ -36,11 +37,22 @@ class CourseVersionResource(uuid: String) {
    .get
    
    @GET
-   @Path("uploadUrl")
+   @Path("uploadUrl/{filename}")
+   @Produces(Array("application/octet-stream"))
+   def getUploadUrl(@PathParam("filename") filename: String) : String = {
+    UploadService.getCourseVersionUploadUrl(uuid, filename)
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+   .or(isInstitutionAdmin(), AccessDeniedErr())
+   .get
+   
+   @GET
+   @Path("contentUploadUrl")
    @Produces(Array("application/octet-stream"))
    def getUploadUrl : String = {
-    UploadService.getCourseVersionUploadUrl(uuid)
-  }
+    UploadService.getCourseVersionContentUploadUrl(uuid)
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+   .or(isInstitutionAdmin(), AccessDeniedErr())
+   .get
 }
 
 object CourseVersionResource {

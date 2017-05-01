@@ -4,31 +4,31 @@
 	<g:FlowPanel ui:field="adminHomePanel" addStyleNames="deanHome">
 		<b:TabPanel tabPosition="middle" ui:field="tabsPanel">
 	      <b:Tab ui:field="enrollmentsTab" icon="BOOK" heading="Participantes" active="true">
-					<g:FlowPanel ui:field="enrollmentsPanel">
-					  <g:FlowPanel>
-							<g:HTMLPanel addStyleNames="title">Participantes</g:HTMLPanel>
-							<g:FlowPanel>
-								<g:Label addStyleNames="inlineLabel">Matriculados na turma</g:Label>
-								<g:Label ui:field="lblCourseClassName" addStyleNames="inlineLabel lblHighlight"></g:Label>
-								<g:Label addStyleNames="inlineLabel">do curso</g:Label>
-								<g:Label ui:field="lblCourseName" addStyleNames="inlineLabel lblHighlight"></g:Label>
-								<g:Label addStyleNames="inlineLabel marginLeft25"> (</g:Label>
-								<g:Label ui:field="lblEnrollmentsCount" addStyleNames="inlineLabel lblHighlight"></g:Label>
-								<g:Label addStyleNames="inlineLabel">matrículas efetuadas, sendo </g:Label>
-								<g:Label ui:field="lblEnrollmentsCancelledCount" addStyleNames="inlineLabel lblHighlight"></g:Label>
-								<g:Label addStyleNames="inlineLabel">canceladas. Disponíveis: </g:Label>
-								<g:Label ui:field="lblEnrollmentsAvailableCount" addStyleNames="inlineLabel lblHighlight"></g:Label>
-								<g:Label addStyleNames="inlineLabel">  )</g:Label>
-							</g:FlowPanel>
-							<g:FlowPanel>
-								<g:Label addStyleNames="inlineLabel">Status: </g:Label>
-								<g:Label ui:field="lblStatus" addStyleNames="inlineLabel lblHighlight"></g:Label>
-							</g:FlowPanel>
-						</g:FlowPanel>
-						<g:FlowPanel ui:field="enrollmentsWrapper">
-						</g:FlowPanel>
+			<g:FlowPanel ui:field="enrollmentsPanel">
+				<g:FlowPanel>
+					<g:HTMLPanel addStyleNames="title">Participantes</g:HTMLPanel>
+					<g:FlowPanel>
+						<g:Label addStyleNames="inlineLabel">Matriculados na turma</g:Label>
+						<g:Label ui:field="lblCourseClassName" addStyleNames="inlineLabel lblHighlight"></g:Label>
+						<g:Label addStyleNames="inlineLabel">do curso</g:Label>
+						<g:Label ui:field="lblCourseName" addStyleNames="inlineLabel lblHighlight"></g:Label>
+						<g:Label addStyleNames="inlineLabel marginLeft25"> (</g:Label>
+						<g:Label ui:field="lblEnrollmentsCount" addStyleNames="inlineLabel lblHighlight"></g:Label>
+						<g:Label addStyleNames="inlineLabel">matrículas efetuadas, sendo </g:Label>
+						<g:Label ui:field="lblEnrollmentsCancelledCount" addStyleNames="inlineLabel lblHighlight"></g:Label>
+						<g:Label addStyleNames="inlineLabel">canceladas. Disponíveis: </g:Label>
+						<g:Label ui:field="lblEnrollmentsAvailableCount" addStyleNames="inlineLabel lblHighlight"></g:Label>
+						<g:Label addStyleNames="inlineLabel">  )</g:Label>
 					</g:FlowPanel>
-			  </b:Tab>
+				<g:FlowPanel>
+					<g:Label addStyleNames="inlineLabel">Status: </g:Label>
+					<g:Label ui:field="lblStatus" addStyleNames="inlineLabel lblHighlight"></g:Label>
+				</g:FlowPanel>
+				</g:FlowPanel>
+				<g:FlowPanel ui:field="enrollmentsWrapper">
+				</g:FlowPanel>
+			</g:FlowPanel>
+		  </b:Tab>
 	      <b:Tab ui:field="enrollTab" icon="PLUS_SIGN" heading="Matricular" active="true">
 	        <g:FlowPanel ui:field="enrollPanel">
 	          <g:FlowPanel addStyleNames="wrapperWidth">
@@ -62,6 +62,9 @@
 		  <b:Tab ui:field="configTab" icon="COGS" heading="Configuração" active="false">
 		    <g:FlowPanel ui:field="configPanel"></g:FlowPanel >
 		  </b:Tab>
+	      <b:Tab ui:field="assetsTab" icon="DASHBOARD" heading="Detalhes" active="false">
+	        <g:FlowPanel ui:field="assetsPanel"></g:FlowPanel>
+	      </b:Tab>
 	      <b:Tab ui:field="reportsTab" icon="BAR_CHART" heading="Relatórios" active="false">
 	        <g:FlowPanel ui:field="reportsPanel"></g:FlowPanel >
 	      </b:Tab>

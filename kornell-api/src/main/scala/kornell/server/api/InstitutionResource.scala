@@ -120,7 +120,10 @@ class InstitutionResource(uuid: String) {
    @Produces(Array("application/octet-stream"))
    def getUploadUrl(@PathParam("filename") filename: String) : String = {
     UploadService.getInstitutionUploadUrl(uuid, filename)
-  }
+  }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
+   .or(isInstitutionAdmin(uuid), AccessDeniedErr())
+   .get
+   
 }
 
 object InstitutionResource {

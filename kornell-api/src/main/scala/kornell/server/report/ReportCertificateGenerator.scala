@@ -138,9 +138,9 @@ object ReportCertificateGenerator {
     	return null
     }
     val parameters: HashMap[String, Object] = new HashMap()
-    parameters.put("institutionURL", composeURL(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/")
-    parameters.put("assetsURL", certificateDetails.getBgImage)
-    println("=============> " + certificateDetails.getBgImage)
+    //TODO: both urls NEED the extra slash because the jasper files count on it
+    parameters.put("institutionURL", mkurl(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/")
+    parameters.put("assetsURL", mkurl(certificateData.head.getBaseURL, certificateDetails.getBgImage) + "/")
    
     val cl = Thread.currentThread.getContextClassLoader
     val stream = cl.getResourceAsStream(certificateDetails.getCertificateType.getPath)

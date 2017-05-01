@@ -9,6 +9,7 @@ import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.repository.RolesRepo
 import kornell.server.jdbc.repository.CourseRepo
 import kornell.server.jdbc.repository.CourseClassRepo
+import kornell.server.jdbc.repository.PersonRepo
 
 package object api {
   val logger = Logger.getLogger("kornell.server.api")
@@ -16,9 +17,14 @@ package object api {
   def isControlPanelAdmin():Boolean = RoleCategory.isControlPanelAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs)
 
   def isPlatformAdmin(institutionUUID:String):Boolean = RoleCategory.isPlatformAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
-    
+  
+  def isPlatformAdmin():Boolean = RoleCategory.isPlatformAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
+  
   def isInstitutionAdmin(institutionUUID:String):Boolean = 
     RoleCategory.isInstitutionAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
+    
+  def isInstitutionAdmin():Boolean = 
+    RoleCategory.isInstitutionAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
     
   def isCourseClassAdmin(courseClassUUID:String):Boolean = 
     RoleCategory.isCourseClassAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)

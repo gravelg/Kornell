@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import kornell.core.entity.ActomEntries;
+import kornell.core.entity.CertificateDetails;
 import kornell.core.entity.ChatThread;
 import kornell.core.entity.ContentRepository;
 import kornell.core.entity.Course;
@@ -70,6 +71,7 @@ public class MediaTypes {
 		register(EnrollmentsEntries.TYPE, EnrollmentsEntries.class);
 		register(EnrollmentEntries.TYPE, EnrollmentEntries.class);
 		register(ContentRepository.TYPE, ContentRepository.class);
+		register(CertificateDetails.TYPE, CertificateDetails.class);		
 	}
 
 	private void registerTOs() {

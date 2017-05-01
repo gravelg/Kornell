@@ -26,7 +26,8 @@ class CourseRepo(uuid: String) {
     | c.description = ${course.getDescription},
     | c.infoJson = ${course.getInfoJson},
     | c.institutionUUID = ${course.getInstitutionUUID},
-    | c.childCourse = ${course.isChildCourse}
+    | c.childCourse = ${course.isChildCourse},
+    | c.thumbUrl = ${course.getThumbUrl}
     | where c.uuid = ${course.getUUID}""".executeUpdate
 	    
     //log entity change

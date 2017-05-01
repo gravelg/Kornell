@@ -10,6 +10,9 @@ import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.util.AccessDeniedErr
 import kornell.server.jdbc.repository.CertificatesDetailsRepo
 import kornell.server.util.Conditional.toConditional
+import kornell.core.entity.CourseDetailsEntityType
+import javax.ws.rs.GET
+import kornell.core.error.exception.EntityNotFoundException
 
 
 @Path("certificatesDetails")
@@ -26,6 +29,22 @@ class CertificatesDetailsResource {
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
+   
+   @GET
+   @Path("/{entityType}/{entityUUID}")
+   @Produces(Array(CertificateDetails.TYPE))
+   def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
+       @PathParam("entityUUID") entityUUID: String) = {
+    val certificatesDetailsRepo = CertificatesDetailsRepo.getForEntity(entityUUID, CourseDetailsEntityType.valueOf(entityType))
+    certificatesDetailsRepo match {
+      case Some(x) => x
+      case _ => throw new EntityNotFoundException("notFound")
+    }
+    
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+   
 }
 
 object CertificatesDetailsResource {

@@ -4,6 +4,7 @@ package kornell.gui.client;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
+import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
 import kornell.gui.client.presentation.admin.audit.AdminAuditView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePresenter;
 import kornell.gui.client.presentation.admin.course.course.AdminCourseView;
@@ -70,6 +71,7 @@ public interface ViewFactory {
 	AdminCourseClassesView getAdminCourseClassesView();
 	AdminCourseClassView getAdminCourseClassView();
 	AdminCourseClassPresenter getAdminCourseClassPresenter();
+	AdminAssetsView getAdminAssetsView();
 	AdminAuditView getAdminAuditView();
 
 }

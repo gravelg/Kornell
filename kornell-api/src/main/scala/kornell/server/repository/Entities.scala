@@ -113,7 +113,8 @@ object Entities {
     title: String = null, description: String = null,
     infoJson: String = null,
     institutionUUID: String = null,
-    childCourse: Boolean): Course = {
+    childCourse: Boolean, 
+    thumbUrl: String = null): Course = {
     val c = factory.newCourse.as
     c.setUUID(uuid)
     c.setCode(code)
@@ -122,6 +123,7 @@ object Entities {
     c.setInfoJson(infoJson)
     c.setInstitutionUUID(institutionUUID)
     c.setChildCourse(childCourse)
+    c.setThumbUrl(thumbUrl)
     c
   }
 
@@ -281,7 +283,7 @@ object Entities {
     uuid: String = randUUID, name: String = null, 
     courseUUID: String = null, versionCreatedAt: Date = new Date, distributionPrefix: String = null, 
     contentSpec: String = null, disabled: Boolean = false, parentVersionUUID: String = null,
-    instanceCount: Integer = 1, label: String = null) = {
+    instanceCount: Integer = 1, label: String = null, thumbUrl: String = null) = {
     val version = factory.newCourseVersion.as
     version.setUUID(uuid);
     version.setName(name);
@@ -292,6 +294,7 @@ object Entities {
     version.setParentVersionUUID(parentVersionUUID)
     version.setInstanceCount(instanceCount)
     version.setLabel(label)
+    version.setThumbUrl(thumbUrl)
     Option(contentSpec) foreach { spec =>
       val cSpec = ContentSpec.valueOf(spec)
       version.setContentSpec(cSpec);
@@ -313,7 +316,8 @@ object Entities {
     allowBatchCancellation: Boolean = false,
     tutorChatEnabled: Boolean = false,
     approveEnrollmentsAutomatically: Boolean = false,
-    startDate:Date = null, pagseguroId: String = null) = {
+    startDate: Date = null, pagseguroId: String = null,
+    thumbUrl: String = null) = {
     val clazz = factory.newCourseClass.as
     clazz.setUUID(uuid)
     clazz.setName(name)
@@ -336,6 +340,7 @@ object Entities {
 	  clazz.setApproveEnrollmentsAutomatically(approveEnrollmentsAutomatically)
 	  clazz.setStartDate(startDate);
     clazz.setPagseguroId(pagseguroId)
+    clazz.setThumbUrl(thumbUrl)
     clazz
   }
 

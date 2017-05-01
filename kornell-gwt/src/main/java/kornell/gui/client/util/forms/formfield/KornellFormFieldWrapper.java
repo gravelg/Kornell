@@ -59,7 +59,6 @@ public class KornellFormFieldWrapper extends Composite {
 	KornellFormField<?> formField;
 
 	private Validator validator;
-	private String tooltipText;
 
 	private Timer updateTimer;
 
@@ -93,7 +92,6 @@ public class KornellFormFieldWrapper extends Composite {
 		this.formField = formField;
 		this.isEditMode = isEditMode;
 		this.validator = validator;
-		this.tooltipText = tooltipText;
 		initData(formField);
 
 		updateTimer = new Timer() {

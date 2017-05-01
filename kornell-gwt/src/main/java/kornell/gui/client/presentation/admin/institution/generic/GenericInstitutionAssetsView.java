@@ -22,6 +22,7 @@ import kornell.core.entity.EntityFactory;
 import kornell.core.entity.Institution;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
 import kornell.gui.client.util.forms.formfield.PeopleMultipleSelect;
 
 public class GenericInstitutionAssetsView extends Composite {
@@ -99,8 +100,9 @@ public class GenericInstitutionAssetsView extends Composite {
 		fieldPanelWrapper.add(fileUpload);
 		
 	    // Add a submit button to the form
-		Button btnOK = new Button("Atualizar");
-		btnOK.addStyleName("btnAction btnStandard");
+		com.github.gwtbootstrap.client.ui.Button btnOK = new com.github.gwtbootstrap.client.ui.Button();
+		WizardUtils.createIcon(btnOK, "fa-floppy-o");
+		btnOK.addStyleName("btnAction");
 		btnOK.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {

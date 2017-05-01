@@ -3,11 +3,14 @@ package kornell.core.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public interface CourseClass extends Named{
+public interface CourseClass extends AssetsEntity {
 	public static String TYPE = EntityFactory.PREFIX + "courseClass+json";
 	
 	String getInstitutionUUID();
 	void setInstitutionUUID(String institutionUUID);
+
+	String getName();
+	void setName(String name);
 
 	String getCourseVersionUUID();
 	void setCourseVersionUUID(String courseVersionUUID);
@@ -62,4 +65,5 @@ public interface CourseClass extends Named{
 	
 	String getPagseguroId();
 	void setPagseguroId(String pagseguroId);
+	
 }

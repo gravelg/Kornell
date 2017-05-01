@@ -39,19 +39,12 @@ public class WizardRenderer extends Composite {
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	private EventBus bus;
-	private KornellSession session;
-	private Wizard wizard;
-
 	@UiField
 	FlowPanel wizardRendererPanel;
 
 	private WizardElement selectedWizardElement;
 
 	public WizardRenderer(final KornellSession session, EventBus bus, Wizard wizard) {
-		this.session = session;
-		this.bus = bus;
-		this.wizard = wizard;
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 	

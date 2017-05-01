@@ -31,9 +31,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.ContentRepository;
 import kornell.core.entity.ContentSpec;
-import kornell.core.entity.Course;
+import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseVersion;
 import kornell.core.entity.EntityFactory;
 import kornell.core.entity.InstitutionType;
@@ -41,7 +40,9 @@ import kornell.core.to.CourseTO;
 import kornell.core.to.CourseVersionTO;
 import kornell.core.to.CourseVersionsTO;
 import kornell.core.to.CoursesTO;
+import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPlace;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionView;
@@ -74,6 +75,10 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	Tab contentsTab;
 	@UiField
 	FlowPanel contentsPanel;
+	@UiField
+	Tab assetsTab;
+	@UiField
+	FlowPanel assetsPanel;
 	
 	@UiField
 	HTMLPanel titleEdit;
@@ -104,10 +109,13 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	private List<KornellFormFieldWrapper> fields;
 	private String courseVersionUUID;
 	private boolean initializing = false;
+	private ViewFactory viewFactory;
+	private AdminAssetsPresenter adminAssetsPresenter;
 	
-	public GenericAdminCourseVersionView(final KornellSession session, EventBus bus, final PlaceController placeCtrl) {
+	public GenericAdminCourseVersionView(final KornellSession session, EventBus bus, final PlaceController placeCtrl, ViewFactory viewFactory) {
 		this.session = session;
 		this.placeCtrl = placeCtrl;
+		this.viewFactory = viewFactory;
 		this.isPlatformAdmin = session.isPlatformAdmin();
 		this.isInstitutionAdmin = session.isInstitutionAdmin();
 		this.bus = bus;
@@ -172,6 +180,16 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		} else {
 			FormHelper.hideTab(contentsTab);
 		}
+		
+		assetsTab.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				buildAssetsView();
+			}
+		});
+		buildAssetsView();
+		editTab.setActive(false);
+		assetsTab.setActive(true);
 		
 		courseVersionFields.setVisible(false);
 		this.fields = new ArrayList<KornellFormFieldWrapper>();
@@ -252,6 +270,14 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 
 	}
 
+
+	public void buildAssetsView() {
+		adminAssetsPresenter = new AdminAssetsPresenter(session,bus,placeCtrl,viewFactory);
+		assetsPanel.clear();
+		adminAssetsPresenter.init(CourseDetailsEntityType.COURSE_VERSION, courseVersion);
+		assetsPanel.add(adminAssetsPresenter.asWidget());
+	}
+	
 	private void createCourseVersionsField(CourseVersionsTO to) {
 		final ListBox courseVersions = new ListBox();
 		if(to != null){

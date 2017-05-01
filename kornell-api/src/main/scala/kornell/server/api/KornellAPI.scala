@@ -36,7 +36,6 @@ class KornellAPI extends Application {
   val resources:ClassSet = Set(classOf[RootResource],
     classOf[UserResource],
     classOf[PeopleResource],
-    classOf[UserResource],
     classOf[CoursesResource],
     classOf[CourseVersionsResource],
     classOf[CourseClassesResource],
@@ -52,7 +51,7 @@ class KornellAPI extends Application {
     classOf[CourseDetailsHintsResource],
     classOf[CourseDetailsSectionsResource],
     classOf[CourseDetailsLibrariesResource],
-    classOf[CertificateDetailsResource],
+    classOf[CertificatesDetailsResource],
     classOf[CacheResource]
   )
     

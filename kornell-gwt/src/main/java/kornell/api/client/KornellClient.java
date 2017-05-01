@@ -24,6 +24,18 @@ public class KornellClient extends RESTClient implements LogoutEventHandler {
 		return new EmailClient();
 	}
 
+	public AssetsClient assets() {
+		return new AssetsClient();
+	}
+
+	public CertificatesDetailsClient certificatesDetails() {
+		return new CertificatesDetailsClient();
+	}
+
+	public CertificateDetailsClient certificateDetails(String uuid) {
+		return new CertificateDetailsClient(uuid);
+	}
+
 	public CoursesClient courses() {
 		return new CoursesClient();
 	}

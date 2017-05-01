@@ -31,8 +31,6 @@ import kornell.gui.client.presentation.admin.courseversion.courseversion.autobea
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardSlideItemType;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardTopic;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
-import kornell.gui.client.util.forms.FormHelper;
-import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class WizardView extends Composite {
@@ -42,15 +40,11 @@ public class WizardView extends Composite {
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
 	private EventBus bus;
-	private KornellSession session;
 	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
-	private FormHelper formHelper = GWT.create(FormHelper.class);
 	private List<WizardSideItemLabel> sideItems;
 	private HashMap<String, WizardSideItemLabel> sidePanelItemsMap;
 	private static String HIGHLIGHT_CLASS = "highlightText";
 	private String PLAIN_CLASS = "plainDiscreteTextColor";
-	private KornellFormFieldWrapper name;
-	private List<KornellFormFieldWrapper> fields;
 
 	@UiField
 	FlowPanel wizardPanel;
@@ -71,15 +65,11 @@ public class WizardView extends Composite {
 
 
 	private Wizard wizard;
-	private CourseVersion courseVersion;
 	private Presenter presenter;
 	
 	private String changedString = "(*) ";
 
-	private Label selectedLabel;
-
 	public WizardView(final KornellSession session, EventBus bus) {
-		this.session = session;
 		this.bus = bus;
 		initWidget(uiBinder.createAndBindUi(this));
 		WizardUtils.createIcon(btnNewTopic, "fa-folder-open");
@@ -88,7 +78,6 @@ public class WizardView extends Composite {
 	}
 
 	public void init(CourseVersion courseVersion, Wizard wizard, Presenter presenter) {
-		this.courseVersion = courseVersion;
 		this.wizard = wizard;
 		this.presenter = presenter;
 		updateSidePanel();
@@ -132,7 +121,6 @@ public class WizardView extends Composite {
 		WizardSlide newWizardSlide = isQuiz 
 				? WizardUtils.newWizardSlideQuiz() 
 				: WizardUtils.newWizardSlide();
-		WizardElement prevWizardElement;
 		for (final WizardTopic wizardTopic : wizard.getWizardTopics()) {
 			WizardElement selectedWizardElement = presenter.getSelectedWizardElement();
 			if(selectedWizardElement.getUUID().equals(wizardTopic.getUUID())){

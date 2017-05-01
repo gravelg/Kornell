@@ -29,13 +29,15 @@ class CourseVersionRepo(uuid: String) {
     | cv.parentVersionUUID as parentVersionUUID,
     | cv.instanceCount as instanceCount,
     | cv.label as label,
+    | cv.thumbUrl as courseVersionThumbUrl,
     | c.uuid as courseUUID,
     | c.code as courseCode,
     | c.title as courseTitle,
     | c.description as courseDescription,
     | c.infoJson as infoJson,
     | c.institutionUUID as institutionUUID,
-    | c.childCourse as childCourse
+    | c.childCourse as childCourse,
+    | c.thumbUrl as courseThumbUrl
     | from CourseVersion cv 
     | join Course c on cv.course_uuid = c.uuid
     | where cv.uuid = ${uuid}""".map[CourseVersionTO](toCourseVersionTO).head
@@ -55,7 +57,8 @@ class CourseVersionRepo(uuid: String) {
     | c.disabled = ${courseVersion.isDisabled},
     | c.parentVersionUUID = ${courseVersion.getParentVersionUUID},
     | c.instanceCount = ${courseVersion.getInstanceCount},
-    | c.label = ${courseVersion.getLabel}
+    | c.label = ${courseVersion.getLabel},
+    | c.thumbUrl = ${courseVersion.getThumbUrl}
     | where c.uuid = ${courseVersion.getUUID}""".executeUpdate
 	    
     //log entity change

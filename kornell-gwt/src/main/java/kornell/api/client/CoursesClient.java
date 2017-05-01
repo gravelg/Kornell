@@ -17,7 +17,6 @@ public class CoursesClient extends RESTClient {
 		GET("/courses?fetchChildCourses="+fetchChildCourses + "&ps=" + ps + "&pn=" + pn + "&searchTerm=" + searchTerm).go(callback);
 	}
 	
-	
 	public void create(Course course, Callback<Course> callback) {
 		POST("/courses").withContentType(Course.TYPE).withEntityBody(course).go(callback);
 	}

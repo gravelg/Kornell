@@ -29,7 +29,6 @@ public class AdminInstitutionActivity extends AbstractActivity {
 		ViewFactory viewFactory = clientFactory.getViewFactory();
 		AdminInstitutionPresenter presenter = new AdminInstitutionPresenter(session,clientFactory.getEventBus(),placeController,defaultPlace,toFactory,viewFactory);
 		panel.setWidget(presenter);
-		
 	}
 
 }

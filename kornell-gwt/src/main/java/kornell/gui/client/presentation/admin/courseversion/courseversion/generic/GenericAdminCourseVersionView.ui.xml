@@ -29,6 +29,9 @@
       <b:Tab ui:field="contentsTab" icon="FILE" heading="Conteúdo">
         <g:FlowPanel ui:field="contentsPanel"></g:FlowPanel>
       </b:Tab>
+      <b:Tab ui:field="assetsTab" icon="DASHBOARD" heading="Detalhes" active="false">
+        <g:FlowPanel ui:field="assetsPanel"></g:FlowPanel>
+      </b:Tab>
     </b:TabPanel>
   </g:FlowPanel>
 </ui:UiBinder>

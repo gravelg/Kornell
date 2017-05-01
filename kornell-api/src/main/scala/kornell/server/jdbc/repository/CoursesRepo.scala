@@ -22,14 +22,15 @@ object CoursesRepo {
       course.setUUID(UUID.random)
     }    
     sql"""
-    | insert into Course (uuid,code,title,description,infoJson,institutionUUID) 
+    | insert into Course (uuid,code,title,description,infoJson,institutionUUID, thumbUrl) 
     | values(
     | ${course.getUUID},
     | ${course.getCode},
     | ${course.getTitle}, 
     | ${course.getDescription},
     | ${course.getInfoJson},
-    | ${course.getInstitutionUUID})""".executeUpdate
+    | ${course.getInstitutionUUID},
+    | ${course.getThumbUrl})""".executeUpdate
 	    
     //log creation event
     EventsRepo.logEntityChange(course.getInstitutionUUID, AuditedEntityType.course, course.getUUID, null, course)
@@ -41,6 +42,12 @@ object CoursesRepo {
 	  select * from Course c join
 	  CourseVersion cv on cv.course_uuid = c.uuid join
 	  CourseClass cc on cc.courseVersion_uuid = cv.uuid where cc.uuid = $courseClassUUID
+  """.first[Course]
+  
+  def byCourseVersionUUID(courseVersionUUID: String) = sql"""
+	  select * from Course c join
+	  CourseVersion cv on cv.course_uuid = c.uuid 
+    where cv.uuid = $courseVersionUUID
   """.first[Course]
   
   def byInstitution(fetchChildCourses: Boolean, institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int): CoursesTO = {

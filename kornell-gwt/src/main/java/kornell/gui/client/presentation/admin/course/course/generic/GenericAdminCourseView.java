@@ -30,9 +30,12 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.Course;
+import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.EntityFactory;
 import kornell.core.entity.InstitutionType;
+import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.presentation.admin.course.course.AdminCourseView;
 import kornell.gui.client.presentation.admin.course.courses.AdminCoursesPlace;
@@ -63,6 +66,10 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 	Tab reportsTab;
 	@UiField
 	FlowPanel reportsPanel;
+	@UiField
+	Tab assetsTab;
+	@UiField
+	FlowPanel assetsPanel;
 
 	@UiField
 	HTMLPanel titleEdit;
@@ -93,13 +100,16 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 	private List<KornellFormFieldWrapper> fields;
 	private String courseUUID;
 	private GenericCourseReportsView reportsView;
+	private AdminAssetsPresenter adminAssetsPresenter;
 	private EventBus bus;
 	private boolean initializing = false;
+	private ViewFactory viewFactory;
 	
-	public GenericAdminCourseView(final KornellSession session, EventBus bus, PlaceController placeCtrl) {
+	public GenericAdminCourseView(final KornellSession session, EventBus bus, PlaceController placeCtrl, ViewFactory viewFactory) {
 		this.session = session;
 		this.placeCtrl = placeCtrl;
 		this.bus = bus;
+		this.viewFactory = viewFactory;
 		isInstitutionAdmin = session.isInstitutionAdmin();
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -162,6 +172,16 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 			}
 		});
 		
+		assetsTab.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				buildAssetsView();
+			}
+		});
+		buildAssetsView();
+		editTab.setActive(false);
+		assetsTab.setActive(true);
+		
 		courseFields.setVisible(false);
 		this.fields = new ArrayList<KornellFormFieldWrapper>();
 
@@ -219,6 +239,13 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 		reportsView = new GenericCourseReportsView(session, bus, null, course);
 		reportsPanel.clear();
 		reportsPanel.add(reportsView);
+	}
+
+	public void buildAssetsView() {
+		adminAssetsPresenter = new AdminAssetsPresenter(session,bus,placeCtrl,viewFactory);
+		assetsPanel.clear();
+		adminAssetsPresenter.init(CourseDetailsEntityType.COURSE, course);
+		assetsPanel.add(adminAssetsPresenter.asWidget());
 	}
 	
 	private boolean validateFields() {		

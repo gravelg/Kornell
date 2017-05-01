@@ -14,4 +14,5 @@ public interface CertificateDetails extends Entity {
 
 	String getEntityUUID();
 	void setEntityUUID(String entityUUID);
+	
 }

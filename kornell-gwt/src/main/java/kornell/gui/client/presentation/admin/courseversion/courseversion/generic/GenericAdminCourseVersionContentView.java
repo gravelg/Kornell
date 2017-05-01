@@ -10,7 +10,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -24,6 +23,7 @@ import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.Wizard;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardElement;
+import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.WizardView;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
@@ -85,12 +85,13 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 		courseVersionUpload.add(fileUpload);
 		
 	    // Add a submit button to the form
-		Button btnOK = new Button("Atualizar");
-		btnOK.addStyleName("btnAction btnStandard");
+		com.github.gwtbootstrap.client.ui.Button btnOK = new com.github.gwtbootstrap.client.ui.Button();
+		WizardUtils.createIcon(btnOK, "fa-floppy-o");
+		btnOK.addStyleName("btnAction");
 		btnOK.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				session.courseVersion(courseVersion.getUUID()).getUploadURL(new Callback<String>() {
+				session.courseVersion(courseVersion.getUUID()).getContentUploadURL(new Callback<String>() {
 					@Override
 					public void ok(String url) {
 						getFile(url);

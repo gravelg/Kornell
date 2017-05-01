@@ -28,7 +28,7 @@ object CourseVersionsRepo {
 		courseVersion.setVersionCreatedAt(new Date());
 		
 	    sql"""
-	    | insert into CourseVersion (uuid,name,course_uuid,versionCreatedAt,distributionPrefix,contentSpec,disabled) 
+	    | insert into CourseVersion (uuid,name,course_uuid,versionCreatedAt,distributionPrefix,contentSpec,disabled,thumbUrl) 
 	    | values(
 	    | ${courseVersion.getUUID},
 	    | ${courseVersion.getName},
@@ -36,7 +36,8 @@ object CourseVersionsRepo {
 	    | ${courseVersion.getVersionCreatedAt},
 	    | ${courseVersion.getDistributionPrefix},
 	    | ${courseVersion.getContentSpec.toString},
-	    | ${courseVersion.isDisabled})""".executeUpdate
+	    | ${courseVersion.isDisabled},
+	    | ${courseVersion.getThumbUrl})""".executeUpdate
 	    
 	    //log creation event
 	    EventsRepo.logEntityChange(institutionUUID, AuditedEntityType.courseVersion, courseVersion.getUUID, null, courseVersion)

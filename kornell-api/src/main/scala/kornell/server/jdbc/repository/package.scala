@@ -111,7 +111,7 @@ package object repository {
         r.getString("institutionRegistrationPrefixUUID"), r.getBoolean("courseClassChatEnabled"), 
         r.getBoolean("chatDockEnabled"), r.getBoolean("allowBatchCancellation"),  
         r.getBoolean("tutorChatEnabled"), r.getBoolean("approveEnrollmentsAutomatically"),
-        r.getDate("startDate"), r.getString("pagseguroId")) 
+        r.getDate("startDate"), r.getString("pagseguroId"), r.getString("thumbUrl")) 
 
   implicit def toCourse(rs: ResultSet): Course = newCourse(
     rs.getString("uuid"),
@@ -120,7 +120,8 @@ package object repository {
     rs.getString("description"),
     rs.getString("infoJson"),
     rs.getString("institutionUUID"),
-    rs.getBoolean("childCourse"))
+    rs.getBoolean("childCourse"),
+    rs.getString("thumbUrl"))
     
   implicit def toCourseTO(rs: ResultSet): CourseTO = newCourseTO(
       toCourse(rs))
@@ -135,7 +136,8 @@ package object repository {
     rs.getBoolean("disabled"),
     rs.getString("parentVersionUUID"),
     rs.getInt("instanceCount"),
-    rs.getString("label"))    
+    rs.getString("label"),
+    rs.getString("thumbUrl"))    
   
   implicit def toCourseClassTO(rs: ResultSet): CourseClassTO = {
     val course = newCourse(
@@ -145,7 +147,8 @@ package object repository {
 		    rs.getString("description"), 
 		    rs.getString("infoJson"),
 		    rs.getString("institutionUUID"),
-		    rs.getBoolean("childCourse"));
+		    rs.getBoolean("childCourse"),
+		    rs.getString("courseThumbUrl"));
 
     val version = newCourseVersion(
         rs.getString("courseVersionUUID"), 
@@ -154,7 +157,11 @@ package object repository {
 		    rs.getDate("versionCreatedAt"),
 		    rs.getString("distributionPrefix"),
 		    rs.getString("contentSpec"),
-		    rs.getBoolean("disabled"));
+		    rs.getBoolean("disabled"),
+        rs.getString("parentVersionUUID"),
+        rs.getInt("instanceCount"),
+        rs.getString("label"),
+        rs.getString("courseVersionThumbUrl"));
 
     val clazz = newCourseClass(
 			rs.getString("courseClassUUID"),
@@ -177,7 +184,8 @@ package object repository {
 			rs.getBoolean("tutorChatEnabled"),
 			rs.getBoolean("approveEnrollmentsAutomatically"),
 			null,
-			rs.getString("pagseguroId"))
+			rs.getString("pagseguroId"),
+			rs.getString("courseClassThumbUrl"))
     		
     TOs.newCourseClassTO(course, version, clazz, rs.getString("institutionRegistrationPrefixName"))
   }
@@ -193,7 +201,8 @@ package object repository {
         rs.getBoolean("courseVersionDisabled"),
         rs.getString("parentVersionUUID"),
         rs.getInt("instanceCount"),
-        rs.getString("label"))
+        rs.getString("label"),
+        rs.getString("courseVersionThumbUrl"))
         
     val course = newCourse(
         rs.getString("courseUUID"), 
@@ -202,7 +211,8 @@ package object repository {
         rs.getString("courseDescription"), 
         rs.getString("infoJson"),
         rs.getString("institutionUUID"),
-        rs.getBoolean("childCourse"))
+        rs.getBoolean("childCourse"),
+        rs.getString("courseThumbUrl"))
         
     TOs.newCourseVersionTO(course, courseVersion)
   }

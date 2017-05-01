@@ -57,6 +57,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClassState;
+import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.EnrollmentCategory;
 import kornell.core.entity.EnrollmentProgressDescription;
 import kornell.core.entity.EnrollmentState;
@@ -73,6 +74,7 @@ import kornell.gui.client.event.UnreadMessagesCountChangedEvent;
 import kornell.gui.client.event.UnreadMessagesCountChangedEventHandler;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEvent;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEventHandler;
+import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassView;
 import kornell.gui.client.presentation.message.MessagePresenter;
 import kornell.gui.client.util.AsciiUtils;
@@ -92,6 +94,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	private EventBus bus;
 	private PlaceController placeCtrl;
 	private ViewFactory viewFactory;
+	private AdminAssetsPresenter adminAssetsPresenter;
 	private AdminCourseClassView.Presenter presenter;
 	final CellTable<EnrollmentTO> table;
 	private List<EnrollmentTO> enrollmentsOriginal;
@@ -127,6 +130,10 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	Tab configTab;
 	@UiField
 	FlowPanel configPanel;
+	@UiField
+	Tab assetsTab;
+	@UiField
+	FlowPanel assetsPanel;
 	@UiField
 	Tab reportsTab;
 	@UiField
@@ -286,8 +293,17 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 					messagePresenter.enableMessagesUpdate(false);
 				}
 			});
-
 			tabsPanel.add(adminsTab);
+
+			
+			assetsTab.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					buildAssetsView();
+				}
+			});
+		} else {
+			FormHelper.hideTab(assetsTab);
 		}
 
 		updateTimer = new Timer() {
@@ -335,6 +351,14 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			configPanel.add(new GenericCourseClassConfigView(session, bus, placeCtrl, presenter, session
 					.getCurrentCourseClass()));
 		}
+	}
+
+	@Override
+	public void buildAssetsView() {
+		adminAssetsPresenter = new AdminAssetsPresenter(session,bus,placeCtrl,viewFactory);
+		assetsPanel.clear();
+		adminAssetsPresenter.init(CourseDetailsEntityType.COURSE_CLASS, courseClassTO.getCourseClass());
+		assetsPanel.add(adminAssetsPresenter.asWidget());
 	}
 
 	@Override

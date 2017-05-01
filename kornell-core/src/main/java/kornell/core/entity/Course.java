@@ -1,6 +1,6 @@
 package kornell.core.entity;
 
-public interface Course extends Entity{
+public interface Course extends AssetsEntity {
 	public static String TYPE = EntityFactory.PREFIX + "course+json";
 
 	String getCode();

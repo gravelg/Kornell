@@ -1,5 +1,6 @@
 package kornell.api.client;
 
+import static com.google.gwt.http.client.Response.SC_BAD_GATEWAY;
 import static com.google.gwt.http.client.Response.SC_CONFLICT;
 import static com.google.gwt.http.client.Response.SC_FORBIDDEN;
 import static com.google.gwt.http.client.Response.SC_INTERNAL_SERVER_ERROR;
@@ -8,7 +9,6 @@ import static com.google.gwt.http.client.Response.SC_NO_CONTENT;
 import static com.google.gwt.http.client.Response.SC_OK;
 import static com.google.gwt.http.client.Response.SC_SERVICE_UNAVAILABLE;
 import static com.google.gwt.http.client.Response.SC_UNAUTHORIZED;
-import static com.google.gwt.http.client.Response.SC_BAD_GATEWAY;
 
 import java.util.logging.Logger;
 

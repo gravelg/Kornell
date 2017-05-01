@@ -44,7 +44,8 @@ class CourseClassRepo(uuid:String) {
 		  		cc.allowBatchCancellation = ${courseClass.isAllowBatchCancellation},
 		  		cc.tutorChatEnabled = ${courseClass.isTutorChatEnabled},
 		  		cc.approveEnrollmentsAutomatically = ${courseClass.isApproveEnrollmentsAutomatically},
-          cc.pagseguroId = ${courseClass.getPagseguroId}
+          cc.pagseguroId = ${courseClass.getPagseguroId},
+          cc.thumbUrl = ${courseClass.getThumbUrl}
 	      where cc.uuid = ${courseClass.getUUID}""".executeUpdate 
 	    
         //update course class threads active states per threadType and add participants to the global class chat, if applicable

@@ -29,6 +29,9 @@
       <b:Tab ui:field="reportsTab" icon="BAR_CHART" heading="Relatórios" active="false">
         <g:FlowPanel ui:field="reportsPanel"></g:FlowPanel>
       </b:Tab>
+      <b:Tab ui:field="assetsTab" icon="DASHBOARD" heading="Detalhes" active="false">
+        <g:FlowPanel ui:field="assetsPanel"></g:FlowPanel>
+      </b:Tab>
     </b:TabPanel>
   </g:FlowPanel>
 </ui:UiBinder>

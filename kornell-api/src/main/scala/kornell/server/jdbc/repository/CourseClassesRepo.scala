@@ -62,7 +62,8 @@ object CourseClassesRepo {
                 tutorChatEnabled,
                 approveEnrollmentsAutomatically,
                 startDate,
-                pagseguroId)
+                pagseguroId,
+                thumbUrl)
 	    	values(${courseClass.getUUID},
 	             ${courseClass.getName},
 	             ${courseClass.getCourseVersionUUID},
@@ -82,7 +83,8 @@ object CourseClassesRepo {
 	             ${courseClass.isTutorChatEnabled},
 	             ${courseClass.isApproveEnrollmentsAutomatically},
                ${courseClass.getStartDate},
-               ${courseClass.getPagseguroId}
+               ${courseClass.getPagseguroId},
+               ${courseClass.getThumbUrl}
                )
 	    """.executeUpdate
       ChatThreadsRepo.addParticipantsToCourseClassThread(courseClass)
@@ -117,24 +119,29 @@ object CourseClassesRepo {
 			    c.title, 
 			    c.description,
 			    c.infoJson,
-      			c.childCourse,
+      		c.childCourse,
+          c.thumbUrl as courseThumbUrl,
 			    cv.uuid as courseVersionUUID,
 			    cv.name as courseVersionName,
 			    cv.versionCreatedAt as versionCreatedAt,
 		  		cv.distributionPrefix as distributionPrefix,
-      			cv.contentSpec as contentSpec,
-      			cv.disabled as disabled,
+    			cv.contentSpec as contentSpec,
+    			cv.disabled as disabled,
+    			cv.parentVersionUUID as parentVersionUUID,
+    			cv.instanceCount as instanceCount,
+    			cv.label as label,
+          cv.thumbUrl as courseVersionThumbUrl,
 			    cc.uuid as courseClassUUID,
 			    cc.name as courseClassName,
 			    cc.institution_uuid as institutionUUID,
 		  		cc.requiredScore as requiredScore,
 		  		cc.publicClass as publicClass,
-      			cc.overrideEnrollments as overrideEnrollments,
-      			cc.invisible as invisible,
-		  		cc.maxEnrollments as maxEnrollments,
-      			cc.createdAt as createdAt,
-      			cc.createdBy as createdBy,
-      			cc.state,
+    			cc.overrideEnrollments as overrideEnrollments,
+    			cc.invisible as invisible,
+	  		  cc.maxEnrollments as maxEnrollments,
+    			cc.createdAt as createdAt,
+    			cc.createdBy as createdBy,
+    			cc.state,
 		  		cc.registrationType as registrationType,
 		  		cc.institutionRegistrationPrefixUUID as institutionRegistrationPrefixUUID, 
 		  		cc.courseClassChatEnabled as courseClassChatEnabled, 
@@ -143,7 +150,8 @@ object CourseClassesRepo {
 		  		cc.tutorChatEnabled as tutorChatEnabled, 
 		  		cc.approveEnrollmentsAutomatically as approveEnrollmentsAutomatically,
           cc.pagseguroId as pagseguroId,
-      			irp.name as institutionRegistrationPrefixName
+          cc.thumbUrl as courseClassThumbUrl,
+      		irp.name as institutionRegistrationPrefixName
 			from Course c
 				join CourseVersion cv on cv.course_uuid = c.uuid
 				join CourseClass cc on cc.courseVersion_uuid = cv.uuid and cc.institution_uuid = ${institutionUUID}

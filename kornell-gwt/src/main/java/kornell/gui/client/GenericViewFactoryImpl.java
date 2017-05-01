@@ -13,6 +13,8 @@ import kornell.gui.client.event.CourseClassesFetchedEvent;
 import kornell.gui.client.event.CourseClassesFetchedEventHandler;
 import kornell.gui.client.event.ShowDetailsEvent;
 import kornell.gui.client.event.ShowDetailsEventHandler;
+import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
+import kornell.gui.client.presentation.admin.assets.generic.GenericAdminAssetsView;
 import kornell.gui.client.presentation.admin.audit.AdminAuditView;
 import kornell.gui.client.presentation.admin.audit.generic.GenericAdminAuditView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePresenter;
@@ -86,6 +88,7 @@ public class GenericViewFactoryImpl implements ViewFactory, ShowDetailsEventHand
 	private GenericAdminCourseVersionsView genericAdminCourseVersionsView;
 	private GenericAdminCourseVersionView genericAdminCourseVersionView;
 	private GenericAdminCourseVersionContentView genericAdminCourseVersionContentView;
+	private GenericAdminAssetsView genericAdminAssetsView;
 	private GenericAdminAuditView genericAdminAuditView;
 	private ClassroomPresenter coursePresenter;
 	private SandboxPresenter sandboxPresenter;
@@ -322,7 +325,7 @@ public class GenericViewFactoryImpl implements ViewFactory, ShowDetailsEventHand
 	public AdminCourseView getAdminCourseView() {
 		if (genericAdminCourseView == null)
 			genericAdminCourseView = new GenericAdminCourseView(clientFactory.getKornellSession(),
-					clientFactory.getEventBus(), clientFactory.getPlaceController());
+					clientFactory.getEventBus(), clientFactory.getPlaceController(), clientFactory.getViewFactory());
 		return genericAdminCourseView;
 	}
 
@@ -338,7 +341,7 @@ public class GenericViewFactoryImpl implements ViewFactory, ShowDetailsEventHand
 	public AdminCourseVersionView getAdminCourseVersionView() {
 		if (genericAdminCourseVersionView == null)
 			genericAdminCourseVersionView = new GenericAdminCourseVersionView(clientFactory.getKornellSession(),
-					clientFactory.getEventBus(), clientFactory.getPlaceController());
+					clientFactory.getEventBus(), clientFactory.getPlaceController(), clientFactory.getViewFactory());
 		return genericAdminCourseVersionView;
 	}
 
@@ -389,6 +392,14 @@ public class GenericViewFactoryImpl implements ViewFactory, ShowDetailsEventHand
 					clientFactory.getEventBus(), clientFactory.getPlaceController(), clientFactory.getDefaultPlace(),
 					GenericClientFactoryImpl.TO_FACTORY, this);
 		return genericAdminCourseClassPresenter;
+	}
+
+	@Override
+	public AdminAssetsView getAdminAssetsView() {
+		if (genericAdminAssetsView == null)
+			genericAdminAssetsView = new GenericAdminAssetsView(clientFactory.getKornellSession(),
+					clientFactory.getEventBus());
+		return genericAdminAssetsView;
 	}
 
 	@Override

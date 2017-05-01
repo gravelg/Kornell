@@ -231,7 +231,6 @@ public class MessagePresenter implements MessageView.Presenter, UnreadMessagesPe
 	@Override
 	public void threadClicked(final UnreadChatThreadTO unreadChatThreadTO) {
 		if(unreadChatThreadTO != null){
-			GWT.log(" threadClicked " );
 			this.selectedChatThreadInfo = unreadChatThreadTO;
 		}
 		
