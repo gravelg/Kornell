@@ -3,10 +3,6 @@ package kornell.core.entity;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 
-import kornell.core.to.CourseDetailsHintsTO;
-import kornell.core.to.CourseDetailsLibrariesTO;
-import kornell.core.to.CourseDetailsSectionsTO;
-
 public interface EntityFactory extends AutoBeanFactory {
 	public static String PREFIX = "application/vnd.kornell.v1.entity.";
 

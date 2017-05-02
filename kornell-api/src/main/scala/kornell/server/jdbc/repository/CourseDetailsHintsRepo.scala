@@ -28,12 +28,6 @@ object CourseDetailsHintsRepo {
     courseDetailsHint
   }
   
-  def listForEntity(entityUUIDs: List[String], entityType: CourseDetailsEntityType): Map[String, List[CourseDetailsHint]] = {
-    sql"""
-      select * from CourseDetailsHint where entityUUID in (${entityUUIDs mkString ","}) and entityType = ${entityType.toString}
-    """.map[CourseDetailsHint].groupBy { x => x.getEntityUUID }
-  }
-  
   def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType) = {
     TOs.newCourseDetailsHintsTO(sql"""
       select * from CourseDetailsHint where entityUUID = ${entityUUID} and entityType = ${entityType.toString}

@@ -17,6 +17,7 @@ import javax.ws.rs.POST
 import kornell.core.entity.CourseDetailsLibrary
 import kornell.server.jdbc.repository.CourseDetailsLibrariesRepo
 import kornell.core.entity.CourseDetailsEntityType
+import kornell.core.to.CourseDetailsLibrariesTO
 
 @Path("courseDetailsLibraries")
 class CourseDetailsLibrariesResource {
@@ -35,7 +36,7 @@ class CourseDetailsLibrariesResource {
    
    @GET
    @Path("/{entityType}/{entityUUID}")
-   @Produces(Array(CourseDetailsLibrary.TYPE))
+   @Produces(Array(CourseDetailsLibrariesTO.TYPE))
    def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
        @PathParam("entityUUID") entityUUID: String) = {
     CourseDetailsLibrariesRepo.getForEntity(entityUUID, CourseDetailsEntityType.valueOf(entityType))

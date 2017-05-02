@@ -65,7 +65,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 
 	public GenericAdminCourseVersionContentView(final KornellSession session, EventBus bus, PlaceController placeCtrl) {
 		this.session = session;
-		this.bus = bus;
+		GenericAdminCourseVersionContentView.bus = bus;
 		initWidget(uiBinder.createAndBindUi(this));
 
 		courseVersionUpload.addStyleName("fieldPanelWrapper fileUploadPanel");

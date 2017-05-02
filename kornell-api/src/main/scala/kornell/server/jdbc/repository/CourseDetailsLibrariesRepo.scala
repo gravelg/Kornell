@@ -31,12 +31,6 @@ object CourseDetailsLibrariesRepo {
     courseDetailsLibrary
   }
   
-  def listForEntity(entityUUIDs: List[String], entityType: CourseDetailsEntityType): Map[String, List[CourseDetailsLibrary]] = {
-    sql"""
-      select * from CourseDetailsLibrary where entityUUID in (${entityUUIDs mkString ","}) and entityType = ${entityType.toString}
-    """.map[CourseDetailsLibrary].groupBy { x => x.getEntityUUID }
-  }
-  
   def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType) = {
     TOs.newCourseDetailsLibrariesTO(sql"""
       select * from CourseDetailsLibrary where entityUUID = ${entityUUID} and entityType = ${entityType.toString}

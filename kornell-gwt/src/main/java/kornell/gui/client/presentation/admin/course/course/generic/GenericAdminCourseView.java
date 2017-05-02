@@ -242,7 +242,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 	}
 
 	public void buildAssetsView() {
-		adminAssetsPresenter = new AdminAssetsPresenter(session,bus,placeCtrl,viewFactory);
+		adminAssetsPresenter = new AdminAssetsPresenter(session,bus,viewFactory);
 		assetsPanel.clear();
 		adminAssetsPresenter.init(CourseDetailsEntityType.COURSE, course);
 		assetsPanel.add(adminAssetsPresenter.asWidget());

@@ -49,10 +49,10 @@ public class GenericInstitutionAssetsView extends Composite {
 
 	private Institution institution;
 	
-	public GenericInstitutionAssetsView(final KornellSession session, EventBus bus,
+	public GenericInstitutionAssetsView(final KornellSession session, final EventBus bus,
 			kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter, Institution institution) {
 		this.session = session;
-		this.bus = bus;
+		GenericInstitutionAssetsView.bus = bus;
 		this.institution = institution;
 		initWidget(uiBinder.createAndBindUi(this));
 

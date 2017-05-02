@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.core.shared.GWT;
-import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -30,7 +29,6 @@ import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
 
-@SuppressWarnings("static-access")
 public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	public static final String CERTIFICATE_FILENAME = "certificate-bg.jpg";
 	public static final String CERTIFICATE_DESCRIPTION = "Certificado (2000px X 1428px)";
@@ -43,7 +41,6 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	FormHelper formHelper;
 	private static KornellSession session;
 	private static EventBus bus;
-	private PlaceController placeController;
 	private ViewFactory viewFactory;
 	private static AssetsEntity entity;
 	private CourseDetailsEntityType courseDetailsEntityType;
@@ -57,11 +54,9 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	private CourseDetailsLibrariesTO courseDetailsLibraries;
 	private static String entityType;
 
-	public AdminAssetsPresenter(KornellSession session, EventBus bus,
-			PlaceController placeController, ViewFactory viewFactory) {
-		this.session = session;
-		this.bus = bus;
-		this.placeController = placeController;
+	public AdminAssetsPresenter(KornellSession session, EventBus bus, ViewFactory viewFactory) {
+		AdminAssetsPresenter.session = session;
+		AdminAssetsPresenter.bus = bus;
 		this.viewFactory = viewFactory;
 		formHelper = new FormHelper();
 		
@@ -85,17 +80,17 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	@Override
 	public void init(CourseDetailsEntityType courseDetailsEntityType, AssetsEntity entity) {
 		this.courseDetailsEntityType = courseDetailsEntityType;
-		this.entity = entity;
-		this.entityUUID = entity.getUUID();
+		AdminAssetsPresenter.entity = entity;
+		AdminAssetsPresenter.entityUUID = entity.getUUID();
 		String thumbSubTitle = null;
 		String certificateDetailsSubTitle = null;
-		String sectionsSubTitle = " Código HTML básico é suportado.";
+		String sectionsSubTitle = " HTML básico é suportado.";
 		String hintsSubTitle = " Escolha também o ícone que acompanhará a dica.";
 		String librariesSubTitle = null;
 		switch (courseDetailsEntityType) {
 		case COURSE:
-			this.entityName = "courses";
-			this.entityType = Course.TYPE;
+			AdminAssetsPresenter.entityName = "courses";
+			AdminAssetsPresenter.entityType = Course.TYPE;
 			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para este curso.";
 			sectionsSubTitle = "Edite os detalhes da tela de detalhes para este curso." + sectionsSubTitle;
@@ -103,8 +98,8 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 			librariesSubTitle = "Faça o upload dos arquivos da biblioteca do curso.";
 			break;
 		case COURSE_VERSION:
-			this.entityName = "courseVersions";
-			this.entityType = CourseVersion.TYPE;
+			AdminAssetsPresenter.entityName = "courseVersions";
+			AdminAssetsPresenter.entityType = CourseVersion.TYPE;
 			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Este ícone será aplicado a todas as turmas desta versão do curso.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para todas as turmas desta versão do curso.";
 			sectionsSubTitle = "Edite os detalhes da tela de detalhes para esta versão do curso. Detalhes de uma seção da versão que tenham o título igual a um título de uma seção do curso terão precedência." + sectionsSubTitle;
@@ -112,8 +107,8 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 			librariesSubTitle = "Faça o upload dos arquivos da biblioteca dessa versão do curso. Estes arquivos serão apresentados juntamente com os arquivos do curso.";
 			break;
 		case COURSE_CLASS:
-			this.entityName = "courseClasses";
-			this.entityType = CourseClass.TYPE;
+			AdminAssetsPresenter.entityName = "courseClasses";
+			AdminAssetsPresenter.entityType = CourseClass.TYPE;
 			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Este ícone será aplicado somente a esta turma.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para esta turma.";
 			sectionsSubTitle = "Edite os detalhes da tela de detalhes para esta turma. Detalhes de uma seção da turma que tenham o título igual a um título de uma seção do curso ou da versão terão precedência." + sectionsSubTitle;
@@ -130,7 +125,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		info.put("librariesSubTitle", librariesSubTitle);
 
 		
-		this.filePath = StringUtils.mkurl("repository", session.getInstitution().getAssetsRepositoryUUID(),
+		AdminAssetsPresenter.filePath = StringUtils.mkurl("repository", session.getInstitution().getAssetsRepositoryUUID(),
 				"knl-institution",
 				entityName, entity.getUUID());
 		

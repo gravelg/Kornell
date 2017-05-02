@@ -352,11 +352,9 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         for (int i = 0; i < enrollmentsA.length; i++) {
             if ("".equals(enrollmentsA[i].trim()))
                 continue;
-            enrollmentStrA = enrollmentsA[i].indexOf(';') >= 0 ? enrollmentsA[i].split(";") : enrollmentsA[i]
-                    .split("\\t");
+            enrollmentStrA = enrollmentsA[i].indexOf(';') >= 0 ? enrollmentsA[i].split(";") : enrollmentsA[i].split("\\t");
             fullName = (enrollmentStrA.length > 1 ? enrollmentStrA[0] : "");
-            username = (enrollmentStrA.length > 1 ? enrollmentStrA[1] : enrollmentStrA[0]).replace((char) 160, (char) 32).replaceAll("\\u200B", "")
-                    .trim();
+            username = (enrollmentStrA.length > 1 ? enrollmentStrA[1] : enrollmentStrA[0]).replace((char) 160, (char) 32).replaceAll("\\u200B", "").trim();
             email = (enrollmentStrA.length > 2 ? enrollmentStrA[2].replace((char) 160, (char) 32).replaceAll("\\u200B", "").trim() : null);
             if (isBatchCancel) {
             	fullName = fullName.trim();
