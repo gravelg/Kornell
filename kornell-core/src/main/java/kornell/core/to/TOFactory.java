@@ -40,5 +40,7 @@ public interface TOFactory  extends AutoBeanFactory {
 	AutoBean<DashboardLeaderboardItemTO> newDashboardLeaderboardItemTO();
 	AutoBean<DashboardLeaderboardTO> newDashboardLeaderboardTO();
 	AutoBean<EnrollmentLaunchTO> newEnrollmentLaunchTO();
-	AutoBean<EntityChangedEventsTO> newEntityChangedEventsTO();
-}
+	AutoBean<EntityChangedEventsTO> newEntityChangedEventsTO();	
+	AutoBean<CourseDetailsSectionsTO> newCourseDetailsSectionsTO();	
+	AutoBean<CourseDetailsHintsTO> newCourseDetailsHintsTO();	
+	AutoBean<CourseDetailsLibrariesTO> newCourseDetailsLibrariesTO();}

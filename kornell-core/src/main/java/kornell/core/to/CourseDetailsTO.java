@@ -6,7 +6,7 @@ import kornell.core.entity.CourseDetailsHint;
 import kornell.core.entity.CourseDetailsLibrary;
 import kornell.core.entity.CourseDetailsSection;
 
-public interface CourseDetails {
+public interface CourseDetailsTO {
 
 	List<CourseDetailsHint> getCourseDetailsHints();
 	void setCourseDetailsHints(List<CourseDetailsHint> courseDetailsHints);

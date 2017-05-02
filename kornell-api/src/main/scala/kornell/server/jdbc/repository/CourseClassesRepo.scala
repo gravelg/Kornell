@@ -199,21 +199,43 @@ object CourseClassesRepo {
       	  	    and (cc.uuid = ${courseClassUUID} or ${StringUtils.isNone(courseClassUUID)})
             	and cc.institution_uuid = ${institutionUUID}""".first[String].get.toInt
     })
-    val uuids = courseClassesTO.getCourseClasses.asScala.map { x => x.getCourseVersionTO.getCourseTO.getCourse.getUUID }.toList.distinct
-    val hints = CourseDetailsHintsRepo.listForEntity(uuids, CourseDetailsEntityType.COURSE)
-    val sections = CourseDetailsSectionsRepo.listForEntity(uuids, CourseDetailsEntityType.COURSE)
-    val libraryFiles = CourseDetailsLibrariesRepo.listForEntity(uuids, CourseDetailsEntityType.COURSE)
     
-    courseClassesTO.getCourseClasses.asScala.foreach { x =>{
-        if(hints.get(x.getCourseVersionTO.getCourseTO.getCourse.getUUID).isDefined)
-          x.getCourseVersionTO.getCourseTO.setCourseDetailsHints(hints.get(x.getCourseVersionTO.getCourseTO.getCourse.getUUID).get.asJava)
-        if(sections.get(x.getCourseVersionTO.getCourseTO.getCourse.getUUID).isDefined)
-          x.getCourseVersionTO.getCourseTO.setCourseDetailsSections(sections.get(x.getCourseVersionTO.getCourseTO.getCourse.getUUID).get.asJava)
-        if(libraryFiles.get(x.getCourseVersionTO.getCourseTO.getCourse.getUUID).isDefined)
-          x.getCourseVersionTO.getCourseTO.setCourseDetailsLibraries(libraryFiles.get(x.getCourseVersionTO.getCourseTO.getCourse.getUUID).get.asJava)
-      }
+    if(courseClassUUID != null && courseClassesTO.getCourseClasses.size > 0){
+      bindClassroomDetails(courseClassesTO.getCourseClasses.get(0));
     }
+    
     courseClassesTO
+  }
+  
+  def bindClassroomDetails(courseClassTO: CourseClassTO){
+    val courseUUID = courseClassTO.getCourseVersionTO.getCourseTO.getCourse.getUUID
+    val sectionsCourse = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE)
+    val hintsCourse = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE)
+    val libraryFilesCourse = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE)
+    
+    val courseVersionUUID = courseClassTO.getCourseVersionTO.getCourseVersion.getUUID
+    val sectionsCourseVersion = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_VERSION)
+    val hintsCourseVersion = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_VERSION)
+    val libraryFilesCourseVersion = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_VERSION)
+    
+    val courseClassUUID = courseClassTO.getCourseClass.getUUID
+    val sectionsCourseClass = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_CLASS)
+    val hintsCourseClass = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_CLASS)
+    val libraryFilesCourseClass = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_CLASS)
+    
+    sectionsCourse.getCourseDetailsSections.addAll(sectionsCourseVersion.getCourseDetailsSections)
+    sectionsCourse.getCourseDetailsSections.addAll(sectionsCourseClass.getCourseDetailsSections)
+    
+    hintsCourse.getCourseDetailsHints.addAll(hintsCourseVersion.getCourseDetailsHints)
+    hintsCourse.getCourseDetailsHints.addAll(hintsCourseClass.getCourseDetailsHints)
+    
+    libraryFilesCourse.getCourseDetailsLibraries.addAll(libraryFilesCourseVersion.getCourseDetailsLibraries)
+    libraryFilesCourse.getCourseDetailsLibraries.addAll(libraryFilesCourseClass.getCourseDetailsLibraries)
+    
+    courseClassTO.setCourseDetailsSections(sectionsCourse.getCourseDetailsSections)
+    courseClassTO.setCourseDetailsHints(hintsCourse.getCourseDetailsHints)
+    courseClassTO.setCourseDetailsLibraries(libraryFilesCourse.getCourseDetailsLibraries)
+    
   }
 
   def byPersonAndInstitution(personUUID: String, institutionUUID: String) = {
@@ -237,49 +259,49 @@ object CourseClassesRepo {
   def byEnrollment(enrollmentUUID: String, personUUID: String, institutionUUID: String): CourseClassTO = {
     val courseClass = byEnrollment(enrollmentUUID);
 
-	if(courseClass.isDefined){
-	    val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "", null, courseClass.get.getUUID)
-	    bindEnrollments(personUUID, courseClassesTO).getCourseClasses().get(0)
-	} else {
-		//@TODO what about disabled versions?
+  	if(courseClass.isDefined){
+  	    val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "", null, courseClass.get.getUUID)
+  	    bindEnrollments(personUUID, courseClassesTO).getCourseClasses().get(0)
+  	} else {
+  		//@TODO what about disabled versions?
 	    val courseVersion = sql"""
 		    | select cv.* from 
-			| CourseVersion cv
-			| join Enrollment e on e.courseVersionUUID = cv.uuid
-			| where e.uuid = ${enrollmentUUID}
-		    """.first[CourseVersion](toCourseVersion)
+  			| CourseVersion cv
+  			| join Enrollment e on e.courseVersionUUID = cv.uuid
+  			| where e.uuid = ${enrollmentUUID}
+  		    """.first[CourseVersion](toCourseVersion)
 	    
-		if(courseVersion.isDefined){
-		    val course = sql"""
-			    | select c.* from 
-				| Course c
-				| join CourseVersion cv on cv.course_uuid = c.uuid
-				| where cv.uuid = ${courseVersion.get.getUUID}
-			    """.first[Course](toCourse)
-			
-			val parentCourseClass = sql"""
-        select cc.* from Enrollment e
-        left join Enrollment pe on e.parentEnrollmentUUID = pe.uuid
-        left join CourseClass cc on cc.uuid = pe.class_uuid 
-        where e.uuid = ${enrollmentUUID}
-      """.first[CourseClass]
-			  
-			val courseClassesTO = TOs.newCourseClassesTO
-			val list = new ArrayList[CourseClassTO]
-			val courseClassTO = TOs.newCourseClassTO(course.get, courseVersion.get, parentCourseClass.get, null)
-			courseClassTO.setEnrolledOnCourseVersion(true)
-		  bindEnrollment(personUUID, courseClassTO)
-			list.add(courseClassTO)
-			courseClassesTO.setCourseClasses(list)
-		    courseClassesTO.setCount(1)
-		    courseClassesTO.setPageSize(1)
-		    courseClassesTO.setPageNumber(1)
-		    courseClassesTO.setSearchCount(1)
-		    courseClassTO
-		} else {
-	    	throw new EntityNotFoundException("")
-		}
-	}
+  		if(courseVersion.isDefined){
+  		    val course = sql"""
+  			    | select c.* from 
+    				| Course c
+    				| join CourseVersion cv on cv.course_uuid = c.uuid
+    				| where cv.uuid = ${courseVersion.get.getUUID}
+    			""".first[Course](toCourse)
+  			
+    			val parentCourseClass = sql"""
+            select cc.* from Enrollment e
+            left join Enrollment pe on e.parentEnrollmentUUID = pe.uuid
+            left join CourseClass cc on cc.uuid = pe.class_uuid 
+            where e.uuid = ${enrollmentUUID}
+          """.first[CourseClass]
+    			  
+    			val courseClassesTO = TOs.newCourseClassesTO
+    			val list = new ArrayList[CourseClassTO]
+    			val courseClassTO = TOs.newCourseClassTO(course.get, courseVersion.get, parentCourseClass.get, null)
+    			courseClassTO.setEnrolledOnCourseVersion(true)
+    		  bindEnrollment(personUUID, courseClassTO)
+    			list.add(courseClassTO)
+    			courseClassesTO.setCourseClasses(list)
+  		    courseClassesTO.setCount(1)
+  		    courseClassesTO.setPageSize(1)
+  		    courseClassesTO.setPageNumber(1)
+  		    courseClassesTO.setSearchCount(1)
+  		    courseClassTO
+  		} else {
+  	    	throw new EntityNotFoundException("")
+  		}
+  	}
   }
   
   private def bindEnrollments(personUUID: String, courseClassesTO: CourseClassesTO) = {

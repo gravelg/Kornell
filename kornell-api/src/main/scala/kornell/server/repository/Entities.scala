@@ -33,6 +33,9 @@ import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.entity.CertificateType
 import kornell.core.entity.EnrollmentSource
 import kornell.core.entity.PostbackType
+import kornell.core.entity.CourseDetailsHint
+import kornell.core.entity.CourseDetailsLibrary
+import kornell.core.entity.CourseDetailsSection
 
 
 //TODO: Remove this class without spreading dependency on AutoBeanFactorySource

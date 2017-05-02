@@ -19,7 +19,13 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CertificateDetails;
+import kornell.core.entity.CourseDetailsHint;
+import kornell.core.entity.CourseDetailsLibrary;
+import kornell.core.entity.CourseDetailsSection;
 import kornell.core.entity.EntityFactory;
+import kornell.core.to.CourseDetailsHintsTO;
+import kornell.core.to.CourseDetailsLibrariesTO;
+import kornell.core.to.CourseDetailsSectionsTO;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
@@ -44,21 +50,24 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	Label certificateDetailsSubTitle;
 	@UiField
 	FlowPanel certificateDetailsFieldPanel;
-	
 	@UiField
-	Button btnOK;
+	Label sectionsSubTitle;
 	@UiField
-	Button btnCancel;
+	FlowPanel sectionsFieldPanel;
+	@UiField
+	Label hintsSubTitle;
+	@UiField
+	FlowPanel hintsFieldPanel;
+	@UiField
+	Label librariesSubTitle;
+	@UiField
+	FlowPanel librariesFieldPanel;
 
 	private Presenter presenter;
 	private Map<String, String> info;
 	
 	public GenericAdminAssetsView(KornellSession session, EventBus bus) {
 		initWidget(uiBinder.createAndBindUi(this));
-
-		// i18n
-		btnOK.setText("Atualizar");
-		btnCancel.setText("Cancelar");
 	}
 
 	@Override
@@ -78,6 +87,42 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		certificateDetailsSubTitle.setText(info.get("certificateDetailsSubTitle"));
 		certificateDetailsFieldPanel.clear();
 		certificateDetailsFieldPanel.add(buildFileUploadPanel(AdminAssetsPresenter.CERTIFICATE_FILENAME, AdminAssetsPresenter.IMAGE_JPG, AdminAssetsPresenter.CERTIFICATE_DESCRIPTION, certificateDetails.getUUID() != null));
+	}
+
+	@Override
+	public void initCourseDetailsSections(CourseDetailsSectionsTO courseDetailsSectionsTO) {
+		sectionsSubTitle.setText(info.get("sectionsSubTitle"));
+		sectionsFieldPanel.clear();
+		for(CourseDetailsSection courseDetailsSection : courseDetailsSectionsTO.getCourseDetailsSections()){
+			buildSectionItem(courseDetailsSection);
+		}
+	}
+
+	private void buildSectionItem(CourseDetailsSection courseDetailsSection) {
+	}
+
+	@Override
+	public void initCourseDetailsHints(CourseDetailsHintsTO courseDetailsHintsTO) {
+		hintsSubTitle.setText(info.get("hintsSubTitle"));
+		hintsFieldPanel.clear();
+		for(CourseDetailsHint courseDetailsHint : courseDetailsHintsTO.getCourseDetailsHints()){
+			buildHintItem(courseDetailsHint);
+		}
+	}
+
+	private void buildHintItem(CourseDetailsHint courseDetailsHint) {
+	}
+
+	@Override
+	public void initCourseDetailsLibraries(CourseDetailsLibrariesTO courseDetailsLibrariesTO) {
+		librariesSubTitle.setText(info.get("librariesSubTitle"));
+		librariesFieldPanel.clear();
+		for(CourseDetailsLibrary courseDetailsLibrary : courseDetailsLibrariesTO.getCourseDetailsLibraries()){
+			buildLibraryItem(courseDetailsLibrary);
+		}
+	}
+
+	private void buildLibraryItem(CourseDetailsLibrary courseDetailsLibrary) {
 	}
 
 	private FlowPanel buildFileUploadPanel(final String fileName, final String contentType, String label, boolean exists) {

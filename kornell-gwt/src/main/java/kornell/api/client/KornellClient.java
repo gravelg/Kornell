@@ -36,6 +36,30 @@ public class KornellClient extends RESTClient implements LogoutEventHandler {
 		return new CertificateDetailsClient(uuid);
 	}
 
+	public CourseDetailsHintsClient courseDetailsHints() {
+		return new CourseDetailsHintsClient();
+	}
+
+	public CourseDetailsHintClient courseDetailsHint(String uuid) {
+		return new CourseDetailsHintClient(uuid);
+	}
+
+	public CourseDetailsLibrariesClient courseDetailsLibraries() {
+		return new CourseDetailsLibrariesClient();
+	}
+
+	public CourseDetailsLibraryClient courseDetailsLibrary(String uuid) {
+		return new CourseDetailsLibraryClient(uuid);
+	}
+
+	public CourseDetailsSectionsClient courseDetailsSections() {
+		return new CourseDetailsSectionsClient();
+	}
+
+	public CourseDetailsSectionClient courseDetailsSection(String uuid) {
+		return new CourseDetailsSectionClient(uuid);
+	}
+
 	public CoursesClient courses() {
 		return new CoursesClient();
 	}

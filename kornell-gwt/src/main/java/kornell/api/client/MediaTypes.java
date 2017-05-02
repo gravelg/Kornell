@@ -22,6 +22,9 @@ import kornell.core.lom.Contents;
 import kornell.core.to.ChatThreadMessagesTO;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.CourseClassesTO;
+import kornell.core.to.CourseDetailsHintsTO;
+import kornell.core.to.CourseDetailsLibrariesTO;
+import kornell.core.to.CourseDetailsSectionsTO;
 import kornell.core.to.CourseVersionTO;
 import kornell.core.to.CourseVersionsTO;
 import kornell.core.to.CoursesTO;
@@ -71,7 +74,10 @@ public class MediaTypes {
 		register(EnrollmentsEntries.TYPE, EnrollmentsEntries.class);
 		register(EnrollmentEntries.TYPE, EnrollmentEntries.class);
 		register(ContentRepository.TYPE, ContentRepository.class);
-		register(CertificateDetails.TYPE, CertificateDetails.class);		
+		register(CertificateDetails.TYPE, CertificateDetails.class);	
+		register(CourseDetailsSectionsTO.TYPE, CourseDetailsSectionsTO.class);	
+		register(CourseDetailsHintsTO.TYPE, CourseDetailsHintsTO.class);	
+		register(CourseDetailsLibrariesTO.TYPE, CourseDetailsLibrariesTO.class);	
 	}
 
 	private void registerTOs() {

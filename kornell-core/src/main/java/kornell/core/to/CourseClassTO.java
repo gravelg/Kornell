@@ -3,7 +3,7 @@ package kornell.core.to;
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.Enrollment;
 
-public interface CourseClassTO {
+public interface CourseClassTO extends CourseDetailsTO {
 	public static final String TYPE = TOFactory.PREFIX+"courseclass+json";
 	
 	CourseClass getCourseClass();

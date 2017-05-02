@@ -223,7 +223,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		final ListBox contentSpecTypes = new ListBox();
 		contentSpecTypes.addItem("KNL", ContentSpec.KNL.toString());
 		contentSpecTypes.addItem("SCORM12", ContentSpec.SCORM12.toString());
-		//contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
+		contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
 		if (!isCreationMode) {
 			contentSpecTypes.setSelectedValue(courseVersion.getContentSpec().toString());
 		}

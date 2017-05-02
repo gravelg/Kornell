@@ -6,6 +6,7 @@ import kornell.server.jdbc.SQL._
 import kornell.core.util.UUID
 import kornell.core.entity.CourseDetailsLibrary
 import kornell.core.entity.CourseDetailsEntityType
+import kornell.server.repository.TOs
 
 object CourseDetailsLibrariesRepo {
 
@@ -34,5 +35,11 @@ object CourseDetailsLibrariesRepo {
     sql"""
       select * from CourseDetailsLibrary where entityUUID in (${entityUUIDs mkString ","}) and entityType = ${entityType.toString}
     """.map[CourseDetailsLibrary].groupBy { x => x.getEntityUUID }
+  }
+  
+  def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType) = {
+    TOs.newCourseDetailsLibrariesTO(sql"""
+      select * from CourseDetailsLibrary where entityUUID = ${entityUUID} and entityType = ${entityType.toString}
+    """.map[CourseDetailsLibrary](toCourseDetailsLibrary))
   }
 }

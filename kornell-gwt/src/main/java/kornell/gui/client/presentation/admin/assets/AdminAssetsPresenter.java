@@ -21,6 +21,9 @@ import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseVersion;
 import kornell.core.entity.EntityFactory;
 import kornell.core.error.KornellErrorTO;
+import kornell.core.to.CourseDetailsHintsTO;
+import kornell.core.to.CourseDetailsLibrariesTO;
+import kornell.core.to.CourseDetailsSectionsTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
@@ -49,6 +52,9 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	private Map<String, String> info;
 	private static String filePath;
 	private static CertificateDetails certificateDetails;
+	private CourseDetailsSectionsTO courseDetailsSections;
+	private CourseDetailsHintsTO courseDetailsHints;
+	private CourseDetailsLibrariesTO courseDetailsLibraries;
 	private static String entityType;
 
 	public AdminAssetsPresenter(KornellSession session, EventBus bus,
@@ -83,53 +89,89 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		this.entityUUID = entity.getUUID();
 		String thumbSubTitle = null;
 		String certificateDetailsSubTitle = null;
-		
+		String sectionsSubTitle = " Código HTML básico é suportado.";
+		String hintsSubTitle = " Escolha também o ícone que acompanhará a dica.";
+		String librariesSubTitle = null;
 		switch (courseDetailsEntityType) {
 		case COURSE:
 			this.entityName = "courses";
 			this.entityType = Course.TYPE;
 			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para este curso.";
+			sectionsSubTitle = "Edite os detalhes da tela de detalhes para este curso." + sectionsSubTitle;
+			hintsSubTitle = "Edite as dicas da tela de detalhes para este curso." + hintsSubTitle;
+			librariesSubTitle = "Faça o upload dos arquivos da biblioteca do curso.";
 			break;
 		case COURSE_VERSION:
 			this.entityName = "courseVersions";
 			this.entityType = CourseVersion.TYPE;
 			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Este ícone será aplicado a todas as turmas desta versão do curso.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para todas as turmas desta versão do curso.";
+			sectionsSubTitle = "Edite os detalhes da tela de detalhes para esta versão do curso. Detalhes de uma seção da versão que tenham o título igual a um título de uma seção do curso terão precedência." + sectionsSubTitle;
+			hintsSubTitle = "Edite as dicas da tela de detalhes para esta versão do curso. As dicas da versão serão apresentadas após as dicas do curso." + hintsSubTitle;
+			librariesSubTitle = "Faça o upload dos arquivos da biblioteca dessa versão do curso. Estes arquivos serão apresentados juntamente com os arquivos do curso.";
 			break;
 		case COURSE_CLASS:
 			this.entityName = "courseClasses";
 			this.entityType = CourseClass.TYPE;
 			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Este ícone será aplicado somente a esta turma.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para esta turma.";
+			sectionsSubTitle = "Edite os detalhes da tela de detalhes para esta turma. Detalhes de uma seção da turma que tenham o título igual a um título de uma seção do curso ou da versão terão precedência." + sectionsSubTitle;
+			hintsSubTitle = "Edite as dicas da tela de detalhes para esta turma. As dicas da versão serão apresentadas após as dicas do curso e da versão do curso." + hintsSubTitle;
+			librariesSubTitle = "Faça o upload dos arquivos da biblioteca dessa versão do curso. Estes arquivos serão apresentados juntamente com os arquivos do curso e da versão do curso.";
 			break;
 		}
-		
-		this.filePath = StringUtils.mkurl("repository", session.getInstitution().getAssetsRepositoryUUID(),
-				"knl-institution",
-				entityName, entity.getUUID());
 		
 		this.info = new HashMap<>();
 		info.put("thumbSubTitle", thumbSubTitle);
 		info.put("certificateDetailsSubTitle", certificateDetailsSubTitle);
+		info.put("sectionsSubTitle", sectionsSubTitle);
+		info.put("hintsSubTitle", hintsSubTitle);
+		info.put("librariesSubTitle", librariesSubTitle);
+
 		
+		this.filePath = StringUtils.mkurl("repository", session.getInstitution().getAssetsRepositoryUUID(),
+				"knl-institution",
+				entityName, entity.getUUID());
 		
 		view.initData();
 		
 		view.initThumb(entity.getThumbUrl() != null);
 		
 		session.certificatesDetails().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CertificateDetails>() {
-
 			@Override
 			public void ok(CertificateDetails to) {
 				certificateDetails = to;
 				view.initCertificateDetails(certificateDetails);
 			}
-			
 			@Override
 			public void notFound(KornellErrorTO kornellErrorTO){
 				creteNewCertificateDetails();
 				view.initCertificateDetails(certificateDetails);
+			}
+		});
+		
+		session.courseDetailsSections().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CourseDetailsSectionsTO>() {
+			@Override
+			public void ok(CourseDetailsSectionsTO to) {
+				courseDetailsSections = to;
+				view.initCourseDetailsSections(courseDetailsSections);
+			}
+		});
+		
+		session.courseDetailsHints().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CourseDetailsHintsTO>() {
+			@Override
+			public void ok(CourseDetailsHintsTO to) {
+				courseDetailsHints = to;
+				view.initCourseDetailsHints(courseDetailsHints);
+			}
+		});
+		
+		session.courseDetailsLibraries().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CourseDetailsLibrariesTO>() {
+			@Override
+			public void ok(CourseDetailsLibrariesTO to) {
+				courseDetailsLibraries = to;
+				view.initCourseDetailsLibraries(courseDetailsLibraries);
 			}
 		});
 	}

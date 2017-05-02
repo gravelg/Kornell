@@ -7,6 +7,9 @@ import com.google.gwt.user.client.ui.IsWidget;
 import kornell.core.entity.AssetsEntity;
 import kornell.core.entity.CertificateDetails;
 import kornell.core.entity.CourseDetailsEntityType;
+import kornell.core.to.CourseDetailsHintsTO;
+import kornell.core.to.CourseDetailsLibrariesTO;
+import kornell.core.to.CourseDetailsSectionsTO;
 
 public interface AdminAssetsView extends IsWidget {
 	public interface Presenter extends IsWidget {
@@ -20,4 +23,7 @@ public interface AdminAssetsView extends IsWidget {
 	void initData();
 	void initThumb(boolean exists);
 	void initCertificateDetails(CertificateDetails to);
+	void initCourseDetailsSections(CourseDetailsSectionsTO courseDetailsSections);
+	void initCourseDetailsHints(CourseDetailsHintsTO courseDetailsHints);
+	void initCourseDetailsLibraries(CourseDetailsLibrariesTO courseDetailsLibraries);
 }

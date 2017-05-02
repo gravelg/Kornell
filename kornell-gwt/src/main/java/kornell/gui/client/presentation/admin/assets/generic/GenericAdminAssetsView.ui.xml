@@ -2,7 +2,7 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
 
 	<g:FlowPanel addStyleNames="deanWrapper">
-		<g:FlowPanel>  
+		<g:FlowPanel addStyleNames="left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Ícone da Tela Inicial</g:HTMLPanel>
 			<g:Label ui:field="thumbSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
@@ -10,18 +10,38 @@
 				</g:FlowPanel>	
 			</b:Form>		
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="marginTop25">  
+		<g:FlowPanel addStyleNames="marginTop50 left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Plano de Fundo do Certificado</g:HTMLPanel>
 			<g:Label ui:field="certificateDetailsSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
 				<g:FlowPanel ui:field="certificateDetailsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
 				</g:FlowPanel>	
 			</b:Form>		
-		</g:FlowPanel>		
-		<g:FlowPanel addStyleNames="standardButtonBar shy">
-			<b:Button ui:field="btnOK" addStyleNames="btnAction btnStandard"/>
-			<b:Button ui:field="btnCancel" addStyleNames="btnNotSelected btnStandard"/>
+		</g:FlowPanel>	
+		<g:FlowPanel addStyleNames="marginTop50 left fillWidth">  
+			<g:HTMLPanel addStyleNames="title">Seções da Tela de Detalhes</g:HTMLPanel>
+			<g:Label ui:field="sectionsSubTitle" addStyleNames="subTitle"></g:Label>
+			<b:Form addStyleNames="profileForm">
+				<g:FlowPanel ui:field="sectionsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
+				</g:FlowPanel>	
+			</b:Form>		
 		</g:FlowPanel>
+		<g:FlowPanel addStyleNames="marginTop50 left fillWidth">  
+			<g:HTMLPanel addStyleNames="title">Dicas da Tela de Detalhes</g:HTMLPanel>
+			<g:Label ui:field="hintsSubTitle" addStyleNames="subTitle"></g:Label>
+			<b:Form addStyleNames="profileForm">
+				<g:FlowPanel ui:field="hintsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
+				</g:FlowPanel>	
+			</b:Form>		
+		</g:FlowPanel>
+		<g:FlowPanel addStyleNames="marginTop50 left shy">  
+			<g:HTMLPanel addStyleNames="title">Biblioteca</g:HTMLPanel>
+			<g:Label ui:field="librariesSubTitle" addStyleNames="subTitle"></g:Label>
+			<b:Form addStyleNames="profileForm">
+				<g:FlowPanel ui:field="librariesFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
+				</g:FlowPanel>	
+			</b:Form>		
+		</g:FlowPanel>		
 	</g:FlowPanel>
 
 </ui:UiBinder>

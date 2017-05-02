@@ -16,6 +16,7 @@ import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 import javax.ws.rs.POST
 import kornell.server.jdbc.repository.CourseDetailsHintsRepo
+import kornell.core.entity.CourseDetailsEntityType
 
 @Path("courseDetailsHints")
 class CourseDetailsHintsResource {
@@ -28,6 +29,16 @@ class CourseDetailsHintsResource {
   @Produces(Array(CourseDetailsHint.TYPE))
   def create(courseDetailsHint: CourseDetailsHint) = {
     CourseDetailsHintsRepo.create(courseDetailsHint)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+   
+   @GET
+   @Path("/{entityType}/{entityUUID}")
+   @Produces(Array(CourseDetailsHint.TYPE))
+   def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
+       @PathParam("entityUUID") entityUUID: String) = {
+    CourseDetailsHintsRepo.getForEntity(entityUUID, CourseDetailsEntityType.valueOf(entityType))
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

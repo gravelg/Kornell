@@ -53,6 +53,12 @@ import kornell.server.jdbc.repository.InstitutionRepo
 import kornell.core.to.CourseClassesTO
 import kornell.core.to.DashboardLeaderboardItemTO
 import kornell.core.to.CourseTO
+import kornell.core.to.CourseDetailsHintsTO
+import kornell.core.entity.CourseDetailsHint
+import kornell.core.to.CourseDetailsLibrariesTO
+import kornell.core.entity.CourseDetailsLibrary
+import kornell.core.to.CourseDetailsSectionsTO
+import kornell.core.entity.CourseDetailsSection
 
 //TODO: Consider turning to Object
 object TOs {
@@ -365,4 +371,29 @@ object TOs {
     courses.setPageCount(entitiesChangedList.length)
     courses
   }
+
+  def newCourseDetailsSectionsTO: CourseDetailsSectionsTO = tos.newCourseDetailsSectionsTO.as
+  
+  def newCourseDetailsSectionsTO(courseDetailsSections: List[CourseDetailsSection]): CourseDetailsSectionsTO = {
+    val courseDetailsSectionsTO = newCourseDetailsSectionsTO
+    courseDetailsSectionsTO.setCourseDetailsSections(courseDetailsSections asJava)
+    courseDetailsSectionsTO
+  }
+
+  def newCourseDetailsHintsTO: CourseDetailsHintsTO = tos.newCourseDetailsHintsTO.as
+  
+  def newCourseDetailsHintsTO(courseDetailsHints: List[CourseDetailsHint]): CourseDetailsHintsTO = {
+    val courseDetailsHintsTO = newCourseDetailsHintsTO
+    courseDetailsHintsTO.setCourseDetailsHints(courseDetailsHints asJava)
+    courseDetailsHintsTO
+  }
+
+  def newCourseDetailsLibrariesTO: CourseDetailsLibrariesTO = tos.newCourseDetailsLibrariesTO.as
+  
+  def newCourseDetailsLibrariesTO(courseDetailsLibraries: List[CourseDetailsLibrary]): CourseDetailsLibrariesTO = {
+    val courseDetailsLibrariesTO = newCourseDetailsLibrariesTO
+    courseDetailsLibrariesTO.setCourseDetailsLibraries(courseDetailsLibraries asJava)
+    courseDetailsLibrariesTO
+  }
+  
 }
