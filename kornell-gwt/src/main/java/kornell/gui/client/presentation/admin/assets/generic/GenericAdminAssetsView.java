@@ -4,6 +4,8 @@ import java.util.Map;
 
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.FileUpload;
+import com.github.gwtbootstrap.client.ui.Tooltip;
+import com.github.gwtbootstrap.client.ui.constants.Placement;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -51,13 +53,19 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	@UiField
 	FlowPanel certificateDetailsFieldPanel;
 	@UiField
+	Button sectionsAddButton;
+	@UiField
 	Label sectionsSubTitle;
 	@UiField
 	FlowPanel sectionsFieldPanel;
 	@UiField
+	Button hintsAddButton;
+	@UiField
 	Label hintsSubTitle;
 	@UiField
 	FlowPanel hintsFieldPanel;
+	@UiField
+	Button librariesAddButton;
 	@UiField
 	Label librariesSubTitle;
 	@UiField
@@ -68,6 +76,9 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	
 	public GenericAdminAssetsView(KornellSession session, EventBus bus) {
 		initWidget(uiBinder.createAndBindUi(this));
+		WizardUtils.createIcon(sectionsAddButton, "fa-plus-circle");
+		WizardUtils.createIcon(hintsAddButton, "fa-plus-circle");
+		WizardUtils.createIcon(librariesAddButton, "fa-plus-circle");
 	}
 
 	@Override
@@ -161,7 +172,10 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 				presenter.getUploadURL(contentType, elementId, fileName);
 			}
 		});
-		fieldPanelWrapper.add(btnOK);
+		Tooltip tooltipOK = new Tooltip("Salvar");
+		tooltipOK.setPlacement(Placement.TOP);
+		tooltipOK.add(btnOK);
+		fieldPanelWrapper.add(tooltipOK);
 		
 		if(exists) {
 		    // Add an delete button to the form
@@ -174,14 +188,20 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 					presenter.delete(fileName);
 				}
 			});
-			fieldPanelWrapper.add(btnDelete);
+			Tooltip tooltipDelete = new Tooltip("Excluir");
+			tooltipDelete.setPlacement(Placement.TOP);
+			tooltipDelete.add(btnDelete);
+			fieldPanelWrapper.add(tooltipDelete);
 			
 			Anchor anchor = new Anchor();
 			anchor.setHTML("<icon class=\"fa fa-eye\"></i>");
 			anchor.setTitle("Visualizar");
 			anchor.setHref(presenter.getFileURL(fileName));
 			anchor.setTarget("_blank");
-			fieldPanelWrapper.add(anchor);
+			Tooltip tooltipView = new Tooltip("Visualizar");
+			tooltipView.setPlacement(Placement.TOP);
+			tooltipView.add(anchor);
+			fieldPanelWrapper.add(tooltipView);
 		}
 	    
 		return fieldPanelWrapper;

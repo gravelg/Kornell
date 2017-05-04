@@ -20,6 +20,9 @@
 		</g:FlowPanel>	
 		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Seções da Tela de Detalhes</g:HTMLPanel>
+			<b:Tooltip text="Adicionar seção" placement="LEFT">
+				<b:Button ui:field="sectionsAddButton" addStyleNames="btnAction right"></b:Button>
+			</b:Tooltip>
 			<g:Label ui:field="sectionsSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
 				<g:FlowPanel ui:field="sectionsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
@@ -28,14 +31,20 @@
 		</g:FlowPanel>
 		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Dicas da Tela de Detalhes</g:HTMLPanel>
+			<b:Tooltip text="Adicionar dica" placement="LEFT">
+				<b:Button ui:field="hintsAddButton" addStyleNames="btnAction right"></b:Button>
+			</b:Tooltip>
 			<g:Label ui:field="hintsSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
 				<g:FlowPanel ui:field="hintsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
 				</g:FlowPanel>	
 			</b:Form>		
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left">  
+		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Biblioteca</g:HTMLPanel>
+			<b:Tooltip text="Adicionar arquivo à biblioteca" placement="LEFT">
+				<b:Button ui:field="librariesAddButton" addStyleNames="btnAction right"></b:Button>
+			</b:Tooltip>
 			<g:Label ui:field="librariesSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
 				<g:FlowPanel ui:field="librariesFieldPanel" addStyleNames="fieldsWrapper marginTop25">		

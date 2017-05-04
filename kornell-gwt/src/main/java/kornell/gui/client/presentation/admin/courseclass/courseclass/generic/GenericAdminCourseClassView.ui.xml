@@ -63,7 +63,7 @@
 		    <g:FlowPanel ui:field="configPanel"></g:FlowPanel >
 		  </b:Tab>
 	      <b:Tab ui:field="assetsTab" icon="DASHBOARD" heading="Detalhes" active="false">
-	        <g:FlowPanel ui:field="assetsPanel"></g:FlowPanel>
+	        <g:FlowPanel ui:field="assetsPanel" addStyleNames="shy"></g:FlowPanel>
 	      </b:Tab>
 	      <b:Tab ui:field="reportsTab" icon="BAR_CHART" heading="Relatórios" active="false">
 	        <g:FlowPanel ui:field="reportsPanel"></g:FlowPanel >

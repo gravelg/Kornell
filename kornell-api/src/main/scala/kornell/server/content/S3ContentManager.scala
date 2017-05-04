@@ -43,12 +43,12 @@ class S3ContentManager(repo: ContentRepository)
     metadata.setUserMetadata(metadataMap asJava)
     Option(contentType).foreach { metadata.setContentType(_) }
     Option(contentDisposition).foreach { metadata.setContentDisposition(_) }
-    s3.putObject(repo.getBucketName(), url(keys:_*), value, metadata)
+    s3.putObject(repo.getBucketName, url(keys:_*), value, metadata)
   }
   
   def delete(keys: String*) = {
     logger.info("Trying to delete object [ " + url(keys:_*) + " ]")
-    s3.deleteObject(repo.getBucketName(), url(keys:_*))
+    s3.deleteObject(repo.getBucketName, url(keys:_*))
   }
   
   def getPrefix = repo.getPrefix
