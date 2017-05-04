@@ -196,8 +196,12 @@ public class KornellSession extends KornellClient {
 				+ ClientProperties.SEPARATOR + key;
 	}
 
-	public String getAssetsURL() {
-		return institution == null ? "" : "/repository/" + institution.getAssetsRepositoryUUID();
+	public String getInstitutionAssetsURL() {
+		return StringUtils.mkurl(getRepositoryAssetsURL(), "institution");
+	}
+
+	public String getRepositoryAssetsURL() {
+		return institution == null ? "" : StringUtils.mkurl("repository", institution.getAssetsRepositoryUUID(), "knl");
 	}
 
 	public Institution getInstitution() {

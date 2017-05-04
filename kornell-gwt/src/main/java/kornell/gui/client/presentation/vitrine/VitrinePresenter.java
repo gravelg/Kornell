@@ -60,7 +60,7 @@ public class VitrinePresenter implements VitrineView.Presenter {
 			}
 		}
 		
-		String assetsURL = session.getAssetsURL();
+		String assetsURL = session.getInstitutionAssetsURL();
 		view.setLogoURL(assetsURL);
 		view.showRegistrationOption(session.getInstitution().isAllowRegistration());
 	}

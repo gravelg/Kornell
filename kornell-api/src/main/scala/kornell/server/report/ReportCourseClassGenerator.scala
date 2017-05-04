@@ -22,6 +22,7 @@ import kornell.server.jdbc.repository.CourseClassRepo
 import kornell.server.jdbc.repository.CourseRepo
 import java.text.SimpleDateFormat
 import javax.servlet.http.HttpServletResponse
+import kornell.server.service.S3Service
 
 object ReportCourseClassGenerator {
 
@@ -214,7 +215,7 @@ object ReportCourseClassGenerator {
 					join Person p on p.uuid = r.person_uuid 
 					where course_class_uuid = cc.uuid
 					group by course_class_uuid) as courseClassAdminNames,
-                i.baseURL
+        i.baseURL
 			from
 				CourseClass cc
 				join CourseVersion cv on cc.courseVersion_uuid = cv.uuid
@@ -228,7 +229,7 @@ object ReportCourseClassGenerator {
     
     parameters.put("institutionName", headerInfo.get._1)
     parameters.put("courseTitle", headerInfo.get._2)
-	  parameters.put("assetsURL", mkurl(headerInfo.get._9, "repository", headerInfo.get._6, ""))
+	  parameters.put("assetsURL", mkurl(headerInfo.get._9, "repository", headerInfo.get._6, S3Service.PREFIX, S3Service.INSTITUTION, ""))
     if(courseClassUUID != null){
       parameters.put("courseClassName", headerInfo.get._3)
       parameters.put("createdAt", headerInfo.get._4)

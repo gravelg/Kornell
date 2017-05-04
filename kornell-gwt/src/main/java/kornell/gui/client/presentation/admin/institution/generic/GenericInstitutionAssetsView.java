@@ -120,7 +120,7 @@ public class GenericInstitutionAssetsView extends Composite {
 		Anchor anchor = new Anchor();
 		anchor.setHTML("<icon class=\"fa fa-eye\"></i>");
 		anchor.setTitle("Visualizar");
-		anchor.setHref(StringUtils.mkurl(institution.getBaseURL(), "repository", institution.getAssetsRepositoryUUID(), fileName));
+		anchor.setHref(StringUtils.mkurl(session.getInstitutionAssetsURL(), fileName));
 		anchor.setTarget("_blank");
 		fieldPanelWrapper.add(anchor);
 	    

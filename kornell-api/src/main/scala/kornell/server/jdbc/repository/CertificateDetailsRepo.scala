@@ -4,7 +4,7 @@ import java.sql.ResultSet
 import kornell.server.jdbc.SQL._ 
 import kornell.core.entity.CertificateDetails
 import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.util.StringUtils
+import kornell.core.util.StringUtils.mkurl
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.content.ContentManagers
 import java.util.logging.Logger
@@ -37,13 +37,8 @@ class CertificateDetailsRepo(uuid: String) {
     val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
     val repo = ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID).get
     val cm = ContentManagers.forRepository(repo.getUUID)
-      
-    val url = StringUtils.mkurl("repository", 
-        repo.getUUID,
-        "knl-institution",
-        "course",
-        certificateDetails.getEntityUUID,
-        "certificate-bg.jpg")
+   
+    val url = mkurl(certificateDetails.getBgImage,"certificate-bg.jpg")
     cm.delete(url)
         
     certificateDetails

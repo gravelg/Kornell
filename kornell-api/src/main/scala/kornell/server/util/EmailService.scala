@@ -20,6 +20,7 @@ import java.nio.file.Paths
 import java.util.logging.Logger
 import java.util.logging.Level
 import kornell.core.util.StringUtils
+import kornell.server.service.S3Service
 
 
 object EmailService {
@@ -210,7 +211,7 @@ object EmailService {
       
     if (!imgFile.exists) {
       //TODO: Use ContentStore API
-      val url = new URL(mkurl(institution.getBaseURL, "repository", institution.getAssetsRepositoryUUID, logoImageName))
+      val url = new URL(mkurl(institution.getBaseURL, "repository", institution.getAssetsRepositoryUUID, S3Service.PREFIX, S3Service.INSTITUTION, logoImageName))
       try {
         FileUtils.copyURLToFile(url, imgFile)
       } catch {

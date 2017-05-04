@@ -26,13 +26,13 @@ class S3ContentManager(repo: ContentRepository)
   
   def inputStream(keys: String*): Try[InputStream] = Try {
     val fqkn = url(keys:_*)
-    logger.finest(s"loading key [${fqkn}]")
+    logger.finest(s"loading key [ ${fqkn} ]")
     try {
       s3.getObject(repo.getBucketName, fqkn).getObjectContent
     } catch {
       case e: Throwable => {
         val cmd = s"aws s3api get-object --bucket ${repo.getBucketName} --key ${fqkn} --region ${repo.getRegion} file.out"
-        logger.warning("Could not load object. Try [" + cmd + "]")
+        logger.warning("Could not load object. Try [ " + cmd + " ]")
         throw e
       }
     }
@@ -47,6 +47,7 @@ class S3ContentManager(repo: ContentRepository)
   }
   
   def delete(keys: String*) = {
+    logger.info("Trying to delete object [ " + url(keys:_*) + " ]")
     s3.deleteObject(repo.getBucketName(), url(keys:_*))
   }
   

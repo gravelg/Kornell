@@ -129,7 +129,7 @@ public class GenericMenuBarView extends Composite implements MenuBarView,
 		display();
 		// TODO: Consider anonynous
 		if (session != null) {
-			String assetsURL = session.getAssetsURL();
+			String assetsURL = session.getInstitutionAssetsURL();
 			String skin = session.getInstitution().getSkin();
 			boolean isLightSkin = skin == null || !skin.contains("_light");
 			String barLogoFileName = "logo250x45"

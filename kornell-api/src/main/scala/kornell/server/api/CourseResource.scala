@@ -14,7 +14,7 @@ import javax.ws.rs.DELETE
 import kornell.server.util.AccessDeniedErr
 import javax.ws.rs.PathParam
 import javax.ws.rs.Path
-import kornell.server.service.UploadService
+import kornell.server.service.S3Service
 
 class CourseResource(uuid: String) {
   
@@ -39,7 +39,7 @@ class CourseResource(uuid: String) {
    @Path("uploadUrl/{filename}")
    @Produces(Array("application/octet-stream"))
    def getUploadUrl(@PathParam("filename") filename: String) : String = {
-    UploadService.getCourseUploadUrl(uuid, filename)
+    S3Service.getCourseUploadUrl(uuid, filename)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
    .or(isInstitutionAdmin(), AccessDeniedErr())
    .get

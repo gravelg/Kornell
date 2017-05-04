@@ -18,6 +18,7 @@ import kornell.core.entity.Course;
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseVersion;
+import kornell.core.entity.Entity;
 import kornell.core.entity.EntityFactory;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseDetailsHintsTO;
@@ -82,6 +83,21 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		this.courseDetailsEntityType = courseDetailsEntityType;
 		AdminAssetsPresenter.entity = entity;
 		AdminAssetsPresenter.entityUUID = entity.getUUID();
+		buildViewInfo(courseDetailsEntityType, entity);
+		
+		view.initData();
+		initThumb();
+		initCertificateDetails(courseDetailsEntityType);
+		initCourseDetailsSections(courseDetailsEntityType);
+		initCourseDetailsHints(courseDetailsEntityType);
+		initCourseDetailsLibraries(courseDetailsEntityType);
+	}
+
+	private void initThumb() {
+		view.initThumb(AdminAssetsPresenter.entity.getThumbUrl() != null);
+	}
+
+	private void buildViewInfo(CourseDetailsEntityType courseDetailsEntityType, AssetsEntity entity) {
 		String thumbSubTitle = null;
 		String certificateDetailsSubTitle = null;
 		String sectionsSubTitle = " HTML básico é suportado.";
@@ -124,15 +140,10 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		info.put("hintsSubTitle", hintsSubTitle);
 		info.put("librariesSubTitle", librariesSubTitle);
 
-		
-		AdminAssetsPresenter.filePath = StringUtils.mkurl("repository", session.getInstitution().getAssetsRepositoryUUID(),
-				"knl-institution",
-				entityName, entity.getUUID());
-		
-		view.initData();
-		
-		view.initThumb(entity.getThumbUrl() != null);
-		
+		AdminAssetsPresenter.filePath = StringUtils.mkurl(session.getRepositoryAssetsURL(), entityName, entity.getUUID());
+	}
+
+	private void initCertificateDetails(CourseDetailsEntityType courseDetailsEntityType) {
 		session.certificatesDetails().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CertificateDetails>() {
 			@Override
 			public void ok(CertificateDetails to) {
@@ -145,15 +156,19 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 				view.initCertificateDetails(certificateDetails);
 			}
 		});
-		
-		session.courseDetailsSections().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CourseDetailsSectionsTO>() {
+	}
+
+	private void initCourseDetailsLibraries(CourseDetailsEntityType courseDetailsEntityType) {
+		session.courseDetailsLibraries().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CourseDetailsLibrariesTO>() {
 			@Override
-			public void ok(CourseDetailsSectionsTO to) {
-				courseDetailsSections = to;
-				view.initCourseDetailsSections(courseDetailsSections);
+			public void ok(CourseDetailsLibrariesTO to) {
+				courseDetailsLibraries = to;
+				view.initCourseDetailsLibraries(courseDetailsLibraries);
 			}
 		});
-		
+	}
+
+	private void initCourseDetailsHints(CourseDetailsEntityType courseDetailsEntityType) {
 		session.courseDetailsHints().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CourseDetailsHintsTO>() {
 			@Override
 			public void ok(CourseDetailsHintsTO to) {
@@ -161,12 +176,14 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 				view.initCourseDetailsHints(courseDetailsHints);
 			}
 		});
-		
-		session.courseDetailsLibraries().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CourseDetailsLibrariesTO>() {
+	}
+
+	private void initCourseDetailsSections(CourseDetailsEntityType courseDetailsEntityType) {
+		session.courseDetailsSections().findByEntityTypeAndUUID(courseDetailsEntityType, entityUUID, new Callback<CourseDetailsSectionsTO>() {
 			@Override
-			public void ok(CourseDetailsLibrariesTO to) {
-				courseDetailsLibraries = to;
-				view.initCourseDetailsLibraries(courseDetailsLibraries);
+			public void ok(CourseDetailsSectionsTO to) {
+				courseDetailsSections = to;
+				view.initCourseDetailsSections(courseDetailsSections);
 			}
 		});
 	}
@@ -247,12 +264,19 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	private static void updateThumbnail(String fileName) {
 		entity.setThumbUrl(StringUtils.mkurl(filePath, fileName));
 		view.initThumb(entity.getThumbUrl() != null);
-		session.assets().updateThumbnail(entityName, entityUUID, entity, entityType, null);
+		session.assets().updateThumbnail(entityName, entityUUID, entity, entityType, new Callback<AssetsEntity>() {
+			
+			@Override
+			public void ok(AssetsEntity to) {
+				bus.fireEvent(new ShowPacifierEvent(false));
+				KornellNotification.show("Atualização de imagem completa.");
+			}
+		});
 	}
 
 	private void deleteThumbnail() {
 		entity.setThumbUrl(null);
-		view.initThumb(entity.getThumbUrl() != null);
+		initThumb();
 		session.assets().updateThumbnail(entityName, entityUUID, entity, entityType, null);
 	}
 

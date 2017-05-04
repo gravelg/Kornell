@@ -33,7 +33,7 @@ import kornell.server.util.Conditional.toConditional
 import kornell.core.to.CourseClassTO
 import kornell.server.jdbc.repository.CourseClassesRepo
 import javax.ws.rs.PathParam
-import kornell.server.service.UploadService
+import kornell.server.service.S3Service
 
 
 class CourseClassResource(uuid: String) {
@@ -166,7 +166,7 @@ class CourseClassResource(uuid: String) {
    @Path("uploadUrl/{filename}")
    @Produces(Array("application/octet-stream"))
    def getUploadUrl(@PathParam("filename") filename: String) : String = {
-    UploadService.getCourseClassUploadUrl(uuid, filename)
+    S3Service.getCourseClassUploadUrl(uuid, filename)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
    .or(isInstitutionAdmin(), AccessDeniedErr())
    .get

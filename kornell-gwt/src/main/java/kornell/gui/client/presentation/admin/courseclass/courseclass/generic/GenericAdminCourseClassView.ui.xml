@@ -7,7 +7,7 @@
 			<g:FlowPanel ui:field="enrollmentsPanel">
 				<g:FlowPanel>
 					<g:HTMLPanel addStyleNames="title">Participantes</g:HTMLPanel>
-					<g:FlowPanel>
+					<g:FlowPanel addStyleNames="subTitle">
 						<g:Label addStyleNames="inlineLabel">Matriculados na turma</g:Label>
 						<g:Label ui:field="lblCourseClassName" addStyleNames="inlineLabel lblHighlight"></g:Label>
 						<g:Label addStyleNames="inlineLabel">do curso</g:Label>

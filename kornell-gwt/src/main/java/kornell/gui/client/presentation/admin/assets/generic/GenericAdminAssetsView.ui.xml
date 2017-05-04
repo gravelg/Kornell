@@ -1,8 +1,8 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
 
-	<g:FlowPanel addStyleNames="deanWrapper">
-		<g:FlowPanel addStyleNames="left fillWidth">  
+	<g:FlowPanel addStyleNames="deanWrapper assetsWrapper">
+		<g:FlowPanel addStyleNames="paddingBottom20 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Ícone da Tela Inicial</g:HTMLPanel>
 			<g:Label ui:field="thumbSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
@@ -10,7 +10,7 @@
 				</g:FlowPanel>	
 			</b:Form>		
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="marginTop50 left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Plano de Fundo do Certificado</g:HTMLPanel>
 			<g:Label ui:field="certificateDetailsSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
@@ -18,7 +18,7 @@
 				</g:FlowPanel>	
 			</b:Form>		
 		</g:FlowPanel>	
-		<g:FlowPanel addStyleNames="marginTop50 left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Seções da Tela de Detalhes</g:HTMLPanel>
 			<g:Label ui:field="sectionsSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
@@ -26,7 +26,7 @@
 				</g:FlowPanel>	
 			</b:Form>		
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="marginTop50 left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Dicas da Tela de Detalhes</g:HTMLPanel>
 			<g:Label ui:field="hintsSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">
@@ -34,7 +34,7 @@
 				</g:FlowPanel>	
 			</b:Form>		
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="marginTop50 left shy">  
+		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left">  
 			<g:HTMLPanel addStyleNames="title">Biblioteca</g:HTMLPanel>
 			<g:Label ui:field="librariesSubTitle" addStyleNames="subTitle"></g:Label>
 			<b:Form addStyleNames="profileForm">

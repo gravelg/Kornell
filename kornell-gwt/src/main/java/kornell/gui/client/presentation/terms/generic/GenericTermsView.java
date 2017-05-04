@@ -84,7 +84,7 @@ public class GenericTermsView extends Composite implements TermsView {
 			String skin = session.getInstitution().getSkin();
 			boolean isLightSkin = skin == null || !skin.contains("_light");
 			String barLogoFileName = "/logo300x80" + (isLightSkin ? "_light" : "") + ".png?1";
-			institutionLogo.setUrl(session.getAssetsURL() + barLogoFileName);
+			institutionLogo.setUrl(session.getInstitutionAssetsURL() + barLogoFileName);
 		}
 	}
 

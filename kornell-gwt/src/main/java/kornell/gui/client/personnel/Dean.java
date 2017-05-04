@@ -47,7 +47,7 @@ public class Dean implements LogoutEventHandler, UnreadMessagesPerThreadFetchedE
 	}
 	
 	private void setFavicon(){
-		String url = session.getAssetsURL();
+		String url = session.getInstitutionAssetsURL();
 		if (url != null) {
 			updateFaviconNative(mkurl(url, ICON_NAME));
 		} else {

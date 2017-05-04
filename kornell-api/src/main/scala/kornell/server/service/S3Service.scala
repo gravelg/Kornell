@@ -16,9 +16,14 @@ import java.util.Date
 import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.jdbc.repository.CoursesRepo
 
-object UploadService {
+object S3Service {
   
-  val PREFIX = "knl-institution"
+  def PREFIX = "knl"
+  def INSTITUTION = "institution"
+  def COURSES = "courses"
+  def COURSE_VERSIONS = "courseVersions"
+  def COURSE_CLASSES = "courseClasses"
+  def CERTIFICATES = "certificates"
   
   def getCourseVersionContentUploadUrl(courseVersionUUID: String) = {
     val courseVersion = CourseVersionRepo(courseVersionUUID).get
@@ -35,22 +40,23 @@ object UploadService {
   }
   
   def getCourseUploadUrl(courseUUID: String, fileName: String) = {
-    val destinationPath = mkurl(PREFIX, "courses", courseUUID, fileName)
-    getUploadUrl(CourseRepo(courseUUID).get.getInstitutionUUID, destinationPath, getContentType(fileName))
+    val path = mkurl(PREFIX, COURSES, courseUUID, fileName)
+    getUploadUrl(CourseRepo(courseUUID).get.getInstitutionUUID, path, getContentType(fileName))
   }
   
   def getCourseVersionUploadUrl(courseVersionUUID: String, fileName: String) = {
-    val destinationPath = mkurl(PREFIX, "courseVersions", courseVersionUUID, fileName)
-    getUploadUrl(CoursesRepo.byCourseVersionUUID(courseVersionUUID).get.getInstitutionUUID, destinationPath, getContentType(fileName))
+    val path = mkurl(PREFIX, COURSE_VERSIONS, courseVersionUUID, fileName)
+    getUploadUrl(CoursesRepo.byCourseVersionUUID(courseVersionUUID).get.getInstitutionUUID, path, getContentType(fileName))
   }
   
   def getCourseClassUploadUrl(courseClassUUID: String, fileName: String) = {
-    val destinationPath = mkurl(PREFIX, "courseClasses", courseClassUUID, fileName)
-    getUploadUrl(CourseClassRepo(courseClassUUID).get.getInstitutionUUID, destinationPath, getContentType(fileName))
+    val path = mkurl(PREFIX, COURSE_CLASSES, courseClassUUID, fileName)
+    getUploadUrl(CourseClassRepo(courseClassUUID).get.getInstitutionUUID, path, getContentType(fileName))
   }
   
   def getInstitutionUploadUrl(institutionUUID: String, fileName: String) = {
-    getUploadUrl(institutionUUID, fileName, getContentType(fileName))
+    val path = mkurl(PREFIX, INSTITUTION, fileName)
+    getUploadUrl(institutionUUID, path, getContentType(fileName))
   }
   
   def getUploadUrl(institutionUUID: String, path: String, contentType: String) = {

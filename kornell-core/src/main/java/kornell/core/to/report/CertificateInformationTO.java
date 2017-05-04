@@ -9,7 +9,7 @@ public class CertificateInformationTO {
 	private String personCPF;
 	private String courseTitle;
 	private String courseClassName;
-	private String assetsURL;
+	private String assetsRepositoryUUID;
 	private String distributionPrefix;
 	private String courseVersionUUID;
 	private String courseClassUUID;
@@ -43,11 +43,11 @@ public class CertificateInformationTO {
 	public void setCourseClassName(String courseClassName) {
 		this.courseClassName = courseClassName;
 	}
-	public String getAssetsURL() {
-		return assetsURL;
+	public String getAssetsRepositoryUUID() {
+		return assetsRepositoryUUID;
 	}
-	public void setAssetsURL(String assetsURL) {
-		this.assetsURL = assetsURL;
+	public void setAssetsRepositoryUUID(String assetsRepositoryUUID) {
+		this.assetsRepositoryUUID = assetsRepositoryUUID;
 	}
 	public String getDistributionPrefix() {
 		return distributionPrefix;

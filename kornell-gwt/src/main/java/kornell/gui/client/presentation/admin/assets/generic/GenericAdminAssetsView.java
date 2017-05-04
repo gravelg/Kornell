@@ -167,7 +167,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		    // Add an delete button to the form
 			Button btnDelete = new Button();
 			WizardUtils.createIcon(btnDelete, "fa-trash");
-			btnDelete.addStyleName("btnAction");
+			btnDelete.addStyleName("btnSelected");
 			btnDelete.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {

@@ -164,7 +164,7 @@ public class GenericViewFactoryImpl implements ViewFactory, ShowDetailsEventHand
 				+ "-moz-background-size: cover; " + "-o-background-size: cover; " + "background-size: cover;" + "overflow:auto;";
 		if (showMantle){
 			style = "background: url('"
-					+ mkurl(clientFactory.getKornellSession().getAssetsURL(), "bgVitrine.jpg")
+					+ mkurl(clientFactory.getKornellSession().getInstitutionAssetsURL(), "bgVitrine.jpg")
 					+ "') no-repeat center center fixed; " + style;
 		} else {
 			style = "background: transparent; " + style;

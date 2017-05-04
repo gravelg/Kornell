@@ -33,18 +33,20 @@ import kornell.server.jdbc.repository.CertificatesDetailsRepo
 import kornell.core.entity.CourseDetailsEntityType
 import kornell.server.repository.Entities
 import kornell.core.entity.CertificateType
+import kornell.server.service.S3Service
+import com.amazonaws.services.s3.metrics.S3ServiceMetric
 
 object ReportCertificateGenerator {
 
   def newCertificateInformationTO: CertificateInformationTO = new CertificateInformationTO
-  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsURL: String, distributionPrefix: String, courseVersionUUID: String, courseClassUUID: String, courseUUID: String, baseURL: String, repositoryType: RepositoryType): CertificateInformationTO = {
+  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsRepositoryUUID: String, distributionPrefix: String, courseVersionUUID: String, courseClassUUID: String, courseUUID: String, baseURL: String, repositoryType: RepositoryType): CertificateInformationTO = {
     val to = newCertificateInformationTO
     to.setPersonFullName(personFullName)
     to.setPersonCPF(personCPF)
     to.setCourseTitle(courseTitle)
     to.setCourseClassName(courseClassName)
     to.setInstitutionName(institutionName)
-    to.setAssetsURL(assetsURL)
+    to.setAssetsRepositoryUUID(assetsRepositoryUUID)
     to.setDistributionPrefix(distributionPrefix)
     to.setCourseVersionUUID(courseVersionUUID)
     to.setCourseClassUUID(courseClassUUID)
@@ -139,7 +141,7 @@ object ReportCertificateGenerator {
     }
     val parameters: HashMap[String, Object] = new HashMap()
     //TODO: both urls NEED the extra slash because the jasper files count on it
-    parameters.put("institutionURL", mkurl(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsURL) + "/")
+    parameters.put("institutionURL", mkurl(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsRepositoryUUID, S3Service.PREFIX, S3Service.INSTITUTION) + "/")
     parameters.put("assetsURL", mkurl(certificateData.head.getBaseURL, certificateDetails.getBgImage) + "/")
    
     val cl = Thread.currentThread.getContextClassLoader
@@ -204,7 +206,7 @@ object ReportCertificateGenerator {
   }
   
   def getCourseClassCertificateReportFileName(courseClassUUID: String) = {
-      "knl-institution/certificates/" + ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get + courseClassUUID + ".pdf"
+    mkurl(S3Service.PREFIX, S3Service.CERTIFICATES, ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get + courseClassUUID + ".pdf")
   }
   
   def getCourseClassCertificateReportURL(courseClassUUID: String) = {
