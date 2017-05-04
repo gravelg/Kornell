@@ -23,7 +23,7 @@ object SQL {
     }
   }
 
-  def randomUUID = UUID.randomUUID()
+  def randomUUID = UUID.random()
 
 }
 

@@ -16,7 +16,7 @@ trait Generator {
   def randStr(length: Int): String = chars take length mkString
   def randStr: String = randStr(42)
   def randPassword = randStr(8)
-  def randUUID: String = "[_test_]" + UUID.randomUUID.toString.substring(8)
+  def randUUID: String = "[_test_]" + UUID.random.substring(8)
   def randURL() = s"[_test_]https://${randStr}"
   def randDomain = randPick(domains)
   def randUsername = randPick(usernames) + digits.take(2).mkString

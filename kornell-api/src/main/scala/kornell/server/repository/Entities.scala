@@ -37,7 +37,7 @@ import kornell.core.entity.PostbackType
 object Entities {
   val factory = AutoBeanFactorySource.create(classOf[EntityFactory])
 
-  def randUUID = UUID.randomUUID.toString
+  def randUUID = UUID.random
 
   def newPerson: Person = factory.newPerson.as
 
