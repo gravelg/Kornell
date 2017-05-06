@@ -1,13 +1,13 @@
 package kornell.gui.client.presentation.classroom.generic.details;
 
+import static kornell.core.util.StringUtils.mkurl;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.gwtbootstrap.client.ui.Icon;
-import com.github.gwtbootstrap.client.ui.base.IconAnchor;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -18,24 +18,28 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;
-import kornell.core.entity.CourseDetailsLibrary;
+import kornell.core.to.LibraryFileTO;
+import kornell.core.to.LibraryFilesTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.KornellConstants;
-import kornell.gui.client.util.forms.FormHelper;
+import kornell.gui.client.util.ClientConstants;
 
 
-public class GenericCourseLibraryView extends Composite {
+public class GenericCourseLibraryOldView extends Composite {
 
-	interface MyUiBinder extends UiBinder<Widget, GenericCourseLibraryView> {
+	interface MyUiBinder extends UiBinder<Widget, GenericCourseLibraryOldView> {
 	}
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	private KornellConstants constants = GWT.create(KornellConstants.class);
+	
+	private static String COURSE_LIBRARY_IMAGES_PATH = mkurl(ClientConstants.IMAGES_PATH, "courseLibrary");
 
 	@UiField
 	FlowPanel libraryPanel;
@@ -51,6 +55,7 @@ public class GenericCourseLibraryView extends Composite {
 	FlowPanel filesHeader;
 	FlowPanel filesWrapper; 
 	
+	LibraryFilesTO libraryFilesTO;
 	Button btnIcon;
 	Button btnName; 
 	Button btnSize;
@@ -60,12 +65,9 @@ public class GenericCourseLibraryView extends Composite {
 	private static Integer ORDER_DESCENDING = 1;
 	private Integer order = ORDER_ASCENDING;	
 	Map<String, FlowPanel> fileWidgetMap;
-	private List<CourseDetailsLibrary> courseDetailsLibraries;
-	private FormHelper formHelper;
 	
-	public GenericCourseLibraryView(EventBus eventBus, KornellSession session, PlaceController placeCtrl, List<CourseDetailsLibrary>  courseDetailsLibraries) {
-		this.courseDetailsLibraries = courseDetailsLibraries;
-		this.formHelper = new FormHelper();
+	public GenericCourseLibraryOldView(EventBus eventBus, KornellSession session, PlaceController placeCtrl, LibraryFilesTO libraryFilesTO) {
+		this.libraryFilesTO = libraryFilesTO;
 		initWidget(uiBinder.createAndBindUi(this));
 		initData();		
 	}
@@ -112,38 +114,37 @@ public class GenericCourseLibraryView extends Composite {
 	}
 
 	private FlowPanel getFiles(Button btn) {
-		if (courseDetailsLibraries.size() > 0) {
-			if(btn == null){
-			    Collections.sort(courseDetailsLibraries, new FileIndexComparator());
-	    		order = ORDER_ASCENDING;
-			} else if(btnIcon.equals(btn)){
-			    Collections.sort(courseDetailsLibraries, new FileTypeComparator());
+		List<LibraryFileTO> list = libraryFilesTO.getLibraryFiles();
+
+		if (list.size() > 0) {
+			if(btnIcon.equals(btn)){
+			    Collections.sort(list, new FileTypeComparator());
 		    	if(btnIcon.equals(btnLastClicked) && ORDER_ASCENDING.equals(order)){
-		    		Collections.reverse(courseDetailsLibraries);
+		    		Collections.reverse(list);
 		    		order = ORDER_DESCENDING;
 		    	} else {
 		    		order = ORDER_ASCENDING;
 		    	}
 			} else if(btnSize.equals(btn)) {
-			    Collections.sort(courseDetailsLibraries, new FileSizeComparator());
+			    Collections.sort(list, new FileSizeComparator());
 		    	if(btnSize.equals(btnLastClicked) && ORDER_DESCENDING.equals(order)){
-		    		Collections.reverse(courseDetailsLibraries);
+		    		Collections.reverse(list);
 		    		order = ORDER_ASCENDING;
 		    	} else {
 		    		order = ORDER_DESCENDING;
 		    	}
 			} else if(btnPublishingDate.equals(btn)) {
-			    Collections.sort(courseDetailsLibraries, new FilePublishingDateComparator());
+			    Collections.sort(list, new FilePublishingDateComparator());
 		    	if(btnPublishingDate.equals(btnLastClicked) && ORDER_ASCENDING.equals(order)){
-		    		Collections.reverse(courseDetailsLibraries);
+		    		Collections.reverse(list);
 		    		order = ORDER_DESCENDING;
 		    	} else {
 		    		order = ORDER_ASCENDING;
 		    	}
 			} else {
-			    Collections.sort(courseDetailsLibraries, new FileNameComparator());
+			    Collections.sort(list, new FileNameComparator());
 		    	if(btnName.equals(btnLastClicked) && ORDER_ASCENDING.equals(order)){
-		    		Collections.reverse(courseDetailsLibraries);
+		    		Collections.reverse(list);
 		    		order = ORDER_DESCENDING;
 		    	} else {
 		    		order = ORDER_ASCENDING;
@@ -153,14 +154,14 @@ public class GenericCourseLibraryView extends Composite {
 		}
 		
 		if(fileWidgetMap.size() <= 0)
-			for (CourseDetailsLibrary fileTO : courseDetailsLibraries)
-				fileWidgetMap.put(fileTO.getTitle(), getFilePanel(fileTO));
+			for (LibraryFileTO fileTO : list)
+				fileWidgetMap.put(fileTO.getFileName(), getFilePanel(fileTO));
 
 
 		filesWrapper = new FlowPanel();
 		filesWrapper.addStyleName("filesWrapper");
-		for(CourseDetailsLibrary fileTO : courseDetailsLibraries){
-			filesWrapper.add(fileWidgetMap.get(fileTO.getTitle()));
+		for(LibraryFileTO fileTO : list){
+			filesWrapper.add(fileWidgetMap.get(fileTO.getFileName()));
 		}
 		return filesWrapper;
 	}
@@ -177,7 +178,7 @@ public class GenericCourseLibraryView extends Composite {
 		filesHeader.add(btnIcon);
 
 		btnName = btnName != null ? btnName : new Button(constants.libraryEntryName());
-		displayHeaderButton(btnName, "btnName", false);
+		displayHeaderButton(btnName, "btnName", true);
 		filesHeader.add(btnName);
 
 		btnSize = btnSize != null ? btnSize : new Button(constants.libraryEntrySize());
@@ -187,6 +188,8 @@ public class GenericCourseLibraryView extends Composite {
 		btnPublishingDate = btnPublishingDate != null ? btnPublishingDate : new Button(constants.libraryEntryDate());
 		displayHeaderButton(btnPublishingDate, "btnPublishingDate", false);
 		filesHeader.add(btnPublishingDate);
+		
+		btnLastClicked = btnLastClicked != null ? btnLastClicked : btnName;
 		
 		return filesHeader;
 	}
@@ -206,39 +209,31 @@ public class GenericCourseLibraryView extends Composite {
 		}
 		contentPanel.clear();
 		contentPanel.add(getFilesTable(btn));
-		if(btn != null){
-			btn.addStyleName("btnAction");
-			btn.removeStyleName("btnNotSelected");
-		}
+		btn.addStyleName("btnAction");
+		btn.removeStyleName("btnNotSelected");
 		btnLastClicked = btn;
 	}
 
-	private FlowPanel getFilePanel(final CourseDetailsLibrary fileTO) {
+	private FlowPanel getFilePanel(final LibraryFileTO fileTO) {
 		FlowPanel fileWrapper = new FlowPanel();
 		fileWrapper.addStyleName("fileWrapper");
 		
-		Icon fileIcon = new Icon();
-		fileIcon.addStyleName("fa " + fileTO.getFontAwesomeClassName());
-		fileIcon.addStyleName("fileIcon");
+		Image fileIcon = new Image(getIconImageByFileType(fileTO.getFileType()));
+		fileIcon.addStyleName("fileIconOld");
 		fileIcon.addStyleName("cursorPointer");
+		fileWrapper.add(fileIcon);
 		
-		IconAnchor fileIconAnchor = new IconAnchor();
-		fileIconAnchor.add(fileIcon);
-		
-		fileWrapper.add(fileIconAnchor);
-		
-		
-		fileIconAnchor.addClickHandler(new ClickHandler() {
+		fileIcon.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				Window.open(StringUtils.mkurl(fileTO.getPath(), fileTO.getTitle()),"_blank","");		
+				Window.open(fileTO.getURL(),"_blank","");		
 			}
 		});
 		
 		FlowPanel pnlFileName = new FlowPanel();
 		pnlFileName.addStyleName("pnlFileName");
 		
-		Label fileName = new Label(fileTO.getTitle());
+		Label fileName = new Label(fileTO.getFileName());
 		fileName.addStyleName("fileName");
 		fileName.addStyleName("cursorPointer");
 		pnlFileName.add(fileName);
@@ -246,25 +241,40 @@ public class GenericCourseLibraryView extends Composite {
 		fileName.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				Window.open(StringUtils.mkurl(fileTO.getPath(), fileTO.getTitle()),"_blank","");		
+				Window.open(fileTO.getURL(),"_blank","");		
 			}
 		});
 
-		Label fileDescription = new Label(fileTO.getDescription());
+		Label fileDescription = new Label(fileTO.getFileDescription());
 		fileDescription.addStyleName("fileDescription");
 		pnlFileName.add(fileDescription);
 		
 		fileWrapper.add(pnlFileName);
 		
-		Label fileSize = new Label(toFileSizeString(fileTO.getSize()));
+		Label fileSize = new Label(fileTO.getFileSize());
 		fileSize.addStyleName("fileSize");
 		fileWrapper.add(fileSize);
 
-		Label publishingDate = new Label(formHelper.dateToString(fileTO.getUploadDate()));
+		Label publishingDate = new Label(fileTO.getPublishingDate());
 		publishingDate.addStyleName("publishingDate");
 		fileWrapper.add(publishingDate);
 		
+		
 		return fileWrapper;
+	}
+
+	private String getIconImageByFileType(String fileType) {
+		String imgFileTypeName;
+		if("pdf".equals(fileType)){
+			imgFileTypeName = "pdf";
+		} else if("xlsx".equals(fileType) || "xls".equals(fileType)){
+			imgFileTypeName = "xls";
+		} else if("docx".equals(fileType) || "doc".equals(fileType)){
+			imgFileTypeName = "doc";
+		} else {
+			imgFileTypeName = "unknownFileType";
+		}
+		return StringUtils.mkurl(COURSE_LIBRARY_IMAGES_PATH, imgFileTypeName + ".png");
 	}
 
 	private final class LibraryHeaderClickHandler implements ClickHandler {
@@ -273,42 +283,31 @@ public class GenericCourseLibraryView extends Composite {
 		}
 	}
 
-	private final class FileNameComparator implements Comparator<CourseDetailsLibrary> {
+	private final class FileNameComparator implements Comparator<LibraryFileTO> {
 		@Override
-		public int compare(final CourseDetailsLibrary object1, final CourseDetailsLibrary object2) {
-			if(object1.getTitle().compareTo(object2.getTitle()) == 0)
-			    return object1.getDescription().compareTo(object2.getDescription());
-			return object1.getTitle().compareTo(object2.getTitle());
+		public int compare(final LibraryFileTO object1, final LibraryFileTO object2) {
+			if(object1.getFileName().compareTo(object2.getFileName()) == 0)
+			    return object1.getFileDescription().compareTo(object2.getFileDescription());
+			return object1.getFileName().compareTo(object2.getFileName());
 		}
 	}
 
-	private final class FileIndexComparator implements Comparator<CourseDetailsLibrary> {
+	private final class FilePublishingDateComparator implements Comparator<LibraryFileTO> {
 		@Override
-		public int compare(final CourseDetailsLibrary object1, final CourseDetailsLibrary object2) {
-			if(object1.getIndex().compareTo(object2.getIndex()) == 0)
-			    return object1.getTitle().compareTo(object2.getTitle());
-			return object1.getIndex().compareTo(object2.getIndex());
+		public int compare(final LibraryFileTO object1, final LibraryFileTO object2) {
+			if(object1.getPublishingDate().compareTo(object2.getPublishingDate()) == 0)
+				return object1.getFileName().compareTo(object2.getFileName());
+		    return object1.getPublishingDate().compareTo(object2.getPublishingDate());
 		}
 	}
 
-	private final class FilePublishingDateComparator implements Comparator<CourseDetailsLibrary> {
+	private final class FileSizeComparator implements Comparator<LibraryFileTO> {
 		@Override
-		public int compare(final CourseDetailsLibrary object1, final CourseDetailsLibrary object2) {
-			if(object1.getUploadDate().compareTo(object2.getUploadDate()) == 0)
-				return object1.getTitle().compareTo(object2.getTitle());
-		    return object1.getUploadDate().compareTo(object2.getUploadDate());
-		}
-	}
-
-	private final class FileSizeComparator implements Comparator<CourseDetailsLibrary> {
-		@Override
-		public int compare(final CourseDetailsLibrary object1, final CourseDetailsLibrary object2) {
+		public int compare(final LibraryFileTO object1, final LibraryFileTO object2) {
 			try {
-				String fileSize1 = toFileSizeString(object1.getSize());
-				String fileSize2 = toFileSizeString(object2.getSize());
 				int ret = 0;
-				String[] parts1 = fileSize1.split(" ");
-				String[] parts2 = fileSize2.split(" ");
+				String[] parts1 = object1.getFileSize().split(" ");
+				String[] parts2 = object2.getFileSize().split(" ");
 				Integer value1 = Integer.parseInt(parts1[0]);
 				String unit1 = parts1[1].toUpperCase();
 				Integer value2 = Integer.parseInt(parts2[0]);
@@ -317,37 +316,20 @@ public class GenericCourseLibraryView extends Composite {
 				if(ret == 0)
 					ret = value1.compareTo(value2);
 				if(ret == 0)
-					return object1.getTitle().compareTo(object2.getTitle());
+					return object1.getFileName().compareTo(object2.getFileName());
 				return ret;
 			} catch (Exception e) {
-		      return object2.getSize().compareTo(object1.getSize());
+		      return object2.getFileSize().compareTo(object1.getFileSize());
 			}
 		}
 	}
 
-	private String toFileSizeString(Integer size) {
-		String fileSizeStr = "";
-		Integer mbs = Math.round(size / (1000 * 1000));
-		Integer kbs = Math.round(size / (1000));
-		if(mbs > 1){
-			fileSizeStr = mbs + " MB";
-		} else if(kbs > 1){
-			fileSizeStr = kbs + " KB";
-		} else {
-			fileSizeStr = size + " B";
-		}
-		return fileSizeStr;
-	}
-
-	private final class FileTypeComparator implements Comparator<CourseDetailsLibrary> {
+	private final class FileTypeComparator implements Comparator<LibraryFileTO> {
 		@Override
-		public int compare(final CourseDetailsLibrary object1, final CourseDetailsLibrary object2) {
-			String fileType1 = object1.getTitle().substring(object1.getTitle().lastIndexOf('.') + 1);
-			String fileType2 = object2.getTitle().substring(object2.getTitle().lastIndexOf('.') + 1);
-			
-			if(fileType1.compareTo(fileType2) == 0)
-				return object1.getTitle().compareTo(object2.getTitle());
-		    return fileType1.compareTo(fileType2);
+		public int compare(final LibraryFileTO object1, final LibraryFileTO object2) {
+			if(object1.getFileType().compareTo(object2.getFileType()) == 0)
+				return object1.getFileName().compareTo(object2.getFileName());
+		    return object1.getFileType().compareTo(object2.getFileType());
 		}
 	}
 

@@ -27,6 +27,7 @@ import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClassState;
 import kornell.core.entity.CourseDetailsHint;
+import kornell.core.entity.CourseDetailsLibrary;
 import kornell.core.entity.CourseDetailsSection;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.entity.InstitutionType;
@@ -178,18 +179,25 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 
 		btnLibrary.setVisible(false);
 		if(!session.getCurrentCourseClass().isEnrolledOnCourseVersion()){
-			session.courseClass(session.getCurrentCourseClass().getCourseClass().getUUID()).libraryFiles(
-					new Callback<LibraryFilesTO>() {
-						@Override
-						public void ok(LibraryFilesTO to) {
-							if (to.getLibraryFiles() != null && to.getLibraryFiles().size() > 0) {
-								libraryPanel = getLibraryPanel(to);
-								libraryPanel.setVisible(false);
-								detailsContentPanel.add(libraryPanel);
-								btnLibrary.setVisible(true);
+			if(session.getCurrentCourseClass().getCourseDetailsLibraries().size() >0){
+				libraryPanel = getLibraryPanel(session.getCurrentCourseClass().getCourseDetailsLibraries());
+				libraryPanel.setVisible(false);
+				detailsContentPanel.add(libraryPanel);
+				btnLibrary.setVisible(true);
+			} else {
+				session.courseClass(session.getCurrentCourseClass().getCourseClass().getUUID()).libraryFiles(
+						new Callback<LibraryFilesTO>() {
+							@Override
+							public void ok(LibraryFilesTO to) {
+								if (to.getLibraryFiles() != null && to.getLibraryFiles().size() > 0) {
+									libraryPanel = getLibraryPanelOld(to);
+									libraryPanel.setVisible(false);
+									detailsContentPanel.add(libraryPanel);
+									btnLibrary.setVisible(true);
+								}
 							}
-						}
-					});
+						});
+			}
 		}
 	}
 
@@ -282,10 +290,15 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		tutorPanel.setVisible(true);
 	}
 
-	private FlowPanel getLibraryPanel(LibraryFilesTO libraryFilesTO) {
+	private FlowPanel getLibraryPanel(List<CourseDetailsLibrary> courseDetailsLibraries) {
 		FlowPanel libraryPanel = new FlowPanel();
-		libraryPanel.add(new GenericCourseLibraryView(bus, session, placeCtrl, libraryFilesTO));
+		libraryPanel.add(new GenericCourseLibraryView(bus, session, placeCtrl, courseDetailsLibraries));
+		return libraryPanel;
+	}
 
+	private FlowPanel getLibraryPanelOld(LibraryFilesTO libraryFilesTO) {
+		FlowPanel libraryPanel = new FlowPanel();
+		libraryPanel.add(new GenericCourseLibraryOldView(bus, session, placeCtrl, libraryFilesTO));
 		return libraryPanel;
 	}
 
@@ -391,6 +404,12 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 
 		for (CourseDetailsSection courseDetailsSection : courseClassTO.getCourseDetailsSections()) {
 			infoPanel.add(getInfoPanel(courseDetailsSection.getTitle(), courseDetailsSection.getText()));
+		}
+		
+		if(infoPanel.getWidgetCount() == 0){
+			for (InfoTO infoTO : courseDetails.getInfos()) {
+				infoPanel.add(getInfoPanel(infoTO.getType(), infoTO.getText()));
+			}
 		}
 		
 		return infoPanel;
@@ -509,6 +528,12 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 
 		for (CourseDetailsHint courseDetailsHint : courseClassTO.getCourseDetailsHints()) {
 			hintsPanel.add(getHintPanel(courseDetailsHint.getFontAwesomeClassName(), courseDetailsHint.getText()));
+		}
+		
+		if(hintsPanel.getWidgetCount() == 0){
+			for (HintTO hintTO : courseDetails.getHints()) {
+				hintsPanel.add(getHintPanel(hintTO.getType(), hintTO.getName()));
+			}
 		}
 
 		return hintsPanel;

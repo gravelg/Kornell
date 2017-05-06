@@ -15,6 +15,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -36,6 +37,7 @@ import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseDetailsHintsTO;
 import kornell.core.to.CourseDetailsLibrariesTO;
 import kornell.core.to.CourseDetailsSectionsTO;
+import kornell.core.util.StringUtils;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
@@ -81,7 +83,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	@UiField
 	FlowPanel librariesFieldPanel;
 	@UiField
-	GenericAssetsFormView assetModal;
+	GenericAssetFormView assetModal;
 
 	private Presenter presenter;
 	private Map<String, String> info;
@@ -185,53 +187,6 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		return section;
 	}
 
-	private FlowPanel getButtonsBar(String assetType, AssetEntity assetEntity, int entityCount, ClickHandler editClickHandler, ClickHandler deleteClickHandler) {
-		FlowPanel buttonsBar = new FlowPanel();
-		buttonsBar.addStyleName("buttonsBar");
-
-		Tooltip tooltipDelete = new Tooltip("Excluir");
-		tooltipDelete.setPlacement(Placement.TOP);
-		Button btnDelete = new Button();
-		btnDelete.addClickHandler(deleteClickHandler);
-		btnDelete.addStyleName("btnSelected");
-		WizardUtils.createIcon(btnDelete, "fa-trash");
-		tooltipDelete.add(btnDelete);
-		buttonsBar.add(tooltipDelete);
-		
-		Tooltip tooltipEdit = new Tooltip("Editar");
-		tooltipEdit.setPlacement(Placement.TOP);
-		Button btnEdit = new Button();
-		btnEdit.addClickHandler(editClickHandler);
-		btnEdit.addStyleName("btnAction");
-		WizardUtils.createIcon(btnEdit, "fa-pencil-square-o");
-		tooltipEdit.add(btnEdit);
-		buttonsBar.add(tooltipEdit);
-		
-		if((assetEntity.getIndex() + 1) != entityCount) {
-			Tooltip tooltipMoveDown = new Tooltip("Mover para baixo");
-			tooltipMoveDown.setPlacement(Placement.TOP);
-			Button btnMoveDown = new Button();
-			btnMoveDown.addStyleName("btnSelected");
-			WizardUtils.createIcon(btnMoveDown, "fa-arrow-down");
-			tooltipMoveDown.add(btnMoveDown);
-			buttonsBar.add(tooltipMoveDown);
-			btnMoveDown.addClickHandler(buildMoveClickHandler(assetType, assetEntity, "Down"));
-		}
-		
-		if(assetEntity.getIndex() != 0) {
-			Tooltip tooltipMoveUp = new Tooltip("Mover para cima");
-			tooltipMoveUp.setPlacement(Placement.TOP);
-			Button btnMoveUp = new Button();
-			btnMoveUp.addStyleName("btnSelected");
-			WizardUtils.createIcon(btnMoveUp, "fa-arrow-up");
-			tooltipMoveUp.add(btnMoveUp);
-			buttonsBar.add(tooltipMoveUp);
-			btnMoveUp.addClickHandler(buildMoveClickHandler(assetType, assetEntity, "Up"));
-		}
-
-		return buttonsBar;
-	}
-
 	@Override
 	public void initCourseDetailsHints(CourseDetailsHintsTO courseDetailsHintsTO) {
 		hintsSubTitle.setText(info.get("hintsSubTitle"));
@@ -297,7 +252,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		librariesFieldPanel.clear();
 		this.courseDetailsLibraries = courseDetailsLibrariesTO.getCourseDetailsLibraries();
 		for(CourseDetailsLibrary courseDetailsLibrary : courseDetailsLibraries){
-			hintsFieldPanel.add(buildLibraryItem(courseDetailsLibrary, courseDetailsLibraries.size()));
+			librariesFieldPanel.add(buildLibraryItem(courseDetailsLibrary, courseDetailsLibraries.size()));
 		}
 		sectionLoaded();
 	}
@@ -317,14 +272,14 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 				session.courseDetailsLibrary(courseDetailsLibrary.getUUID()).delete(new Callback<CourseDetailsLibrary>() {
 					@Override
 					public void ok(CourseDetailsLibrary to) {
-						KornellNotification.show("Dica excluída com sucesso.");
+						KornellNotification.show("Arquivo excluído com sucesso.");
 						presenter.initCourseDetailsLibraries();
 						bus.fireEvent(new ShowPacifierEvent(false));
 					}
 
 					@Override
 					public void internalServerError(KornellErrorTO kornellErrorTO) {
-						KornellNotification.show("Erro ao tentar excluir a dica.", AlertType.ERROR);
+						KornellNotification.show("Erro ao tentar excluir o arquivo.", AlertType.ERROR);
 						bus.fireEvent(new ShowPacifierEvent(false));
 					}
 				});
@@ -339,8 +294,83 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		library.add(title);
 
 		library.add(getButtonsBar(AdminAssetsPresenter.LIBRARY, (AssetEntity) courseDetailsLibrary, count, editClickHandler, deleteClickHandler));
-
+		
+		Icon icon = new Icon();
+		icon.addStyleName("fa " + courseDetailsLibrary.getFontAwesomeClassName());
+		
+		Label text = new Label();
+		String description = courseDetailsLibrary.getDescription();
+		description = (description == null) ? "" : description;
+		text.getElement().setInnerHTML(icon.asWidget().getElement().getString() + description);
+		text.addStyleName("assetText hintText");
+		library.add(text);
+		
 		return library;
+	}
+
+	private FlowPanel getButtonsBar(String assetType, AssetEntity assetEntity, int entityCount, ClickHandler editClickHandler, ClickHandler deleteClickHandler) {
+		FlowPanel buttonsBar = new FlowPanel();
+		buttonsBar.addStyleName("buttonsBar");
+		
+		if(AdminAssetsPresenter.LIBRARY.equals(assetType)){
+			Tooltip tooltipMoveUp = new Tooltip("Baixar");
+			tooltipMoveUp.setPlacement(Placement.TOP);
+			Button btnMoveUp = new Button();
+			btnMoveUp.addStyleName("btnSelected");
+			WizardUtils.createIcon(btnMoveUp, "fa-download");
+			tooltipMoveUp.add(btnMoveUp);
+			buttonsBar.add(tooltipMoveUp);
+			btnMoveUp.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					CourseDetailsLibrary cdl = (CourseDetailsLibrary) assetEntity;
+					String fileName = StringUtils.mkurl(cdl.getPath(), cdl.getTitle());
+					Window.open(fileName,"_blank","");	
+				}
+			});
+		}
+
+		Tooltip tooltipDelete = new Tooltip("Excluir");
+		tooltipDelete.setPlacement(Placement.TOP);
+		Button btnDelete = new Button();
+		btnDelete.addClickHandler(deleteClickHandler);
+		btnDelete.addStyleName("btnSelected");
+		WizardUtils.createIcon(btnDelete, "fa-trash");
+		tooltipDelete.add(btnDelete);
+		buttonsBar.add(tooltipDelete);
+		
+		Tooltip tooltipEdit = new Tooltip("Editar");
+		tooltipEdit.setPlacement(Placement.TOP);
+		Button btnEdit = new Button();
+		btnEdit.addClickHandler(editClickHandler);
+		btnEdit.addStyleName("btnAction");
+		WizardUtils.createIcon(btnEdit, "fa-pencil-square-o");
+		tooltipEdit.add(btnEdit);
+		buttonsBar.add(tooltipEdit);
+		
+		if((assetEntity.getIndex() + 1) != entityCount) {
+			Tooltip tooltipMoveDown = new Tooltip("Mover para baixo");
+			tooltipMoveDown.setPlacement(Placement.TOP);
+			Button btnMoveDown = new Button();
+			btnMoveDown.addStyleName("btnSelected");
+			WizardUtils.createIcon(btnMoveDown, "fa-arrow-down");
+			tooltipMoveDown.add(btnMoveDown);
+			buttonsBar.add(tooltipMoveDown);
+			btnMoveDown.addClickHandler(buildMoveClickHandler(assetType, assetEntity, "Down"));
+		}
+		
+		if(assetEntity.getIndex() != 0) {
+			Tooltip tooltipMoveUp = new Tooltip("Mover para cima");
+			tooltipMoveUp.setPlacement(Placement.TOP);
+			Button btnMoveUp = new Button();
+			btnMoveUp.addStyleName("btnSelected");
+			WizardUtils.createIcon(btnMoveUp, "fa-arrow-up");
+			tooltipMoveUp.add(btnMoveUp);
+			buttonsBar.add(tooltipMoveUp);
+			btnMoveUp.addClickHandler(buildMoveClickHandler(assetType, assetEntity, "Up"));
+		}
+
+		return buttonsBar;
 	}
 
 	private FlowPanel buildFileUploadPanel(final String fileName, final String contentType, String label, boolean exists) {

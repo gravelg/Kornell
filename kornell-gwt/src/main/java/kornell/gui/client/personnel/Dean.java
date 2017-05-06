@@ -110,7 +110,7 @@ public class Dean implements LogoutEventHandler, UnreadMessagesPerThreadFetchedE
 		link.id = 'icon';
 		link.rel = 'shortcut icon';
 		link.type = 'image/x-icon';
-		link.href = url;
+		link.href = url + "?v=" + new Date().getTime();
 		if (oldLink) {
 			$wnd.document.head.removeChild(oldLink);
 		}

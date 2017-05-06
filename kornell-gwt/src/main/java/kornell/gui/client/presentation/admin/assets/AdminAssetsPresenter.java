@@ -50,7 +50,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	private ViewFactory viewFactory;
 	private static ThumbnailEntity entity;
 	private CourseDetailsEntityType courseDetailsEntityType;
-	private static String entityName;
+	public static String entityName;
 	private static  String entityUUID;
 	private Map<String, String> info;
 	private static String filePath;
@@ -206,7 +206,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 
 	@Override
 	public void getUploadURL(final String contentType, final String elementId, final String fileName) {
-		session.assets().getUploadURL(entityName, entityUUID, fileName, new Callback<String>() {
+		session.assets().getUploadURL(entityName, entityUUID, fileName, "", new Callback<String>() {
 			@Override
 			public void ok(String url) {
 				getFile(elementId, contentType, url, fileName);

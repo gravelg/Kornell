@@ -33,25 +33,27 @@ object S3Service {
   
   def getContentType(fileName: String) = {
     fileName.split('.')(1) match {
-      case "png" => "image/png"
-      case "jpg" => "image/jpg"
-      case "ico" => "image/x-icon"
+      case "png"  => "image/png"
+      case "jpg"  => "image/jpg"
+      case "jpeg" => "image/jpg"
+      case "ico"  => "image/x-icon"
+      case _      => "application/octet-stream"
     }
   }
   
-  def getCourseUploadUrl(courseUUID: String, fileName: String) = {
-    val path = mkurl(PREFIX, COURSES, courseUUID, fileName)
-    getUploadUrl(CourseRepo(courseUUID).get.getInstitutionUUID, path, getContentType(fileName))
+  def getCourseUploadUrl(courseUUID: String, fileName: String, path: String) = {
+    val fullPath = mkurl(PREFIX, COURSES, courseUUID, path, fileName)
+    getUploadUrl(CourseRepo(courseUUID).get.getInstitutionUUID, fullPath, getContentType(fileName))
   }
   
-  def getCourseVersionUploadUrl(courseVersionUUID: String, fileName: String) = {
-    val path = mkurl(PREFIX, COURSE_VERSIONS, courseVersionUUID, fileName)
-    getUploadUrl(CoursesRepo.byCourseVersionUUID(courseVersionUUID).get.getInstitutionUUID, path, getContentType(fileName))
+  def getCourseVersionUploadUrl(courseVersionUUID: String, fileName: String, path: String) = {
+    val fullPath = mkurl(PREFIX, COURSE_VERSIONS, courseVersionUUID, path, fileName)
+    getUploadUrl(CoursesRepo.byCourseVersionUUID(courseVersionUUID).get.getInstitutionUUID, fullPath, getContentType(fileName))
   }
   
-  def getCourseClassUploadUrl(courseClassUUID: String, fileName: String) = {
-    val path = mkurl(PREFIX, COURSE_CLASSES, courseClassUUID, fileName)
-    getUploadUrl(CourseClassRepo(courseClassUUID).get.getInstitutionUUID, path, getContentType(fileName))
+  def getCourseClassUploadUrl(courseClassUUID: String, fileName: String, path: String) = {
+    val fullPath = mkurl(PREFIX, COURSE_CLASSES, courseClassUUID, path, fileName)
+    getUploadUrl(CourseClassRepo(courseClassUUID).get.getInstitutionUUID, fullPath, getContentType(fileName))
   }
   
   def getInstitutionUploadUrl(institutionUUID: String, fileName: String) = {
