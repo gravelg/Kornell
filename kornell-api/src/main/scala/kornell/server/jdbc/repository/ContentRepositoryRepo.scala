@@ -10,7 +10,7 @@ class ContentRepositoryRepo(uuid: String) {
   def update(repo: ContentRepository): ContentRepository = {
     sql"""
       update ContentRepository set
-      | repositoryType = ${repo.getRepositoryType},
+      | repositoryType = ${repo.getRepositoryType.toString},
       | accessKeyId = ${repo.getAccessKeyId},
       | secretAccessKey = ${repo.getSecretAccessKey},
       | bucketName = ${repo.getBucketName},

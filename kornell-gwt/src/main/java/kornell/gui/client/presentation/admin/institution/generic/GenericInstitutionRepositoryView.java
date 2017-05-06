@@ -226,17 +226,17 @@ public class GenericInstitutionRepositoryView extends Composite {
 			ContentRepository contentRepository = entityFactory.newContentRepository().as();
 			contentRepository.setUUID(institution.getAssetsRepositoryUUID());
 			if (repositoryTypes.getSelectedValue().equals(RepositoryType.S3.toString())) {
-				contentRepository.setAccessKeyId(accessKeyId.getFieldPersistText());
-				contentRepository.setSecretAccessKey(secretAccessKey.getFieldPersistText());
-				contentRepository.setBucketName(bucketName.getFieldPersistText());
-				contentRepository.setPrefix(prefix.getFieldPersistText());
-				contentRepository.setRegion(region.getFieldPersistText());
 				contentRepository.setRepositoryType(RepositoryType.S3);
 			} else {
-				contentRepository.setPrefix(fsPrefix.getFieldPersistText());
-				contentRepository.setPath(fsPath.getFieldPersistText());
 				contentRepository.setRepositoryType(RepositoryType.FS);
 			}
+			contentRepository.setAccessKeyId(accessKeyId.getFieldPersistText());
+			contentRepository.setSecretAccessKey(secretAccessKey.getFieldPersistText());
+			contentRepository.setBucketName(bucketName.getFieldPersistText());
+			contentRepository.setPrefix(prefix.getFieldPersistText());
+			contentRepository.setRegion(region.getFieldPersistText());
+			contentRepository.setPrefix(fsPrefix.getFieldPersistText());
+			contentRepository.setPath(fsPath.getFieldPersistText());
 			
 			InstitutionHostNamesTO institutionHostNamesTO = toFactory.newInstitutionHostNamesTO().as();
 			List<String> institutionHostNames = new ArrayList<String>();

@@ -145,20 +145,22 @@ class EnrollmentResource(uuid: String) {
       
       //initialize for each actom
       eContents.getChildren.asScala.foreach { topic =>  
-        topic.getTopic.getChildren.asScala.foreach { externalPage =>  
-          val key = externalPage.getExternalPage.getKey
-          val actomEntries = Option(enrollmentEntries.getActomEntriesMap.get(key)) match {
-            case Some(ae) => ae
-            case None => {
-              val entriesMap = new HashMap[String,String]()
-              val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
-              entriesMap.putAll(launchedMap)
-              val ae = Entities.newActomEntries(enrollment.getUUID, key, entriesMap)
-              enrollmentEntries.getActomEntriesMap.put(key, ae)
-              ae
+        if(topic.getTopic != null){
+          topic.getTopic.getChildren.asScala.foreach { externalPage =>  
+            val key = externalPage.getExternalPage.getKey
+            val actomEntries = Option(enrollmentEntries.getActomEntriesMap.get(key)) match {
+              case Some(ae) => ae
+              case None => {
+                val entriesMap = new HashMap[String,String]()
+                val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
+                entriesMap.putAll(launchedMap)
+                val ae = Entities.newActomEntries(enrollment.getUUID, key, entriesMap)
+                enrollmentEntries.getActomEntriesMap.put(key, ae)
+                ae
+              }
             }
-          }
-        }  
+          }  
+        }
       }
     }
 

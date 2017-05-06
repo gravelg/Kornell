@@ -178,9 +178,6 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 				buildAssetsView();
 			}
 		});
-		buildAssetsView();
-		editTab.setActive(false);
-		assetsTab.setActive(true);
 		
 		courseFields.setVisible(false);
 		this.fields = new ArrayList<KornellFormFieldWrapper>();

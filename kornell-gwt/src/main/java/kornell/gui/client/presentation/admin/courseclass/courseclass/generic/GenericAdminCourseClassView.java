@@ -295,7 +295,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			});
 			tabsPanel.add(adminsTab);
 
-			
 			assetsTab.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
@@ -318,11 +317,12 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	public void setTabsVisibility() {
 		enrollTab.asTabLink().setVisible(session.isCourseClassAdmin());
 		configTab.asTabLink().setVisible(session.isCourseClassAdmin());
-		reportsTab.asTabLink().setVisible(
-				session.isCourseClassAdmin() || session.isCourseClassObserver() || session.isCourseClassTutor());
+		reportsTab.asTabLink().setVisible(session.isCourseClassAdmin() || session.isCourseClassObserver() || session.isCourseClassTutor());
 		messagesTab.asTabLink().setVisible(session.isCourseClassAdmin() || session.isCourseClassTutor());
-		if (adminsTab != null)
+		assetsTab.asTabLink().setVisible(session.isInstitutionAdmin());
+		if (adminsTab != null){
 			adminsTab.asTabLink().setVisible(session.isInstitutionAdmin());
+		}
 	}
 
 	@Override
@@ -337,8 +337,11 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			reportsView = null;
 			messagesTab.setActive(false);
 			messagesView = null;
-			if (adminsTab != null)
+			if (adminsTab != null){
 				adminsTab.setActive(false);
+			}
+			assetsTab.setActive(false);
+			assetsPanel.clear();
 			enrollmentsTab.setActive(true);
 			enrollTab.setActive(false);
 		}

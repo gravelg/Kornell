@@ -10,6 +10,7 @@ import com.github.gwtbootstrap.client.ui.Modal;
 import com.github.gwtbootstrap.client.ui.Tab;
 import com.github.gwtbootstrap.client.ui.TabPanel;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -187,9 +188,6 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 				buildAssetsView();
 			}
 		});
-		buildAssetsView();
-		editTab.setActive(false);
-		assetsTab.setActive(true);
 		
 		courseVersionFields.setVisible(false);
 		this.fields = new ArrayList<KornellFormFieldWrapper>();
@@ -266,9 +264,21 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		
 		courseVersionFields.add(formHelper.getImageSeparator());
 
-		courseVersionFields.setVisible(true);
+		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+			@Override
+			public void execute() {
+				showNavBar(!isCreationMode);
+				courseVersionFields.setVisible(true);
+			}
+		});
 
 	}
+
+	private static native void showNavBar(boolean show) /*-{
+		if($wnd.document.getElementsByClassName("nav-tabs") && $wnd.document.getElementsByClassName("nav-tabs")[0]){
+			$wnd.document.getElementsByClassName("nav-tabs")[0].style.display = (show?"block":"none");
+		}
+	}-*/;
 
 
 	public void buildAssetsView() {
