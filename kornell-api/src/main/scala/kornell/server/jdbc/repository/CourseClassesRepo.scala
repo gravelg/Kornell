@@ -26,6 +26,12 @@ import com.sun.xml.internal.bind.v2.TODO
 import kornell.core.entity.Course
 import java.util.ArrayList
 import kornell.core.entity.CourseDetailsEntityType
+import scala.collection.JavaConverters._
+import kornell.core.entity.CourseDetailsSection
+import scala.collection.mutable.Buffer
+import kornell.core.entity.AssetEntity
+import kornell.core.entity.CourseDetailsHint
+import kornell.core.entity.CourseDetailsLibrary
 
 class CourseClassesRepo {
 }
@@ -209,33 +215,59 @@ object CourseClassesRepo {
   
   def bindClassroomDetails(courseClassTO: CourseClassTO){
     val courseUUID = courseClassTO.getCourseVersionTO.getCourseTO.getCourse.getUUID
-    val sectionsCourse = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE)
-    val hintsCourse = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE)
-    val libraryFilesCourse = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE)
-    
     val courseVersionUUID = courseClassTO.getCourseVersionTO.getCourseVersion.getUUID
-    val sectionsCourseVersion = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_VERSION)
-    val hintsCourseVersion = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_VERSION)
-    val libraryFilesCourseVersion = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_VERSION)
-    
     val courseClassUUID = courseClassTO.getCourseClass.getUUID
-    val sectionsCourseClass = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_CLASS)
-    val hintsCourseClass = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_CLASS)
-    val libraryFilesCourseClass = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE_CLASS)
     
-    sectionsCourse.getCourseDetailsSections.addAll(sectionsCourseVersion.getCourseDetailsSections)
-    sectionsCourse.getCourseDetailsSections.addAll(sectionsCourseClass.getCourseDetailsSections)
+    courseClassTO.setCourseDetailsSections(mergeSections(courseUUID, courseVersionUUID, courseClassUUID))
+    courseClassTO.setCourseDetailsHints(mergeHints(courseUUID, courseVersionUUID, courseClassUUID))
+    courseClassTO.setCourseDetailsLibraries(mergeLibraries(courseUUID, courseVersionUUID, courseClassUUID))
+  }
+  
+  def mergeSections(courseUUID: String, courseVersionUUID: String, courseClassUUID: String) = {
+    val sectionsCourse = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsSections.asScala.asInstanceOf[Buffer[AssetEntity]]
+    val sectionsCourseVersion = CourseDetailsSectionsRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsSections.asScala.asInstanceOf[Buffer[AssetEntity]]
+    val sectionsCourseClass = CourseDetailsSectionsRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsSections.asScala.asInstanceOf[Buffer[AssetEntity]]
+    mergeAssets(sectionsCourse, sectionsCourseVersion, sectionsCourseClass).asInstanceOf[Buffer[CourseDetailsSection]].asJava
+  }
+  
+  def mergeHints(courseUUID: String, courseVersionUUID: String, courseClassUUID: String) = {
+    val hintsCourse = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsHints.asScala.asInstanceOf[Buffer[AssetEntity]]
+    val hintsCourseVersion = CourseDetailsHintsRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsHints.asScala.asInstanceOf[Buffer[AssetEntity]]
+    val hintsCourseClass = CourseDetailsHintsRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsHints.asScala.asInstanceOf[Buffer[AssetEntity]]
+    mergeAssets(hintsCourse, hintsCourseVersion, hintsCourseClass).asInstanceOf[Buffer[CourseDetailsHint]].asJava
+  }
+  
+  def mergeLibraries(courseUUID: String, courseVersionUUID: String, courseClassUUID: String) = {      
+    val libraryFilesCourse = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsLibraries.asScala.asInstanceOf[Buffer[AssetEntity]]
+    val libraryFilesCourseVersion = CourseDetailsLibrariesRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsLibraries.asScala.asInstanceOf[Buffer[AssetEntity]]
+    val libraryFilesCourseClass = CourseDetailsLibrariesRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsLibraries.asScala.asInstanceOf[Buffer[AssetEntity]]
+    mergeAssets(libraryFilesCourse, libraryFilesCourseVersion, libraryFilesCourseClass).asInstanceOf[Buffer[CourseDetailsLibrary]].asJava
+  }
+  
+  def mergeAssets(assetsCourse: Buffer[AssetEntity], assetsCourseVersion: Buffer[AssetEntity], assetsCourseClass: Buffer[AssetEntity]) = {
     
-    hintsCourse.getCourseDetailsHints.addAll(hintsCourseVersion.getCourseDetailsHints)
-    hintsCourse.getCourseDetailsHints.addAll(hintsCourseClass.getCourseDetailsHints)
+    var assetsCourseVersionNew = assetsCourseVersion
+    var assetsCourseClassNew = assetsCourseClass
     
-    libraryFilesCourse.getCourseDetailsLibraries.addAll(libraryFilesCourseVersion.getCourseDetailsLibraries)
-    libraryFilesCourse.getCourseDetailsLibraries.addAll(libraryFilesCourseClass.getCourseDetailsLibraries)
+    val assetsCourseWithVersion = assetsCourse.map { sc => {
+        val assetCV = assetsCourseVersion.filter { _.getTitle.equals(sc.getTitle) }
+        if(assetCV.size > 0){
+          assetsCourseVersionNew = assetsCourseVersionNew.filterNot { _.getTitle.equals(sc.getTitle) }
+          assetCV.head
+        } else sc
+      } 
+    }
     
-    courseClassTO.setCourseDetailsSections(sectionsCourse.getCourseDetailsSections)
-    courseClassTO.setCourseDetailsHints(hintsCourse.getCourseDetailsHints)
-    courseClassTO.setCourseDetailsLibraries(libraryFilesCourse.getCourseDetailsLibraries)
+    val assetsCourseWithClass = assetsCourseWithVersion.map { sc => {
+        val assetCC = assetsCourseClass.filter { _.getTitle.equals(sc.getTitle) }
+        if(assetCC.size > 0){
+          assetsCourseClassNew = assetsCourseClassNew.filterNot { _.getTitle.equals(sc.getTitle) }
+          assetCC.head
+        } else sc
+      } 
+    }
     
+    (assetsCourseWithClass ++ assetsCourseVersionNew ++ assetsCourseClassNew)
   }
 
   def byPersonAndInstitution(personUUID: String, institutionUUID: String) = {

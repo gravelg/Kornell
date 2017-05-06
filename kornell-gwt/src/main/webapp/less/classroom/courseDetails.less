@@ -443,7 +443,8 @@
 			clear: both;
 			.fileWrapper{
 				@fileWrapperHeight: 70px;
-				height: @fileWrapperHeight;
+				height: auto;
+				min-height: @fileWrapperHeight;
 				line-height: @fileWrapperHeight;
 				background-color: @contentBoxBackgroundColor;
 				margin-top: @libraryPanelMargin / 2;
@@ -462,7 +463,6 @@
 				.pnlFileName{
 					float: left;
 					width: @pnlFileNameWidth;
-					height: @fileWrapperHeight - @libraryPanelMargin;
 					padding: @libraryPanelMargin / 2;
 					.fileName{
 						line-height: 26px;

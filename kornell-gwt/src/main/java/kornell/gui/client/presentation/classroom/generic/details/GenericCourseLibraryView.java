@@ -114,7 +114,6 @@ public class GenericCourseLibraryView extends Composite {
 	private FlowPanel getFiles(Button btn) {
 		if (courseDetailsLibraries.size() > 0) {
 			if(btn == null){
-			    Collections.sort(courseDetailsLibraries, new FileIndexComparator());
 	    		order = ORDER_ASCENDING;
 			} else if(btnIcon.equals(btn)){
 			    Collections.sort(courseDetailsLibraries, new FileTypeComparator());
@@ -263,6 +262,10 @@ public class GenericCourseLibraryView extends Composite {
 		Label publishingDate = new Label(formHelper.dateToString(fileTO.getUploadDate()));
 		publishingDate.addStyleName("publishingDate");
 		fileWrapper.add(publishingDate);
+
+		FlowPanel clearPanel = new FlowPanel();
+		clearPanel.addStyleName("clear");
+		fileWrapper.add(clearPanel);
 		
 		return fileWrapper;
 	}
@@ -279,15 +282,6 @@ public class GenericCourseLibraryView extends Composite {
 			if(object1.getTitle().compareTo(object2.getTitle()) == 0)
 			    return object1.getDescription().compareTo(object2.getDescription());
 			return object1.getTitle().compareTo(object2.getTitle());
-		}
-	}
-
-	private final class FileIndexComparator implements Comparator<CourseDetailsLibrary> {
-		@Override
-		public int compare(final CourseDetailsLibrary object1, final CourseDetailsLibrary object2) {
-			if(object1.getIndex().compareTo(object2.getIndex()) == 0)
-			    return object1.getTitle().compareTo(object2.getTitle());
-			return object1.getIndex().compareTo(object2.getIndex());
 		}
 	}
 
