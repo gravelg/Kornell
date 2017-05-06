@@ -15,6 +15,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 
 import kornell.api.client.KornellSession;
+import kornell.core.entity.InstitutionType;
 import kornell.core.lom.ExternalPage;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.GenericClientFactoryImpl;
@@ -87,7 +88,7 @@ public class ExternalPageView extends Uidget implements ShowChatDockEventHandler
 	private void placeIframe() {
 		iframe.setPropertyString("width", "100%");
 		int h = (Window.getClientHeight() - Positioning.NORTH_BAR);
-		if(session.getCurrentCourseClass() != null && !session.getCurrentCourseClass().isEnrolledOnCourseVersion()){
+		if(session.getCurrentCourseClass() != null && !(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()))){
 			h -= Positioning.SOUTH_BAR;
 		}
 		String height = h + "px";

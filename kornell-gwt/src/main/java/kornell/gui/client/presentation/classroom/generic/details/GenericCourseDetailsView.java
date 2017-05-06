@@ -402,8 +402,10 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		FlowPanel infoPanel = new FlowPanel();
 		infoPanel.addStyleName("infoPanel");
 
-		for (CourseDetailsSection courseDetailsSection : courseClassTO.getCourseDetailsSections()) {
-			infoPanel.add(getInfoPanel(courseDetailsSection.getTitle(), courseDetailsSection.getText()));
+		if(courseClassTO.getCourseDetailsSections() != null){
+			for (CourseDetailsSection courseDetailsSection : courseClassTO.getCourseDetailsSections()) {
+				infoPanel.add(getInfoPanel(courseDetailsSection.getTitle(), courseDetailsSection.getText()));
+			}
 		}
 		
 		if(infoPanel.getWidgetCount() == 0){
@@ -526,8 +528,10 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		FlowPanel hintsPanel = new FlowPanel();
 		hintsPanel.addStyleName("hintsPanel");
 
-		for (CourseDetailsHint courseDetailsHint : courseClassTO.getCourseDetailsHints()) {
-			hintsPanel.add(getHintPanel(courseDetailsHint.getFontAwesomeClassName(), courseDetailsHint.getText()));
+		if(courseClassTO.getCourseDetailsHints() != null){
+			for (CourseDetailsHint courseDetailsHint : courseClassTO.getCourseDetailsHints()) {
+				hintsPanel.add(getHintPanel(courseDetailsHint.getFontAwesomeClassName(), courseDetailsHint.getText()));
+			}
 		}
 		
 		if(hintsPanel.getWidgetCount() == 0){
