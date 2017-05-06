@@ -14,7 +14,7 @@ public class CourseDetailsSectionsClient extends RESTClient {
 	}
 	
 	public void create(CourseDetailsSection courseDetailsSection, Callback<CourseDetailsSection> callback) {
-		POST("courseDetailsSections").withContentType(CourseDetailsSectionsTO.TYPE).withEntityBody(courseDetailsSection).go(callback);
+		POST("courseDetailsSections").withContentType(CourseDetailsSection.TYPE).withEntityBody(courseDetailsSection).go(callback);
 	}
 	
 }

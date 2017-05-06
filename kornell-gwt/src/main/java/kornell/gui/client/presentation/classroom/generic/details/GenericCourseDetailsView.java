@@ -26,6 +26,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClassState;
+import kornell.core.entity.CourseDetailsHint;
+import kornell.core.entity.CourseDetailsSection;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.entity.InstitutionType;
 import kornell.core.lom.Actom;
@@ -386,9 +388,11 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 	private FlowPanel getInfosPanel() {
 		FlowPanel infoPanel = new FlowPanel();
 		infoPanel.addStyleName("infoPanel");
-		for (InfoTO infoTO : courseDetails.getInfos()) {
-			infoPanel.add(getInfoPanel(infoTO.getType(), infoTO.getText()));
+
+		for (CourseDetailsSection courseDetailsSection : courseClassTO.getCourseDetailsSections()) {
+			infoPanel.add(getInfoPanel(courseDetailsSection.getTitle(), courseDetailsSection.getText()));
 		}
+		
 		return infoPanel;
 	}
 
@@ -503,8 +507,8 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		FlowPanel hintsPanel = new FlowPanel();
 		hintsPanel.addStyleName("hintsPanel");
 
-		for (HintTO hintTO : courseDetails.getHints()) {
-			hintsPanel.add(getHintPanel(hintTO.getType(), hintTO.getName()));
+		for (CourseDetailsHint courseDetailsHint : courseClassTO.getCourseDetailsHints()) {
+			hintsPanel.add(getHintPanel(courseDetailsHint.getFontAwesomeClassName(), courseDetailsHint.getText()));
 		}
 
 		return hintsPanel;
@@ -512,10 +516,10 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 
 	private FlowPanel getHintPanel(String fontAwesomeClass, String hintText) {
 		FlowPanel hint = new FlowPanel();
-		hint.addStyleName("hintDetails ");
+		hint.addStyleName("hintDetails");
 		
 		Icon icon = new Icon();
-		icon.addStyleName(fontAwesomeClass);
+		icon.addStyleName("fa " + fontAwesomeClass);
 		hint.add(icon);
 		
 		Label lblHintText = new Label(hintText);

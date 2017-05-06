@@ -43,6 +43,27 @@ class CourseDetailsHintsResource {
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
+   
+   @POST
+   @Path("/{entityType}/{entityUUID}/moveUp/{index}")
+   def moveUp(@PathParam("entityType") entityType: String,
+       @PathParam("entityUUID") entityUUID: String,
+       @PathParam("index") index: String) = {
+    CourseDetailsHintsRepo.moveUp(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+   
+   @POST
+   @Path("/{entityType}/{entityUUID}/moveDown/{index}")
+   def moveDown(@PathParam("entityType") entityType: String,
+       @PathParam("entityUUID") entityUUID: String,
+       @PathParam("index") index: String) = {
+    CourseDetailsHintsRepo.moveDown(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+   
 }
 
 object CourseDetailsHintsResource {

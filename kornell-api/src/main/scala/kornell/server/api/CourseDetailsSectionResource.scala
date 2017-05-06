@@ -31,6 +31,15 @@ class CourseDetailsSectionResource(uuid: String) {
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
+
+  @DELETE
+  @Produces(Array(CourseDetailsSection.TYPE))
+  def delete() = {
+    CourseDetailsSectionRepo(uuid).delete
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+   
 }
 
 object CourseDetailsSectionResource {

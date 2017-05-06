@@ -1,16 +1,20 @@
 package kornell.gui.client.presentation.admin.assets.generic;
 
+import java.util.List;
 import java.util.Map;
 
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.FileUpload;
+import com.github.gwtbootstrap.client.ui.Icon;
 import com.github.gwtbootstrap.client.ui.Tooltip;
+import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.github.gwtbootstrap.client.ui.constants.Placement;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -19,19 +23,24 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
+import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.AssetEntity;
 import kornell.core.entity.CertificateDetails;
+import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseDetailsHint;
 import kornell.core.entity.CourseDetailsLibrary;
 import kornell.core.entity.CourseDetailsSection;
 import kornell.core.entity.EntityFactory;
+import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseDetailsHintsTO;
 import kornell.core.to.CourseDetailsLibrariesTO;
 import kornell.core.to.CourseDetailsSectionsTO;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
-import kornell.gui.client.util.forms.formfield.PeopleMultipleSelect;
+import kornell.gui.client.util.view.KornellNotification;
 
 public class GenericAdminAssetsView extends Composite implements AdminAssetsView {
 	interface MyUiBinder extends UiBinder<Widget, GenericAdminAssetsView> {
@@ -41,9 +50,10 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
 
 	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
+	int sectionsCount, sectionsLoaded = 0;
 	
-	PeopleMultipleSelect peopleMultipleSelect;
-
+	@UiField
+	FlowPanel assetsWrapper;
 	@UiField
 	Label thumbSubTitle;
 	@UiField
@@ -70,11 +80,23 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	Label librariesSubTitle;
 	@UiField
 	FlowPanel librariesFieldPanel;
+	@UiField
+	GenericAssetsFormView assetModal;
 
 	private Presenter presenter;
 	private Map<String, String> info;
+	private EventBus bus;
+	private KornellSession session;
+	private CourseDetailsEntityType courseDetailsEntityType;
+	private String entityUUID;
+	private List<CourseDetailsSection> courseDetailsSections;
+	private List<CourseDetailsHint> courseDetailsHints;
+	private List<CourseDetailsLibrary> courseDetailsLibraries;
 	
 	public GenericAdminAssetsView(KornellSession session, EventBus bus) {
+		this.bus = bus;
+		this.session = session;
+		sectionsCount = 5;
 		initWidget(uiBinder.createAndBindUi(this));
 		WizardUtils.createIcon(sectionsAddButton, "fa-plus-circle");
 		WizardUtils.createIcon(hintsAddButton, "fa-plus-circle");
@@ -82,8 +104,14 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	}
 
 	@Override
-	public void initData() {
+	public void initData(CourseDetailsEntityType entityType, String entityUUID) {
+		this.courseDetailsEntityType = entityType;
+		this.entityUUID = entityUUID;
 		info = presenter.getInfo();
+		bus.fireEvent(new ShowPacifierEvent(true));
+		assetsWrapper.addStyleName("shy");
+		sectionsLoaded = 0;
+		assetModal.initializeModal(bus, session, presenter);
 	}
 
 	@Override
@@ -91,6 +119,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		thumbSubTitle.setText(info.get("thumbSubTitle"));
 		thumbFieldPanel.clear();
 		thumbFieldPanel.add(buildFileUploadPanel(AdminAssetsPresenter.THUMB_FILENAME, AdminAssetsPresenter.IMAGE_JPG, AdminAssetsPresenter.THUMB_DESCRIPTION, exists));
+		sectionLoaded();
 	}
 
 	@Override
@@ -98,42 +127,220 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		certificateDetailsSubTitle.setText(info.get("certificateDetailsSubTitle"));
 		certificateDetailsFieldPanel.clear();
 		certificateDetailsFieldPanel.add(buildFileUploadPanel(AdminAssetsPresenter.CERTIFICATE_FILENAME, AdminAssetsPresenter.IMAGE_JPG, AdminAssetsPresenter.CERTIFICATE_DESCRIPTION, certificateDetails.getUUID() != null));
+		sectionLoaded();
 	}
 
 	@Override
 	public void initCourseDetailsSections(CourseDetailsSectionsTO courseDetailsSectionsTO) {
 		sectionsSubTitle.setText(info.get("sectionsSubTitle"));
 		sectionsFieldPanel.clear();
-		for(CourseDetailsSection courseDetailsSection : courseDetailsSectionsTO.getCourseDetailsSections()){
-			buildSectionItem(courseDetailsSection);
+		this.courseDetailsSections = courseDetailsSectionsTO.getCourseDetailsSections();
+		for(CourseDetailsSection courseDetailsSection : courseDetailsSections){
+			sectionsFieldPanel.add(buildSectionItem(courseDetailsSection, courseDetailsSections.size()));
 		}
+		sectionLoaded();
 	}
 
-	private void buildSectionItem(CourseDetailsSection courseDetailsSection) {
+	private FlowPanel buildSectionItem(CourseDetailsSection courseDetailsSection, int count) {
+		ClickHandler editClickHandler = new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				assetModal.initSection(AdminAssetsPresenter.EDIT, (CourseDetailsSection) courseDetailsSection);
+			}
+		};
+		ClickHandler deleteClickHandler = new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				bus.fireEvent(new ShowPacifierEvent(true));
+				session.courseDetailsSection(courseDetailsSection.getUUID()).delete(new Callback<CourseDetailsSection>() {
+					@Override
+					public void ok(CourseDetailsSection to) {
+						KornellNotification.show("Seção excluída com sucesso.");
+						presenter.initCourseDetailsSections();
+						bus.fireEvent(new ShowPacifierEvent(false));
+					}
+					@Override
+					public void internalServerError(KornellErrorTO kornellErrorTO) {
+						KornellNotification.show("Erro ao tentar excluir a seção.", AlertType.ERROR);
+						bus.fireEvent(new ShowPacifierEvent(false));
+					}
+				});
+			}
+		};
+		
+		FlowPanel section = new FlowPanel();
+		section.addStyleName("assetWrapper");
+
+		Label title = new Label(courseDetailsSection.getTitle());
+		title.addStyleName("assetTitle");
+		section.add(title);
+		
+		section.add(getButtonsBar(AdminAssetsPresenter.SECTION, (AssetEntity) courseDetailsSection, count, editClickHandler, deleteClickHandler));
+		
+		Label text = new Label();
+		text.getElement().setInnerHTML(courseDetailsSection.getText());
+		text.addStyleName("assetText");
+		section.add(text);
+		
+		return section;
+	}
+
+	private FlowPanel getButtonsBar(String assetType, AssetEntity assetEntity, int entityCount, ClickHandler editClickHandler, ClickHandler deleteClickHandler) {
+		FlowPanel buttonsBar = new FlowPanel();
+		buttonsBar.addStyleName("buttonsBar");
+
+		Tooltip tooltipDelete = new Tooltip("Excluir");
+		tooltipDelete.setPlacement(Placement.TOP);
+		Button btnDelete = new Button();
+		btnDelete.addClickHandler(deleteClickHandler);
+		btnDelete.addStyleName("btnSelected");
+		WizardUtils.createIcon(btnDelete, "fa-trash");
+		tooltipDelete.add(btnDelete);
+		buttonsBar.add(tooltipDelete);
+		
+		Tooltip tooltipEdit = new Tooltip("Editar");
+		tooltipEdit.setPlacement(Placement.TOP);
+		Button btnEdit = new Button();
+		btnEdit.addClickHandler(editClickHandler);
+		btnEdit.addStyleName("btnAction");
+		WizardUtils.createIcon(btnEdit, "fa-pencil-square-o");
+		tooltipEdit.add(btnEdit);
+		buttonsBar.add(tooltipEdit);
+		
+		if((assetEntity.getIndex() + 1) != entityCount) {
+			Tooltip tooltipMoveDown = new Tooltip("Mover para baixo");
+			tooltipMoveDown.setPlacement(Placement.TOP);
+			Button btnMoveDown = new Button();
+			btnMoveDown.addStyleName("btnSelected");
+			WizardUtils.createIcon(btnMoveDown, "fa-arrow-down");
+			tooltipMoveDown.add(btnMoveDown);
+			buttonsBar.add(tooltipMoveDown);
+			btnMoveDown.addClickHandler(buildMoveClickHandler(assetType, assetEntity, "Down"));
+		}
+		
+		if(assetEntity.getIndex() != 0) {
+			Tooltip tooltipMoveUp = new Tooltip("Mover para cima");
+			tooltipMoveUp.setPlacement(Placement.TOP);
+			Button btnMoveUp = new Button();
+			btnMoveUp.addStyleName("btnSelected");
+			WizardUtils.createIcon(btnMoveUp, "fa-arrow-up");
+			tooltipMoveUp.add(btnMoveUp);
+			buttonsBar.add(tooltipMoveUp);
+			btnMoveUp.addClickHandler(buildMoveClickHandler(assetType, assetEntity, "Up"));
+		}
+
+		return buttonsBar;
 	}
 
 	@Override
 	public void initCourseDetailsHints(CourseDetailsHintsTO courseDetailsHintsTO) {
 		hintsSubTitle.setText(info.get("hintsSubTitle"));
 		hintsFieldPanel.clear();
-		for(CourseDetailsHint courseDetailsHint : courseDetailsHintsTO.getCourseDetailsHints()){
-			buildHintItem(courseDetailsHint);
+		this.courseDetailsHints = courseDetailsHintsTO.getCourseDetailsHints();
+		for(CourseDetailsHint courseDetailsHint : courseDetailsHints){
+			hintsFieldPanel.add(buildHintItem(courseDetailsHint, courseDetailsHints.size()));
 		}
+		sectionLoaded();
 	}
 
-	private void buildHintItem(CourseDetailsHint courseDetailsHint) {
+	
+	private FlowPanel buildHintItem(CourseDetailsHint courseDetailsHint, int count) {
+		ClickHandler editClickHandler = new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				assetModal.initHint(AdminAssetsPresenter.EDIT, (CourseDetailsHint) courseDetailsHint);
+			}
+		};
+		ClickHandler deleteClickHandler = new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				bus.fireEvent(new ShowPacifierEvent(true));
+				session.courseDetailsHint(courseDetailsHint.getUUID()).delete(new Callback<CourseDetailsHint>() {
+					@Override
+					public void ok(CourseDetailsHint to) {
+						KornellNotification.show("Dica excluída com sucesso.");
+						presenter.initCourseDetailsHints();
+						bus.fireEvent(new ShowPacifierEvent(false));
+					}
+					@Override
+					public void internalServerError(KornellErrorTO kornellErrorTO) {
+						KornellNotification.show("Erro ao tentar excluir a dica.", AlertType.ERROR);
+						bus.fireEvent(new ShowPacifierEvent(false));
+					}
+				});
+			}
+		};
+
+		FlowPanel hint = new FlowPanel();
+		hint.addStyleName("assetWrapper");
+
+		Label title = new Label(courseDetailsHint.getTitle());
+		title.addStyleName("assetTitle");
+		hint.add(title);
+
+		hint.add(getButtonsBar(AdminAssetsPresenter.HINT, (AssetEntity) courseDetailsHint, count, editClickHandler, deleteClickHandler));
+
+		Icon icon = new Icon();
+		icon.addStyleName("fa " + courseDetailsHint.getFontAwesomeClassName());
+		
+		Label text = new Label();
+		text.getElement().setInnerHTML(icon.asWidget().getElement().getString() + courseDetailsHint.getText());
+		text.addStyleName("assetText hintText");
+		hint.add(text);
+		
+		return hint;
 	}
 
 	@Override
 	public void initCourseDetailsLibraries(CourseDetailsLibrariesTO courseDetailsLibrariesTO) {
 		librariesSubTitle.setText(info.get("librariesSubTitle"));
 		librariesFieldPanel.clear();
-		for(CourseDetailsLibrary courseDetailsLibrary : courseDetailsLibrariesTO.getCourseDetailsLibraries()){
-			buildLibraryItem(courseDetailsLibrary);
+		this.courseDetailsLibraries = courseDetailsLibrariesTO.getCourseDetailsLibraries();
+		for(CourseDetailsLibrary courseDetailsLibrary : courseDetailsLibraries){
+			hintsFieldPanel.add(buildLibraryItem(courseDetailsLibrary, courseDetailsLibraries.size()));
 		}
+		sectionLoaded();
 	}
 
-	private void buildLibraryItem(CourseDetailsLibrary courseDetailsLibrary) {
+	
+	private FlowPanel buildLibraryItem(CourseDetailsLibrary courseDetailsLibrary, int count) {
+		ClickHandler editClickHandler = new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				assetModal.initLibrary(AdminAssetsPresenter.EDIT, (CourseDetailsLibrary) courseDetailsLibrary);
+			}
+		};
+		ClickHandler deleteClickHandler = new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				bus.fireEvent(new ShowPacifierEvent(true));
+				session.courseDetailsLibrary(courseDetailsLibrary.getUUID()).delete(new Callback<CourseDetailsLibrary>() {
+					@Override
+					public void ok(CourseDetailsLibrary to) {
+						KornellNotification.show("Dica excluída com sucesso.");
+						presenter.initCourseDetailsLibraries();
+						bus.fireEvent(new ShowPacifierEvent(false));
+					}
+
+					@Override
+					public void internalServerError(KornellErrorTO kornellErrorTO) {
+						KornellNotification.show("Erro ao tentar excluir a dica.", AlertType.ERROR);
+						bus.fireEvent(new ShowPacifierEvent(false));
+					}
+				});
+			}
+		};
+
+		FlowPanel library = new FlowPanel();
+		library.addStyleName("assetWrapper");
+
+		Label title = new Label(courseDetailsLibrary.getTitle());
+		title.addStyleName("assetTitle");
+		library.add(title);
+
+		library.add(getButtonsBar(AdminAssetsPresenter.LIBRARY, (AssetEntity) courseDetailsLibrary, count, editClickHandler, deleteClickHandler));
+
+		return library;
 	}
 
 	private FlowPanel buildFileUploadPanel(final String fileName, final String contentType, String label, boolean exists) {
@@ -207,9 +414,56 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		return fieldPanelWrapper;
 	}
 
+	private ClickHandler buildMoveClickHandler(String assetType, AssetEntity assetEntity, String direction) {
+		return new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				bus.fireEvent(new ShowPacifierEvent(true));					
+				session.assets().move(assetType, assetEntity.getEntityType().toString(), 
+						assetEntity.getEntityUUID(), direction, assetEntity.getIndex(), 
+						new Callback<String>() {
+					@Override
+					public void ok(String str) {
+						if(AdminAssetsPresenter.SECTION.equals(assetType)){
+							presenter.initCourseDetailsSections();
+						} else if(AdminAssetsPresenter.HINT.equals(assetType)){
+							presenter.initCourseDetailsHints();
+						} else if(AdminAssetsPresenter.LIBRARY.equals(assetType)){
+							presenter.initCourseDetailsLibraries();
+						}
+						bus.fireEvent(new ShowPacifierEvent(false));
+					}
+				});
+			}
+		};
+	}
+
 	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
+	}
+
+	private void sectionLoaded() {
+		sectionsLoaded++;
+		if(sectionsLoaded == sectionsCount){
+			bus.fireEvent(new ShowPacifierEvent(false));
+			assetsWrapper.removeStyleName("shy");
+		}
+	}
+
+	@UiHandler("sectionsAddButton")
+	void doAddSection(ClickEvent e) { 
+		assetModal.newSection(courseDetailsEntityType, entityUUID);
+	}
+
+	@UiHandler("hintsAddButton")
+	void doAddHint(ClickEvent e) {
+		assetModal.newHint(courseDetailsEntityType, entityUUID);
+	}
+
+	@UiHandler("librariesAddButton")
+	void doAddLibraryFile(ClickEvent e) {
+		assetModal.newLibrary(courseDetailsEntityType, entityUUID);
 	}
 	
 }

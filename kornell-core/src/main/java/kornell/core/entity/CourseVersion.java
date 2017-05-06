@@ -2,7 +2,7 @@ package kornell.core.entity;
 
 import java.util.Date;
 
-public interface CourseVersion extends AssetsEntity {
+public interface CourseVersion extends ThumbnailEntity {
     public static String TYPE = EntityFactory.PREFIX + "courseVersion+json";
     
 	String getCourseUUID();

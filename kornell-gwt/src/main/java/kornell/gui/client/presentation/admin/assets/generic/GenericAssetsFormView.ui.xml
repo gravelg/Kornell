@@ -1,0 +1,12 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+	<b:Modal ui:field="assetModal" backdrop="STATIC" addStyleNames="assetModal">
+		<g:FlowPanel>
+			<g:FlowPanel ui:field="assetFields" addStyleNames="fieldsWrapper marginTop25"></g:FlowPanel>		
+			<g:FlowPanel addStyleNames="standardButtonBar">
+				<g:Button ui:field="btnOK" addStyleNames="btnAction btnStandard"/>
+				<g:Button ui:field="btnCancel" addStyleNames="btnNotSelected btnStandard"/>
+			</g:FlowPanel>
+		</g:FlowPanel>
+	</b:Modal>
+</ui:UiBinder>

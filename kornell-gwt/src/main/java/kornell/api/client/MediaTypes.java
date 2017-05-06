@@ -9,6 +9,9 @@ import kornell.core.entity.ChatThread;
 import kornell.core.entity.ContentRepository;
 import kornell.core.entity.Course;
 import kornell.core.entity.CourseClass;
+import kornell.core.entity.CourseDetailsHint;
+import kornell.core.entity.CourseDetailsLibrary;
+import kornell.core.entity.CourseDetailsSection;
 import kornell.core.entity.CourseVersion;
 import kornell.core.entity.Enrollment;
 import kornell.core.entity.EnrollmentEntries;
@@ -74,13 +77,15 @@ public class MediaTypes {
 		register(EnrollmentsEntries.TYPE, EnrollmentsEntries.class);
 		register(EnrollmentEntries.TYPE, EnrollmentEntries.class);
 		register(ContentRepository.TYPE, ContentRepository.class);
-		register(CertificateDetails.TYPE, CertificateDetails.class);	
-		register(CourseDetailsSectionsTO.TYPE, CourseDetailsSectionsTO.class);	
-		register(CourseDetailsHintsTO.TYPE, CourseDetailsHintsTO.class);	
-		register(CourseDetailsLibrariesTO.TYPE, CourseDetailsLibrariesTO.class);	
+		register(CertificateDetails.TYPE, CertificateDetails.class);		
+		register(CourseDetailsSection.TYPE, CourseDetailsSection.class);	
+		register(CourseDetailsHint.TYPE, CourseDetailsHint.class);	
+		register(CourseDetailsLibrary.TYPE, CourseDetailsLibrary.class);
 	}
 
 	private void registerTOs() {
+		// When auth filter sends 401, it adds the charset and we can't do anything about it
+		register(KornellErrorTO.TYPE + ";charset=utf-8", KornellErrorTO.class);
 		register(PeopleTO.TYPE, PeopleTO.class);
 		register(PersonTO.TYPE, PersonTO.class);
 		register(CoursesTO.TYPE, CoursesTO.class);
@@ -95,20 +100,19 @@ public class MediaTypes {
 		register(LibraryFilesTO.TYPE, LibraryFilesTO.class);
 		register(UnreadChatThreadsTO.TYPE, UnreadChatThreadsTO.class);
 		register(ChatThreadMessagesTO.TYPE, ChatThreadMessagesTO.class);
-		register(InstitutionRegistrationPrefixesTO.TYPE,
-				InstitutionRegistrationPrefixesTO.class);
+		register(InstitutionRegistrationPrefixesTO.TYPE, InstitutionRegistrationPrefixesTO.class);
 		register(InstitutionHostNamesTO.TYPE, InstitutionHostNamesTO.class);
 		register(KornellErrorTO.TYPE, KornellErrorTO.class);
 		register(EnrollmentLaunchTO.TYPE, EnrollmentLaunchTO.class);
-		// When auth filter sends 401, it adds the charset and we can't do
-		// anything about it
-		register(KornellErrorTO.TYPE + ";charset=utf-8", KornellErrorTO.class);
 		register(TokenTO.TYPE, TokenTO.class);
 		register(SimplePeopleTO.TYPE, SimplePeopleTO.class);
 		register(SimplePersonTO.TYPE, SimplePersonTO.class);
 		register(InstitutionEmailWhitelistTO.TYPE, InstitutionEmailWhitelistTO.class);
 		register(EntityChangedEventsTO.TYPE, EntityChangedEventsTO.class);
 		register(DashboardLeaderboardTO.TYPE, DashboardLeaderboardTO.class);
+		register(CourseDetailsSectionsTO.TYPE, CourseDetailsSectionsTO.class);	
+		register(CourseDetailsHintsTO.TYPE, CourseDetailsHintsTO.class);	
+		register(CourseDetailsLibrariesTO.TYPE, CourseDetailsLibrariesTO.class);
 	}
 
 	private void register(String type, Class<?> clazz) {

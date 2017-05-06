@@ -2,6 +2,7 @@ package kornell.server.jdbc.repository
 
 import java.sql.ResultSet
 import kornell.server.jdbc.SQL._ 
+import scala.collection.JavaConverters._
 import kornell.core.entity.CourseDetailsLibrary
 
 
@@ -24,6 +25,24 @@ class CourseDetailsLibraryRepo(uuid: String) {
     | l.fontAwesomeClassName = ${courseDetailsLibrary.getFontAwesomeClassName}
     | where l.uuid = ${courseDetailsLibrary.getUUID}""".executeUpdate
     
+    courseDetailsLibrary
+  }
+  
+  def delete = {    
+    val courseDetailsLibrary = get
+    sql"""
+      delete from CourseDetailsLibrary 
+      where uuid = ${uuid}""".executeUpdate
+
+    val courseDetailsLibraries = CourseDetailsLibrariesRepo.getForEntity(courseDetailsLibrary.getEntityUUID, courseDetailsLibrary.getEntityType).getCourseDetailsLibraries
+    val indexed = courseDetailsLibraries.asScala.zipWithIndex
+    for (i <- indexed) {
+      val courseDetailsLibrary = i._1
+      val index = i._2
+      courseDetailsLibrary.setIndex(index)
+      CourseDetailsLibraryRepo(courseDetailsLibrary.getUUID).update(courseDetailsLibrary)
+    }
+      
     courseDetailsLibrary
   }
 

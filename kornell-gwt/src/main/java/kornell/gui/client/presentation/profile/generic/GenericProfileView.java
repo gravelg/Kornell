@@ -116,7 +116,6 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 		formHelper = new FormHelper();
 		initWidget(uiBinder.createAndBindUi(this));
 
-		// i18n
 		btnEdit = createButton(constants.editButton(), "btnAction btnPlaceBar", false, new ClickHandler() {
 			@Override public void onClick(ClickEvent e) {doEdit(e);}
 		});
@@ -506,53 +505,6 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 		sendMessageWidget.initData(session, bus, user, isCurrentUser);
 		
 	}
-
-	/*private FormPanel getPictureUploadFormPanel() {
-		final FormPanel formPanel = new FormPanel();
-		formPanel.setEncoding(FormPanel.ENCODING_MULTIPART);
-		formPanel.setMethod(FormPanel.METHOD_POST);
-		formPanel.setAction("http://"+ s3Policy.getBucketName() +".s3.amazonaws.com/");
-
-		FlowPanel fileUploadWrapper = new FlowPanel();
-		fileUploadWrapper.addStyleName("fileUploadWrapper");
-		fileUploadWrapper.add(new Image(IMAGE_PATH + "profilePic.png"));   
-
-		fileUploadWrapper.add(new Hidden("key", s3Policy.getKey()+"${filename}"));
-		fileUploadWrapper.add(new Hidden("acl", "public-read"));
-		fileUploadWrapper.add(new Hidden("success_action_redirect", s3Policy.getSuccessActionRedirect()));
-		fileUploadWrapper.add(new Hidden("Content-Type", "image/jpeg"));
-		fileUploadWrapper.add(new Hidden("x-amz-meta-uuid", "14365123651275"));
-		fileUploadWrapper.add(new Hidden("x-amz-meta-tag", ""));
-		fileUploadWrapper.add(new Hidden("AWSAccessKeyId", s3Policy.getAWSAccessKeyId()));
-		fileUploadWrapper.add(new Hidden("Policy", s3Policy.getPolicy()));
-		fileUploadWrapper.add(new Hidden("Signature", s3Policy.getSignature()));		    
-
-		fileUpload = new FileUpload();
-		fileUpload.setName("file");
-		fileUploadWrapper.add(fileUpload);
-
-		SubmitButton changeImageButton = new SubmitButton();
-		changeImageButton.setName("submit");
-		changeImageButton.setText("TROCAR IMAGEM");
-		changeImageButton.setStyleName("btnAction btnStandard");
-		fileUploadWrapper.add(changeImageButton);
-
-		formPanel.addSubmitHandler(new FormPanel.SubmitHandler() {
-			public void onSubmit(SubmitEvent event) {
-				if("".equals(fileUpload.getFilename())){
-					event.cancel();
-				}
-			}
-		});
-		formPanel.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
-			public void onSubmitComplete(SubmitCompleteEvent event) {
-				KornellNotification.show(event.getResults());
-			}
-		});
-
-		formPanel.setWidget(fileUploadWrapper);
-		return formPanel;
-	}*/
 
 	List<KornellFormFieldWrapper> requiredFields = new ArrayList<KornellFormFieldWrapper>();
 	

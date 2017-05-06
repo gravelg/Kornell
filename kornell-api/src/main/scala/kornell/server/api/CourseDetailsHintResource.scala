@@ -12,6 +12,8 @@ import javax.ws.rs.DELETE
 import kornell.server.util.AccessDeniedErr
 import kornell.server.jdbc.repository.CourseDetailsHintRepo
 import kornell.core.entity.CourseDetailsHint
+import javax.ws.rs.POST
+import javax.ws.rs.PathParam
 
 class CourseDetailsHintResource(uuid: String) {
   
@@ -28,6 +30,14 @@ class CourseDetailsHintResource(uuid: String) {
   @Produces(Array(CourseDetailsHint.TYPE))
   def update(courseDetailsHint: CourseDetailsHint) = {
     CourseDetailsHintRepo(uuid).update(courseDetailsHint)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+
+  @DELETE
+  @Produces(Array(CourseDetailsHint.TYPE))
+  def delete() = {
+    CourseDetailsHintRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

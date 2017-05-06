@@ -1,22 +1,19 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
+	xmlns:knl="urn:import:kornell.gui.client.presentation.admin.assets.generic">
 
-	<g:FlowPanel addStyleNames="deanWrapper assetsWrapper">
-		<g:FlowPanel addStyleNames="paddingBottom20 simpleBorderBottom left fillWidth">  
+	<g:FlowPanel ui:field="assetsWrapper" addStyleNames="deanWrapper assetsWrapper shy">
+		<g:FlowPanel addStyleNames="paddingBottom20 simpleBorderBottom left fillWidth shy">  
 			<g:HTMLPanel addStyleNames="title">Ícone da Tela Inicial</g:HTMLPanel>
 			<g:Label ui:field="thumbSubTitle" addStyleNames="subTitle"></g:Label>
-			<b:Form addStyleNames="profileForm">
-				<g:FlowPanel ui:field="thumbFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
-				</g:FlowPanel>	
-			</b:Form>		
+			<g:FlowPanel ui:field="thumbFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
+			</g:FlowPanel>		
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth shy">  
 			<g:HTMLPanel addStyleNames="title">Plano de Fundo do Certificado</g:HTMLPanel>
 			<g:Label ui:field="certificateDetailsSubTitle" addStyleNames="subTitle"></g:Label>
-			<b:Form addStyleNames="profileForm">
-				<g:FlowPanel ui:field="certificateDetailsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
-				</g:FlowPanel>	
-			</b:Form>		
+			<g:FlowPanel ui:field="certificateDetailsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
+			</g:FlowPanel>	
 		</g:FlowPanel>	
 		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Seções da Tela de Detalhes</g:HTMLPanel>
@@ -24,10 +21,8 @@
 				<b:Button ui:field="sectionsAddButton" addStyleNames="btnAction right"></b:Button>
 			</b:Tooltip>
 			<g:Label ui:field="sectionsSubTitle" addStyleNames="subTitle"></g:Label>
-			<b:Form addStyleNames="profileForm">
-				<g:FlowPanel ui:field="sectionsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
-				</g:FlowPanel>	
-			</b:Form>		
+			<g:FlowPanel ui:field="sectionsFieldPanel" addStyleNames="marginTop25">
+			</g:FlowPanel>
 		</g:FlowPanel>
 		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Dicas da Tela de Detalhes</g:HTMLPanel>
@@ -35,10 +30,8 @@
 				<b:Button ui:field="hintsAddButton" addStyleNames="btnAction right"></b:Button>
 			</b:Tooltip>
 			<g:Label ui:field="hintsSubTitle" addStyleNames="subTitle"></g:Label>
-			<b:Form addStyleNames="profileForm">
-				<g:FlowPanel ui:field="hintsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
-				</g:FlowPanel>	
-			</b:Form>		
+			<g:FlowPanel ui:field="hintsFieldPanel" addStyleNames="marginTop25">		
+			</g:FlowPanel>	
 		</g:FlowPanel>
 		<g:FlowPanel addStyleNames="paddingTop20 paddingBottom20 left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Biblioteca</g:HTMLPanel>
@@ -46,11 +39,10 @@
 				<b:Button ui:field="librariesAddButton" addStyleNames="btnAction right"></b:Button>
 			</b:Tooltip>
 			<g:Label ui:field="librariesSubTitle" addStyleNames="subTitle"></g:Label>
-			<b:Form addStyleNames="profileForm">
-				<g:FlowPanel ui:field="librariesFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
-				</g:FlowPanel>	
-			</b:Form>		
-		</g:FlowPanel>		
+			<g:FlowPanel ui:field="librariesFieldPanel" addStyleNames="marginTop25">		
+			</g:FlowPanel>	
+		</g:FlowPanel>	
+		<knl:GenericAssetsFormView ui:field="assetModal"></knl:GenericAssetsFormView>	
 	</g:FlowPanel>
 
 </ui:UiBinder>

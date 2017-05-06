@@ -10,7 +10,7 @@ import javax.ws.rs.Consumes
 import javax.ws.rs.PUT
 import javax.ws.rs.DELETE
 import kornell.server.util.AccessDeniedErr
-import kornell.core.entity.CourseDetailsHint
+import kornell.core.entity.CourseDetailsSection
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 import javax.ws.rs.POST
@@ -44,6 +44,26 @@ class CourseDetailsSectionsResource {
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
    
+   @POST
+   @Path("/{entityType}/{entityUUID}/moveUp/{index}")
+   def moveUp(@PathParam("entityType") entityType: String,
+       @PathParam("entityUUID") entityUUID: String,
+       @PathParam("index") index: String) = {
+    CourseDetailsSectionsRepo.moveUp(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+   
+   @POST
+   @Path("/{entityType}/{entityUUID}/moveDown/{index}")
+   def moveDown(@PathParam("entityType") entityType: String,
+       @PathParam("entityUUID") entityUUID: String,
+       @PathParam("index") index: String) = {
+    CourseDetailsSectionsRepo.moveDown(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+      
 }
 
 object CourseDetailsSectionsResource {

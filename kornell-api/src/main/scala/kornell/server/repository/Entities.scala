@@ -424,9 +424,10 @@ object Entities {
     eEntries
   }
 
-  def newCourseDetailsHint(uuid:String, text:String, entityType:CourseDetailsEntityType, entityUUID:String, index:Integer, fontAwesomeClassName:String) = {
+  def newCourseDetailsHint(uuid:String, title: String, text:String, entityType:CourseDetailsEntityType, entityUUID:String, index:Integer, fontAwesomeClassName:String) = {
     val hint = factory.newCourseDetailsHint.as
     hint.setUUID(uuid)
+    hint.setTitle(title)
     hint.setText(text)
     hint.setEntityType(entityType)
     hint.setEntityUUID(entityUUID)

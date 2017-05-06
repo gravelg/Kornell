@@ -392,6 +392,7 @@ package object repository {
     
   implicit def toCourseDetailsHint(rs: ResultSet): CourseDetailsHint = newCourseDetailsHint(
       rs.getString("uuid"), 
+      rs.getString("title"),
       rs.getString("text"), 
       CourseDetailsEntityType.valueOf(rs.getString("entityType")), 
       rs.getString("entityUUID"), 

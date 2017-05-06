@@ -83,8 +83,6 @@ public class FormHelper {
 	public boolean isListBoxSelected(ListBox value) {
 		return value != null && !("-".equals(((ListBox)value).getValue()) || ((ListBox)value).getValue() == null);
 	}
-
-//	static final ValueFactory valueFactory = GWT.create(ValueFactory.class);
 	
 	public TextBoxFormField createTextBoxFormField(String text, String textBoxFormFieldType){
 		TextBox fieldTextBox = new TextBox();

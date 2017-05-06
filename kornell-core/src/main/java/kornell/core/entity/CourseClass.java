@@ -3,7 +3,7 @@ package kornell.core.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public interface CourseClass extends AssetsEntity {
+public interface CourseClass extends ThumbnailEntity {
 	public static String TYPE = EntityFactory.PREFIX + "courseClass+json";
 	
 	String getInstitutionUUID();
