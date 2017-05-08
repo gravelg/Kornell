@@ -127,8 +127,8 @@ public class GenericCourseSummaryView extends Composite {
 		String thumbURL = courseClassTO.getCourseClass().getThumbUrl();
 		thumbURL = thumbURL != null ? thumbURL : courseClassTO.getCourseVersionTO().getCourseVersion().getThumbUrl();
 		thumbURL = thumbURL != null ? thumbURL : courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getThumbUrl();
-		if(thumbURL != null)
-			imgThumb.setUrl(thumbURL);
+		thumbURL = thumbURL != null ? thumbURL : mkurl(ICON_COURSE_URL, "thumb.png");
+		imgThumb.setUrl(thumbURL);
 		imgIconCourse.setUrl(iconCourseURL);
 
 		sinkEvents(Event.ONCLICK);
