@@ -132,6 +132,10 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 	
 	@Override
 	public void init(){
+		editTab.setActive(true);
+		reportsTab.setActive(false);
+		assetsTab.setActive(false);
+		
 		if(placeCtrl.getWhere() instanceof AdminCoursePlace && ((AdminCoursePlace)placeCtrl.getWhere()).getCourseUUID() != null){
 			this.courseUUID = ((AdminCoursePlace)placeCtrl.getWhere()).getCourseUUID();
 			isCreationMode = false;
