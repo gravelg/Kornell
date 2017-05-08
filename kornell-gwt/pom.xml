@@ -23,9 +23,6 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<version.org.jboss.as.plugins.maven.plugin>7.3.Final</version.org.jboss.as.plugins.maven.plugin>
-		<version.org.jboss.bom>1.0.0.Final</version.org.jboss.bom>
-
 		<!-- Don't let your Mac use a crazy non-standard encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -55,37 +52,6 @@
 
 	</repositories>
 
-
-	<dependencyManagement>
-		<dependencies>
-			<!-- JBoss distributes a complete set of Java EE 6 APIs including a Bill 
-				of Materials (BOM). A BOM specifies the versions of a "stack" (or a collection) 
-				of artifacts. We use this here so that we always get the correct versions 
-				of artifacts. Here we use the jboss-javaee-6.0-with-tools stack (you can 
-				read this as the JBoss stack of the Java EE 6 APIs, with some extras tools 
-				for your project, such as Arquillian for testing) and the jboss-javaee-6.0-with-hibernate 
-				stack you can read this as the JBoss stack of the Java EE 6 APIs, with extras 
-				from the Hibernate family of projects) -->
-			<dependency>
-				<groupId>org.jboss.bom</groupId>
-				<artifactId>jboss-javaee-6.0-with-tools</artifactId>
-				<version>${version.org.jboss.bom}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.jboss.bom</groupId>
-				<artifactId>jboss-javaee-6.0-with-hibernate</artifactId>
-				<version>${version.org.jboss.bom}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-		</dependencies>
-	</dependencyManagement>
-
-
 	<dependencies>
 		<dependency>
 			<groupId>kornell</groupId>
@@ -96,15 +62,8 @@
 					<groupId>com.google.gwt</groupId>
 					<artifactId>gwt-servlet</artifactId>
 				</exclusion>
-				<exclusion>
-					<groupId>org.json</groupId>
-					<artifactId>json</artifactId>
-				</exclusion>
 			</exclusions>
 		</dependency>
-
-		<!-- <dependency> <groupId>javax</groupId> <artifactId>javaee-web-api</artifactId> 
-			<version>6.0</version> <scope>provided</scope> </dependency> -->
 
 		<!-- TODO: Development builds need the gwt jars for the JUnitHostImpl A 
 			production profile could build differently... -->
@@ -132,7 +91,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<!-- <version>4.11</version> -->
+			<version>4.11</version>
 		</dependency>
 
 		<dependency>
@@ -145,7 +104,7 @@
 		<dependency>
 			<groupId>com.googlecode.gwt-test-utils</groupId>
 			<artifactId>gwt-test-utils</artifactId>
-			<version>0.47</version>
+			<version>0.53</version>
 		</dependency>
 
 		<dependency>
@@ -158,7 +117,7 @@
 		<dependency>
 			<groupId>org.timepedia.exporter</groupId>
 			<artifactId>gwtexporter</artifactId>
-			<version>2.5.0-SNAPSHOT</version>
+			<version>2.5.1</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -167,12 +126,12 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.3.1</version>
 		</dependency>
-
+<!-- 
 		<dependency>
 			<groupId>org.mitre.dsmiley.httpproxy</groupId>
 			<artifactId>smiley-http-proxy-servlet</artifactId>
 			<version>1.4</version>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -349,8 +308,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.0.0</version>
 				<configuration>
-					<descriptor>src/assembly/bin.xml</descriptor>
+					<descriptors>
+						<descriptor>src/assembly/bin.xml</descriptor>
+					</descriptors>
 					<finalName>${project.artifactId}</finalName>
 				</configuration>
 				<executions>
@@ -363,37 +325,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-
-		<!-- Required by m2e for import into eclipse. No effect on command line 
-			builds -->
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>net.kindleit</groupId>
-										<artifactId>maven-gae-plugin</artifactId>
-										<versionRange>[0.7.3,)</versionRange>
-										<goals>
-											<goal>unpack</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 
 </project>
