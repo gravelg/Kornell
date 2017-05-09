@@ -9,52 +9,56 @@ import kornell.core.entity.RegistrationType
 import java.math.BigDecimal
 import kornell.core.entity.CourseClassState
 import kornell.server.authentication.ThreadLocalAuthenticator
-import scala.collection.mutable.ArrayBuffer
+import kornell.core.entity.CourseDetailsEntityType
+import kornell.server.jdbc.repository.CourseDetailsHintsRepo
+import kornell.server.jdbc.repository.CourseDetailsSectionsRepo
+import kornell.server.jdbc.repository.CoursesRepo
+import kornell.server.jdbc.repository.CourseVersionRepo
+import kornell.server.jdbc.repository.CourseVersionsRepo
+import kornell.server.jdbc.repository.CourseClassesRepo
+import kornell.server.repository.TOs
 
 object SimpleCVCCreationService {
   
-  def generateInfoJson(to: SimpleCVCTO) = {
-    val hintsList = ArrayBuffer[String]()
-    
-    val courseDurationJson = "{\"type\":\"fa fa-clock-o\",\"text\":\"" + to.getCourseDuration + "\"}"
-    hintsList.append(courseDurationJson)
-    val helpJson = "{\"type\":\"fa fa-question-circle\",\"text\":\"Se precisar entrar em contato, clique em ajuda no menu acima.\"}"
-    hintsList.append(helpJson)
+  def generateCourseDetails(courseUUID: String, to: SimpleCVCTO) = {
+    val duration = CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "duration",
+        to.getCourseDuration, CourseDetailsEntityType.COURSE, courseUUID, 0, "fa fa-clock-o"))
+    val help = CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "help", 
+        "Se precisar entrar em contato, clique em ajuda no menu acima.", CourseDetailsEntityType.COURSE, courseUUID, 1, "fa fa-question-circle"))
+    var hintIndex = 1
     
     if (to.isGenerateCertificate()) {
-      val generateCertificateJson = "{\"type\":\"fa fa-certificate\",\"text\":\"Curso com certificação.\"}"
-      hintsList.append(generateCertificateJson)
+      hintIndex = hintIndex + 1
+      val certificate = CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "certificate",
+          "Curso com certificação.", CourseDetailsEntityType.COURSE, courseUUID, hintIndex, "fa fa-certificate"))
     }
     
     if (to.isMultimediaContent()) {
-      val multimediaJson = "{\"type\":\"fa fa-warning\",\"text\":\"Este curso contém vídeo e áudio, certifique que seu dispositivo possa reproduzi-los.\"}"
-      hintsList.append(multimediaJson)
+      hintIndex = hintIndex + 1
+      val multimedia = CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "multimedia-warning",
+          "Este curso contém vídeo e áudio, certifique que seu dispositivo possa reproduzi-los.", CourseDetailsEntityType.COURSE, courseUUID, hintIndex, "fa fa-warning"))
     }
     
-    val description = "\"infos\":[{\"type\":\"Apresentação\",\"text\":\"" + to.getDescription + "\"}]"
-    
-    val json = "{\"hints\":[" + hintsList.mkString(",") + "]," + description + "}"
-    println(json)
-    json
+    val description = CourseDetailsSectionsRepo.create(Entities.newCourseDetailsSection(UUID.random, "Apresentação", to.getDescription, CourseDetailsEntityType.COURSE, courseUUID, 0))
   }
   
   def createCourse(institutionUUID: String, to: SimpleCVCTO) = {
     val courseUUID = UUID.random
-    val infoJson = generateInfoJson(to)
-    val course = Entities.newCourse(
+    val course = CoursesRepo.create(Entities.newCourse(
         courseUUID,
         courseUUID,
         to.getName,
         to.getDescription,
-        infoJson,
+        null,
         institutionUUID,
-        false)
+        false))
+    generateCourseDetails(courseUUID, to)
     course
   }
   
-  def createCourseVersion(courseUUID: String, to: SimpleCVCTO) = {
+  def createCourseVersion(institutionUUID: String, courseUUID: String, to: SimpleCVCTO) = {
     val versionUUID = UUID.random
-    val version = Entities.newCourseVersion(
+    val version = CourseVersionsRepo.create(Entities.newCourseVersion(
         versionUUID,
         to.getName,
         courseUUID,
@@ -64,14 +68,13 @@ object SimpleCVCCreationService {
         false,
         null,
         1,
-        null)
+        null), institutionUUID)
     version
   }
   
   def createCourseClass(institutionUUID: String, versionUUID: String, to: SimpleCVCTO) = {
-    val classUUID = UUID.random
-    val courseClass = Entities.newCourseClass(
-        classUUID,
+    val courseClass = CourseClassesRepo.create(Entities.newCourseClass(
+        UUID.random,
         to.getName,
         versionUUID,
         institutionUUID,
@@ -91,14 +94,14 @@ object SimpleCVCCreationService {
         false,
         to.isAutoApprove(),
         null,
-        null)
+        null))
     courseClass
   }
   
   def simpleCreation(institutionUUID: String, to: SimpleCVCTO) = {
     val course = createCourse(institutionUUID, to);
-    val version = createCourseVersion(course.getUUID, to)
-    val courseClass = createCourseClass(institutionUUID, version.getUUID, to)
-    
+    val courseVersion = createCourseVersion(institutionUUID, course.getUUID, to)
+    val courseClass = createCourseClass(institutionUUID, courseVersion.getUUID, to)
+    TOs.newSimpleCVCResponseTO(course, courseVersion, courseClass)
   }
 }
