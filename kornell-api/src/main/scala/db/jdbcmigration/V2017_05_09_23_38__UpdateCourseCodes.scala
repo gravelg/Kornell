@@ -25,15 +25,22 @@ class V2017_04_25_23_38__UpdateCourseCodes extends JdbcMigration  {
   		""".map[(String, String, String)](toTuple)
 
     for ((courseUUID, prefix, versionUUID) <- versions) {
-      val code = prefix.replaceAll("/[0-9a-zA-Z\\.\\-]+/?$", "")
-      val newPrefix = prefix.replaceAll("^[0-9a-zA-Z\\-]+/", "")
-      println(code + " " + newPrefix + " " + courseUUID + " " + versionUUID)
-      sql"""
-  		  update Course set code = ${code} where uuid = ${courseUUID}
-  		""".executeUpdate
-  		sql"""
-  		  update CourseVersion set distributionPrefix = ${newPrefix} where uuid = ${versionUUID}
-  		""".executeUpdate
+    
+      try {
+        val code = prefix.replaceAll("/[0-9a-zA-Z\\.\\-]+/?$", "")
+        val newPrefix = prefix.replaceAll("^[0-9a-zA-Z\\-]+/", "")
+        println(code + " " + newPrefix + " " + courseUUID + " " + versionUUID)
+        if(code.length > 0 && newPrefix.length > 0){
+          sql"""
+      		  update Course set code = ${code} where uuid = ${courseUUID}
+      		""".executeUpdate
+      		sql"""
+      		  update CourseVersion set distributionPrefix = ${newPrefix} where uuid = ${versionUUID}
+      		""".executeUpdate
+        }
+      } catch {
+        case e: Exception => {}
+      }
     }
     ConnectionHandler.commit()
   }
