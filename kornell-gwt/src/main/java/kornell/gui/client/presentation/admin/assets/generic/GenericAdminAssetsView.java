@@ -41,6 +41,7 @@ import kornell.core.util.StringUtils;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
+import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
 import kornell.gui.client.util.view.KornellNotification;
 
@@ -84,6 +85,8 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	FlowPanel librariesFieldPanel;
 	@UiField
 	GenericAssetFormView assetModal;
+	@UiField
+	GenericConfirmModalView confirmModal;
 
 	private Presenter presenter;
 	private Map<String, String> info;
@@ -153,18 +156,25 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		ClickHandler deleteClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				bus.fireEvent(new ShowPacifierEvent(true));
-				session.courseDetailsSection(courseDetailsSection.getUUID()).delete(new Callback<CourseDetailsSection>() {
+				confirmModal.showModal("Tem certeza que deseja excluir essa imagem?", new Callback<Boolean>() {
 					@Override
-					public void ok(CourseDetailsSection to) {
-						KornellNotification.show("Seção excluída com sucesso.");
-						presenter.initCourseDetailsSections();
-						bus.fireEvent(new ShowPacifierEvent(false));
-					}
-					@Override
-					public void internalServerError(KornellErrorTO kornellErrorTO) {
-						KornellNotification.show("Erro ao tentar excluir a seção.", AlertType.ERROR);
-						bus.fireEvent(new ShowPacifierEvent(false));
+					public void ok(Boolean confirm) {
+						if(confirm){
+							bus.fireEvent(new ShowPacifierEvent(true));
+							session.courseDetailsSection(courseDetailsSection.getUUID()).delete(new Callback<CourseDetailsSection>() {
+								@Override
+								public void ok(CourseDetailsSection to) {
+									KornellNotification.show("Seção excluída com sucesso.");
+									presenter.initCourseDetailsSections();
+									bus.fireEvent(new ShowPacifierEvent(false));
+								}
+								@Override
+								public void internalServerError(KornellErrorTO kornellErrorTO) {
+									KornellNotification.show("Erro ao tentar excluir a seção.", AlertType.ERROR);
+									bus.fireEvent(new ShowPacifierEvent(false));
+								}
+							});
+						}
 					}
 				});
 			}
@@ -209,18 +219,25 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		ClickHandler deleteClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				bus.fireEvent(new ShowPacifierEvent(true));
-				session.courseDetailsHint(courseDetailsHint.getUUID()).delete(new Callback<CourseDetailsHint>() {
+				confirmModal.showModal("Tem certeza que deseja excluir essa dica?", new Callback<Boolean>() {
 					@Override
-					public void ok(CourseDetailsHint to) {
-						KornellNotification.show("Dica excluída com sucesso.");
-						presenter.initCourseDetailsHints();
-						bus.fireEvent(new ShowPacifierEvent(false));
-					}
-					@Override
-					public void internalServerError(KornellErrorTO kornellErrorTO) {
-						KornellNotification.show("Erro ao tentar excluir a dica.", AlertType.ERROR);
-						bus.fireEvent(new ShowPacifierEvent(false));
+					public void ok(Boolean confirm) {
+						if(confirm){
+							bus.fireEvent(new ShowPacifierEvent(true));
+							session.courseDetailsHint(courseDetailsHint.getUUID()).delete(new Callback<CourseDetailsHint>() {
+								@Override
+								public void ok(CourseDetailsHint to) {
+									KornellNotification.show("Dica excluída com sucesso.");
+									presenter.initCourseDetailsHints();
+									bus.fireEvent(new ShowPacifierEvent(false));
+								}
+								@Override
+								public void internalServerError(KornellErrorTO kornellErrorTO) {
+									KornellNotification.show("Erro ao tentar excluir a dica.", AlertType.ERROR);
+									bus.fireEvent(new ShowPacifierEvent(false));
+								}
+							});
+						}
 					}
 				});
 			}
@@ -268,19 +285,26 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		ClickHandler deleteClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				bus.fireEvent(new ShowPacifierEvent(true));
-				session.courseDetailsLibrary(courseDetailsLibrary.getUUID()).delete(new Callback<CourseDetailsLibrary>() {
+				confirmModal.showModal("Tem certeza que deseja excluir esse arquivo?", new Callback<Boolean>() {
 					@Override
-					public void ok(CourseDetailsLibrary to) {
-						KornellNotification.show("Arquivo excluído com sucesso.");
-						presenter.initCourseDetailsLibraries();
-						bus.fireEvent(new ShowPacifierEvent(false));
-					}
+					public void ok(Boolean confirm) {
+						if(confirm){
+							bus.fireEvent(new ShowPacifierEvent(true));
+							session.courseDetailsLibrary(courseDetailsLibrary.getUUID()).delete(new Callback<CourseDetailsLibrary>() {
+								@Override
+								public void ok(CourseDetailsLibrary to) {
+									KornellNotification.show("Arquivo excluído com sucesso.");
+									presenter.initCourseDetailsLibraries();
+									bus.fireEvent(new ShowPacifierEvent(false));
+								}
 
-					@Override
-					public void internalServerError(KornellErrorTO kornellErrorTO) {
-						KornellNotification.show("Erro ao tentar excluir o arquivo.", AlertType.ERROR);
-						bus.fireEvent(new ShowPacifierEvent(false));
+								@Override
+								public void internalServerError(KornellErrorTO kornellErrorTO) {
+									KornellNotification.show("Erro ao tentar excluir o arquivo.", AlertType.ERROR);
+									bus.fireEvent(new ShowPacifierEvent(false));
+								}
+							});
+						}
 					}
 				});
 			}
@@ -422,7 +446,14 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 			btnDelete.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					presenter.delete(fileName);
+					confirmModal.showModal("Tem certeza que deseja excluir essa imagem?", new Callback<Boolean>() {
+						@Override
+						public void ok(Boolean confirm) {
+							if(confirm){
+								presenter.delete(fileName);
+							}
+						}
+					});
 				}
 			});
 			Tooltip tooltipDelete = new Tooltip("Excluir");

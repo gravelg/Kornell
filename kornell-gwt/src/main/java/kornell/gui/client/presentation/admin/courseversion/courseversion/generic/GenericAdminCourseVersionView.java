@@ -147,6 +147,10 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		if(initializing) return;
 		initializing = true;
 		asWidget().setVisible(false);
+
+		editTab.setActive(true);
+		contentsTab.setActive(false);
+		assetsTab.setActive(false);		
 		
 		if(placeCtrl.getWhere() instanceof AdminCourseVersionPlace && ((AdminCourseVersionPlace)placeCtrl.getWhere()).getCourseVersionUUID() != null){
 			this.courseVersionUUID = ((AdminCourseVersionPlace)placeCtrl.getWhere()).getCourseVersionUUID();
