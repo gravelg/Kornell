@@ -29,7 +29,7 @@ object LibraryFilesRepository {
     val versionRepo = classRepo.version
     val version = versionRepo.get
     val course = CourseRepo(version.getCourseUUID).get
-    val filesURL = StringUtils.composeURL(course.getCode, version.getDistributionPrefix(), "classroom/library")
+    val filesURL = StringUtils.mkurl(course.getCode, version.getDistributionPrefix(), "classroom/library")
     try {
       val structureSrc = repo.source(filesURL, "libraryFiles.knl")
       val libraryFilesText = structureSrc.get.mkString("")
