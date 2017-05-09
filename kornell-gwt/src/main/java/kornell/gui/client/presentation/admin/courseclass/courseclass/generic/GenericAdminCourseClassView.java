@@ -2,6 +2,7 @@ package kornell.gui.client.presentation.admin.courseclass.courseclass.generic;
 
 import static com.google.gwt.dom.client.BrowserEvents.CLICK;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -497,6 +498,24 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 				return formHelper.dateToString(enrollmentTO.getEnrollment().getEnrolledOn());
 			}
 		}, "Data da Matrícula");
+
+		table.addColumn(new TextColumn<EnrollmentTO>() {
+			@Override
+			public String getValue(EnrollmentTO enrollmentTO) {
+				Date lastProgressUpdate = enrollmentTO.getEnrollment().getLastProgressUpdate();
+				Date certifiedAt = enrollmentTO.getEnrollment().getCertifiedAt();
+				if(certifiedAt != null && lastProgressUpdate != null){
+					return formHelper.dateToString(lastProgressUpdate.after(certifiedAt) ? lastProgressUpdate : certifiedAt);
+				} else if(certifiedAt != null && lastProgressUpdate == null) {
+					return formHelper.dateToString(certifiedAt);
+				} else if(certifiedAt == null && lastProgressUpdate != null) {
+					return formHelper.dateToString(lastProgressUpdate);
+				} else {
+					return "-";
+				}
+				
+			}
+		}, "Último acesso");
 
 		List<HasCell<EnrollmentTO, ?>> cells = new LinkedList<HasCell<EnrollmentTO, ?>>();
 		cells.add(new EnrollmentActionsHasCell("Reenviar Email de Matrícula", getStateChangeDelegate(EnrollmentState.enrolled)));
