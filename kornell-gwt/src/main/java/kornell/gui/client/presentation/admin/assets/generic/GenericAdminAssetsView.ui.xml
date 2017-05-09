@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
-	xmlns:knl="urn:import:kornell.gui.client.presentation.admin.assets.generic">
+	xmlns:knlAssets="urn:import:kornell.gui.client.presentation.admin.assets.generic"
+	xmlns:knlCommon="urn:import:kornell.gui.client.presentation.admin.common">
 
 	<g:FlowPanel ui:field="assetsWrapper" addStyleNames="deanWrapper assetsWrapper shy">
 		<g:FlowPanel addStyleNames="paddingBottom35 simpleBorderBottom left fillWidth">  
@@ -42,7 +43,8 @@
 			<g:FlowPanel ui:field="librariesFieldPanel" addStyleNames="marginTop25">		
 			</g:FlowPanel>	
 		</g:FlowPanel>	
-		<knl:GenericAssetFormView ui:field="assetModal"></knl:GenericAssetFormView>	
+		<knlAssets:GenericAssetFormView ui:field="assetModal"></knlAssets:GenericAssetFormView>	
+		<knlCommon:GenericConfirmModalView ui:field="confirmModal"></knlCommon:GenericConfirmModalView>
 	</g:FlowPanel>
 
 </ui:UiBinder>
