@@ -40,9 +40,6 @@ public class GenericConfirmModalView extends Composite {
 		confirmText.setText(message);
 		this.callback = callback;
 		confirmModal.show();
-		/*
-		btnCancel.setText("Cancelar".toUpperCase());
-		btnOK.setText("Salvar".toUpperCase());*/
 	}
 	
 	@UiHandler("btnOK")

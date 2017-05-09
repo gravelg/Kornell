@@ -75,6 +75,7 @@ import kornell.gui.client.event.UnreadMessagesCountChangedEventHandler;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEvent;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEventHandler;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
+import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassView;
 import kornell.gui.client.presentation.message.MessagePresenter;
 import kornell.gui.client.util.AsciiUtils;
@@ -209,6 +210,9 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 
 	@UiField
 	TabPanel tabsPanel;
+	
+	@UiField
+	GenericConfirmModalView confirmModal;
 
 	Tab adminsTab;
 	FlowPanel adminsPanel;
@@ -694,8 +698,15 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			@Override
 			public void execute(EnrollmentTO object) {
 				if (canPerformEnrollmentAction) {
-					canPerformEnrollmentAction = false;
-					presenter.changeEnrollmentState(object, state);
+					confirmModal.showModal("Tem certeza que deseja realizar essa operação?", new Callback<Boolean>() {
+						@Override
+						public void ok(Boolean confirm) {
+							if(confirm){
+								canPerformEnrollmentAction = false;
+								presenter.changeEnrollmentState(object, state);
+							}
+						}
+					});
 				}
 			}
 		};
@@ -706,8 +717,15 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			@Override
 			public void execute(EnrollmentTO object) {
 				if (canPerformEnrollmentAction) {
-					canPerformEnrollmentAction = false;
-					presenter.deleteEnrollment(object);
+					confirmModal.showModal("Tem certeza que deseja realizar essa operação?", new Callback<Boolean>() {
+						@Override
+						public void ok(Boolean confirm) {
+							if(confirm){
+								canPerformEnrollmentAction = false;
+								presenter.deleteEnrollment(object);
+							}
+						}
+					});
 				}
 			}
 		};

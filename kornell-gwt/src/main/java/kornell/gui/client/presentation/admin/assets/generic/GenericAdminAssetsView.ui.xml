@@ -2,7 +2,7 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
 	xmlns:knlAssets="urn:import:kornell.gui.client.presentation.admin.assets.generic"
 	xmlns:knlCommon="urn:import:kornell.gui.client.presentation.admin.common">
-
+	
 	<g:FlowPanel ui:field="assetsWrapper" addStyleNames="deanWrapper assetsWrapper shy">
 		<g:FlowPanel addStyleNames="paddingBottom35 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Ícone da Tela Inicial</g:HTMLPanel>
