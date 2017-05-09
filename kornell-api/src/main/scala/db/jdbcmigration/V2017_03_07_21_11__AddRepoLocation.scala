@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils
 import java.net.URL
 import kornell.core.util.StringUtils
 import net.lingala.zip4j.core.ZipFile
+import kornell.server.jdbc.ConnectionHandler
 
 
 class V2017_03_07_23_11__AddRepoLocation extends JdbcMigration  {
@@ -32,6 +33,7 @@ class V2017_03_07_23_11__AddRepoLocation extends JdbcMigration  {
       sql"""
   		  update ContentRepository set path = ${repoPath + "/hello-world"} where uuid = ${uuid}
   		""".executeUpdate
+      ConnectionHandler.commit()
     }
   }
 
