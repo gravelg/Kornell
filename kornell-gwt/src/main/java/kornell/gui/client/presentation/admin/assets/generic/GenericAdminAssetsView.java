@@ -156,25 +156,27 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		ClickHandler deleteClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				confirmModal.showModal("Tem certeza que deseja excluir essa imagem?", new Callback<Boolean>() {
+				confirmModal.showModal("Tem certeza que deseja excluir essa seção?", new com.google.gwt.core.client.Callback<Void, Void>() {
+					
 					@Override
-					public void ok(Boolean confirm) {
-						if(confirm){
-							bus.fireEvent(new ShowPacifierEvent(true));
-							session.courseDetailsSection(courseDetailsSection.getUUID()).delete(new Callback<CourseDetailsSection>() {
-								@Override
-								public void ok(CourseDetailsSection to) {
-									KornellNotification.show("Seção excluída com sucesso.");
-									presenter.initCourseDetailsSections();
-									bus.fireEvent(new ShowPacifierEvent(false));
-								}
-								@Override
-								public void internalServerError(KornellErrorTO kornellErrorTO) {
-									KornellNotification.show("Erro ao tentar excluir a seção.", AlertType.ERROR);
-									bus.fireEvent(new ShowPacifierEvent(false));
-								}
-							});
-						}
+					public void onSuccess(Void result) {
+						bus.fireEvent(new ShowPacifierEvent(true));
+						session.courseDetailsSection(courseDetailsSection.getUUID()).delete(new Callback<CourseDetailsSection>() {
+							@Override
+							public void ok(CourseDetailsSection to) {
+								KornellNotification.show("Seção excluída com sucesso.");
+								presenter.initCourseDetailsSections();
+								bus.fireEvent(new ShowPacifierEvent(false));
+							}
+							@Override
+							public void internalServerError(KornellErrorTO kornellErrorTO) {
+								KornellNotification.show("Erro ao tentar excluir a seção.", AlertType.ERROR);
+								bus.fireEvent(new ShowPacifierEvent(false));
+							}
+						});
+					}
+					@Override
+					public void onFailure(Void reason) {
 					}
 				});
 			}
@@ -219,25 +221,27 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		ClickHandler deleteClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				confirmModal.showModal("Tem certeza que deseja excluir essa dica?", new Callback<Boolean>() {
+				confirmModal.showModal("Tem certeza que deseja excluir essa dica?", new com.google.gwt.core.client.Callback<Void, Void>() {
+					
 					@Override
-					public void ok(Boolean confirm) {
-						if(confirm){
-							bus.fireEvent(new ShowPacifierEvent(true));
-							session.courseDetailsHint(courseDetailsHint.getUUID()).delete(new Callback<CourseDetailsHint>() {
-								@Override
-								public void ok(CourseDetailsHint to) {
-									KornellNotification.show("Dica excluída com sucesso.");
-									presenter.initCourseDetailsHints();
-									bus.fireEvent(new ShowPacifierEvent(false));
-								}
-								@Override
-								public void internalServerError(KornellErrorTO kornellErrorTO) {
-									KornellNotification.show("Erro ao tentar excluir a dica.", AlertType.ERROR);
-									bus.fireEvent(new ShowPacifierEvent(false));
-								}
-							});
-						}
+					public void onSuccess(Void result) {
+						bus.fireEvent(new ShowPacifierEvent(true));
+						session.courseDetailsHint(courseDetailsHint.getUUID()).delete(new Callback<CourseDetailsHint>() {
+							@Override
+							public void ok(CourseDetailsHint to) {
+								KornellNotification.show("Dica excluída com sucesso.");
+								presenter.initCourseDetailsHints();
+								bus.fireEvent(new ShowPacifierEvent(false));
+							}
+							@Override
+							public void internalServerError(KornellErrorTO kornellErrorTO) {
+								KornellNotification.show("Erro ao tentar excluir a dica.", AlertType.ERROR);
+								bus.fireEvent(new ShowPacifierEvent(false));
+							}
+						});
+					}
+					@Override
+					public void onFailure(Void reason) {
 					}
 				});
 			}
@@ -285,26 +289,28 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		ClickHandler deleteClickHandler = new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				confirmModal.showModal("Tem certeza que deseja excluir esse arquivo?", new Callback<Boolean>() {
+				confirmModal.showModal("Tem certeza que deseja excluir esse arquivo?", new com.google.gwt.core.client.Callback<Void, Void>() {
+					
 					@Override
-					public void ok(Boolean confirm) {
-						if(confirm){
-							bus.fireEvent(new ShowPacifierEvent(true));
-							session.courseDetailsLibrary(courseDetailsLibrary.getUUID()).delete(new Callback<CourseDetailsLibrary>() {
-								@Override
-								public void ok(CourseDetailsLibrary to) {
-									KornellNotification.show("Arquivo excluído com sucesso.");
-									presenter.initCourseDetailsLibraries();
-									bus.fireEvent(new ShowPacifierEvent(false));
-								}
+					public void onSuccess(Void result) {
+						bus.fireEvent(new ShowPacifierEvent(true));
+						session.courseDetailsLibrary(courseDetailsLibrary.getUUID()).delete(new Callback<CourseDetailsLibrary>() {
+							@Override
+							public void ok(CourseDetailsLibrary to) {
+								KornellNotification.show("Arquivo excluído com sucesso.");
+								presenter.initCourseDetailsLibraries();
+								bus.fireEvent(new ShowPacifierEvent(false));
+							}
 
-								@Override
-								public void internalServerError(KornellErrorTO kornellErrorTO) {
-									KornellNotification.show("Erro ao tentar excluir o arquivo.", AlertType.ERROR);
-									bus.fireEvent(new ShowPacifierEvent(false));
-								}
-							});
-						}
+							@Override
+							public void internalServerError(KornellErrorTO kornellErrorTO) {
+								KornellNotification.show("Erro ao tentar excluir o arquivo.", AlertType.ERROR);
+								bus.fireEvent(new ShowPacifierEvent(false));
+							}
+						});
+					}
+					@Override
+					public void onFailure(Void reason) {
 					}
 				});
 			}
@@ -446,12 +452,13 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 			btnDelete.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					confirmModal.showModal("Tem certeza que deseja excluir essa imagem?", new Callback<Boolean>() {
+					confirmModal.showModal("Tem certeza que deseja excluir essa imagem?", new com.google.gwt.core.client.Callback<Void, Void>() {
 						@Override
-						public void ok(Boolean confirm) {
-							if(confirm){
-								presenter.delete(fileName);
-							}
+						public void onSuccess(Void result) {
+							presenter.delete(fileName);
+						}
+						@Override
+						public void onFailure(Void reason) {
 						}
 					});
 				}

@@ -717,13 +717,14 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			@Override
 			public void execute(EnrollmentTO object) {
 				if (canPerformEnrollmentAction) {
-					confirmModal.showModal("Tem certeza que deseja realizar essa operação?", new Callback<Boolean>() {
+					confirmModal.showModal("Tem certeza que deseja realizar essa operação?", new com.google.gwt.core.client.Callback<Void, Void>() {
 						@Override
-						public void ok(Boolean confirm) {
-							if(confirm){
-								canPerformEnrollmentAction = false;
-								presenter.changeEnrollmentState(object, state);
-							}
+						public void onSuccess(Void result) {
+							canPerformEnrollmentAction = false;
+							presenter.changeEnrollmentState(object, state);
+						}
+						@Override
+						public void onFailure(Void reason) {
 						}
 					});
 				}
@@ -736,13 +737,14 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			@Override
 			public void execute(EnrollmentTO object) {
 				if (canPerformEnrollmentAction) {
-					confirmModal.showModal("Tem certeza que deseja realizar essa operação?", new Callback<Boolean>() {
+					confirmModal.showModal("Tem certeza que deseja realizar essa operação?", new com.google.gwt.core.client.Callback<Void, Void>() {
 						@Override
-						public void ok(Boolean confirm) {
-							if(confirm){
-								canPerformEnrollmentAction = false;
-								presenter.deleteEnrollment(object);
-							}
+						public void onSuccess(Void result) {
+							canPerformEnrollmentAction = false;
+							presenter.deleteEnrollment(object);
+						}
+						@Override
+						public void onFailure(Void reason) {
 						}
 					});
 				}

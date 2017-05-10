@@ -1,6 +1,7 @@
 package kornell.gui.client.presentation.admin.common;
 
 import com.github.gwtbootstrap.client.ui.Modal;
+import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -10,9 +11,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-
-import kornell.api.client.Callback;
-
 public class GenericConfirmModalView extends Composite {
 	interface MyUiBinder extends UiBinder<Widget, GenericConfirmModalView> {
 	}
@@ -29,14 +27,14 @@ public class GenericConfirmModalView extends Composite {
 	@UiField
 	Button btnCancel;
 
-	private Callback<Boolean> callback;
+	private Callback<Void, Void> callback;
 
 
 	public GenericConfirmModalView() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public void showModal(String message, Callback<Boolean> callback) {
+	public void showModal(String message, Callback<Void, Void> callback) {
 		confirmText.setText(message);
 		this.callback = callback;
 		confirmModal.show();
@@ -44,14 +42,14 @@ public class GenericConfirmModalView extends Composite {
 	
 	@UiHandler("btnOK")
 	void doOK(ClickEvent e) { 
-		callback.ok(true);
+		callback.onSuccess(null);
 		confirmModal.hide();
 	}
 	
 
 	@UiHandler("btnCancel")
 	void doCancel(ClickEvent e) { 
-		callback.ok(false);
+		callback.onFailure(null);
 		confirmModal.hide();
 	}
 
