@@ -406,7 +406,9 @@ public class GenericAssetFormView extends Composite {
 		fields.add(fontAwesomeClassName);
 		assetFields.add(fontAwesomeClassName);
 		
-		assetFields.add(new Anchor("Escolha um ícone", "http://fontawesome.io/icons/", "_blank"));
+		Anchor faLink = new Anchor("Escolha um ícone", "http://fontawesome.io/icons/", "_blank");
+		faLink.addStyleName("faLink");
+		assetFields.add(faLink);
 		
 		assetFields.add(formHelper.getImageSeparator());
 	}
