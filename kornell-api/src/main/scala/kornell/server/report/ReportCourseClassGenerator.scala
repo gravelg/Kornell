@@ -227,17 +227,18 @@ object ReportCourseClassGenerator {
     			(cc.state = ${CourseClassState.active.toString} or ${courseUUID} is null)
     """.first[ReportHeaderData](headerDataConvertion)
     
-    parameters.put("institutionName", headerInfo.get._1)
-    parameters.put("courseTitle", headerInfo.get._2)
-	  parameters.put("assetsURL", mkurl(headerInfo.get._9, "repository", headerInfo.get._6, S3Service.PREFIX, S3Service.INSTITUTION, ""))
-    if(courseClassUUID != null){
-      parameters.put("courseClassName", headerInfo.get._3)
-      parameters.put("createdAt", headerInfo.get._4)
-      parameters.put("maxEnrollments", headerInfo.get._5)
-      parameters.put("disabledAt", headerInfo.get._7)
-      parameters.put("courseClassAdminNames", headerInfo.get._8)
+    if(headerInfo.isDefined) {
+      parameters.put("institutionName", headerInfo.get._1)
+      parameters.put("courseTitle", headerInfo.get._2)
+  	  parameters.put("assetsURL", mkurl(headerInfo.get._9, "repository", headerInfo.get._6, S3Service.PREFIX, S3Service.INSTITUTION, ""))
+      if(courseClassUUID != null){
+        parameters.put("courseClassName", headerInfo.get._3)
+        parameters.put("createdAt", headerInfo.get._4)
+        parameters.put("maxEnrollments", headerInfo.get._5)
+        parameters.put("disabledAt", headerInfo.get._7)
+        parameters.put("courseClassAdminNames", headerInfo.get._8)
+      }
     }
-    
     parameters
   }
 
