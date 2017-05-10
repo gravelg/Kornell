@@ -234,15 +234,12 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		courseVersionFields.add(contentSpec);
 
 		disabled = new KornellFormFieldWrapper("Desabilitar?", formHelper.createCheckBoxFormField(courseVersion.isDisabled()), isInstitutionAdmin);
-		fields.add(disabled);
-		courseVersionFields.add(disabled);
-		((CheckBox)disabled.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<Boolean> event) {
-				if(event.getValue()){
-				}
-			}
-		});
+		if(!isCreationMode){
+			fields.add(disabled);
+			courseVersionFields.add(disabled);
+		}
+		
+		courseVersionFields.add(formHelper.getImageSeparator());
 		
 		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
 			if (isCreationMode || isInstitutionAdmin) {
@@ -255,18 +252,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 			} else {
 				createCourseVersionsField(null);
 			}
-
-			String instanceCountStr = courseVersion.getInstanceCount() == null ? "" : courseVersion.getInstanceCount().toString();
-			instanceCount = new KornellFormFieldWrapper("Quantidade de Instâncias", formHelper.createTextBoxFormField(instanceCountStr), isInstitutionAdmin);
-			fields.add(instanceCount);
-			courseVersionFields.add(instanceCount);
-
-			label = new KornellFormFieldWrapper("Rótulo", formHelper.createTextBoxFormField(courseVersion.getLabel()), isInstitutionAdmin);
-			fields.add(label);
-			courseVersionFields.add(label);
 		}
-		
-		courseVersionFields.add(formHelper.getImageSeparator());
 
 		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
 			@Override
@@ -310,10 +296,19 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 			courseVersions.setSelectedValue(courseVersion.getParentVersionUUID() == null? "null" : courseVersion.getParentVersionUUID());
 		}
 		parentCourseVersion = new KornellFormFieldWrapper("Versão Pai do Curso", new ListBoxFormField(courseVersions), (isCreationMode || isInstitutionAdmin));
-		
 		fields.add(parentCourseVersion);
-		courseVersionFields.insert(parentCourseVersion, 5);
+		courseVersionFields.add(parentCourseVersion);
+
+		String instanceCountStr = courseVersion.getInstanceCount() == null ? "" : courseVersion.getInstanceCount().toString();
+		instanceCount = new KornellFormFieldWrapper("Quantidade de Instâncias", formHelper.createTextBoxFormField(instanceCountStr), isInstitutionAdmin);
+		fields.add(instanceCount);
+		courseVersionFields.add(instanceCount);
+
+		label = new KornellFormFieldWrapper("Rótulo", formHelper.createTextBoxFormField(courseVersion.getLabel()), isInstitutionAdmin);
+		fields.add(label);
+		courseVersionFields.add(label);
 		
+		courseVersionFields.add(formHelper.getImageSeparator());
 		
 		courseVersionFields.setVisible(true);
 	}

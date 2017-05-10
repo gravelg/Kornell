@@ -161,8 +161,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
 	}
 	
 	private void buildSupportIcon(){
-		String supportEmail = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getInstitutionSupportEmail();
-		supportEmail = StringUtils.isSome(supportEmail) ? supportEmail : "suporte@craftware.com.br";
+		String supportEmail = getSupportEmail();
 		
 		Icon icon = new Icon();
 		icon.addStyleName("fa fa-question-circle");
@@ -178,6 +177,15 @@ public class GenericVitrineView extends Composite implements VitrineView {
 		tooltip.add(anchor);
 		
 		boxLogin.add(tooltip);
+	}
+
+	private String getSupportEmail() {
+		String supportEmail = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getInstitutionSupportEmail();
+		supportEmail = StringUtils.isSome(supportEmail) ? supportEmail : "suporte@craftware.com.br";
+		if(supportEmail.indexOf('<') >= 0 && supportEmail.indexOf('>') >= 0){
+			supportEmail = supportEmail.substring(supportEmail.indexOf('<') + 1, supportEmail.indexOf('>'));
+		}
+		return supportEmail;
 	}
 
 	private void buildFlagsPanel() {
