@@ -33,6 +33,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.ContentSpec;
+import kornell.core.entity.Course;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseVersion;
 import kornell.core.entity.EntityFactory;
@@ -104,6 +105,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	Button btnModalCancel;
 
 	private CourseVersion courseVersion;
+	private Course courseEntity;
 
 	private KornellFormFieldWrapper name, course, distributionPrefix, contentSpec, disabled, parentCourseVersion, instanceCount, label;
 	
@@ -159,6 +161,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 				@Override
 				public void ok(CourseVersionTO to) {
 					courseVersion = to.getCourseVersion();
+					courseEntity = to.getCourseTO().getCourse();
 					initData();
 				}
 			});
@@ -171,15 +174,15 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 
 	public void initData() {
 
-		if(!isCreationMode && ContentSpec.WIZARD.equals(courseVersion.getContentSpec()))
-			presenter.buildContentView(courseVersion);
+		if(!isCreationMode && ContentSpec.WIZARD.equals(courseEntity.getContentSpec()))
+			presenter.buildContentView(courseVersion, courseEntity.getContentSpec());
 		
 
 		if (isPlatformAdmin) {			
 			contentsTab.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					presenter.buildContentView(courseVersion);
+					presenter.buildContentView(courseVersion, courseEntity.getContentSpec());
 				}
 			});
 		} else {
@@ -227,7 +230,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		contentSpecTypes.addItem("SCORM12", ContentSpec.SCORM12.toString());
 		//contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
 		if (!isCreationMode) {
-			contentSpecTypes.setSelectedValue(courseVersion.getContentSpec().toString());
+			contentSpecTypes.setSelectedValue(courseEntity.getContentSpec().toString());
 		}
 		contentSpec = new KornellFormFieldWrapper("Tipo", new ListBoxFormField(contentSpecTypes), isInstitutionAdmin);
 		fields.add(contentSpec);
@@ -386,7 +389,6 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		version.setName(name.getFieldPersistText());
 		version.setCourseUUID(course.getFieldPersistText());
 		version.setDistributionPrefix(distributionPrefix.getFieldPersistText());
-		version.setContentSpec(ContentSpec.valueOf(contentSpec.getFieldPersistText()));
 		version.setDisabled(disabled.getFieldPersistText().equals("true"));
 		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
 			String parentVersionUUID = (parentCourseVersion.getFieldPersistText().equals("null") ? null : parentCourseVersion.getFieldPersistText());

@@ -28,14 +28,13 @@ object CourseVersionsRepo {
 		courseVersion.setVersionCreatedAt(new Date());
 		
 	    sql"""
-	    | insert into CourseVersion (uuid,name,course_uuid,versionCreatedAt,distributionPrefix,contentSpec,disabled,thumbUrl) 
+	    | insert into CourseVersion (uuid,name,course_uuid,versionCreatedAt,distributionPrefix,disabled,thumbUrl) 
 	    | values(
 	    | ${courseVersion.getUUID},
 	    | ${courseVersion.getName},
 	    | ${courseVersion.getCourseUUID}, 
 	    | ${courseVersion.getVersionCreatedAt},
 	    | ${courseVersion.getDistributionPrefix},
-	    | ${courseVersion.getContentSpec.toString},
 	    | ${courseVersion.isDisabled},
 	    | ${courseVersion.getThumbUrl})""".executeUpdate
 	    

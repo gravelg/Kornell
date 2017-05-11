@@ -37,6 +37,7 @@ import kornell.core.to.DashboardLeaderboardTO
 import kornell.server.jdbc.repository.EnrollmentsRepo
 import kornell.server.jdbc.repository.CourseVersionRepo
 import kornell.core.entity.ContentSpec
+import kornell.server.jdbc.repository.CourseRepo
 
 @Produces(Array(Enrollment.TYPE))
 class EnrollmentResource(uuid: String) {
@@ -109,7 +110,7 @@ class EnrollmentResource(uuid: String) {
     val courseClass = if(classUUID != null){
       CourseClassesRepo(classUUID).get
     } else null
-        
+    val courseVersion = CourseVersionRepo(courseClass.getCourseVersionUUID).get
     
     val eLaunch: EnrollmentLaunchTO = TOs.newEnrollmentLaunchTO
     
@@ -132,7 +133,7 @@ class EnrollmentResource(uuid: String) {
     
     //if the enrollment is on a class and it's a SCORM12 version
     if(courseClass != null &&
-        ContentSpec.SCORM12.equals(CourseVersionRepo(courseClass.getCourseVersionUUID).get.getContentSpec)) {
+        ContentSpec.SCORM12.equals(CourseRepo(courseVersion.getCourseUUID).get.getContentSpec)) {
       //initialize the enrollmentEntries map if no attribute exists
       val enrollmentEntries = Option(eEntries.getEnrollmentEntriesMap.get(enrollment.getUUID)) match {
         case Some(ee) => ee

@@ -6,7 +6,7 @@ import kornell.core.to.CourseClassTO;
 public class Teachers {
 	public static Teacher of(CourseClassTO courseClassTO) {
 		ContentSpec spec = courseClassTO.getCourseVersionTO()
-				.getCourseVersion().getContentSpec();
+				.getCourseTO().getCourse().getContentSpec();
 		switch (spec) {
 		case KNL:
 			return new KNLTeacher(courseClassTO);

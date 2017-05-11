@@ -33,7 +33,8 @@ class InstitutionRepo(uuid: String) {
     | i.useEmailWhitelist = ${institution.isUseEmailWhitelist},
     | i.assetsRepositoryUUID = ${institution.getAssetsRepositoryUUID},
     | i.timeZone = ${institution.getTimeZone},
-    | i.institutionSupportEmail = ${institution.getInstitutionSupportEmail}
+    | i.institutionSupportEmail = ${institution.getInstitutionSupportEmail},
+    | i.advancedMode = ${institution.isAdvancedMode}
     | where i.uuid = ${institution.getUUID}""".executeUpdate
 	    
     //log entity change

@@ -24,10 +24,7 @@ import kornell.core.to.InstitutionEmailWhitelistTO
 import kornell.server.jdbc.repository.InstitutionEmailWhitelistRepo
 import kornell.core.entity.ChatThreadType
 import kornell.server.service.S3Service
-import kornell.server.service.SimpleCVCCreationService
 import javax.ws.rs.PathParam
-import kornell.core.to.SimpleCVCTO
-import kornell.core.to.SimpleCVCResponseTO
 
 
 class InstitutionResource(uuid: String) {
@@ -123,17 +120,6 @@ class InstitutionResource(uuid: String) {
    @Produces(Array("application/octet-stream"))
    def getUploadUrl(@PathParam("filename") filename: String) : String = {
     S3Service.getInstitutionUploadUrl(uuid, filename)
-  }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
-   .or(isInstitutionAdmin(uuid), AccessDeniedErr())
-   .get
-   
-
-  @POST
-  @Consumes(Array(SimpleCVCTO.TYPE))
-  @Produces(Array(SimpleCVCResponseTO.TYPE))
-  @Path("simpleCVC")
-  def simpleCVCCreation(to: SimpleCVCTO) = {
-    SimpleCVCCreationService.simpleCreation(uuid, to)
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
    .or(isInstitutionAdmin(uuid), AccessDeniedErr())
    .get

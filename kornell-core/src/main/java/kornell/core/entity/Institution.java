@@ -56,4 +56,7 @@ public interface Institution extends Named {
 	
 	String getInstitutionSupportEmail();
 	void setInstitutionSupportEmail(String institutionSupportEmail);
+	
+	boolean isAdvancedMode();
+	void setAdvancedMode(boolean advancedMode);
 }

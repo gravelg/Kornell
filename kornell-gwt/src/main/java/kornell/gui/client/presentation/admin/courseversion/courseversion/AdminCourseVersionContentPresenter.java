@@ -41,12 +41,12 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
 	}
 
 	@Override
-	public void init(CourseVersion courseVersion) {
+	public void init(CourseVersion courseVersion, ContentSpec contentSpec) {
 		if (session.isInstitutionAdmin()) {
 			view = viewFactory.getAdminCourseVersionContentView();
 			view.setPresenter(this);
 			
-			boolean isWizardVersion = ContentSpec.WIZARD.equals(courseVersion.getContentSpec());
+			boolean isWizardVersion = ContentSpec.WIZARD.equals(contentSpec);
 			if(isWizardVersion){			
 				wizard = WizardMock.mockWizard();
 				selectedWizardElement = wizard.getWizardTopics().get(0).getWizardSlides().get(0);

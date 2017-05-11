@@ -59,7 +59,6 @@ import kornell.core.to.CourseDetailsLibrariesTO
 import kornell.core.entity.CourseDetailsLibrary
 import kornell.core.to.CourseDetailsSectionsTO
 import kornell.core.entity.CourseDetailsSection
-import kornell.core.to.SimpleCVCResponseTO
 
 //TODO: Consider turning to Object
 object TOs {
@@ -395,13 +394,5 @@ object TOs {
     val courseDetailsLibrariesTO = newCourseDetailsLibrariesTO
     courseDetailsLibrariesTO.setCourseDetailsLibraries(courseDetailsLibraries asJava)
     courseDetailsLibrariesTO
-  }
-  
-  def newSimpleCVCResponseTO(course: Course, courseVersion: CourseVersion, courseClass: CourseClass): SimpleCVCResponseTO = {
-    val to = tos.newSimpleCVCResponseTO.as
-    to.setCourse(course)
-    to.setCourseVersion(courseVersion)
-    to.setCourseClass(courseClass)
-    to
   }
 }

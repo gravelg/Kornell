@@ -13,6 +13,7 @@ import kornell.core.entity.Course
 import kornell.server.util.Conditional.toConditional
 import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.util.AccessDeniedErr
+import kornell.server.service.CourseCreationService
 
 @Path("courses")
 class CoursesResource {
@@ -32,10 +33,10 @@ class CoursesResource {
    .get
   
   @POST
-  @Produces(Array(Course.TYPE))
+  @Produces(Array(CourseClassTO.TYPE))
   @Consumes(Array(Course.TYPE))
   def create(course: Course) = {
-    CoursesRepo.create(course)
+    CourseCreationService.createCourse(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, course)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

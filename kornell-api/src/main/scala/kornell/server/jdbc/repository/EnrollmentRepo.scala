@@ -61,7 +61,8 @@ class EnrollmentRepo(uuid: String) {
     e <- first
     cc <- CourseClassesRepo(e.getCourseClassUUID).first
     cv <- CourseVersionRepo(cc.getCourseVersionUUID).first
-  } cv.getContentSpec match {
+    c <- CourseRepo(cv.getCourseUUID).first
+  } c.getContentSpec match {
     case KNL => updateKNLProgress(e)
     case SCORM12 => updateSCORM12Progress(e)
     case WIZARD => throw new Exception("Not supported")

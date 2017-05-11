@@ -21,4 +21,6 @@ public interface Course extends ThumbnailEntity {
 	boolean isChildCourse();
 	void setChildCourse(boolean childCourse);
 	
+	ContentSpec getContentSpec();
+	void setContentSpec(ContentSpec contentSpec);
 }
