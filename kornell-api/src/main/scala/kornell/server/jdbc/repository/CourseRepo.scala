@@ -27,13 +27,24 @@ class CourseRepo(uuid: String) {
     | c.infoJson = ${course.getInfoJson},
     | c.institutionUUID = ${course.getInstitutionUUID},
     | c.childCourse = ${course.isChildCourse},
-    | c.thumbUrl = ${course.getThumbUrl}
+    | c.thumbUrl = ${course.getThumbUrl},
+    | c.contentSpec = ${course.getContentSpec.toString}
     | where c.uuid = ${course.getUUID}""".executeUpdate
 	    
     //log entity change
     EventsRepo.logEntityChange(course.getInstitutionUUID, AuditedEntityType.course, course.getUUID, oldCourse, course)
 	        
     course
+  }
+  
+  def delete = {    
+    val course = get
+    if(CourseVersionsRepo.countByCourse(uuid) == 0){
+      sql"""
+        delete from Course
+        where uuid = ${uuid}""".executeUpdate
+      course
+    }
   }
 
 }

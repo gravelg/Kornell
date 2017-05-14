@@ -17,9 +17,6 @@ public interface CourseVersion extends ThumbnailEntity {
 	Date getVersionCreatedAt();
 	void setVersionCreatedAt(Date versionCreatedAt);
 	
-	ContentSpec getContentSpec();
-	void setContentSpec(ContentSpec contentSpec);
-	
 	boolean isDisabled();
 	void setDisabled(boolean disabled);
 	

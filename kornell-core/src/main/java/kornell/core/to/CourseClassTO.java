@@ -21,4 +21,7 @@ public interface CourseClassTO extends CourseDetailsTO {
 	Enrollment getEnrollment();
 	void setEnrollment(Enrollment e);
 	
+	Integer getEnrollmentCount();
+	void setEnrollmentCount(Integer enrollmentCount);
+	
 }

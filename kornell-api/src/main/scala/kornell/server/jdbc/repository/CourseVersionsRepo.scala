@@ -14,6 +14,7 @@ import kornell.core.util.UUID
 import java.util.Date
 import kornell.core.error.exception.EntityConflictException
 import kornell.core.entity.AuditedEntityType
+import kornell.core.util.StringUtils
 
 object CourseVersionsRepo {
   
@@ -28,14 +29,13 @@ object CourseVersionsRepo {
 		courseVersion.setVersionCreatedAt(new Date());
 		
 	    sql"""
-	    | insert into CourseVersion (uuid,name,course_uuid,versionCreatedAt,distributionPrefix,contentSpec,disabled,thumbUrl) 
+	    | insert into CourseVersion (uuid,name,course_uuid,versionCreatedAt,distributionPrefix,disabled,thumbUrl) 
 	    | values(
 	    | ${courseVersion.getUUID},
 	    | ${courseVersion.getName},
 	    | ${courseVersion.getCourseUUID}, 
 	    | ${courseVersion.getVersionCreatedAt},
 	    | ${courseVersion.getDistributionPrefix},
-	    | ${courseVersion.getContentSpec.toString},
 	    | ${courseVersion.isDisabled},
 	    | ${courseVersion.getThumbUrl})""".executeUpdate
 	    
@@ -48,45 +48,75 @@ object CourseVersionsRepo {
     }
   }  
   
-  def byInstitution(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int) = {
+  def getCourseVersionTO(institutionUUID: String, courseVersionUUID: String) = {
+    val courseVersionsTO = byInstitution(institutionUUID, "", Int.MaxValue, 1, null, courseVersionUUID)
+    if (courseVersionsTO.getCourseVersionTOs.size > 0) {
+      courseVersionsTO.getCourseVersionTOs.get(0)
+    }
+  }
+  
+  def byInstitution(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, courseUUID: String = null, courseVersionUUID: String = null) = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
     
     val courseVersionsTO = newCourseVersionsTO(sql"""
-	  	select cv.* from CourseVersion cv
-		join Course c on cv.course_uuid = c.uuid
-		where c.institutionUUID = $institutionUUID
-		and cv.name like ${filteredSearchTerm}
-		order by c.title, cv.versionCreatedAt desc limit ${resultOffset}, ${pageSize}
-	  """.map[CourseVersion](toCourseVersion))
+      select
+      cv.uuid as courseVersionUUID,
+      cv.name as courseVersionName,
+      cv.course_uuid as courseUUID,
+      cv.versionCreatedAt as versionCreatedAt,
+      cv.distributionPrefix as distributionPrefix,
+      cv.disabled as courseVersionDisabled,
+      cv.parentVersionUUID as parentVersionUUID,
+      cv.instanceCount as instanceCount,
+      cv.label as label,
+      cv.thumbUrl as courseVersionThumbUrl,
+      c.uuid as courseUUID,
+      c.code as courseCode,
+      c.title as courseTitle,
+      c.description as courseDescription,
+      c.contentSpec as contentSpec,
+      c.infoJson as infoJson,
+      c.institutionUUID as institutionUUID,
+      c.childCourse as childCourse,
+      c.thumbUrl as courseThumbUrl
+      from CourseVersion cv
+  		join Course c on cv.course_uuid = c.uuid
+  		where c.institutionUUID = $institutionUUID
+  		and cv.name like ${filteredSearchTerm}
+      and (cv.uuid = ${courseVersionUUID}  or ${StringUtils.isNone(courseVersionUUID)})
+      and (cv.uuid = ${courseUUID}  or ${StringUtils.isNone(courseUUID)})
+  		order by c.title, cv.versionCreatedAt desc limit ${resultOffset}, ${pageSize}
+	  """.map[CourseVersionTO](toCourseVersionTO))
 	  courseVersionsTO.setPageSize(pageSize)
 	  courseVersionsTO.setPageNumber(pageNumber.max(1))
 	  courseVersionsTO.setCount({
 	    sql"""select count(cv.uuid) from CourseVersion cv
 	    	join Course c on cv.course_uuid = c.uuid
-			where c.institutionUUID = $institutionUUID
-	    	""".first[String].get.toInt
+			  where c.institutionUUID = $institutionUUID
+	    """.first[String].get.toInt
 	  })
 	  courseVersionsTO.setSearchCount({
     	  if (searchTerm == "")
     		  0
 		  else
 		    sql"""select count(cv.uuid) from CourseVersion cv
-	    	join Course c on cv.course_uuid = c.uuid
-			where c.institutionUUID = $institutionUUID
-			and cv.name like ${filteredSearchTerm}
+  	    	join Course c on cv.course_uuid = c.uuid
+    			where c.institutionUUID = $institutionUUID
+    			and cv.name like ${filteredSearchTerm}
 	    	""".first[String].get.toInt
 	  })
+	  
+    bindCourseClassesCounts(courseVersionsTO)
 	  courseVersionsTO
   }
   
-  def byCourse(courseUUID: String) = newCourseVersionsTO(
-    sql"""
-	  	select cv.* from CourseVersion cv
-		join Course c on cv.course_uuid = c.uuid
-		where cv.disabled = 0 and c.uuid = $courseUUID
-		order by cv.versionCreatedAt desc
-	  """.map[CourseVersion])
+  private def bindCourseClassesCounts(courseVersionsTO: CourseVersionsTO) = {
+    val versions = courseVersionsTO.getCourseVersionTOs.asScala
+    versions.foreach(cv => cv.setCourseClassesCount(CourseClassesRepo.countByCourseVersion(cv.getCourseVersion.getUUID)))
+    courseVersionsTO.setCourseVersionTOs(versions.asJava)
+    courseVersionsTO
+  }
 
   def byParentVersionUUID(parentVersionUUID: String) = sql"""
     select * from CourseVersion where parentVersionUUID = ${parentVersionUUID}
@@ -102,6 +132,12 @@ object CourseVersionsRepo {
 	    | and cv.disabled = 0
 	    """.first[CourseVersion](toCourseVersion)
   }
+  
+  def countByCourse(courseUUID: String) = 
+    sql"""select count(*) 
+      from CourseVersion cv 
+      where cv.course_uuid = ${courseUUID} 
+    """.first[String].get.toInt
   
   
 }

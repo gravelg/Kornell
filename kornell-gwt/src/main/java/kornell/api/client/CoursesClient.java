@@ -1,6 +1,7 @@
 package kornell.api.client;
 
 import kornell.core.entity.Course;
+import kornell.core.to.CourseClassTO;
 import kornell.core.to.CoursesTO;
 
 public class CoursesClient extends RESTClient {
@@ -17,7 +18,7 @@ public class CoursesClient extends RESTClient {
 		GET("/courses?fetchChildCourses="+fetchChildCourses + "&ps=" + ps + "&pn=" + pn + "&searchTerm=" + searchTerm).go(callback);
 	}
 	
-	public void create(Course course, Callback<Course> callback) {
+	public void create(Course course, Callback<CourseClassTO> callback) {
 		POST("/courses").withContentType(Course.TYPE).withEntityBody(course).go(callback);
 	}
 	

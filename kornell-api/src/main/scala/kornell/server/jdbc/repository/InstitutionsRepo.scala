@@ -74,7 +74,7 @@ object InstitutionsRepo {
       institution.setActivatedAt(new Date)
     }
     sql"""
-    | insert into Institution (uuid,name,terms,baseURL,demandsPersonContactDetails,validatePersonContactDetails,fullName,allowRegistration,allowRegistrationByUsername,activatedAt,skin,billingType,institutionType,dashboardVersionUUID,internationalized,useEmailWhitelist,assetsRepositoryUUID,timeZone,institutionSupportEmail) 
+    | insert into Institution (uuid,name,terms,baseURL,demandsPersonContactDetails,validatePersonContactDetails,fullName,allowRegistration,allowRegistrationByUsername,activatedAt,skin,billingType,institutionType,dashboardVersionUUID,internationalized,useEmailWhitelist,assetsRepositoryUUID,timeZone,institutionSupportEmail,advancedMode)
     | values(
     | ${institution.getUUID},
     | ${institution.getName},
@@ -94,7 +94,8 @@ object InstitutionsRepo {
     | ${institution.isUseEmailWhitelist},
     | ${institution.getAssetsRepositoryUUID},
     | ${institution.getTimeZone},
-    | ${institution.getInstitutionSupportEmail})""".executeUpdate
+    | ${institution.getInstitutionSupportEmail},
+    | ${institution.isAdvancedMode})""".executeUpdate
     
     //log creation event
     EventsRepo.logEntityChange(institution.getUUID, AuditedEntityType.institution, institution.getUUID, null, institution)

@@ -117,7 +117,8 @@ object Entities {
     infoJson: String = null,
     institutionUUID: String = null,
     childCourse: Boolean, 
-    thumbUrl: String = null): Course = {
+    thumbUrl: String = null,
+    contentSpec: ContentSpec): Course = {
     val c = factory.newCourse.as
     c.setUUID(uuid)
     c.setCode(code)
@@ -127,6 +128,7 @@ object Entities {
     c.setInstitutionUUID(institutionUUID)
     c.setChildCourse(childCourse)
     c.setThumbUrl(thumbUrl)
+    c.setContentSpec(contentSpec)
     c
   }
 
@@ -191,7 +193,7 @@ object Entities {
   def newInstitution(uuid: String = randUUID, name: String, fullName: String, terms: String, baseURL: String, 
       demandsPersonContactDetails: Boolean, validatePersonContactDetails: Boolean, allowRegistration: Boolean, allowRegistrationByUsername: Boolean, 
       activatedAt: Date, skin: String, billingType: BillingType, institutionType: InstitutionType, dashboardVersionUUID: String, internationalized: Boolean, 
-      useEmailWhitelist: Boolean = false,assetsRepositoryUUID:String=null, timeZone: String, institutionSupportEmail: String) = {
+      useEmailWhitelist: Boolean = false,assetsRepositoryUUID:String=null, timeZone: String, institutionSupportEmail: String, advancedMode: Boolean) = {
     val i = factory.newInstitution.as
     i.setName(name)
     i.setFullName(fullName)
@@ -213,6 +215,7 @@ object Entities {
     i.setUseEmailWhitelist(useEmailWhitelist)
     i.setTimeZone(timeZone)
     i.setInstitutionSupportEmail(institutionSupportEmail)
+    i.setAdvancedMode(advancedMode)
     i
   }
 
@@ -285,7 +288,7 @@ object Entities {
   def newCourseVersion(
     uuid: String = randUUID, name: String = null, 
     courseUUID: String = null, versionCreatedAt: Date = new Date, distributionPrefix: String = null, 
-    contentSpec: String = null, disabled: Boolean = false, parentVersionUUID: String = null,
+    disabled: Boolean = false, parentVersionUUID: String = null,
     instanceCount: Integer = 1, label: String = null, thumbUrl: String = null) = {
     val version = factory.newCourseVersion.as
     version.setUUID(uuid);
@@ -298,10 +301,6 @@ object Entities {
     version.setInstanceCount(instanceCount)
     version.setLabel(label)
     version.setThumbUrl(thumbUrl)
-    Option(contentSpec) foreach { spec =>
-      val cSpec = ContentSpec.valueOf(spec)
-      version.setContentSpec(cSpec);
-    }
     version
   }
 

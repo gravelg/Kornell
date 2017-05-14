@@ -63,7 +63,7 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
   			@Override
   			public void ok(CourseVersionsTO to) {
   				courseVersionsTO = to;
-  				view.setCourseVersions(courseVersionsTO.getCourseVersions(), to.getCount(), to.getSearchCount());
+  				view.setCourseVersions(courseVersionsTO.getCourseVersionTOs(), to.getCount(), to.getSearchCount());
   				bus.fireEvent(new ShowPacifierEvent(false));
   			}
   		});

@@ -50,7 +50,7 @@ public class Captain implements LogoutEventHandler, LoginEventHandler {
 						if (courseClassTO == null 
 								|| (courseClassTO.getCourseClass() != null
 									&& ContentSpec.SCORM12.equals(courseClassTO.getCourseVersionTO()
-											.getCourseVersion().getContentSpec())
+											.getCourseTO().getCourse().getContentSpec())
 									&& courseClassTO.getEnrollment() != null
 									&& courseClassTO.getEnrollment().getCertifiedAt() == null
 									&& CourseClassState.active.equals(courseClassTO.getCourseClass().getState())

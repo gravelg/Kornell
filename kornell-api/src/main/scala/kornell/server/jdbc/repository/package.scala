@@ -51,6 +51,7 @@ import kornell.core.entity.CertificateType
 import kornell.core.entity.EnrollmentSource
 import kornell.core.entity.PostbackType
 import kornell.core.entity.PostbackConfig
+import kornell.core.entity.ContentSpec
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -86,7 +87,8 @@ package object repository {
         rs.getBoolean("useEmailWhitelist"),
         rs.getString("assetsRepositoryUUID"),
         rs.getString("timeZone"),
-        rs.getString("institutionSupportEmail"))
+        rs.getString("institutionSupportEmail"),
+        rs.getBoolean("advancedMode"))
         
   implicit def toContentRepository(rs:ResultSet):ContentRepository = 
     newContentRepository(rs.getString("uuid"),
@@ -121,7 +123,8 @@ package object repository {
     rs.getString("infoJson"),
     rs.getString("institutionUUID"),
     rs.getBoolean("childCourse"),
-    rs.getString("thumbUrl"))
+    rs.getString("thumbUrl"),
+    ContentSpec.valueOf(rs.getString("contentSpec")))
     
   implicit def toCourseTO(rs: ResultSet): CourseTO = newCourseTO(
       toCourse(rs))
@@ -132,7 +135,6 @@ package object repository {
     rs.getString("course_uuid"), 
     rs.getDate("versionCreatedAt"),
     rs.getString("distributionPrefix"),
-    rs.getString("contentSpec"),
     rs.getBoolean("disabled"),
     rs.getString("parentVersionUUID"),
     rs.getInt("instanceCount"),
@@ -148,7 +150,8 @@ package object repository {
 		    rs.getString("infoJson"),
 		    rs.getString("institutionUUID"),
 		    rs.getBoolean("childCourse"),
-		    rs.getString("courseThumbUrl"));
+		    rs.getString("courseThumbUrl"),
+		    ContentSpec.valueOf(rs.getString("contentSpec")));
 
     val version = newCourseVersion(
         rs.getString("courseVersionUUID"), 
@@ -156,7 +159,6 @@ package object repository {
 		    rs.getString("courseUUID"), 
 		    rs.getDate("versionCreatedAt"),
 		    rs.getString("distributionPrefix"),
-		    rs.getString("contentSpec"),
 		    rs.getBoolean("disabled"),
         rs.getString("parentVersionUUID"),
         rs.getInt("instanceCount"),
@@ -197,7 +199,6 @@ package object repository {
         rs.getString("courseUUID"), 
         rs.getDate("versionCreatedAt"), 
         rs.getString("distributionPrefix"), 
-        rs.getString("contentSpec"), 
         rs.getBoolean("courseVersionDisabled"),
         rs.getString("parentVersionUUID"),
         rs.getInt("instanceCount"),
@@ -212,7 +213,8 @@ package object repository {
         rs.getString("infoJson"),
         rs.getString("institutionUUID"),
         rs.getBoolean("childCourse"),
-        rs.getString("courseThumbUrl"))
+        rs.getString("courseThumbUrl"),
+        ContentSpec.valueOf(rs.getString("contentSpec")))
         
     TOs.newCourseVersionTO(course, courseVersion)
   }

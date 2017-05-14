@@ -31,13 +31,13 @@ import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.CourseClassState;
-import kornell.core.entity.CourseVersion;
 import kornell.core.entity.EntityFactory;
 import kornell.core.entity.InstitutionRegistrationPrefix;
 import kornell.core.entity.RegistrationType;
 import kornell.core.entity.RoleCategory;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.CourseTO;
+import kornell.core.to.CourseVersionTO;
 import kornell.core.to.CourseVersionsTO;
 import kornell.core.to.CoursesTO;
 import kornell.core.to.InstitutionRegistrationPrefixesTO;
@@ -226,7 +226,7 @@ public class GenericCourseClassConfigView extends Composite {
         Boolean isOverrideEnrollments = courseClass.isOverrideEnrollments() == null ? false : courseClass.isOverrideEnrollments();
         overrideEnrollments = new KornellFormFieldWrapper("Sobrescrever matrículas em lote?", formHelper.createCheckBoxFormField(isOverrideEnrollments), isInstitutionAdmin);
         fields.add(overrideEnrollments);
-        profileFields.add(overrideEnrollments);
+        //profileFields.add(overrideEnrollments);
         ((CheckBox)overrideEnrollments.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
             @Override
             public void onValueChange(ValueChangeEvent<Boolean> event) {
@@ -394,8 +394,8 @@ public class GenericCourseClassConfigView extends Composite {
     private void createCourseVersionsField(CourseVersionsTO to) {
         final ListBox courseVersions = new ListBox();
         if(to != null){
-            for (CourseVersion courseVersion : to.getCourseVersions()) {
-                courseVersions.addItem(courseVersion.getName(), courseVersion.getUUID());
+            for (CourseVersionTO courseVersionTO : to.getCourseVersionTOs()) {
+                courseVersions.addItem(courseVersionTO.getCourseVersion().getName(), courseVersionTO.getCourseVersion().getUUID());
             }
         } else {
             courseVersions.addItem(courseClassTO.getCourseVersionTO().getCourseVersion().getName(), courseClassTO.getCourseVersionTO().getCourseVersion().getUUID());

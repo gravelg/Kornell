@@ -12,6 +12,7 @@ import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.Course;
 import kornell.core.error.KornellErrorTO;
+import kornell.core.to.CourseClassTO;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstantsHelper;
 import kornell.gui.client.ViewFactory;
@@ -71,9 +72,9 @@ public class AdminCoursePresenter implements AdminCourseView.Presenter {
   public void upsertCourse(Course course) {
 		bus.fireEvent(new ShowPacifierEvent(true));
 		if(course.getUUID() == null){
-			session.courses().create(course, new Callback<Course>() {
+			session.courses().create(course, new Callback<CourseClassTO>() {
 				@Override
-				public void ok(Course course) {
+				public void ok(CourseClassTO courseClassTO) {
 						bus.fireEvent(new ShowPacifierEvent(false));
 						KornellNotification.show("Curso criado com sucesso!");
 						PlaceUtils.reloadCurrentPlace(bus, placeController);

@@ -124,6 +124,7 @@ object CourseClassesRepo {
 			    c.code,
 			    c.title, 
 			    c.description,
+    			c.contentSpec as contentSpec,
 			    c.infoJson,
       		c.childCourse,
           c.thumbUrl as courseThumbUrl,
@@ -131,7 +132,6 @@ object CourseClassesRepo {
 			    cv.name as courseVersionName,
 			    cv.versionCreatedAt as versionCreatedAt,
 		  		cv.distributionPrefix as distributionPrefix,
-    			cv.contentSpec as contentSpec,
     			cv.disabled as disabled,
     			cv.parentVersionUUID as parentVersionUUID,
     			cv.instanceCount as instanceCount,
@@ -206,10 +206,19 @@ object CourseClassesRepo {
             	and cc.institution_uuid = ${institutionUUID}""".first[String].get.toInt
     })
     
-    if(courseClassUUID != null && courseClassesTO.getCourseClasses.size > 0){
+    if(courseClassUUID != null && courseClassesTO.getCourseClasses.size == 1){
       bindClassroomDetails(courseClassesTO.getCourseClasses.get(0));
+    } else {
+      bindEnrollmentCounts(courseClassesTO)
     }
     
+    courseClassesTO
+  }
+  
+  private def bindEnrollmentCounts(courseClassesTO: CourseClassesTO) = {
+    val classes = courseClassesTO.getCourseClasses().asScala
+    classes.foreach(cc => cc.setEnrollmentCount(EnrollmentsRepo.countByCourseClass(cc.getCourseClass.getUUID)))
+    courseClassesTO.setCourseClasses(classes.asJava)
     courseClassesTO
   }
   
@@ -335,6 +344,13 @@ object CourseClassesRepo {
   		}
   	}
   }
+  
+  def countByCourseVersion(courseVersionUUID: String) = 
+    sql"""select count(*) 
+      from CourseClass cc 
+      where cc.courseVersion_uuid = ${courseVersionUUID} 
+      and cc.state <> ${CourseClassState.deleted.toString}
+    """.first[String].get.toInt
   
   private def bindEnrollments(personUUID: String, courseClassesTO: CourseClassesTO) = {
     val classes = courseClassesTO.getCourseClasses().asScala

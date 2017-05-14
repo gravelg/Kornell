@@ -22,7 +22,7 @@ object CoursesRepo {
       course.setUUID(UUID.random)
     }    
     sql"""
-    | insert into Course (uuid,code,title,description,infoJson,institutionUUID, thumbUrl) 
+    | insert into Course (uuid,code,title,description,infoJson,institutionUUID, thumbUrl, contentSpec) 
     | values(
     | ${course.getUUID},
     | ${course.getCode},
@@ -30,7 +30,8 @@ object CoursesRepo {
     | ${course.getDescription},
     | ${course.getInfoJson},
     | ${course.getInstitutionUUID},
-    | ${course.getThumbUrl})""".executeUpdate
+    | ${course.getThumbUrl},
+    | ${course.getContentSpec.toString})""".executeUpdate
 	    
     //log creation event
     EventsRepo.logEntityChange(course.getInstitutionUUID, AuditedEntityType.course, course.getUUID, null, course)
@@ -82,6 +83,15 @@ object CoursesRepo {
     	  		and (childCourse = false or $fetchChildCourses = true)"""
     	  		.first[String].get.toInt
     	})
-   coursesTO
+	  
+    bindCourseVersionsCounts(coursesTO)
+	  coursesTO
+  }
+  
+  private def bindCourseVersionsCounts(coursesTO: CoursesTO) = {
+    val courses = coursesTO.getCourses.asScala
+    courses.foreach(cv => cv.setCourseVersionsCount(CourseVersionsRepo.countByCourse(cv.getCourse.getUUID)))
+    coursesTO.setCourses(courses.asJava)
+    coursesTO
   }
 }

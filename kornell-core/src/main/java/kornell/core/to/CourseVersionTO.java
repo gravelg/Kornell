@@ -13,4 +13,7 @@ public interface CourseVersionTO {
 	
 	String getDistributionURL();
 	void setDistributionURL(String getDistributionURL);
+	
+	Integer getCourseClassesCount();	
+	void setCourseClassesCount(Integer courseClassesCount);
 }

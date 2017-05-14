@@ -13,6 +13,7 @@ import kornell.core.entity.Course
 import kornell.server.util.Conditional.toConditional
 import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.util.AccessDeniedErr
+import kornell.server.service.CourseCreationService
 
 @Path("courses")
 class CoursesResource {
@@ -23,19 +24,17 @@ class CoursesResource {
   @GET
   @Produces(Array(CoursesTO.TYPE))
   def getCourses(@QueryParam("fetchChildCourses") fetchChildCourses: String, @QueryParam("searchTerm") searchTerm: String,
-      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int) =
-	  AuthRepo().withPerson { person => {
-	    	 CoursesRepo.byInstitution(fetchChildCourses == "true", person.getInstitutionUUID, searchTerm, pageSize, pageNumber)
-	  }
+      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int) = {
+    CoursesRepo.byInstitution(fetchChildCourses == "true", PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
   
   @POST
-  @Produces(Array(Course.TYPE))
+  @Produces(Array(CourseClassTO.TYPE))
   @Consumes(Array(Course.TYPE))
   def create(course: Course) = {
-    CoursesRepo.create(course)
+    CourseCreationService.simpleCreation(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, course)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

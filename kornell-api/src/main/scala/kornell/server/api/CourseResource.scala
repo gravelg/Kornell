@@ -35,6 +35,14 @@ class CourseResource(uuid: String) {
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
    .or(isInstitutionAdmin(), AccessDeniedErr())
    .get
+
+  @DELETE
+  @Produces(Array(Course.TYPE))
+  def delete() = {
+    CourseRepo(uuid).delete
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
    
    @GET
    @Path("uploadUrl/{filename}")

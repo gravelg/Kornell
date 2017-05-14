@@ -10,6 +10,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
 import kornell.core.entity.CourseVersion;
 import kornell.core.error.KornellErrorTO;
 import kornell.gui.client.KornellConstantsHelper;
@@ -99,9 +100,9 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
 	}
 
 	@Override
-	public void buildContentView(CourseVersion courseVersion) {
+	public void buildContentView(CourseVersion courseVersion, ContentSpec contentSpec) {
 		courseVersionContentPresenter = new AdminCourseVersionContentPresenter(session, placeController, bus, defaultPlace, viewFactory);
-		courseVersionContentPresenter.init(courseVersion);
+		courseVersionContentPresenter.init(courseVersion, contentSpec);
 		view.addContentPanel((AdminCourseVersionContentView) courseVersionContentPresenter.asWidget());
 	}
 }
