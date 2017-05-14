@@ -45,6 +45,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
+import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Timer;
@@ -53,6 +55,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.AsyncDataProvider;
+import com.google.gwt.view.client.HasData;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
@@ -67,6 +71,7 @@ import kornell.core.entity.RegistrationType;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.CourseClassesTO;
 import kornell.core.to.EnrollmentTO;
+import kornell.core.to.EnrollmentsTO;
 import kornell.core.to.UnreadChatThreadTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
@@ -447,29 +452,44 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		for (int i = 0; table.getColumnCount() > 0;) {
 			table.removeColumn(i);
 		}
-
-		table.addColumn(new TextColumn<EnrollmentTO>() {
+		
+		TextColumn<EnrollmentTO> nameColumn = new TextColumn<EnrollmentTO>() {
 			@Override
 			public String getValue(EnrollmentTO enrollmentTO) {
 				return enrollmentTO.getFullName();
 			}
-		}, "Nome");
+		};		
+	    nameColumn.setSortable(true);
+	    nameColumn.setDataStoreName("p.fullName");
+	    table.addColumnSortHandler(new AsyncHandler(table));
+		table.addColumn(nameColumn, "Nome");
 
-		table.addColumn(new TextColumn<EnrollmentTO>() {
+		
+		TextColumn<EnrollmentTO> usernameColumn = new TextColumn<EnrollmentTO>() {
 			@Override
 			public String getValue(EnrollmentTO enrollmentTO) {
 				return enrollmentTO.getUsername();
 			}
-		}, "Usuário");
+		};		
+	    usernameColumn.setSortable(true);
+	    usernameColumn.setDataStoreName("pw.username");
+	    table.addColumnSortHandler(new AsyncHandler(table));
+		table.addColumn(usernameColumn, "Usuário");
 
-		table.addColumn(new TextColumn<EnrollmentTO>() {
+		
+		TextColumn<EnrollmentTO> stateColumn = new TextColumn<EnrollmentTO>() {
 			@Override
 			public String getValue(EnrollmentTO enrollmentTO) {
 				return EnumTranslator.translateEnum(enrollmentTO.getEnrollment().getState());
 			}
-		}, "Matrícula");
+		};		
+	    stateColumn.setSortable(true);
+	    stateColumn.setDataStoreName("e.state");
+	    table.addColumnSortHandler(new AsyncHandler(table));
+		table.addColumn(stateColumn, "Matrícula");
 
-		table.addColumn(new TextColumn<EnrollmentTO>() {
+		
+		TextColumn<EnrollmentTO> progressColumn = new TextColumn<EnrollmentTO>() {
 			@Override
 			public String getValue(EnrollmentTO enrollmentTO) {
 				String progressTxt = EnumTranslator.translateEnum(EnrollmentCategory
@@ -490,14 +510,23 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 				}
 				return progressTxt;
 			}
-		}, "Progresso");
+		};		
+	    progressColumn.setSortable(true);
+	    progressColumn.setDataStoreName("e.progress");
+	    table.addColumnSortHandler(new AsyncHandler(table));
+		table.addColumn(progressColumn, "Progresso");
 
-		table.addColumn(new TextColumn<EnrollmentTO>() {
+		
+		TextColumn<EnrollmentTO> enrolledOnColumn = new TextColumn<EnrollmentTO>() {
 			@Override
 			public String getValue(EnrollmentTO enrollmentTO) {
 				return formHelper.dateToString(enrollmentTO.getEnrollment().getEnrolledOn());
 			}
-		}, "Data da Matrícula");
+		};		
+	    enrolledOnColumn.setSortable(true);
+	    enrolledOnColumn.setDataStoreName("e.enrolledOn");
+	    table.addColumnSortHandler(new AsyncHandler(table));
+		table.addColumn(enrolledOnColumn, "Data da Matrícula");
 
 		table.addColumn(new TextColumn<EnrollmentTO>() {
 			@Override
@@ -535,16 +564,49 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 				return enrollmentTO;
 			}
 		}, "Ações");
+		
+		
+		// Create a data provider.
+	    AsyncDataProvider<EnrollmentTO> dataProvider = new AsyncDataProvider<EnrollmentTO>() {
+	      @Override
+	      protected void onRangeChanged(HasData<EnrollmentTO> display) {
+	        final ColumnSortList sortList = table.getColumnSortList();	        
+	        if(sortList.size() > 0){
+	        	table.setVisible(false);
+	        	pagination.setVisible(false);
+				bus.fireEvent(new ShowPacifierEvent(true));
+				presenter.setOrderBy(sortList.get(0).getColumn().getDataStoreName());
+				presenter.setAsc(sortList.get(0).isAscending());
+	            session.enrollments().getEnrollmentsByCourseClass(session.getCurrentCourseClass().getCourseClass().getUUID(), presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), 
+	            		presenter.getOrderBy(), presenter.getAsc(), new Callback<EnrollmentsTO>() {
+	                @Override
+	                public void ok(EnrollmentsTO to) {
+	      				enrollmentsOriginal = to.getEnrollmentTOs();
+	      				pagination.setRowData(enrollmentsOriginal, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
+	    	        	table.setVisible(true);
+	    	        	pagination.setVisible(true);
+	    	        	
+						bus.fireEvent(new ShowPacifierEvent(false));
+	                    /*if (courseClassUUID.equals(session.getCurrentCourseClass().getCourseClass().getUUID())) {
+	                        showEnrollments(enrollments, true);
+	                    }*/
+	                } 
+	            });
+	        }
+	      }
+	    };
 
-		/*
-		 * // Add a selection model to handle user selection. final
-		 * SingleSelectionModel<EnrollmentTO> selectionModel = new
-		 * SingleSelectionModel<EnrollmentTO>();
-		 * table.setSelectionModel(selectionModel);
-		 * selectionModel.addSelectionChangeHandler(new
-		 * SelectionChangeEvent.Handler() { public void
-		 * onSelectionChange(SelectionChangeEvent event) { // } });
-		 */
+	    // Connect the list to the data provider.
+	    dataProvider.addDataDisplay(table);
+
+		Column<EnrollmentTO, ?> column;
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			column = table.getColumn(i);
+			if(presenter.getOrderBy().equals(column.getDataStoreName())){
+			    table.getColumnSortList().push(column);
+			    column.setDefaultSortAscending(presenter.getAsc());
+			}
+		}
 	}
 
 	@Override

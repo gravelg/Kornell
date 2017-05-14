@@ -66,6 +66,8 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     private String pageSize = "20";
     private String pageNumber = "1";
     private String searchTerm = "";
+	private boolean asc = false;
+	private String orderBy = "e.state";
 
     private static final String PREFIX = ClientProperties.PREFIX + "AdminHome";
 
@@ -118,7 +120,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     	
         ClientProperties.set(getLocalStoragePropertyName(), courseClassUUID);
         bus.fireEvent(new ShowPacifierEvent(true));
-        session.enrollments().getEnrollmentsByCourseClass(courseClassUUID, pageSize, pageNumber, searchTerm, new Callback<EnrollmentsTO>() {
+        session.enrollments().getEnrollmentsByCourseClass(courseClassUUID, pageSize, pageNumber, searchTerm, orderBy, asc, new Callback<EnrollmentsTO>() {
             @Override
             public void ok(EnrollmentsTO enrollments) {
                 bus.fireEvent(new ShowPacifierEvent(false));
@@ -722,4 +724,24 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     public void updateData() {
         updateCourseClassUI(session.getCurrentCourseClass());
     }
+
+	@Override
+	public void setOrderBy(String orderBy) {
+		this.orderBy = orderBy;
+	}
+
+	@Override
+	public void setAsc(boolean asc) {
+		this.asc = asc;
+	}
+
+	@Override
+	public String getOrderBy() {
+		return orderBy;
+	}
+
+	@Override
+	public boolean getAsc() {
+		return asc;
+	}
 }

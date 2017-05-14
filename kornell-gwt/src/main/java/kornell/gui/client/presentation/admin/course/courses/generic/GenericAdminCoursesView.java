@@ -319,6 +319,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 
 	    // Connect the list to the data provider.
 	    dataProvider.addDataDisplay(table);
+	    table.getColumnSortList().push(titleColumn);
 	    
 	}
 

@@ -25,18 +25,21 @@ import kornell.core.entity.InstitutionType
 import kornell.core.to.DashboardLeaderboardTO
 import kornell.core.to.DashboardLeaderboardItemTO
 import kornell.core.entity.EnrollmentSource
+import kornell.server.jdbc.PreparedStmt
 
 object EnrollmentsRepo {
 
   def byCourseClass(courseClassUUID: String) =
-    byCourseClassPaged(courseClassUUID, "", Int.MaxValue, 1)
+    byCourseClassPaged(courseClassUUID, "", Int.MaxValue, 1, "e.state", false)
 
-  def byCourseClassPaged(courseClassUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int) = {
+  def byCourseClassPaged(courseClassUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean) = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
+    val orderColumn = if(orderBy != null && orderBy.indexOf(";") < 0) orderBy else "e.state"
+    val order = orderColumn + (if(asc) " asc" else " desc")
 
     val enrollmentsTO = TOs.newEnrollmentsTO(
-      sql"""
+      new PreparedStmt(s"""
 			  select 
       		e.*, 
       		p.uuid as personUUID,
@@ -45,13 +48,13 @@ object EnrollmentsRepo {
 				from Enrollment e 
 				join Person p on e.person_uuid = p.uuid
 				left join Password pw on p.uuid = pw.person_uuid
-				where e.class_uuid = ${courseClassUUID} and 
-       			e.state <> ${EnrollmentState.deleted.toString} and 
-                (p.fullName like ${filteredSearchTerm}
-                or pw.username like ${filteredSearchTerm}
-                or p.email like ${filteredSearchTerm})
-				order by e.state desc, p.fullName, username limit ${resultOffset}, ${pageSize}
-			""".map[EnrollmentTO](toEnrollmentTO)
+				where e.class_uuid = '${courseClassUUID}' and 
+       			e.state <> '${EnrollmentState.deleted.toString}' and 
+                (p.fullName like '${filteredSearchTerm}'
+                or pw.username like '${filteredSearchTerm}'
+                or p.email like '${filteredSearchTerm}')
+				order by ${order}, e.state desc, p.fullName limit ${resultOffset}, ${pageSize}
+			""", List[String]()).map[EnrollmentTO](toEnrollmentTO)
 		)			
     enrollmentsTO.setCount(countByCourseClass(courseClassUUID))
     enrollmentsTO.setCountCancelled(countByCourseClassAndState(courseClassUUID, EnrollmentState.cancelled))
