@@ -49,19 +49,17 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.AssetEntity;
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseClassTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassPlace;
@@ -107,10 +105,12 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 	Tab adminsTab;
 	FlowPanel adminsPanel;
 	private KornellSession session;
+	private EventBus bus;
 
 	public GenericAdminCourseClassesView(final KornellSession session, final EventBus bus, final PlaceController placeCtrl, final ViewFactory viewFactory) {
 		this.placeCtrl = placeCtrl;
 		this.session = session;
+		this.bus = bus;
 		initWidget(uiBinder.createAndBindUi(this));
 		table = new CellTable<CourseClassTO>();
 		btnAddCourseClass.setText("Criar Nova Turma");
@@ -204,14 +204,15 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 	private void initTable() {
 
 		table.addStyleName("adminCellTable");
-		table.addStyleName("courseClassCellTable");
+		table.addStyleName("courseClassesCellTable");
+		table.addStyleName("lineWithoutLink");
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 		for (int i = 0; table.getColumnCount() > 0;) {
 			table.removeColumn(i);
 		}
 
 		List<HasCell<CourseClassTO, ?>> cellsC = new LinkedList<HasCell<CourseClassTO, ?>>();
-		cellsC.add(new EnrollmentLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
+		cellsC.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
 		CompositeCell<CourseClassTO> cellC = new CompositeCell<CourseClassTO>(cellsC);
 		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellC) {
 			@Override
@@ -221,7 +222,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		}, "Curso");
 
 		List<HasCell<CourseClassTO, ?>> cellsCV = new LinkedList<HasCell<CourseClassTO, ?>>();
-		cellsCV.add(new EnrollmentLinkHasCell(CourseDetailsEntityType.COURSE_VERSION.toString(), getGoToCourseVersionDelegate()));
+		cellsCV.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE_VERSION.toString(), getGoToCourseVersionDelegate()));
 		CompositeCell<CourseClassTO> cellCV = new CompositeCell<CourseClassTO>(cellsCV);
 		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellCV) {
 			@Override
@@ -231,7 +232,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		}, "Versão");
 
 		List<HasCell<CourseClassTO, ?>> cellsCC = new LinkedList<HasCell<CourseClassTO, ?>>();
-		cellsCC.add(new EnrollmentLinkHasCell(CourseDetailsEntityType.COURSE_CLASS.toString(), getGoToCourseClassDelegate()));
+		cellsCC.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE_CLASS.toString(), getGoToCourseClassDelegate()));
 		CompositeCell<CourseClassTO> cellCC = new CompositeCell<CourseClassTO>(cellsCC);
 		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellCC) {
 			@Override
@@ -267,8 +268,8 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		}, "Data de Criação");
 
 		List<HasCell<CourseClassTO, ?>> cells = new LinkedList<HasCell<CourseClassTO, ?>>();
-		cells.add(new EnrollmentActionsHasCell("Gerenciar", getManageCourseClassDelegate()));
-		cells.add(new EnrollmentActionsHasCell("Excluir", getDeleteCourseClassDelegate()));
+		cells.add(new CourseClassActionsHasCell("Gerenciar", getManageCourseClassDelegate()));
+		cells.add(new CourseClassActionsHasCell("Excluir", getDeleteCourseClassDelegate()));
 		CompositeCell<CourseClassTO> cell = new CompositeCell<CourseClassTO>(cells);
 		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cell) {
 			@Override
@@ -336,25 +337,32 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 				if(canPerformAction){
 					canPerformAction = false;
 
-					confirmModal.showModal("Tem certeza que deseja realizar essa operação?", new com.google.gwt.core.client.Callback<Void, Void>() {
+					confirmModal.showModal(
+							"Tem certeza que deseja excluir a turma \"" + courseClassTO.getCourseClass().getName() + "\"?", 
+							new com.google.gwt.core.client.Callback<Void, Void>() {
 						@Override
 						public void onSuccess(Void result) {
+							bus.fireEvent(new ShowPacifierEvent(true));
 							session.courseClass(courseClassTO.getCourseClass().getUUID()).delete(new Callback<CourseClass>() {	
 								@Override
 								public void ok(CourseClass to) {
 									canPerformAction = true;
+									bus.fireEvent(new ShowPacifierEvent(false));
 									KornellNotification.show("Turma excluída com sucesso.");
+									presenter.updateData();
 								}
 								
 								@Override
 								public void internalServerError(KornellErrorTO error){
 									canPerformAction = true;
+									bus.fireEvent(new ShowPacifierEvent(false));
 									KornellNotification.show("Erro ao tentar excluir a turma.", AlertType.ERROR);
 								}
 							});
 						}
 						@Override
 						public void onFailure(Void reason) {
+							canPerformAction = true;
 						}
 					});
 				}
@@ -417,9 +425,9 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 	}
 
 	@SuppressWarnings("hiding")
-	private class EnrollmentActionsActionCell<CourseClassTO> extends ActionCell<CourseClassTO> {
+	private class CourseClassActionsActionCell<CourseClassTO> extends ActionCell<CourseClassTO> {
 
-		public EnrollmentActionsActionCell(String message, Delegate<CourseClassTO> delegate) {
+		public CourseClassActionsActionCell(String message, Delegate<CourseClassTO> delegate) {
 			super(message, delegate);
 		}
 
@@ -442,12 +450,12 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		}
 	}
 
-	private class EnrollmentActionsHasCell implements HasCell<CourseClassTO, CourseClassTO> {
-		private EnrollmentActionsActionCell<CourseClassTO> cell;
+	private class CourseClassActionsHasCell implements HasCell<CourseClassTO, CourseClassTO> {
+		private CourseClassActionsActionCell<CourseClassTO> cell;
 
-		public EnrollmentActionsHasCell(String text, Delegate<CourseClassTO> delegate) {
+		public CourseClassActionsHasCell(String text, Delegate<CourseClassTO> delegate) {
 			final String actionName = text;
-			cell = new EnrollmentActionsActionCell<CourseClassTO>(text, delegate) {
+			cell = new CourseClassActionsActionCell<CourseClassTO>(text, delegate) {
 				@Override
 				public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO object, SafeHtmlBuilder sb) {
 					if(!"Excluir".equals(actionName) || object.getEnrollmentCount() == 0){
@@ -492,11 +500,11 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 	}
 
 
-	private class EnrollmentLinkHasCell implements HasCell<CourseClassTO, CourseClassTO> {
-		private EnrollmentActionsActionCell<CourseClassTO> cell;
+	private class CourseClassLinkHasCell implements HasCell<CourseClassTO, CourseClassTO> {
+		private CourseClassActionsActionCell<CourseClassTO> cell;
 
-		public EnrollmentLinkHasCell(String text, Delegate<CourseClassTO> delegate) {
-			cell = new EnrollmentActionsActionCell<CourseClassTO>(text, delegate) {
+		public CourseClassLinkHasCell(String text, Delegate<CourseClassTO> delegate) {
+			cell = new CourseClassActionsActionCell<CourseClassTO>(text, delegate) {
 				@Override
 				public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO courseClassTO, SafeHtmlBuilder sb) {
 					SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(text, courseClassTO));

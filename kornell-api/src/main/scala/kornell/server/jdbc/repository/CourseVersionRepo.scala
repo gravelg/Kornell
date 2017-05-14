@@ -16,33 +16,6 @@ class CourseVersionRepo(uuid: String) {
   def get = finder.get[CourseVersion]
   def first = finder.first[CourseVersion]
   
-  def getWithCourse: CourseVersionTO = {
-    sql"""
-    | select 
-    | cv.uuid as courseVersionUUID,
-    | cv.name as courseVersionName,
-    | cv.course_uuid as courseUUID,
-    | cv.versionCreatedAt as versionCreatedAt,
-    | cv.distributionPrefix as distributionPrefix,
-    | cv.disabled as courseVersionDisabled,
-    | cv.parentVersionUUID as parentVersionUUID,
-    | cv.instanceCount as instanceCount,
-    | cv.label as label,
-    | cv.thumbUrl as courseVersionThumbUrl,
-    | c.uuid as courseUUID,
-    | c.code as courseCode,
-    | c.title as courseTitle,
-    | c.description as courseDescription,
-    | c.contentSpec as contentSpec,
-    | c.infoJson as infoJson,
-    | c.institutionUUID as institutionUUID,
-    | c.childCourse as childCourse,
-    | c.thumbUrl as courseThumbUrl
-    | from CourseVersion cv 
-    | join Course c on cv.course_uuid = c.uuid
-    | where cv.uuid = ${uuid}""".map[CourseVersionTO](toCourseVersionTO).head
-  }
-  
   def update(courseVersion: CourseVersion, institutionUUID: String): CourseVersion = {
     //get previous version
     val oldCourseVersion = CourseVersionRepo(courseVersion.getUUID).first.get
@@ -64,6 +37,16 @@ class CourseVersionRepo(uuid: String) {
     EventsRepo.logEntityChange(institutionUUID, AuditedEntityType.courseVersion, courseVersion.getUUID, oldCourseVersion, courseVersion)
 	    
     courseVersion
+  }
+  
+  def delete = {    
+    val courseVersion = get
+    if(CourseClassesRepo.countByCourseVersion(uuid) == 0){
+      sql"""
+        delete from CourseVersion
+        where uuid = ${uuid}""".executeUpdate
+      courseVersion
+    }
   }
   
   def getChildren(): List[CourseVersion] = {

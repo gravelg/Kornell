@@ -48,7 +48,7 @@ class CourseClassRepo(uuid:String) {
           cc.thumbUrl = ${courseClass.getThumbUrl}
 	      where cc.uuid = ${courseClass.getUUID}""".executeUpdate 
 	    
-        //update course class threads active states per threadType and add participants to the global class chat, if applicable
+      //update course class threads active states per threadType and add participants to the global class chat, if applicable
 	    ChatThreadsRepo.updateCourseClassChatThreadStatusByThreadType(courseClass.getUUID, ChatThreadType.COURSE_CLASS, courseClass.isCourseClassChatEnabled)
 	    ChatThreadsRepo.updateCourseClassChatThreadStatusByThreadType(courseClass.getUUID, ChatThreadType.TUTORING, courseClass.isTutorChatEnabled)
 	    ChatThreadsRepo.addParticipantsToCourseClassThread(courseClass)
@@ -62,10 +62,12 @@ class CourseClassRepo(uuid:String) {
     }   
   }
   
-  def delete(courseClassUUID: String) = {    
-    sql"""
-      delete from CourseClass 
-      where uuid = ${courseClassUUID}""".executeUpdate
+  def delete = {    
+    if(EnrollmentsRepo.countByCourseClass(uuid) == 0){
+      sql"""
+        delete from CourseClass 
+        where uuid = ${uuid}""".executeUpdate
+    }
   }
   
   def actomsVisitedBy(personUUID: String): List[String] = sql"""

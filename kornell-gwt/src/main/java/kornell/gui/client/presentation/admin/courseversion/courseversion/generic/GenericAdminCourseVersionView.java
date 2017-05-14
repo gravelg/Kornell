@@ -266,8 +266,8 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		final ListBox courseVersions = new ListBox();
 		if(to != null){
 			courseVersions.addItem("Nenhuma", "null");
-			for (CourseVersion courseVersion : to.getCourseVersions()) {
-				courseVersions.addItem(courseVersion.getName(), courseVersion.getUUID());
+			for (CourseVersionTO courseVersionTO : to.getCourseVersionTOs()) {
+				courseVersions.addItem(courseVersionTO.getCourseVersion().getName(), courseVersion.getUUID());
 			}
 		} else {
 			courseVersions.addItem(courseVersion.getParentVersionUUID(), courseVersion.getParentVersionUUID());

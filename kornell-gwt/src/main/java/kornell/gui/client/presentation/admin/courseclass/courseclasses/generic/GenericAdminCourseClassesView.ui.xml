@@ -9,11 +9,11 @@
 		      <g:HTMLPanel addStyleNames="subTitle">Escolha abaixo a turma que deseja gerenciar</g:HTMLPanel>
 		    </g:FlowPanel>
 			<b:Button ui:field="btnAddCourseClass" addStyleNames="btnAction btnIcon right" size="MINI" icon="PLUS_SIGN"/>
-			<knlCommon:GenericConfirmModalView ui:field="confirmModal"></knlCommon:GenericConfirmModalView>
 		</g:FlowPanel>
 	    <g:FlowPanel ui:field="courseClassesWrapper" addStyleNames="courseClassesHeaderWrapper">
 		</g:FlowPanel>
 		<g:FlowPanel ui:field="createClassPanel">
 		</g:FlowPanel>
+		<knlCommon:GenericConfirmModalView ui:field="confirmModal"></knlCommon:GenericConfirmModalView>
 	</g:FlowPanel>
 </ui:UiBinder>

@@ -83,6 +83,15 @@ object CoursesRepo {
     	  		and (childCourse = false or $fetchChildCourses = true)"""
     	  		.first[String].get.toInt
     	})
-   coursesTO
+	  
+    bindCourseVersionsCounts(coursesTO)
+	  coursesTO
+  }
+  
+  private def bindCourseVersionsCounts(coursesTO: CoursesTO) = {
+    val courses = coursesTO.getCourses.asScala
+    courses.foreach(cv => cv.setCourseVersionsCount(CourseVersionsRepo.countByCourse(cv.getCourse.getUUID)))
+    coursesTO.setCourses(courses.asJava)
+    coursesTO
   }
 }

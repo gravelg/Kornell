@@ -345,6 +345,13 @@ object CourseClassesRepo {
   	}
   }
   
+  def countByCourseVersion(courseVersionUUID: String) = 
+    sql"""select count(*) 
+      from CourseClass cc 
+      where cc.courseVersion_uuid = ${courseVersionUUID} 
+      and cc.state <> ${CourseClassState.deleted.toString}
+    """.first[String].get.toInt
+  
   private def bindEnrollments(personUUID: String, courseClassesTO: CourseClassesTO) = {
     val classes = courseClassesTO.getCourseClasses().asScala
     //bind enrollment if it exists

@@ -16,15 +16,16 @@ import javax.ws.rs.Path
 import kornell.server.service.S3Service
 import javax.ws.rs.PathParam
 import javax.ws.rs.QueryParam
+import kornell.server.jdbc.repository.CourseVersionsRepo
+import kornell.server.jdbc.repository.AuthRepo
 
 class CourseVersionResource(uuid: String) {
 
-  //Should be TO cause the UI needs Course
   @GET
   @Produces(Array(CourseVersionTO.TYPE))
-  def get : CourseVersionTO  = {
-    CourseVersionRepo(uuid).getWithCourse
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  def get = {
+    CourseVersionsRepo.getCourseVersionTO(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, uuid)
+   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
    
@@ -33,6 +34,14 @@ class CourseVersionResource(uuid: String) {
   @Produces(Array(CourseVersion.TYPE))
   def update(courseVersion: CourseVersion) = {
     CourseVersionRepo(uuid).update(courseVersion, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+
+  @DELETE
+  @Produces(Array(CourseVersion.TYPE))
+  def delete() = {
+    CourseVersionRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

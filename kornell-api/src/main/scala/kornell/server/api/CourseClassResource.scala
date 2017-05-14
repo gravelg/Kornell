@@ -83,7 +83,7 @@ class CourseClassResource(uuid: String) {
       throw new UnauthorizedAccessException("classNoRights")
     else
       try {
-        CourseClassRepo(uuid).delete(uuid)
+        CourseClassRepo(uuid).delete
         courseClass
       } catch {
         case ioe: MySQLIntegrityConstraintViolationException =>

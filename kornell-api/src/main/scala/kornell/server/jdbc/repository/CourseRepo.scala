@@ -36,6 +36,16 @@ class CourseRepo(uuid: String) {
 	        
     course
   }
+  
+  def delete = {    
+    val course = get
+    if(CourseVersionsRepo.countByCourse(uuid) == 0){
+      sql"""
+        delete from Course
+        where uuid = ${uuid}""".executeUpdate
+      course
+    }
+  }
 
 }
 

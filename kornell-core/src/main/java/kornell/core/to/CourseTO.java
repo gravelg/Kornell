@@ -7,4 +7,8 @@ public interface CourseTO {
 
 	Course getCourse();
 	void setCourse(Course course);
+	
+	Integer getCourseVersionsCount();	
+	void setCourseVersionsCount(Integer courseVersionsCount);
+	
 }
