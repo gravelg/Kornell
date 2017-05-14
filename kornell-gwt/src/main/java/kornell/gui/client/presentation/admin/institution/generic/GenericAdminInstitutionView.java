@@ -113,7 +113,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	private Institution institution;
 	private ContentRepository repo;
 
-	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, useEmailWhitelist, timeZone, skin, institutionSupportEmail;
+	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, advancedMode, useEmailWhitelist, timeZone, skin, institutionSupportEmail;
 	
 	private List<KornellFormFieldWrapper> fields;
 	private GenericInstitutionReportsView reportsView;
@@ -329,7 +329,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 		});
 
 		if(isPlatformAdmin){
-			useEmailWhitelist = new KornellFormFieldWrapper("Configurar domínios para emails?", formHelper.createCheckBoxFormField(institution.isUseEmailWhitelist()), isInstitutionAdmin);
+			useEmailWhitelist = new KornellFormFieldWrapper("Configurar domínios para emails", formHelper.createCheckBoxFormField(institution.isUseEmailWhitelist()), isInstitutionAdmin);
 			fields.add(useEmailWhitelist);
 			institutionFields.add(useEmailWhitelist);
 			((CheckBox)useEmailWhitelist.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -344,6 +344,17 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			fields.add(allowRegistrationByUsername);
 			institutionFields.add(allowRegistrationByUsername);
 			((CheckBox)allowRegistrationByUsername.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
+					if(event.getValue()){
+					}
+				}
+			});
+			
+			advancedMode = new KornellFormFieldWrapper("Modo avançado", formHelper.createCheckBoxFormField(institution.isAdvancedMode()), isPlatformAdmin);
+			fields.add(advancedMode);
+			institutionFields.add(advancedMode);
+			((CheckBox)advancedMode.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 				@Override
 				public void onValueChange(ValueChangeEvent<Boolean> event) {
 					if(event.getValue()){
@@ -452,6 +463,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			institution.setBillingType(BillingType.valueOf(billingType.getFieldPersistText()));
 			institution.setInstitutionType(InstitutionType.valueOf(institutionType.getFieldPersistText()));
 			institution.setAllowRegistrationByUsername(allowRegistrationByUsername.getFieldPersistText().equals("true"));
+			institution.setAdvancedMode(advancedMode.getFieldPersistText().equals("true"));
 			institution.setUseEmailWhitelist(useEmailWhitelist.getFieldPersistText().equals("true"));
 			institution.setSkin(skin.getFieldPersistText());
 			institution.setInstitutionSupportEmail(institutionSupportEmail.getFieldPersistText());

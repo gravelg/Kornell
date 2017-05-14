@@ -60,7 +60,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	private PlaceController placeCtrl;
 	private EventBus bus;
 	private FormHelper formHelper = GWT.create(FormHelper.class);
-	private boolean isCreationMode, isInstitutionAdmin, isPlatformAdmin;
+	private boolean isCreationMode, isInstitutionAdmin, isPlatformAdmin, isAdvancedMode;
 	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
 	private Presenter presenter;
@@ -117,6 +117,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		this.viewFactory = viewFactory;
 		this.isPlatformAdmin = session.isPlatformAdmin();
 		this.isInstitutionAdmin = session.isInstitutionAdmin();
+		isAdvancedMode = session.getInstitution().isAdvancedMode();
 		this.bus = bus;
 		initWidget(uiBinder.createAndBindUi(this));
 
@@ -214,8 +215,10 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		courseVersionFields.add(name);
 
 		distributionPrefix = new KornellFormFieldWrapper("Prefixo de Distribuição", formHelper.createTextBoxFormField(courseVersion.getDistributionPrefix()), isInstitutionAdmin);
-		fields.add(distributionPrefix);
-		courseVersionFields.add(distributionPrefix);
+		if(isPlatformAdmin || (isInstitutionAdmin && isAdvancedMode)){
+			fields.add(distributionPrefix);
+			courseVersionFields.add(distributionPrefix);
+		}
 
 		disabled = new KornellFormFieldWrapper("Desabilitar?", formHelper.createCheckBoxFormField(courseVersion.isDisabled()), isInstitutionAdmin);
 		if(!isCreationMode){

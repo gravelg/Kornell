@@ -55,7 +55,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 	private KornellSession session;
 	private PlaceController placeCtrl;
 	private FormHelper formHelper = GWT.create(FormHelper.class);
-	private boolean isCreationMode, isInstitutionAdmin;
+	private boolean isCreationMode, isInstitutionAdmin, isPlatformAdmin, isAdvancedMode;
 	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
 	private Presenter presenter;
@@ -114,6 +114,8 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 		this.bus = bus;
 		this.viewFactory = viewFactory;
 		isInstitutionAdmin = session.isInstitutionAdmin();
+		isPlatformAdmin = session.isPlatformAdmin();
+		isAdvancedMode = session.getInstitution().isAdvancedMode();
 		initWidget(uiBinder.createAndBindUi(this));
 
 		// i18n
@@ -195,8 +197,10 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 		btnCancel.setVisible(isInstitutionAdmin);		
 
 		code = new KornellFormFieldWrapper("Código", formHelper.createTextBoxFormField(course.getCode()), isInstitutionAdmin);
-		fields.add(code);
-		courseFields.add(code);
+		if(isPlatformAdmin || (isInstitutionAdmin && isAdvancedMode)){
+			fields.add(code);
+			courseFields.add(code);
+		}
 		
 		title = new KornellFormFieldWrapper("Nome", formHelper.createTextBoxFormField(course.getTitle()), isInstitutionAdmin);
 		fields.add(title);
