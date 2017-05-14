@@ -1,5 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
+	xmlns:knlCommon="urn:import:kornell.gui.client.presentation.admin.common">
 
 	<g:FlowPanel ui:field="adminHomePanel" addStyleNames="deanHome">
 	    <g:FlowPanel ui:field="courseClassesPanel" addStyleNames="courseClassesHeaderWrapper">
@@ -8,6 +9,7 @@
 		      <g:HTMLPanel addStyleNames="subTitle">Escolha abaixo a turma que deseja gerenciar</g:HTMLPanel>
 		    </g:FlowPanel>
 			<b:Button ui:field="btnAddCourseClass" addStyleNames="btnAction btnIcon right" size="MINI" icon="PLUS_SIGN"/>
+			<knlCommon:GenericConfirmModalView ui:field="confirmModal"></knlCommon:GenericConfirmModalView>
 		</g:FlowPanel>
 	    <g:FlowPanel ui:field="courseClassesWrapper" addStyleNames="courseClassesHeaderWrapper">
 		</g:FlowPanel>

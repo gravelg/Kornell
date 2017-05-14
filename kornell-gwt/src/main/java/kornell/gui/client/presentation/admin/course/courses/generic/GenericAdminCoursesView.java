@@ -214,7 +214,11 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		table.addColumn(new TextColumn<Course>() {
 			@Override
 			public String getValue(Course course) {
-				return course.getDescription();
+				String description = course.getDescription();
+				if(description.length() > 100){
+					description = description.substring(0, 100) + " ...";
+				}
+				return description;
 			}
 		}, "Descrição");
 

@@ -2,6 +2,8 @@ package kornell.gui.client.util;
 
 import static kornell.core.util.StringUtils.mkurl;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.JavaScriptObject;
 
@@ -17,7 +19,7 @@ public class CSSInjector {
 	}
 
 	public static void updateSkin(String skinName, Callback<Void, Exception>callback){
-		String skinPath = mkurl(ClientConstants.CSS_PATH, "skin" + skinName + ".nocache.css");
+		String skinPath = mkurl(ClientConstants.CSS_PATH, "skin" + skinName + ".nocache.css?v=" + (new Date()).getTime());
 		injectCSS(skinPath, callback);
 	}
 

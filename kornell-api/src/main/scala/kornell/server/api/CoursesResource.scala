@@ -24,10 +24,8 @@ class CoursesResource {
   @GET
   @Produces(Array(CoursesTO.TYPE))
   def getCourses(@QueryParam("fetchChildCourses") fetchChildCourses: String, @QueryParam("searchTerm") searchTerm: String,
-      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int) =
-	  AuthRepo().withPerson { person => {
-	    	 CoursesRepo.byInstitution(fetchChildCourses == "true", person.getInstitutionUUID, searchTerm, pageSize, pageNumber)
-	  }
+      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int) = {
+    CoursesRepo.byInstitution(fetchChildCourses == "true", PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
@@ -36,7 +34,7 @@ class CoursesResource {
   @Produces(Array(CourseClassTO.TYPE))
   @Consumes(Array(Course.TYPE))
   def create(course: Course) = {
-    CourseCreationService.createCourse(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, course)
+    CourseCreationService.simpleCreation(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, course)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

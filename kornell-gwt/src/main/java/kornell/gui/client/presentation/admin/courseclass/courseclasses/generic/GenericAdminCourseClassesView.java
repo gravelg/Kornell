@@ -10,6 +10,7 @@ import com.github.gwtbootstrap.client.ui.CellTable;
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.Tab;
 import com.github.gwtbootstrap.client.ui.TextBox;
+import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
 import com.github.gwtbootstrap.client.ui.resources.ButtonSize;
 import com.google.gwt.cell.client.ActionCell;
@@ -43,6 +44,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -51,16 +53,25 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 
+import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.AssetEntity;
+import kornell.core.entity.CourseClass;
+import kornell.core.entity.CourseDetailsEntityType;
+import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseClassTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
+import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassPlace;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.generic.GenericCourseClassConfigView;
 import kornell.gui.client.presentation.admin.courseclass.courseclasses.AdminCourseClassesView;
+import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPlace;
 import kornell.gui.client.util.AsciiUtils;
 import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
+import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.KornellPagination;
 
 public class GenericAdminCourseClassesView extends Composite implements AdminCourseClassesView {
@@ -77,6 +88,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 	private TextBox txtSearch;
 	private Button btnSearch;
 	private Timer updateTimer;
+	private boolean canPerformAction = true;
 
 	@UiField
 	FlowPanel adminHomePanel;
@@ -88,12 +100,17 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 	FlowPanel createClassPanel;
 	@UiField
 	Button btnAddCourseClass;
+	
+	@UiField
+	GenericConfirmModalView confirmModal;
 
 	Tab adminsTab;
 	FlowPanel adminsPanel;
+	private KornellSession session;
 
 	public GenericAdminCourseClassesView(final KornellSession session, final EventBus bus, final PlaceController placeCtrl, final ViewFactory viewFactory) {
 		this.placeCtrl = placeCtrl;
+		this.session = session;
 		initWidget(uiBinder.createAndBindUi(this));
 		table = new CellTable<CourseClassTO>();
 		btnAddCourseClass.setText("Criar Nova Turma");
@@ -193,24 +210,33 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 			table.removeColumn(i);
 		}
 
-		table.addColumn(new TextColumn<CourseClassTO>() {
+		List<HasCell<CourseClassTO, ?>> cellsC = new LinkedList<HasCell<CourseClassTO, ?>>();
+		cellsC.add(new EnrollmentLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
+		CompositeCell<CourseClassTO> cellC = new CompositeCell<CourseClassTO>(cellsC);
+		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellC) {
 			@Override
-			public String getValue(CourseClassTO courseClassTO) {
-				return courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getTitle();
+			public CourseClassTO getValue(CourseClassTO courseClassTO) {
+				return courseClassTO;
 			}
 		}, "Curso");
 
-		table.addColumn(new TextColumn<CourseClassTO>() {
+		List<HasCell<CourseClassTO, ?>> cellsCV = new LinkedList<HasCell<CourseClassTO, ?>>();
+		cellsCV.add(new EnrollmentLinkHasCell(CourseDetailsEntityType.COURSE_VERSION.toString(), getGoToCourseVersionDelegate()));
+		CompositeCell<CourseClassTO> cellCV = new CompositeCell<CourseClassTO>(cellsCV);
+		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellCV) {
 			@Override
-			public String getValue(CourseClassTO courseClassTO) {
-				return courseClassTO.getCourseVersionTO().getCourseVersion().getName();
+			public CourseClassTO getValue(CourseClassTO courseClassTO) {
+				return courseClassTO;
 			}
 		}, "Versão");
-		
-		table.addColumn(new TextColumn<CourseClassTO>() {
+
+		List<HasCell<CourseClassTO, ?>> cellsCC = new LinkedList<HasCell<CourseClassTO, ?>>();
+		cellsCC.add(new EnrollmentLinkHasCell(CourseDetailsEntityType.COURSE_CLASS.toString(), getGoToCourseClassDelegate()));
+		CompositeCell<CourseClassTO> cellCC = new CompositeCell<CourseClassTO>(cellsCC);
+		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellCC) {
 			@Override
-			public String getValue(CourseClassTO courseClassTO) {
-				return courseClassTO.getCourseClass().getName();
+			public CourseClassTO getValue(CourseClassTO courseClassTO) {
+				return courseClassTO;
 			}
 		}, "Turma");
 		
@@ -227,9 +253,11 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		table.addColumn(new TextColumn<CourseClassTO>() {
 			@Override
 			public String getValue(CourseClassTO courseClassTO) {
-				return EnumTranslator.translateEnum(courseClassTO.getCourseClass().getRegistrationType());
+				String text = courseClassTO.getEnrollmentCount() + " (por ";
+				text += EnumTranslator.translateEnum(courseClassTO.getCourseClass().getRegistrationType()) + ")";
+				return text;
 			}
-		}, "Tipo de Matrícula");
+		}, "Matrículas");
 		
 		table.addColumn(new TextColumn<CourseClassTO>() {
 			@Override
@@ -240,7 +268,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 
 		List<HasCell<CourseClassTO, ?>> cells = new LinkedList<HasCell<CourseClassTO, ?>>();
 		cells.add(new EnrollmentActionsHasCell("Gerenciar", getManageCourseClassDelegate()));
-
+		cells.add(new EnrollmentActionsHasCell("Excluir", getDeleteCourseClassDelegate()));
 		CompositeCell<CourseClassTO> cell = new CompositeCell<CourseClassTO>(cells);
 		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cell) {
 			@Override
@@ -248,20 +276,6 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 				return courseClassTO;
 			}
 		}, "Ações");
-		
-		
-		// Add a selection model to handle user selection.
-		final SingleSelectionModel<CourseClassTO> selectionModel = new SingleSelectionModel<CourseClassTO>();
-		table.setSelectionModel(selectionModel);
-		selectionModel
-				.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-					public void onSelectionChange(SelectionChangeEvent event) {
-		        		CourseClassTO selected = selectionModel.getSelectedObject();
-						if (selected != null) {
-							placeCtrl.goTo(new AdminCourseClassPlace(selected.getCourseClass().getUUID()));
-						}
-					}
-				});
 	}
 
 	@Override
@@ -270,80 +284,82 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		pagination = new KornellPagination(table, presenter);
 	}
 
-	private Delegate<CourseClassTO> getManageCourseClassDelegate() {
+	private Delegate<CourseClassTO> getGoToCourseDelegate() {
 		return new Delegate<CourseClassTO>() {
 			@Override
 			public void execute(CourseClassTO courseClassTO) {
-				placeCtrl.goTo(new AdminCourseClassPlace(courseClassTO.getCourseClass().getUUID()));
+				if(canPerformAction){
+					placeCtrl.goTo(new AdminCoursePlace(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getUUID()));
+				}
 			}
 		};
 	}
 
-	@SuppressWarnings("hiding")
-  private class EnrollmentActionsActionCell<CourseClassTO> extends ActionCell<CourseClassTO> {
-		
-		public EnrollmentActionsActionCell(String message, Delegate<CourseClassTO> delegate) {
-			super(message, delegate);
-		}
-
-		@Override
-		public void onBrowserEvent(Context context, Element parent, CourseClassTO value, NativeEvent event, ValueUpdater<CourseClassTO> valueUpdater) {
-			event.stopPropagation();
-			event.preventDefault();
-			super.onBrowserEvent(context, parent, value, event, valueUpdater);
-			if (CLICK.equals(event.getType())) {
-				EventTarget eventTarget = event.getEventTarget();
-				if (!Element.is(eventTarget)) {
-					return;
-				}
-				if (parent.getFirstChildElement().isOrHasChild(Element.as(eventTarget))) {
-					// Ignore clicks that occur outside of the main element.
-					onEnterKeyDown(context, parent, value, event, valueUpdater);
+	private Delegate<CourseClassTO> getGoToCourseVersionDelegate() {
+		return new Delegate<CourseClassTO>() {
+			@Override
+			public void execute(CourseClassTO courseClassTO) {
+				if(canPerformAction){
+					placeCtrl.goTo(new AdminCourseVersionPlace(courseClassTO.getCourseVersionTO().getCourseVersion().getUUID()));
 				}
 			}
-		}
+		};
 	}
 
-	private class EnrollmentActionsHasCell implements HasCell<CourseClassTO, CourseClassTO> {
-		private EnrollmentActionsActionCell<CourseClassTO> cell;
-
-		public EnrollmentActionsHasCell(String text, Delegate<CourseClassTO> delegate) {
-			final String actionName = text;
-			cell = new EnrollmentActionsActionCell<CourseClassTO>(text, delegate) {
-				@Override
-				public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO object, SafeHtmlBuilder sb) {
-						SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(actionName));
-						sb.append(html);
+	private Delegate<CourseClassTO> getGoToCourseClassDelegate() {
+		return new Delegate<CourseClassTO>() {
+			@Override
+			public void execute(CourseClassTO courseClassTO) {
+				if(canPerformAction){
+					placeCtrl.goTo(new AdminCourseClassPlace(courseClassTO.getCourseClass().getUUID()));
 				}
-				
-				private String buildButtonHTML(String actionName){
-					Button btn = new Button();
-					btn.setSize(ButtonSize.SMALL);
-					btn.setTitle(actionName);
-					if("Gerenciar".equals(actionName)){
-						btn.setIcon(IconType.COG);
-						btn.addStyleName("btnAction");
-					}
-					btn.addStyleName("btnIconSolo");
-					return btn.toString();
+			}
+		};
+	}
+
+	private Delegate<CourseClassTO> getManageCourseClassDelegate() {
+		return new Delegate<CourseClassTO>() {
+			@Override
+			public void execute(CourseClassTO courseClassTO) {
+				if(canPerformAction){
+					placeCtrl.goTo(new AdminCourseClassPlace(courseClassTO.getCourseClass().getUUID()));
 				}
-			};
-		}
+			}
+		};
+	}
 
-		@Override
-		public Cell<CourseClassTO> getCell() {
-			return cell;
-		}
+	private Delegate<CourseClassTO> getDeleteCourseClassDelegate() {
+		return new Delegate<CourseClassTO>() {
 
-		@Override
-		public FieldUpdater<CourseClassTO, CourseClassTO> getFieldUpdater() {
-			return null;
-		}
+			@Override
+			public void execute(CourseClassTO courseClassTO) {
+				if(canPerformAction){
+					canPerformAction = false;
 
-		@Override
-		public CourseClassTO getValue(CourseClassTO object) {
-			return object;
-		}
+					confirmModal.showModal("Tem certeza que deseja realizar essa operação?", new com.google.gwt.core.client.Callback<Void, Void>() {
+						@Override
+						public void onSuccess(Void result) {
+							session.courseClass(courseClassTO.getCourseClass().getUUID()).delete(new Callback<CourseClass>() {	
+								@Override
+								public void ok(CourseClass to) {
+									canPerformAction = true;
+									KornellNotification.show("Turma excluída com sucesso.");
+								}
+								
+								@Override
+								public void internalServerError(KornellErrorTO error){
+									canPerformAction = true;
+									KornellNotification.show("Erro ao tentar excluir a turma.", AlertType.ERROR);
+								}
+							});
+						}
+						@Override
+						public void onFailure(Void reason) {
+						}
+					});
+				}
+			}
+		};
 	}
 
 
@@ -400,5 +416,121 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		adminHomePanel.setVisible(true);
 	}
 
+	@SuppressWarnings("hiding")
+	private class EnrollmentActionsActionCell<CourseClassTO> extends ActionCell<CourseClassTO> {
+
+		public EnrollmentActionsActionCell(String message, Delegate<CourseClassTO> delegate) {
+			super(message, delegate);
+		}
+
+		@Override
+		public void onBrowserEvent(Context context, Element parent, CourseClassTO value, NativeEvent event,
+				ValueUpdater<CourseClassTO> valueUpdater) {
+			event.stopPropagation();
+			event.preventDefault();
+			super.onBrowserEvent(context, parent, value, event, valueUpdater);
+			if (CLICK.equals(event.getType())) {
+				EventTarget eventTarget = event.getEventTarget();
+				if (!Element.is(eventTarget)) {
+					return;
+				}
+				if (parent.getFirstChildElement().isOrHasChild(Element.as(eventTarget))) {
+					// Ignore clicks that occur outside of the main element.
+					onEnterKeyDown(context, parent, value, event, valueUpdater);
+				}
+			}
+		}
+	}
+
+	private class EnrollmentActionsHasCell implements HasCell<CourseClassTO, CourseClassTO> {
+		private EnrollmentActionsActionCell<CourseClassTO> cell;
+
+		public EnrollmentActionsHasCell(String text, Delegate<CourseClassTO> delegate) {
+			final String actionName = text;
+			cell = new EnrollmentActionsActionCell<CourseClassTO>(text, delegate) {
+				@Override
+				public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO object, SafeHtmlBuilder sb) {
+					if(!"Excluir".equals(actionName) || object.getEnrollmentCount() == 0){
+						SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(actionName));
+						sb.append(html);
+					} else {
+						sb.appendEscaped("");
+					}
+				}
+				
+				private String buildButtonHTML(String actionName){
+					Button btn = new Button();
+					btn.setSize(ButtonSize.SMALL);
+					btn.setTitle(actionName);
+					if("Gerenciar".equals(actionName)){
+						btn.setIcon(IconType.COG);
+						btn.addStyleName("btnAction");
+					} else if ("Excluir".equals(actionName)){
+						btn.setIcon(IconType.TRASH);
+						btn.addStyleName("btnNotSelected");
+					}
+					btn.addStyleName("btnIconSolo");
+					return btn.toString();
+				}
+			};
+		}
+
+		@Override
+		public Cell<CourseClassTO> getCell() {
+			return cell;
+		}
+
+		@Override
+		public FieldUpdater<CourseClassTO, CourseClassTO> getFieldUpdater() {
+			return null;
+		}
+
+		@Override
+		public CourseClassTO getValue(CourseClassTO object) {
+			return object;
+		}
+	}
+
+
+	private class EnrollmentLinkHasCell implements HasCell<CourseClassTO, CourseClassTO> {
+		private EnrollmentActionsActionCell<CourseClassTO> cell;
+
+		public EnrollmentLinkHasCell(String text, Delegate<CourseClassTO> delegate) {
+			cell = new EnrollmentActionsActionCell<CourseClassTO>(text, delegate) {
+				@Override
+				public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO courseClassTO, SafeHtmlBuilder sb) {
+					SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(text, courseClassTO));
+					sb.append(html);
+				}
+				
+				private String buildButtonHTML(String text, CourseClassTO courseClassTO) {
+					Anchor anchor = new Anchor();
+					if(CourseDetailsEntityType.COURSE.toString().equals(text)){
+						anchor.setText(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getTitle());
+					} else if(CourseDetailsEntityType.COURSE_VERSION.toString().equals(text)){
+						anchor.setText(courseClassTO.getCourseVersionTO().getCourseVersion().getName());
+					} else if(CourseDetailsEntityType.COURSE_CLASS.toString().equals(text)){
+						anchor.setText(courseClassTO.getCourseClass().getName());
+					}
+					return anchor.toString();
+				}
+			};
+		}
+
+		@Override
+		public Cell<CourseClassTO> getCell() {
+			return cell;
+		}
+
+		@Override
+		public FieldUpdater<CourseClassTO, CourseClassTO> getFieldUpdater() {
+			return null;
+		}
+
+		@Override
+		public CourseClassTO getValue(CourseClassTO object) {
+			return object;
+		}
+	}
 
 }

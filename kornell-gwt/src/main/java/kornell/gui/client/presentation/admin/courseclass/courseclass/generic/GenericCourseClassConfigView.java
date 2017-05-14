@@ -226,7 +226,7 @@ public class GenericCourseClassConfigView extends Composite {
         Boolean isOverrideEnrollments = courseClass.isOverrideEnrollments() == null ? false : courseClass.isOverrideEnrollments();
         overrideEnrollments = new KornellFormFieldWrapper("Sobrescrever matrículas em lote?", formHelper.createCheckBoxFormField(isOverrideEnrollments), isInstitutionAdmin);
         fields.add(overrideEnrollments);
-        profileFields.add(overrideEnrollments);
+        //profileFields.add(overrideEnrollments);
         ((CheckBox)overrideEnrollments.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
             @Override
             public void onValueChange(ValueChangeEvent<Boolean> event) {

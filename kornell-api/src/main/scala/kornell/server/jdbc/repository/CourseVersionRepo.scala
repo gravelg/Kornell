@@ -33,6 +33,7 @@ class CourseVersionRepo(uuid: String) {
     | c.code as courseCode,
     | c.title as courseTitle,
     | c.description as courseDescription,
+    | c.contentSpec as contentSpec,
     | c.infoJson as infoJson,
     | c.institutionUUID as institutionUUID,
     | c.childCourse as childCourse,

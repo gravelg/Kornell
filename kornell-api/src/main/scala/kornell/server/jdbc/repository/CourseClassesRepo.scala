@@ -206,10 +206,19 @@ object CourseClassesRepo {
             	and cc.institution_uuid = ${institutionUUID}""".first[String].get.toInt
     })
     
-    if(courseClassUUID != null && courseClassesTO.getCourseClasses.size > 0){
+    if(courseClassUUID != null && courseClassesTO.getCourseClasses.size == 1){
       bindClassroomDetails(courseClassesTO.getCourseClasses.get(0));
+    } else {
+      bindEnrollmentCounts(courseClassesTO)
     }
     
+    courseClassesTO
+  }
+  
+  private def bindEnrollmentCounts(courseClassesTO: CourseClassesTO) = {
+    val classes = courseClassesTO.getCourseClasses().asScala
+    classes.foreach(cc => cc.setEnrollmentCount(EnrollmentsRepo.countByCourseClass(cc.getCourseClass.getUUID)))
+    courseClassesTO.setCourseClasses(classes.asJava)
     courseClassesTO
   }
   
