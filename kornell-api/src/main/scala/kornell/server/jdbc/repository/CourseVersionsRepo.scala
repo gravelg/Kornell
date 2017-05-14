@@ -85,7 +85,7 @@ object CourseVersionsRepo {
   		where c.institutionUUID = $institutionUUID
   		and cv.name like ${filteredSearchTerm}
       and (cv.uuid = ${courseVersionUUID}  or ${StringUtils.isNone(courseVersionUUID)})
-      and (cv.uuid = ${courseUUID}  or ${StringUtils.isNone(courseUUID)})
+      and (c.uuid = ${courseUUID}  or ${StringUtils.isNone(courseUUID)})
   		order by c.title, cv.versionCreatedAt desc limit ${resultOffset}, ${pageSize}
 	  """.map[CourseVersionTO](toCourseVersionTO))
 	  courseVersionsTO.setPageSize(pageSize)

@@ -76,7 +76,7 @@ import kornell.gui.client.event.UnreadMessagesCountChangedEventHandler;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEvent;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEventHandler;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
-import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
+import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassView;
 import kornell.gui.client.presentation.message.MessagePresenter;
 import kornell.gui.client.util.AsciiUtils;
@@ -212,8 +212,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	@UiField
 	TabPanel tabsPanel;
 	
-	@UiField
-	GenericConfirmModalView confirmModal;
+	ConfirmModalView confirmModal;
 
 	Tab adminsTab;
 	FlowPanel adminsPanel;
@@ -227,6 +226,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		this.viewFactory = viewFactory;
 		this.messagePresenter = viewFactory.getMessagePresenterCourseClass();
 		this.messagePresenter.enableMessagesUpdate(false);
+		this.confirmModal = viewFactory.getConfirmModalView();
 		initWidget(uiBinder.createAndBindUi(this));
 		tabsPanel.setVisible(false);
 		table = new CellTable<EnrollmentTO>();
@@ -798,9 +798,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		return new Delegate<EnrollmentTO>() {
 			@Override
 			public void execute(EnrollmentTO object) {
-				if (canPerformEnrollmentAction) {
-					presenter.onUserClicked(object);
-				}
+				presenter.onUserClicked(object);
 			}
 		};
 	}

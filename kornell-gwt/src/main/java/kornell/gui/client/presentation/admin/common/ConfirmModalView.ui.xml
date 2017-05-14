@@ -1,0 +1,14 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+	<g:FlowPanel>
+		<b:Modal ui:field="confirmModal" title="Confirmação" backdrop="STATIC" addStyleNames="forgotPasswordModal">
+			<g:FlowPanel>
+		        <g:Label ui:field="confirmText"></g:Label>		
+				<g:FlowPanel addStyleNames="standardButtonBar">
+					<g:Button ui:field="btnOK" addStyleNames="btnAction btnStandard">OK</g:Button>
+					<g:Button ui:field="btnCancel" addStyleNames="btnNotSelected btnStandard">Cancelar</g:Button>
+				</g:FlowPanel>
+			</g:FlowPanel>
+		</b:Modal>
+	</g:FlowPanel>
+</ui:UiBinder>

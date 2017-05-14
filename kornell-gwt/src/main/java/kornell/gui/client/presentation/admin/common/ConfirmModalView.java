@@ -11,8 +11,9 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-public class GenericConfirmModalView extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, GenericConfirmModalView> {
+
+public class ConfirmModalView extends Composite {
+	interface MyUiBinder extends UiBinder<Widget, ConfirmModalView> {
 	}
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
@@ -30,7 +31,7 @@ public class GenericConfirmModalView extends Composite {
 	private Callback<Void, Void> callback;
 
 
-	public GenericConfirmModalView() {
+	public ConfirmModalView() {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
@@ -43,13 +44,21 @@ public class GenericConfirmModalView extends Composite {
 	@UiHandler("btnOK")
 	void doOK(ClickEvent e) { 
 		callback.onSuccess(null);
+		confirmText.setText("");
+		this.callback = null;
 		confirmModal.hide();
 	}
 	
 
 	@UiHandler("btnCancel")
 	void doCancel(ClickEvent e) { 
-		callback.onFailure(null);
+		hide();
+	}
+
+	public void hide() {
+		if(callback != null){
+			callback.onFailure(null);
+		}
 		confirmModal.hide();
 	}
 

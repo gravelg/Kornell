@@ -60,7 +60,7 @@ import kornell.core.to.CourseTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
-import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
+import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.presentation.admin.course.course.AdminCourseView;
 import kornell.gui.client.presentation.admin.course.courses.AdminCoursesView;
@@ -93,8 +93,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 	@UiField
 	Button btnAddCourse;
 	
-	@UiField
-	GenericConfirmModalView confirmModal;
+	ConfirmModalView confirmModal;
 
 	Tab adminsTab;
 	FlowPanel adminsPanel;
@@ -107,6 +106,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		this.placeCtrl = placeCtrl;
 		this.session = session;
 		this.bus = bus;
+		this.confirmModal = viewFactory.getConfirmModalView();
 		initWidget(uiBinder.createAndBindUi(this));
 		table = new CellTable<CourseTO>();
 		btnAddCourse.setText("Criar Novo Curso");
@@ -317,9 +317,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 
 			@Override
 			public void execute(CourseTO courseTO) {
-				if(canPerformAction){
-					placeCtrl.goTo(new AdminCoursePlace(courseTO.getCourse().getUUID()));
-				}
+				placeCtrl.goTo(new AdminCoursePlace(courseTO.getCourse().getUUID()));
 			}
 		};
 	}

@@ -17,6 +17,7 @@ import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
 import kornell.gui.client.presentation.admin.assets.generic.GenericAdminAssetsView;
 import kornell.gui.client.presentation.admin.audit.AdminAuditView;
 import kornell.gui.client.presentation.admin.audit.generic.GenericAdminAuditView;
+import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePresenter;
 import kornell.gui.client.presentation.admin.course.course.AdminCourseView;
 import kornell.gui.client.presentation.admin.course.course.generic.GenericAdminCourseView;
@@ -90,6 +91,7 @@ public class GenericViewFactoryImpl implements ViewFactory, ShowDetailsEventHand
 	private GenericAdminCourseVersionContentView genericAdminCourseVersionContentView;
 	private GenericAdminAssetsView genericAdminAssetsView;
 	private GenericAdminAuditView genericAdminAuditView;
+	private ConfirmModalView confirmModalView;
 	private ClassroomPresenter coursePresenter;
 	private SandboxPresenter sandboxPresenter;
 	private MessagePresenter messagePresenter, messagePresenterCourseClass, messagePresenterClassroomGlobalChat, messagePresenterClassroomTutorChat;
@@ -398,7 +400,7 @@ public class GenericViewFactoryImpl implements ViewFactory, ShowDetailsEventHand
 	public AdminAssetsView getAdminAssetsView() {
 		if (genericAdminAssetsView == null)
 			genericAdminAssetsView = new GenericAdminAssetsView(clientFactory.getKornellSession(),
-					clientFactory.getEventBus());
+					clientFactory.getEventBus(), this);
 		return genericAdminAssetsView;
 	}
 
@@ -413,5 +415,19 @@ public class GenericViewFactoryImpl implements ViewFactory, ShowDetailsEventHand
 	@Override
 	public void onCourseClassesFetched(CourseClassesFetchedEvent event) {
 		this.courseClassesTO = event.getCourseClassesTO();		
+	}
+
+	@Override
+	public ConfirmModalView getConfirmModalView() {
+		if(confirmModalView == null){
+			confirmModalView = new ConfirmModalView();
+			clientFactory.getEventBus().addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
+				@Override
+				public void onPlaceChange(PlaceChangeEvent event) {
+					confirmModalView.hide();
+				}
+			});
+		}
+		return confirmModalView;
 	}
 }

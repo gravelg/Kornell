@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 
 import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
 import kornell.gui.client.presentation.admin.audit.AdminAuditView;
+import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePresenter;
 import kornell.gui.client.presentation.admin.course.course.AdminCourseView;
 import kornell.gui.client.presentation.admin.course.courses.AdminCoursesView;
@@ -58,6 +59,7 @@ public interface ViewFactory {
 	ClassroomPresenter getClassroomPresenter();
 	SandboxView getSandboxView();
 	SandboxPresenter getSandboxPresenter();
+	ConfirmModalView getConfirmModalView();
 	
 	//admin
 	AdminInstitutionView getAdminInstitutionView();

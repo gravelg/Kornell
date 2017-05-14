@@ -60,7 +60,7 @@ import kornell.core.to.CourseClassTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
-import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
+import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassPlace;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.generic.GenericCourseClassConfigView;
@@ -99,8 +99,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 	@UiField
 	Button btnAddCourseClass;
 	
-	@UiField
-	GenericConfirmModalView confirmModal;
+	ConfirmModalView confirmModal;
 
 	Tab adminsTab;
 	FlowPanel adminsPanel;
@@ -111,6 +110,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		this.placeCtrl = placeCtrl;
 		this.session = session;
 		this.bus = bus;
+		this.confirmModal = viewFactory.getConfirmModalView();
 		initWidget(uiBinder.createAndBindUi(this));
 		table = new CellTable<CourseClassTO>();
 		btnAddCourseClass.setText("Criar Nova Turma");
@@ -289,9 +289,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		return new Delegate<CourseClassTO>() {
 			@Override
 			public void execute(CourseClassTO courseClassTO) {
-				if(canPerformAction){
-					placeCtrl.goTo(new AdminCoursePlace(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getUUID()));
-				}
+				placeCtrl.goTo(new AdminCoursePlace(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getUUID()));
 			}
 		};
 	}
@@ -300,9 +298,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		return new Delegate<CourseClassTO>() {
 			@Override
 			public void execute(CourseClassTO courseClassTO) {
-				if(canPerformAction){
-					placeCtrl.goTo(new AdminCourseVersionPlace(courseClassTO.getCourseVersionTO().getCourseVersion().getUUID()));
-				}
+				placeCtrl.goTo(new AdminCourseVersionPlace(courseClassTO.getCourseVersionTO().getCourseVersion().getUUID()));
 			}
 		};
 	}
@@ -311,9 +307,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		return new Delegate<CourseClassTO>() {
 			@Override
 			public void execute(CourseClassTO courseClassTO) {
-				if(canPerformAction){
-					placeCtrl.goTo(new AdminCourseClassPlace(courseClassTO.getCourseClass().getUUID()));
-				}
+				placeCtrl.goTo(new AdminCourseClassPlace(courseClassTO.getCourseClass().getUUID()));
 			}
 		};
 	}

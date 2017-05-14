@@ -60,7 +60,7 @@ import kornell.core.to.CourseVersionTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
-import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
+import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPlace;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPresenter;
@@ -98,8 +98,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 	@UiField
 	Button btnAddCourseVersion;
 	
-	@UiField
-	GenericConfirmModalView confirmModal;
+	ConfirmModalView confirmModal;
 
 	Tab adminsTab;
 	FlowPanel adminsPanel;
@@ -112,6 +111,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		this.placeCtrl = placeCtrl;
 		this.session = session;
 		this.bus = bus;
+		this.confirmModal = viewFactory.getConfirmModalView();
 		initWidget(uiBinder.createAndBindUi(this));
 		table = new CellTable<CourseVersionTO>();
 		btnAddCourseVersion.setText("Criar Nova Versão");
@@ -340,9 +340,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 
 			@Override
 			public void execute(CourseVersionTO courseVersionTO) {
-				if(canPerformAction){
-					placeCtrl.goTo(new AdminCoursePlace(courseVersionTO.getCourseTO().getCourse().getUUID()));
-				}
+				placeCtrl.goTo(new AdminCoursePlace(courseVersionTO.getCourseTO().getCourse().getUUID()));
 			}
 		};
 	}
@@ -351,9 +349,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		return new Delegate<CourseVersionTO>() {
 			@Override
 			public void execute(CourseVersionTO courseVersionTO) {
-				if(canPerformAction){
-					placeCtrl.goTo(new AdminCourseVersionPlace(courseVersionTO.getCourseVersion().getUUID()));
-				}
+				placeCtrl.goTo(new AdminCourseVersionPlace(courseVersionTO.getCourseVersion().getUUID()));
 			}
 		};
 	}

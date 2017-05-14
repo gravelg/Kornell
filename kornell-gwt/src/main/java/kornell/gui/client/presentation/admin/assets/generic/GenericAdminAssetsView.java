@@ -38,10 +38,11 @@ import kornell.core.to.CourseDetailsHintsTO;
 import kornell.core.to.CourseDetailsLibrariesTO;
 import kornell.core.to.CourseDetailsSectionsTO;
 import kornell.core.util.StringUtils;
+import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
-import kornell.gui.client.presentation.admin.common.GenericConfirmModalView;
+import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
 import kornell.gui.client.util.view.KornellNotification;
 
@@ -85,8 +86,8 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	FlowPanel librariesFieldPanel;
 	@UiField
 	GenericAssetFormView assetModal;
-	@UiField
-	GenericConfirmModalView confirmModal;
+	
+	ConfirmModalView confirmModal;
 
 	private Presenter presenter;
 	private Map<String, String> info;
@@ -98,9 +99,10 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 	private List<CourseDetailsHint> courseDetailsHints;
 	private List<CourseDetailsLibrary> courseDetailsLibraries;
 	
-	public GenericAdminAssetsView(KornellSession session, EventBus bus) {
+	public GenericAdminAssetsView(KornellSession session, EventBus bus, ViewFactory viewFactory) {
 		this.bus = bus;
 		this.session = session;
+		this.confirmModal = viewFactory.getConfirmModalView();
 		sectionsCount = 5;
 		initWidget(uiBinder.createAndBindUi(this));
 		WizardUtils.createIcon(sectionsAddButton, "fa-plus-circle");

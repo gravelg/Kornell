@@ -1,6 +1,5 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
-	xmlns:knlCommon="urn:import:kornell.gui.client.presentation.admin.common">
+	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
 
 	<g:FlowPanel ui:field="adminHomePanel" addStyleNames="deanHome">
     	<g:FlowPanel ui:field="coursesPanel" addStyleNames="courseClassesHeaderWrapper">
@@ -14,6 +13,5 @@
 		</g:FlowPanel>
 		<g:FlowPanel ui:field="createCoursePanel">
 		</g:FlowPanel>
-		<knlCommon:GenericConfirmModalView ui:field="confirmModal"></knlCommon:GenericConfirmModalView>
 	</g:FlowPanel>
 </ui:UiBinder>
