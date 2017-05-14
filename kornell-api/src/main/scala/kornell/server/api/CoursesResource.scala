@@ -24,8 +24,8 @@ class CoursesResource {
   @GET
   @Produces(Array(CoursesTO.TYPE))
   def getCourses(@QueryParam("fetchChildCourses") fetchChildCourses: String, @QueryParam("searchTerm") searchTerm: String,
-      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int) = {
-    CoursesRepo.byInstitution(fetchChildCourses == "true", PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber)
+      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) = {
+    CoursesRepo.byInstitution(fetchChildCourses == "true", PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true")
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

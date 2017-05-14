@@ -254,18 +254,18 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		table.addColumn(new TextColumn<CourseClassTO>() {
 			@Override
 			public String getValue(CourseClassTO courseClassTO) {
+				return formHelper.dateToString(courseClassTO.getCourseClass().getCreatedAt());
+			}
+		}, "Data de Criação");
+		
+		table.addColumn(new TextColumn<CourseClassTO>() {
+			@Override
+			public String getValue(CourseClassTO courseClassTO) {
 				String text = courseClassTO.getEnrollmentCount() + " (por ";
 				text += EnumTranslator.translateEnum(courseClassTO.getCourseClass().getRegistrationType()) + ")";
 				return text;
 			}
 		}, "Matrículas");
-		
-		table.addColumn(new TextColumn<CourseClassTO>() {
-			@Override
-			public String getValue(CourseClassTO courseClassTO) {
-				return formHelper.dateToString(courseClassTO.getCourseClass().getCreatedAt());
-			}
-		}, "Data de Criação");
 
 		List<HasCell<CourseClassTO, ?>> cells = new LinkedList<HasCell<CourseClassTO, ?>>();
 		cells.add(new CourseClassActionsHasCell("Gerenciar", getManageCourseClassDelegate()));

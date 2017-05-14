@@ -14,6 +14,7 @@ import kornell.core.to.CoursesTO
 import kornell.core.entity.AuditedEntityType
 import kornell.core.to.CourseTO
 import kornell.server.repository.TOs
+import kornell.server.jdbc.PreparedStmt
 
 object CoursesRepo {
 
@@ -51,20 +52,22 @@ object CoursesRepo {
     where cv.uuid = $courseVersionUUID
   """.first[Course]
   
-  def byInstitution(fetchChildCourses: Boolean, institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int): CoursesTO = {
+  def byInstitution(fetchChildCourses: Boolean, institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean): CoursesTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
+    val orderColumn = if(orderBy != null && orderBy.indexOf(";") < 0) orderBy else "c.code"
+    val order = orderColumn + (if(asc) " asc" else " desc")
     
-    val courses = sql"""
+    val courses = new PreparedStmt(s"""
 	  	select c.* from Course c
-		join Institution i on c.institutionUUID = i.uuid
-		where c.institutionUUID = ${institutionUUID}
-		and (childCourse = false or $fetchChildCourses = true)
-		and (c.title like ${filteredSearchTerm}
-            or c.code like ${filteredSearchTerm})
-		order by c.code limit ${resultOffset}, ${pageSize} 
-	  """.map[CourseTO](toCourseTO)
-	  
+  		join Institution i on c.institutionUUID = i.uuid
+  		where c.institutionUUID = '${institutionUUID}'
+  		and (childCourse = false or $fetchChildCourses = true)
+  		and (c.title like '${filteredSearchTerm}'
+              or c.code like '${filteredSearchTerm}')
+  		order by ${order} limit ${resultOffset}, ${pageSize} 
+	  """, List[String]()).map[CourseTO](toCourseTO)
+    
 	  val coursesTO = TOs.newCoursesTO
 	  coursesTO.setCourses(courses.asJava)
 	  coursesTO.setPageSize(pageSize)
@@ -85,6 +88,7 @@ object CoursesRepo {
     	})
 	  
     bindCourseVersionsCounts(coursesTO)
+    
 	  coursesTO
   }
   

@@ -41,6 +41,8 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
+import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Timer;
@@ -49,6 +51,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.AsyncDataProvider;
+import com.google.gwt.view.client.HasData;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
@@ -57,6 +61,7 @@ import kornell.core.entity.Course;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseTO;
+import kornell.core.to.CoursesTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
@@ -101,6 +106,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 	private boolean canPerformAction = true;
 	private KornellSession session;
 	private EventBus bus;
+	private List<kornell.core.to.CourseTO> courseTOs;
 
 	public GenericAdminCoursesView(final KornellSession session, final EventBus bus, final PlaceController placeCtrl, final ViewFactory viewFactory) {
 		this.placeCtrl = placeCtrl;
@@ -211,24 +217,36 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 			table.removeColumn(i);
 		}
 
-		table.addColumn(new TextColumn<CourseTO>() {
+		TextColumn<CourseTO> codeColumn = new TextColumn<CourseTO>() {
 			@Override
 			public String getValue(CourseTO courseTO) {
 				return courseTO.getCourse().getCode();
 			}
-		}, "Código");
+		};		
+	    codeColumn.setSortable(true);
+	    codeColumn.setDataStoreName("c.code");
+		AsyncHandler codeSortHandler = new AsyncHandler(table);
+	    table.addColumnSortHandler(codeSortHandler);
+		table.addColumn(codeColumn, "Código");
+		
 
 		List<HasCell<CourseTO, ?>> cellsC = new LinkedList<HasCell<CourseTO, ?>>();
 		cellsC.add(new CourseLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
 		CompositeCell<CourseTO> cellC = new CompositeCell<CourseTO>(cellsC);
-		table.addColumn(new Column<CourseTO, CourseTO>(cellC) {
+        Column<CourseTO, CourseTO> titleColumn = new Column<CourseTO, CourseTO>(cellC) {
 			@Override
 			public CourseTO getValue(CourseTO courseTO) {
 				return courseTO;
 			}
-		}, "Curso");
+		};	
+	    titleColumn.setSortable(true);
+	    titleColumn.setDataStoreName("c.title");
+		AsyncHandler titleSortHandler = new AsyncHandler(table);
+	    table.addColumnSortHandler(titleSortHandler);
+		table.addColumn(titleColumn, "Curso");
+		
 
-		table.addColumn(new TextColumn<CourseTO>() {
+		TextColumn<CourseTO> descriptionColumn = new TextColumn<CourseTO>() {
 			@Override
 			public String getValue(CourseTO courseTO) {
 				String description = courseTO.getCourse().getDescription();
@@ -237,14 +255,26 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 				}
 				return description;
 			}
-		}, "Descrição");
+		};		
+	    descriptionColumn.setSortable(true);
+	    descriptionColumn.setDataStoreName("c.description");
+		AsyncHandler descriptionSortHandler = new AsyncHandler(table);
+	    table.addColumnSortHandler(descriptionSortHandler);
+		table.addColumn(descriptionColumn, "Descrição");
+		
 
-		table.addColumn(new TextColumn<CourseTO>() {
+		TextColumn<CourseTO> typeColumn = new TextColumn<CourseTO>() {
 			@Override
 			public String getValue(CourseTO courseTO) {
 				return courseTO.getCourse().getContentSpec().toString();
 			}
-		}, "Tipo");
+		};		
+	    typeColumn.setSortable(true);
+	    typeColumn.setDataStoreName("c.contentSpec");
+		AsyncHandler typeSortHandler = new AsyncHandler(table);
+	    table.addColumnSortHandler(typeSortHandler);
+		table.addColumn(typeColumn, "Tipo");
+		
 		
 		table.addColumn(new TextColumn<CourseTO>() {
 			@Override
@@ -252,6 +282,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 				return "" + courseTO.getCourseVersionsCount();
 			}
 		}, "Versões");
+		
 
 		List<HasCell<CourseTO, ?>> cells = new LinkedList<HasCell<CourseTO, ?>>();
 		cells.add(new CourseActionsHasCell("Gerenciar", getGoToCourseDelegate()));
@@ -263,6 +294,32 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 				return courseTO;
 			}
 		}, "Ações");
+		
+		
+		// Create a data provider.
+	    AsyncDataProvider<CourseTO> dataProvider = new AsyncDataProvider<CourseTO>() {
+	      @Override
+	      protected void onRangeChanged(HasData<CourseTO> display) {
+	        final ColumnSortList sortList = table.getColumnSortList();	        
+	        if(sortList.size() > 0){
+	        	table.setVisible(false);
+				bus.fireEvent(new ShowPacifierEvent(true));
+	    		session.courses().get(true, presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), sortList.get(0).getColumn().getDataStoreName(), sortList.get(0).isAscending(), new Callback<CoursesTO>() {
+	      			@Override
+	      			public void ok(CoursesTO to) {
+	      				courseTOs = to.getCourses();
+	      				pagination.setRowData(courseTOs, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
+	    	        	table.setVisible(true);
+						bus.fireEvent(new ShowPacifierEvent(false));
+	      			}
+	      		});
+	        }
+	      }
+	    };
+
+	    // Connect the list to the data provider.
+	    dataProvider.addDataDisplay(table);
+	    
 	}
 
 	@Override
@@ -350,6 +407,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 
 	@Override
 	public void setCourses(List<CourseTO> courseTOs, Integer count, Integer searchCount) {
+		this.courseTOs = courseTOs;
 		coursesWrapper.clear();
 		VerticalPanel panel = new VerticalPanel();
 		panel.setWidth("400");

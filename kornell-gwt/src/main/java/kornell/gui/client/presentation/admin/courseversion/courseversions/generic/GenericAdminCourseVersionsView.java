@@ -255,16 +255,16 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		table.addColumn(new TextColumn<CourseVersionTO>() {
 			@Override
 			public String getValue(CourseVersionTO courseVersionTO) {
-				return "" + courseVersionTO.getCourseClassesCount();
+				return formHelper.dateToString(courseVersionTO.getCourseVersion().getVersionCreatedAt());
 			}
-		}, "Turmas");
+		}, "Data de Criação");
 		
 		table.addColumn(new TextColumn<CourseVersionTO>() {
 			@Override
 			public String getValue(CourseVersionTO courseVersionTO) {
-				return formHelper.dateToString(courseVersionTO.getCourseVersion().getVersionCreatedAt());
+				return "" + courseVersionTO.getCourseClassesCount();
 			}
-		}, "Data de Criação");
+		}, "Turmas");
 
 		List<HasCell<CourseVersionTO, ?>> cells = new LinkedList<HasCell<CourseVersionTO, ?>>();
 		cells.add(new CourseVersionActionsHasCell("Gerenciar", getManageCourseVersionDelegate()));
