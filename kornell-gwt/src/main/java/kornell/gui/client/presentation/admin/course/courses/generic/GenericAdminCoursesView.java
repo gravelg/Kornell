@@ -218,6 +218,13 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 			}
 		}, "Descrição");
 
+		table.addColumn(new TextColumn<Course>() {
+			@Override
+			public String getValue(Course course) {
+				return course.getContentSpec().toString();
+			}
+		}, "Tipo");
+
 		List<HasCell<Course, ?>> cells = new LinkedList<HasCell<Course, ?>>();
 		cells.add(new EnrollmentActionsHasCell("Gerenciar", getManageCourseDelegate(EnrollmentState.enrolled)));
 

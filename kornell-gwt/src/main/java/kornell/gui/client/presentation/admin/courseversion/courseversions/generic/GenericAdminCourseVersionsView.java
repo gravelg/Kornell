@@ -208,13 +208,6 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 			}
 		}, "Nome");
 
-//		table.addColumn(new TextColumn<CourseVersion>() {
-//			@Override
-//			public String getValue(CourseVersion courseVersion) {
-//				return courseVersion.getContentSpec().toString();
-//			}
-//		}, "Tipo");
-
 		table.addColumn(new TextColumn<CourseVersion>() {
 			@Override
 			public String getValue(CourseVersion courseVersion) {

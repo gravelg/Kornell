@@ -3,7 +3,6 @@ package kornell.gui.client.presentation.admin.courseversion.courseversion.generi
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.gwtbootstrap.client.ui.CheckBox;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.Modal;
@@ -15,8 +14,6 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -32,7 +29,6 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.ContentSpec;
 import kornell.core.entity.Course;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseVersion;
@@ -107,7 +103,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 	private CourseVersion courseVersion;
 	private Course courseEntity;
 
-	private KornellFormFieldWrapper name, course, distributionPrefix, contentSpec, disabled, parentCourseVersion, instanceCount, label;
+	private KornellFormFieldWrapper name, course, distributionPrefix, disabled, parentCourseVersion, instanceCount, label;
 	
 	private List<KornellFormFieldWrapper> fields;
 	private String courseVersionUUID;
@@ -172,11 +168,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		}
 	}
 
-	public void initData() {
-
-		if(!isCreationMode && ContentSpec.WIZARD.equals(courseEntity.getContentSpec()))
-			presenter.buildContentView(courseVersion, courseEntity.getContentSpec());
-		
+	public void initData() {		
 
 		if (isPlatformAdmin) {			
 			contentsTab.addClickHandler(new ClickHandler() {
@@ -224,17 +216,6 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		distributionPrefix = new KornellFormFieldWrapper("Prefixo de Distribuição", formHelper.createTextBoxFormField(courseVersion.getDistributionPrefix()), isInstitutionAdmin);
 		fields.add(distributionPrefix);
 		courseVersionFields.add(distributionPrefix);
-		
-		final ListBox contentSpecTypes = new ListBox();
-		contentSpecTypes.addItem("KNL", ContentSpec.KNL.toString());
-		contentSpecTypes.addItem("SCORM12", ContentSpec.SCORM12.toString());
-		//contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
-		if (!isCreationMode) {
-			contentSpecTypes.setSelectedValue(courseEntity.getContentSpec().toString());
-		}
-		contentSpec = new KornellFormFieldWrapper("Tipo", new ListBoxFormField(contentSpecTypes), isInstitutionAdmin);
-		fields.add(contentSpec);
-		courseVersionFields.add(contentSpec);
 
 		disabled = new KornellFormFieldWrapper("Desabilitar?", formHelper.createCheckBoxFormField(courseVersion.isDisabled()), isInstitutionAdmin);
 		if(!isCreationMode){
@@ -355,15 +336,6 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		}
 		if (!formHelper.isLengthValid(distributionPrefix.getFieldPersistText(), 2, 200)) {
 			distributionPrefix.setError("Insira o prefixo de distribuição");
-		}
-		if (!formHelper.isLengthValid(contentSpec.getFieldPersistText(), 2, 20)) {
-			contentSpec.setError("Insira o tipo");
-		} else {
-			try {
-				ContentSpec.valueOf(contentSpec.getFieldPersistText());
-	    } catch (Exception e) {
-				contentSpec.setError("Tipo inválido.");
-	    }
 		}
 		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
 			if (!formHelper.isValidNumber(instanceCount.getFieldPersistText()) || !formHelper.isNumberRangeValid(Integer.parseInt(instanceCount.getFieldPersistText()), 1, 100)) {

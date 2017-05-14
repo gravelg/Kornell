@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.CheckBox;
 import com.github.gwtbootstrap.client.ui.Form;
+import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.Modal;
 import com.github.gwtbootstrap.client.ui.Tab;
 import com.github.gwtbootstrap.client.ui.TabPanel;
@@ -29,6 +30,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
 import kornell.core.entity.Course;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.EntityFactory;
@@ -41,6 +43,7 @@ import kornell.gui.client.presentation.admin.course.course.AdminCourseView;
 import kornell.gui.client.presentation.admin.course.courses.AdminCoursesPlace;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
+import kornell.gui.client.util.forms.formfield.ListBoxFormField;
 
 public class GenericAdminCourseView extends Composite implements AdminCourseView {
 
@@ -95,7 +98,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 
 	private Course course;
 
-	private KornellFormFieldWrapper code, title, description, childCourse, infoJson;
+	private KornellFormFieldWrapper code, title, description, contentSpec, childCourse, infoJson;
 	
 	private List<KornellFormFieldWrapper> fields;
 	private String courseUUID;
@@ -205,6 +208,17 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 		fields.add(description);
 		courseFields.add(description);
 		
+		final ListBox contentSpecTypes = new ListBox();
+		contentSpecTypes.addItem("KNL", ContentSpec.KNL.toString());
+		contentSpecTypes.addItem("SCORM12", ContentSpec.SCORM12.toString());
+		//contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
+		if (!isCreationMode) {
+			contentSpecTypes.setSelectedValue(course.getContentSpec().toString());
+		}
+		contentSpec = new KornellFormFieldWrapper("Tipo", new ListBoxFormField(contentSpecTypes), isInstitutionAdmin);
+		fields.add(contentSpec);
+		courseFields.add(contentSpec);
+		
 		infoJson = new KornellFormFieldWrapper("Info", formHelper.createTextAreaFormField(course.getInfoJson(), 20), isInstitutionAdmin);
 		infoJson.addStyleName("heightAuto");
 		infoJson.addStyleName("marginBottom25");
@@ -259,6 +273,15 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 		if (!formHelper.isLengthValid(description.getFieldPersistText(), 2, 200)) {
 			description.setError("Insira a descrição");
 		}
+		if (!formHelper.isLengthValid(contentSpec.getFieldPersistText(), 2, 20)) {
+			contentSpec.setError("Insira o tipo");
+		} else {
+			try {
+				ContentSpec.valueOf(contentSpec.getFieldPersistText());
+		    } catch (Exception e) {
+					contentSpec.setError("Tipo inválido.");
+		    }
+		}
 		
 		return !formHelper.checkErrors(fields);
 	}
@@ -277,6 +300,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 		course.setCode(code.getFieldPersistText());
 		course.setTitle(title.getFieldPersistText());
 		course.setDescription(description.getFieldPersistText());
+		course.setContentSpec(ContentSpec.valueOf(contentSpec.getFieldPersistText()));
 		course.setInfoJson(infoJson.getFieldPersistText());
 		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
 			course.setChildCourse(childCourse.getFieldPersistText().equals("true"));
