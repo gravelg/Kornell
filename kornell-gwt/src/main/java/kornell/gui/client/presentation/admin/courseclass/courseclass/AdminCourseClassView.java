@@ -30,10 +30,6 @@ public interface AdminCourseClassView extends IsWidget {
 		void onGenerateCertificate(EnrollmentTO enrollmentTO);
 		void upsertCourseClass(CourseClass courseClass);
 		void onBatchCancelModalOkButtonClicked(String txtCancelEnrollmentBatch);
-		void setOrderBy(String dataStoreName);
-		void setAsc(boolean ascending);
-		String getOrderBy();
-		boolean getAsc();
 	}
 
 	void setPresenter(Presenter presenter);

@@ -32,6 +32,7 @@ import scala.collection.mutable.Buffer
 import kornell.core.entity.AssetEntity
 import kornell.core.entity.CourseDetailsHint
 import kornell.core.entity.CourseDetailsLibrary
+import kornell.server.jdbc.PreparedStmt
 
 class CourseClassesRepo {
 }
@@ -104,21 +105,23 @@ object CourseClassesRepo {
   }
 
   private def getAllClassesByInstitution(institutionUUID: String): kornell.core.to.CourseClassesTO =
-    getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "", null, null)
+    getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, null)
 
   def getCourseClassTO(institutionUUID: String, courseClassUUID: String) = {
-    val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "", null, courseClassUUID)
+    val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, courseClassUUID)
     if (courseClassesTO.getCourseClasses.size > 0) {
       courseClassesTO.getCourseClasses.get(0)
     }
   }
 
-  def getAllClassesByInstitutionPaged(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, adminUUID: String, courseVersionUUID: String, courseClassUUID: String): kornell.core.to.CourseClassesTO = {
+  def getAllClassesByInstitutionPaged(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, adminUUID: String, courseVersionUUID: String, courseClassUUID: String): kornell.core.to.CourseClassesTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
+    val orderColumn = if(orderBy != null && orderBy.indexOf(";") < 0) orderBy else "c.code"
+    val order = orderColumn + (if(asc) " asc" else " desc")
 
     val courseClassesTO = TOs.newCourseClassesTO(
-      sql"""
+      new PreparedStmt(s"""
 			select     
 				c.uuid as courseUUID, 
 			    c.code,
@@ -160,21 +163,21 @@ object CourseClassesRepo {
       		irp.name as institutionRegistrationPrefixName
 			from Course c
 				join CourseVersion cv on cv.course_uuid = c.uuid
-				join CourseClass cc on cc.courseVersion_uuid = cv.uuid and cc.institution_uuid = ${institutionUUID}
+				join CourseClass cc on cc.courseVersion_uuid = cv.uuid and cc.institution_uuid = '${institutionUUID}'
 			    left join InstitutionRegistrationPrefix irp on irp.uuid = cc.institutionRegistrationPrefixUUID
-      	  	where cc.state <> ${CourseClassState.deleted.toString} and
-      	  	    (cc.courseVersion_uuid = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)}) and
-      	  	    (cc.uuid = ${courseClassUUID} or ${StringUtils.isNone(courseClassUUID)}) and
-		    	cc.institution_uuid = ${institutionUUID} and
-	            (cv.name like ${filteredSearchTerm} or cc.name like ${filteredSearchTerm}) and 
+      	  	where cc.state <> '${CourseClassState.deleted.toString}' and
+      	  	    (cc.courseVersion_uuid = '${courseVersionUUID}' or ${StringUtils.isNone(courseVersionUUID)}) and
+      	  	    (cc.uuid = '${courseClassUUID}' or ${StringUtils.isNone(courseClassUUID)}) and
+		    	cc.institution_uuid = '${institutionUUID}' and
+	            (cv.name like '${filteredSearchTerm}' or cc.name like '${filteredSearchTerm}') and 
 	            (${StringUtils.isNone(adminUUID)} or
-				(select count(*) from Role r where person_uuid = ${adminUUID} and (
-					(r.role = ${RoleType.platformAdmin.toString} and r.institution_uuid = ${institutionUUID}) or 
-					(r.role = ${RoleType.institutionAdmin.toString} and r.institution_uuid = ${institutionUUID}) or 
-				( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.course_class_uuid = cc.uuid)
+				(select count(*) from Role r where person_uuid = '${adminUUID}' and (
+					(r.role = '${RoleType.platformAdmin.toString}' and r.institution_uuid = '${institutionUUID}') or 
+					(r.role = '${RoleType.institutionAdmin.toString}' and r.institution_uuid = '${institutionUUID}') or 
+				( (r.role = '${RoleType.courseClassAdmin.toString}' or r.role = '${RoleType.observer.toString}' or r.role = '${RoleType.tutor.toString}') and r.course_class_uuid = cc.uuid)
 			)) > 0)
-      	  	order by cc.state, c.title, cv.versionCreatedAt desc, cc.name limit ${resultOffset}, ${pageSize};
-		""".map[CourseClassTO](toCourseClassTO))
+      	  	order by ${order}, cc.state, c.title, cv.versionCreatedAt desc, cc.name limit ${resultOffset}, ${pageSize};
+		""", List[String]()).map[CourseClassTO](toCourseClassTO))
     courseClassesTO.setCount(
       sql"""select count(cc.uuid) from CourseClass cc where cc.state <> ${CourseClassState.deleted.toString} and (${StringUtils.isSome(adminUUID)} and
 					(select count(*) from Role r where person_uuid = ${adminUUID} and (
@@ -301,7 +304,7 @@ object CourseClassesRepo {
     val courseClass = byEnrollment(enrollmentUUID);
 
   	if(courseClass.isDefined){
-  	    val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "", null, courseClass.get.getUUID)
+  	    val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, courseClass.get.getUUID)
   	    bindEnrollments(personUUID, courseClassesTO).getCourseClasses().get(0)
   	} else {
   		//@TODO what about disabled versions?

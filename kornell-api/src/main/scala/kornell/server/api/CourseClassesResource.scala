@@ -60,10 +60,10 @@ class CourseClassesResource {
   @Produces(Array(CourseClassesTO.TYPE))
   @Path("administrated")
   def getAdministratedClasses(implicit @Context sc: SecurityContext, @QueryParam("courseVersionUUID") courseVersionUUID: String, @QueryParam("searchTerm") searchTerm: String,
-      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int) =
+      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) =
     AuthRepo().withPerson { person =>
       {
-          CourseClassesRepo.getAllClassesByInstitutionPaged(person.getInstitutionUUID, searchTerm, pageSize, pageNumber, person.getUUID, courseVersionUUID, null)
+          CourseClassesRepo.getAllClassesByInstitutionPaged(person.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true", person.getUUID, courseVersionUUID, null)
       }
     }
 }

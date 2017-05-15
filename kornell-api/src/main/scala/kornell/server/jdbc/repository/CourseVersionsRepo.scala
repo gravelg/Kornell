@@ -15,6 +15,7 @@ import java.util.Date
 import kornell.core.error.exception.EntityConflictException
 import kornell.core.entity.AuditedEntityType
 import kornell.core.util.StringUtils
+import kornell.server.jdbc.PreparedStmt
 
 object CourseVersionsRepo {
   
@@ -49,17 +50,19 @@ object CourseVersionsRepo {
   }  
   
   def getCourseVersionTO(institutionUUID: String, courseVersionUUID: String) = {
-    val courseVersionsTO = byInstitution(institutionUUID, "", Int.MaxValue, 1, null, courseVersionUUID)
+    val courseVersionsTO = byInstitution(institutionUUID, "", Int.MaxValue, 1, "cv.name", true, null, courseVersionUUID)
     if (courseVersionsTO.getCourseVersionTOs.size > 0) {
       courseVersionsTO.getCourseVersionTOs.get(0)
     }
   }
   
-  def byInstitution(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, courseUUID: String = null, courseVersionUUID: String = null) = {
+  def byInstitution(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, courseUUID: String = null, courseVersionUUID: String = null) = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
+    val orderColumn = if(orderBy != null && orderBy.indexOf(";") < 0) orderBy else "cv.name"
+    val order = orderColumn + (if(asc) " asc" else " desc")
     
-    val courseVersionsTO = newCourseVersionsTO(sql"""
+    val courseVersionsTO = newCourseVersionsTO(new PreparedStmt(s"""
       select
       cv.uuid as courseVersionUUID,
       cv.name as courseVersionName,
@@ -82,12 +85,12 @@ object CourseVersionsRepo {
       c.thumbUrl as courseThumbUrl
       from CourseVersion cv
   		join Course c on cv.course_uuid = c.uuid
-  		where c.institutionUUID = $institutionUUID
-  		and cv.name like ${filteredSearchTerm}
-      and (cv.uuid = ${courseVersionUUID}  or ${StringUtils.isNone(courseVersionUUID)})
-      and (c.uuid = ${courseUUID}  or ${StringUtils.isNone(courseUUID)})
-  		order by c.title, cv.versionCreatedAt desc limit ${resultOffset}, ${pageSize}
-	  """.map[CourseVersionTO](toCourseVersionTO))
+  		where c.institutionUUID = '$institutionUUID'
+  		and cv.name like '${filteredSearchTerm}'
+      and (cv.uuid = '${courseVersionUUID}'  or ${StringUtils.isNone(courseVersionUUID)})
+      and (c.uuid = '${courseUUID}'  or ${StringUtils.isNone(courseUUID)})
+  		order by ${order}, c.title, cv.versionCreatedAt desc limit ${resultOffset}, ${pageSize}
+	  """, List[String]()).map[CourseVersionTO](toCourseVersionTO))
 	  courseVersionsTO.setPageSize(pageSize)
 	  courseVersionsTO.setPageNumber(pageNumber.max(1))
 	  courseVersionsTO.setCount({

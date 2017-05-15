@@ -28,6 +28,8 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
+	private boolean asc = true;
+	private String orderBy = "cv.name";
 	private EventBus bus;
 
 
@@ -59,7 +61,7 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	}
 
 	private void getCourseVersions() {
-		session.courseVersions().get(pageSize, pageNumber, searchTerm, new Callback<CourseVersionsTO>() {
+		session.courseVersions().get(pageSize, pageNumber, searchTerm, orderBy, asc, new Callback<CourseVersionsTO>() {
   			@Override
   			public void ok(CourseVersionsTO to) {
   				courseVersionsTO = to;
@@ -111,6 +113,26 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	@Override
 	public void updateData() {
 		getCourseVersions();
+	}
+
+	@Override
+	public void setOrderBy(String orderBy) {
+		this.orderBy = orderBy;
+	}
+
+	@Override
+	public void setAsc(boolean asc) {
+		this.asc = asc;
+	}
+
+	@Override
+	public String getOrderBy() {
+		return orderBy;
+	}
+
+	@Override
+	public boolean getAsc() {
+		return asc;
 	}
 	
 }

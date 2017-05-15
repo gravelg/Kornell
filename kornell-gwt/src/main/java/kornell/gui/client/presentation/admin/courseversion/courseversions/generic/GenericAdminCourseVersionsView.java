@@ -41,6 +41,8 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
+import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Timer;
@@ -49,6 +51,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.AsyncDataProvider;
+import com.google.gwt.view.client.HasData;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
@@ -57,6 +61,7 @@ import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseVersion;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseVersionTO;
+import kornell.core.to.CourseVersionsTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
@@ -218,46 +223,66 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 			table.removeColumn(i);
 		}
 
+
 		List<HasCell<CourseVersionTO, ?>> cellsC = new LinkedList<HasCell<CourseVersionTO, ?>>();
 		cellsC.add(new CourseVersionLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
 		CompositeCell<CourseVersionTO> cellC = new CompositeCell<CourseVersionTO>(cellsC);
-		table.addColumn(new Column<CourseVersionTO, CourseVersionTO>(cellC) {
+        Column<CourseVersionTO, CourseVersionTO> courseColumn = new Column<CourseVersionTO, CourseVersionTO>(cellC) {
 			@Override
 			public CourseVersionTO getValue(CourseVersionTO courseVersionTO) {
 				return courseVersionTO;
 			}
-		}, "Curso");
+		};	
+	    courseColumn.setSortable(true);
+	    courseColumn.setDataStoreName("c.title");
+		table.addColumn(courseColumn, "Curso");
+		
 
 		List<HasCell<CourseVersionTO, ?>> cellsCV = new LinkedList<HasCell<CourseVersionTO, ?>>();
 		cellsCV.add(new CourseVersionLinkHasCell(CourseDetailsEntityType.COURSE_VERSION.toString(), getGoToCourseVersionDelegate()));
 		CompositeCell<CourseVersionTO> cellCV = new CompositeCell<CourseVersionTO>(cellsCV);
-		table.addColumn(new Column<CourseVersionTO, CourseVersionTO>(cellCV) {
+        Column<CourseVersionTO, CourseVersionTO> versionColumn = new Column<CourseVersionTO, CourseVersionTO>(cellCV) {
 			@Override
 			public CourseVersionTO getValue(CourseVersionTO courseVersionTO) {
 				return courseVersionTO;
 			}
-		}, "Versão");
+		};	
+	    versionColumn.setSortable(true);
+	    versionColumn.setDataStoreName("cv.name");
+		table.addColumn(versionColumn, "Versão");
+		
 
-		table.addColumn(new TextColumn<CourseVersionTO>() {
+		TextColumn<CourseVersionTO> distributionPrefixColumn = new TextColumn<CourseVersionTO>() {
 			@Override
 			public String getValue(CourseVersionTO courseVersionTO) {
 				return courseVersionTO.getCourseVersion().getDistributionPrefix();
 			}
-		}, "Prefixo de Distribuição");
+		};		
+	    distributionPrefixColumn.setSortable(true);
+	    distributionPrefixColumn.setDataStoreName("cv.distributionPrefix");
+		table.addColumn(distributionPrefixColumn, "Prefixo de Distribuição");
 		
-		table.addColumn(new TextColumn<CourseVersionTO>() {
+
+		TextColumn<CourseVersionTO> statusColumn = new TextColumn<CourseVersionTO>() {
 			@Override
 			public String getValue(CourseVersionTO courseVersionTO) {
 				return courseVersionTO.getCourseVersion().isDisabled() ? "Desativada" : "Ativa";
 			}
-		}, "Status");
+		};		
+	    statusColumn.setSortable(true);
+	    statusColumn.setDataStoreName("cv.disabled");
+		table.addColumn(statusColumn, "Status");
 		
-		table.addColumn(new TextColumn<CourseVersionTO>() {
+		
+		TextColumn<CourseVersionTO> creationDateColumn = new TextColumn<CourseVersionTO>() {
 			@Override
 			public String getValue(CourseVersionTO courseVersionTO) {
 				return formHelper.dateToString(courseVersionTO.getCourseVersion().getVersionCreatedAt());
 			}
-		}, "Data de Criação");
+		};		
+	    creationDateColumn.setSortable(true);
+	    creationDateColumn.setDataStoreName("cv.versionCreatedAt");
+		table.addColumn(creationDateColumn, "Data de Criação");
 		
 		table.addColumn(new TextColumn<CourseVersionTO>() {
 			@Override
@@ -277,6 +302,44 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 				return courseVersionTO;
 			}
 		}, "Ações");
+		
+		
+		// Create a data provider.
+	    AsyncDataProvider<CourseVersionTO> dataProvider = new AsyncDataProvider<CourseVersionTO>() {
+	      @Override
+	      protected void onRangeChanged(HasData<CourseVersionTO> display) {
+	        final ColumnSortList sortList = table.getColumnSortList();	        
+	        if(sortList.size() > 0){
+	        	table.setVisible(false);
+	        	pagination.setVisible(false);
+				presenter.setOrderBy(sortList.get(0).getColumn().getDataStoreName());
+				presenter.setAsc(sortList.get(0).isAscending());
+				bus.fireEvent(new ShowPacifierEvent(true));
+	    		session.courseVersions().get(presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), sortList.get(0).getColumn().getDataStoreName(), sortList.get(0).isAscending(), new Callback<CourseVersionsTO>() {
+	      			@Override
+	      			public void ok(CourseVersionsTO to) {
+	      				pagination.setRowData(to.getCourseVersionTOs(), StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
+	    	        	table.setVisible(true);
+	    	        	pagination.setVisible(to.getCount() > to.getPageSize());
+						bus.fireEvent(new ShowPacifierEvent(false));
+	      			}
+	      		});
+	        }
+	      }
+	    };
+
+	    // Connect the list to the data provider.
+	    dataProvider.addDataDisplay(table);
+	    table.addColumnSortHandler(new AsyncHandler(table));
+
+		Column<CourseVersionTO, ?> column;
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			column = table.getColumn(i);
+			if(presenter.getOrderBy().equals(column.getDataStoreName())){
+			    table.getColumnSortList().push(column);
+			    column.setDefaultSortAscending(presenter.getAsc());
+			}
+		}
 	}
 
 	@Override

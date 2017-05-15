@@ -225,8 +225,6 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		};		
 	    codeColumn.setSortable(true);
 	    codeColumn.setDataStoreName("c.code");
-		AsyncHandler codeSortHandler = new AsyncHandler(table);
-	    table.addColumnSortHandler(codeSortHandler);
 		table.addColumn(codeColumn, "Código");
 		
 
@@ -241,8 +239,6 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		};	
 	    titleColumn.setSortable(true);
 	    titleColumn.setDataStoreName("c.title");
-		AsyncHandler titleSortHandler = new AsyncHandler(table);
-	    table.addColumnSortHandler(titleSortHandler);
 		table.addColumn(titleColumn, "Curso");
 		
 
@@ -258,8 +254,6 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		};		
 	    descriptionColumn.setSortable(true);
 	    descriptionColumn.setDataStoreName("c.description");
-		AsyncHandler descriptionSortHandler = new AsyncHandler(table);
-	    table.addColumnSortHandler(descriptionSortHandler);
 		table.addColumn(descriptionColumn, "Descrição");
 		
 
@@ -271,8 +265,6 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		};		
 	    typeColumn.setSortable(true);
 	    typeColumn.setDataStoreName("c.contentSpec");
-		AsyncHandler typeSortHandler = new AsyncHandler(table);
-	    table.addColumnSortHandler(typeSortHandler);
 		table.addColumn(typeColumn, "Tipo");
 		
 		
@@ -303,6 +295,9 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 	        final ColumnSortList sortList = table.getColumnSortList();	        
 	        if(sortList.size() > 0){
 	        	table.setVisible(false);
+	        	pagination.setVisible(false);
+				presenter.setOrderBy(sortList.get(0).getColumn().getDataStoreName());
+				presenter.setAsc(sortList.get(0).isAscending());
 				bus.fireEvent(new ShowPacifierEvent(true));
 	    		session.courses().get(true, presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), sortList.get(0).getColumn().getDataStoreName(), sortList.get(0).isAscending(), new Callback<CoursesTO>() {
 	      			@Override
@@ -310,6 +305,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 	      				courseTOs = to.getCourses();
 	      				pagination.setRowData(courseTOs, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
 	    	        	table.setVisible(true);
+	    	        	pagination.setVisible(to.getCount() > to.getPageSize());
 						bus.fireEvent(new ShowPacifierEvent(false));
 	      			}
 	      		});
@@ -319,7 +315,16 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 
 	    // Connect the list to the data provider.
 	    dataProvider.addDataDisplay(table);
-	    table.getColumnSortList().push(titleColumn);
+	    table.addColumnSortHandler(new AsyncHandler(table));
+
+		Column<CourseTO, ?> column;
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			column = table.getColumn(i);
+			if(presenter.getOrderBy().equals(column.getDataStoreName())){
+			    table.getColumnSortList().push(column);
+			    column.setDefaultSortAscending(presenter.getAsc());
+			}
+		}
 	    
 	}
 

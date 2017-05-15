@@ -29,6 +29,8 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
+	private boolean asc = true;
+	private String orderBy = "";
 	private EventBus bus;
 
 
@@ -120,6 +122,26 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 	@Override
 	public void updateData() {
 		getEntitiesChanged();
+	}
+
+	@Override
+	public void setOrderBy(String orderBy) {
+		this.orderBy = orderBy;
+	}
+
+	@Override
+	public void setAsc(boolean asc) {
+		this.asc = asc;
+	}
+
+	@Override
+	public String getOrderBy() {
+		return orderBy;
+	}
+
+	@Override
+	public boolean getAsc() {
+		return asc;
 	}
 	
 }

@@ -10,4 +10,8 @@ public interface PaginationPresenter extends IsWidget{
 	String getSearchTerm();
 	void setSearchTerm(String searchTerm);
 	void updateData();
+	String getOrderBy();
+	void setOrderBy(String dataStoreName);
+	boolean getAsc();
+	void setAsc(boolean ascending);
 }

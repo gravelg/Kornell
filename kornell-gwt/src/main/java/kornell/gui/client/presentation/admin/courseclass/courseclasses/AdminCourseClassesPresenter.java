@@ -32,6 +32,8 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
+	private boolean asc = true;
+	private String orderBy = "cc.name";
 
 	public AdminCourseClassesPresenter(KornellSession session, EventBus bus,
 			PlaceController placeController, Place defaultPlace,
@@ -69,7 +71,7 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	public void updateCourseClass(final String courseClassUUID) {
 		bus.fireEvent(new ShowPacifierEvent(true));
 		view.setCourseClasses(null, 0, 0);
-		session.courseClasses().getAdministratedCourseClassesTOPaged(pageSize, pageNumber, searchTerm, 
+		session.courseClasses().getAdministratedCourseClassesTOPaged(pageSize, pageNumber, searchTerm, orderBy, asc,
 				new Callback<CourseClassesTO>() {
 			@Override
 			public void ok(CourseClassesTO to) {
@@ -130,5 +132,25 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	@Override
 	public void updateData() {
     	updateCourseClass("");
+	}
+
+	@Override
+	public void setOrderBy(String orderBy) {
+		this.orderBy = orderBy;
+	}
+
+	@Override
+	public void setAsc(boolean asc) {
+		this.asc = asc;
+	}
+
+	@Override
+	public String getOrderBy() {
+		return orderBy;
+	}
+
+	@Override
+	public boolean getAsc() {
+		return asc;
 	}
 }

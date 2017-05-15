@@ -461,7 +461,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    nameColumn.setSortable(true);
 	    nameColumn.setDataStoreName("p.fullName");
-	    table.addColumnSortHandler(new AsyncHandler(table));
 		table.addColumn(nameColumn, "Nome");
 
 		
@@ -473,7 +472,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    usernameColumn.setSortable(true);
 	    usernameColumn.setDataStoreName("pw.username");
-	    table.addColumnSortHandler(new AsyncHandler(table));
 		table.addColumn(usernameColumn, "Usuário");
 
 		
@@ -485,7 +483,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    stateColumn.setSortable(true);
 	    stateColumn.setDataStoreName("e.state");
-	    table.addColumnSortHandler(new AsyncHandler(table));
 		table.addColumn(stateColumn, "Matrícula");
 
 		
@@ -513,7 +510,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    progressColumn.setSortable(true);
 	    progressColumn.setDataStoreName("e.progress");
-	    table.addColumnSortHandler(new AsyncHandler(table));
 		table.addColumn(progressColumn, "Progresso");
 
 		
@@ -525,7 +521,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    enrolledOnColumn.setSortable(true);
 	    enrolledOnColumn.setDataStoreName("e.enrolledOn");
-	    table.addColumnSortHandler(new AsyncHandler(table));
 		table.addColumn(enrolledOnColumn, "Data da Matrícula");
 
 		table.addColumn(new TextColumn<EnrollmentTO>() {
@@ -584,12 +579,8 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	      				enrollmentsOriginal = to.getEnrollmentTOs();
 	      				pagination.setRowData(enrollmentsOriginal, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
 	    	        	table.setVisible(true);
-	    	        	pagination.setVisible(true);
-	    	        	
+	    	        	pagination.setVisible(to.getCount() > to.getPageSize());	
 						bus.fireEvent(new ShowPacifierEvent(false));
-	                    /*if (courseClassUUID.equals(session.getCurrentCourseClass().getCourseClass().getUUID())) {
-	                        showEnrollments(enrollments, true);
-	                    }*/
 	                } 
 	            });
 	        }
@@ -598,6 +589,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 
 	    // Connect the list to the data provider.
 	    dataProvider.addDataDisplay(table);
+	    table.addColumnSortHandler(new AsyncHandler(table));
 
 		Column<EnrollmentTO, ?> column;
 		for (int i = 0; i < table.getColumnCount(); i++) {

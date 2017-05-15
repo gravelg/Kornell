@@ -41,6 +41,8 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
+import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Timer;
@@ -49,6 +51,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.AsyncDataProvider;
+import com.google.gwt.view.client.HasData;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
@@ -57,6 +61,7 @@ import kornell.core.entity.CourseClass;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseClassTO;
+import kornell.core.to.CourseClassesTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
@@ -214,32 +219,42 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		List<HasCell<CourseClassTO, ?>> cellsC = new LinkedList<HasCell<CourseClassTO, ?>>();
 		cellsC.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
 		CompositeCell<CourseClassTO> cellC = new CompositeCell<CourseClassTO>(cellsC);
-		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellC) {
+        Column<CourseClassTO, CourseClassTO> courseColumn = new Column<CourseClassTO, CourseClassTO>(cellC) {
 			@Override
 			public CourseClassTO getValue(CourseClassTO courseClassTO) {
 				return courseClassTO;
 			}
-		}, "Curso");
-
+		};	
+	    courseColumn.setSortable(true);
+	    courseColumn.setDataStoreName("c.title");
+		table.addColumn(courseColumn, "Curso");
+		
+		
 		List<HasCell<CourseClassTO, ?>> cellsCV = new LinkedList<HasCell<CourseClassTO, ?>>();
 		cellsCV.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE_VERSION.toString(), getGoToCourseVersionDelegate()));
 		CompositeCell<CourseClassTO> cellCV = new CompositeCell<CourseClassTO>(cellsCV);
-		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellCV) {
+        Column<CourseClassTO, CourseClassTO> versionColumn = new Column<CourseClassTO, CourseClassTO>(cellCV) {
 			@Override
 			public CourseClassTO getValue(CourseClassTO courseClassTO) {
 				return courseClassTO;
 			}
-		}, "Versão");
+		};	
+	    versionColumn.setSortable(true);
+	    versionColumn.setDataStoreName("cv.name");
+		table.addColumn(versionColumn, "Versão");
 
 		List<HasCell<CourseClassTO, ?>> cellsCC = new LinkedList<HasCell<CourseClassTO, ?>>();
 		cellsCC.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE_CLASS.toString(), getGoToCourseClassDelegate()));
 		CompositeCell<CourseClassTO> cellCC = new CompositeCell<CourseClassTO>(cellsCC);
-		table.addColumn(new Column<CourseClassTO, CourseClassTO>(cellCC) {
+        Column<CourseClassTO, CourseClassTO> classColumn = new Column<CourseClassTO, CourseClassTO>(cellCC) {
 			@Override
 			public CourseClassTO getValue(CourseClassTO courseClassTO) {
 				return courseClassTO;
 			}
-		}, "Turma");
+		};	
+		classColumn.setSortable(true);
+		classColumn.setDataStoreName("cc.name");
+		table.addColumn(classColumn, "Turma");
 		
 		table.addColumn(new TextColumn<CourseClassTO>() {
 			@Override
@@ -251,12 +266,16 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 			}
 		}, "Status");
 		
-		table.addColumn(new TextColumn<CourseClassTO>() {
+		
+		TextColumn<CourseClassTO> creationDateColumn = new TextColumn<CourseClassTO>() {
 			@Override
 			public String getValue(CourseClassTO courseClassTO) {
 				return formHelper.dateToString(courseClassTO.getCourseClass().getCreatedAt());
 			}
-		}, "Data de Criação");
+		};		
+	    creationDateColumn.setSortable(true);
+	    creationDateColumn.setDataStoreName("cc.createdAt");
+		table.addColumn(creationDateColumn, "Data de Criação");
 		
 		table.addColumn(new TextColumn<CourseClassTO>() {
 			@Override
@@ -277,6 +296,44 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 				return courseClassTO;
 			}
 		}, "Ações");
+		
+		
+		// Create a data provider.
+	    AsyncDataProvider<CourseClassTO> dataProvider = new AsyncDataProvider<CourseClassTO>() {
+	      @Override
+	      protected void onRangeChanged(HasData<CourseClassTO> display) {
+	        final ColumnSortList sortList = table.getColumnSortList();	        
+	        if(sortList.size() > 0){
+	        	table.setVisible(false);
+	        	pagination.setVisible(false);
+				presenter.setOrderBy(sortList.get(0).getColumn().getDataStoreName());
+				presenter.setAsc(sortList.get(0).isAscending());
+				bus.fireEvent(new ShowPacifierEvent(true));
+	    		session.courseClasses().getAdministratedCourseClassesTOPaged(presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), sortList.get(0).getColumn().getDataStoreName(), sortList.get(0).isAscending(), new Callback<CourseClassesTO>() {
+	      			@Override
+	      			public void ok(CourseClassesTO to) {
+	      				pagination.setRowData(to.getCourseClasses(), StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
+	    	        	table.setVisible(true);
+	    	        	pagination.setVisible(to.getCount() > to.getPageSize());
+						bus.fireEvent(new ShowPacifierEvent(false));
+	      			}
+	      		});
+	        }
+	      }
+	    };
+
+	    // Connect the list to the data provider.
+	    dataProvider.addDataDisplay(table);
+	    table.addColumnSortHandler(new AsyncHandler(table));
+
+		Column<CourseClassTO, ?> column;
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			column = table.getColumn(i);
+			if(presenter.getOrderBy().equals(column.getDataStoreName())){
+			    table.getColumnSortList().push(column);
+			    column.setDefaultSortAscending(presenter.getAsc());
+			}
+		}
 	}
 
 	@Override

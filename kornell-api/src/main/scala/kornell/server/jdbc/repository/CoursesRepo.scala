@@ -65,7 +65,7 @@ object CoursesRepo {
   		and (childCourse = false or $fetchChildCourses = true)
   		and (c.title like '${filteredSearchTerm}'
               or c.code like '${filteredSearchTerm}')
-  		order by ${order} limit ${resultOffset}, ${pageSize} 
+  		order by ${order}, c.title limit ${resultOffset}, ${pageSize} 
 	  """, List[String]()).map[CourseTO](toCourseTO)
     
 	  val coursesTO = TOs.newCoursesTO
