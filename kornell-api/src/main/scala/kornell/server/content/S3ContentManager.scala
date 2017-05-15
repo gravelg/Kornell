@@ -47,8 +47,9 @@ class S3ContentManager(repo: ContentRepository)
   }
   
   def delete(keys: String*) = {
-    logger.info("Trying to delete object [ " + url(keys:_*) + " ]")
-    s3.deleteObject(repo.getBucketName, url(keys:_*))
+    // keys we support delete for already have repo prefix appended
+    logger.info("Trying to delete object [ " + mkurl("", keys:_*) + " ]")
+    s3.deleteObject(repo.getBucketName, mkurl("", keys:_*))
   }
   
   def getPrefix = repo.getPrefix
