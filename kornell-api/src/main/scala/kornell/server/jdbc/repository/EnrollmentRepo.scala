@@ -36,20 +36,20 @@ class EnrollmentRepo(uuid: String) {
   def update(e: Enrollment): Enrollment = {
     e.setLastProgressUpdate(DateTime.now.toDate)
     sql"""
-    UPDATE Enrollment    
-     SET 
-		progress = ${e.getProgress},
-		notes = ${e.getNotes},
-		state = ${e.getState.toString},
-		lastProgressUpdate = ${e.getLastProgressUpdate},
-		assessment = ${Option(e.getAssessment).map(_.toString).getOrElse(null)},
-		lastAssessmentUpdate = ${e.getLastAssessmentUpdate},
-		assessmentScore = ${e.getAssessmentScore},
-		certifiedAt = ${e.getCertifiedAt},
-        parentEnrollmentUUID = ${e.getParentEnrollmentUUID},
-        start_date = ${e.getStartDate},
-        end_date = ${e.getEndDate}
-      where uuid = ${e.getUUID} """.executeUpdate
+    update Enrollment    
+    set 
+  		progress = ${e.getProgress},
+  		notes = ${e.getNotes},
+  		state = ${e.getState.toString},
+  		lastProgressUpdate = ${e.getLastProgressUpdate},
+  		assessment = ${Option(e.getAssessment).map(_.toString).getOrElse(null)},
+  		lastAssessmentUpdate = ${e.getLastAssessmentUpdate},
+  		assessmentScore = ${e.getAssessmentScore},
+  		certifiedAt = ${e.getCertifiedAt},
+      parentEnrollmentUUID = ${e.getParentEnrollmentUUID},
+      start_date = ${e.getStartDate},
+      end_date = ${e.getEndDate}
+    where uuid = ${e.getUUID} """.executeUpdate
     
     EnrollmentsRepo.updateCache(e)
 	ChatThreadsRepo.addParticipantsToCourseClassThread(CourseClassesRepo(e.getCourseClassUUID).get)

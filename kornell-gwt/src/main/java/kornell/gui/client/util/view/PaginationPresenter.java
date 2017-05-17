@@ -12,6 +12,7 @@ public interface PaginationPresenter extends IsWidget{
 	void updateData();
 	String getOrderBy();
 	void setOrderBy(String dataStoreName);
-	boolean getAsc();
-	void setAsc(boolean ascending);
+	String getAsc();
+	void setAsc(String ascending);
+	String getClientPropertyName(String string);
 }

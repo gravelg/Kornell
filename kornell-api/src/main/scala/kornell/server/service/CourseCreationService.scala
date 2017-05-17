@@ -59,7 +59,7 @@ object CourseCreationService {
     val versionUUID = UUID.random
     val version = CourseVersionsRepo.create(Entities.newCourseVersion(
         versionUUID,
-        to.getTitle,
+        "v1",
         courseUUID,
         new Date(),
         versionUUID,

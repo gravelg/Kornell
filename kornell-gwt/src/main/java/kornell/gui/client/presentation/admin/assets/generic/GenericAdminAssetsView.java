@@ -454,7 +454,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 			btnDelete.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					confirmModal.showModal("Tem certeza que deseja excluir essa imagem?", new com.google.gwt.core.client.Callback<Void, Void>() {
+					confirmModal.showModal("Tem certeza que deseja excluir esta imagem?", new com.google.gwt.core.client.Callback<Void, Void>() {
 						@Override
 						public void onSuccess(Void result) {
 							presenter.delete(fileName);

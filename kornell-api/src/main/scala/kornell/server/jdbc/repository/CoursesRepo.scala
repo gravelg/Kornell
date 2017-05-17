@@ -55,7 +55,7 @@ object CoursesRepo {
   def byInstitution(fetchChildCourses: Boolean, institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean): CoursesTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
-    val orderColumn = if(orderBy != null && orderBy.indexOf(";") < 0) orderBy else "c.code"
+    val orderColumn = if(orderBy != null &&  !orderBy.contains(";")) orderBy else "c.code"
     val order = orderColumn + (if(asc) " asc" else " desc")
     
     val courses = new PreparedStmt(s"""

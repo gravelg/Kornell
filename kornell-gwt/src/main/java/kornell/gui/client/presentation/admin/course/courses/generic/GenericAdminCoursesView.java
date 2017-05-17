@@ -70,6 +70,7 @@ import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.presentation.admin.course.course.AdminCourseView;
 import kornell.gui.client.presentation.admin.course.courses.AdminCoursesView;
 import kornell.gui.client.util.AsciiUtils;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.KornellPagination;
 
@@ -85,7 +86,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 	private KornellPagination pagination;
 	private TextBox txtSearch;
 	private Button btnSearch;
-	private Timer updateTimer;
+	private Timer updateTimer, refreshTableTimer;
 
 	@UiField
 	FlowPanel adminHomePanel;
@@ -152,6 +153,59 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 				filter();
 			}
 		};
+
+		refreshTableTimer = new Timer() {
+			@Override
+			public void run() {
+				refreshTable();
+			}
+		};
+		
+		
+		// Create a data provider.
+	    AsyncDataProvider<CourseTO> dataProvider = new AsyncDataProvider<CourseTO>() {
+	      @Override
+	      protected void onRangeChanged(HasData<CourseTO> display) {
+	    	  scheduleRefreshTable();
+	      }
+	    };
+
+	    // Connect the list to the data provider.
+	    dataProvider.addDataDisplay(table);
+	}
+
+	private void scheduleRefreshTable() {   
+        if(table.getColumnSortList().size() > 0){
+	    	table.setVisible(false);
+	    	pagination.setVisible(false);
+			bus.fireEvent(new ShowPacifierEvent(true));
+        }
+		
+		refreshTableTimer.cancel();
+		refreshTableTimer.schedule(200);
+	}
+
+	private void refreshTable() {      
+        final ColumnSortList sortList = table.getColumnSortList();	        
+        if(sortList.size() > 0){
+			final String orderBy = sortList.get(0).getColumn().getDataStoreName();
+			final String asc = ""+sortList.get(0).isAscending();
+			presenter.setOrderBy(orderBy);
+			presenter.setAsc(asc);
+    		session.courses().get(true, presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), orderBy, asc, new Callback<CoursesTO>() {
+      			@Override
+      			public void ok(CoursesTO to) {
+      				courseTOs = to.getCourses();
+      				pagination.setRowData(courseTOs, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
+    	        	table.setVisible(true);
+    	        	pagination.setVisible(to.getCount() > to.getPageSize());
+					bus.fireEvent(new ShowPacifierEvent(false));
+
+					ClientProperties.set(presenter.getClientPropertyName("orderBy"), orderBy);
+					ClientProperties.set(presenter.getClientPropertyName("asc"), asc);
+      			}
+      		});
+        }
 	}
 
 	private void scheduleFilter() {
@@ -213,6 +267,8 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		table.addStyleName("coursesCellTable");
 		table.addStyleName("lineWithoutLink");
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
+		table.setWidth("100%", true);
+		
 		for (int i = 0; table.getColumnCount() > 0;) {
 			table.removeColumn(i);
 		}
@@ -225,6 +281,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		};		
 	    codeColumn.setSortable(true);
 	    codeColumn.setDataStoreName("c.code");
+		table.setColumnWidth(codeColumn, "20%");
 		table.addColumn(codeColumn, "Código");
 		
 
@@ -239,6 +296,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		};	
 	    titleColumn.setSortable(true);
 	    titleColumn.setDataStoreName("c.title");
+		table.setColumnWidth(titleColumn, "20%");
 		table.addColumn(titleColumn, "Curso");
 		
 
@@ -254,6 +312,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		};		
 	    descriptionColumn.setSortable(true);
 	    descriptionColumn.setDataStoreName("c.description");
+		table.setColumnWidth(descriptionColumn, "35%");
 		table.addColumn(descriptionColumn, "Descrição");
 		
 
@@ -265,65 +324,54 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 		};		
 	    typeColumn.setSortable(true);
 	    typeColumn.setDataStoreName("c.contentSpec");
+		table.setColumnWidth(typeColumn, "8%");
 		table.addColumn(typeColumn, "Tipo");
 		
 		
-		table.addColumn(new TextColumn<CourseTO>() {
+		TextColumn<CourseTO> versionsColumn = new TextColumn<CourseTO>() {
 			@Override
 			public String getValue(CourseTO courseTO) {
 				return "" + courseTO.getCourseVersionsCount();
 			}
-		}, "Versões");
+		};
+		table.setColumnWidth(versionsColumn, "7%");
+		table.addColumn(versionsColumn, "Versões");
 		
 
 		List<HasCell<CourseTO, ?>> cells = new LinkedList<HasCell<CourseTO, ?>>();
 		cells.add(new CourseActionsHasCell("Gerenciar", getGoToCourseDelegate()));
 		cells.add(new CourseActionsHasCell("Excluir", getDeleteCourseDelegate()));
 		CompositeCell<CourseTO> cell = new CompositeCell<CourseTO>(cells);
-		table.addColumn(new Column<CourseTO, CourseTO>(cell) {
+		Column<CourseTO, CourseTO> actionsColumn = new Column<CourseTO, CourseTO>(cell) {
 			@Override
 			public CourseTO getValue(CourseTO courseTO) {
 				return courseTO;
 			}
-		}, "Ações");
+		};
+		table.setColumnWidth(actionsColumn, "10%");
+		table.addColumn(actionsColumn, "Ações");
 		
 		
-		// Create a data provider.
-	    AsyncDataProvider<CourseTO> dataProvider = new AsyncDataProvider<CourseTO>() {
-	      @Override
-	      protected void onRangeChanged(HasData<CourseTO> display) {
-	        final ColumnSortList sortList = table.getColumnSortList();	        
-	        if(sortList.size() > 0){
-	        	table.setVisible(false);
-	        	pagination.setVisible(false);
-				presenter.setOrderBy(sortList.get(0).getColumn().getDataStoreName());
-				presenter.setAsc(sortList.get(0).isAscending());
-				bus.fireEvent(new ShowPacifierEvent(true));
-	    		session.courses().get(true, presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), sortList.get(0).getColumn().getDataStoreName(), sortList.get(0).isAscending(), new Callback<CoursesTO>() {
-	      			@Override
-	      			public void ok(CoursesTO to) {
-	      				courseTOs = to.getCourses();
-	      				pagination.setRowData(courseTOs, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
-	    	        	table.setVisible(true);
-	    	        	pagination.setVisible(to.getCount() > to.getPageSize());
-						bus.fireEvent(new ShowPacifierEvent(false));
-	      			}
-	      		});
-	        }
-	      }
-	    };
-
-	    // Connect the list to the data provider.
-	    dataProvider.addDataDisplay(table);
 	    table.addColumnSortHandler(new AsyncHandler(table));
 
 		Column<CourseTO, ?> column;
+		int width = 0;
+		boolean showWarning = false;
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			column = table.getColumn(i);
 			if(presenter.getOrderBy().equals(column.getDataStoreName())){
 			    table.getColumnSortList().push(column);
-			    column.setDefaultSortAscending(presenter.getAsc());
+			    column.setDefaultSortAscending(presenter.getAsc() == "true");
 			}
+			if(table.getColumnWidth(column) == null){
+				showWarning = true;;
+			} else {
+				String widthStr = table.getColumnWidth(column).split("%")[0];
+				width += (Integer.parseInt(widthStr));
+			}
+		}
+		if(showWarning || width != 100){
+			GWT.log("Error with columns config: " + width);
 		}
 	    
 	}

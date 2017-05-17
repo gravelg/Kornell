@@ -14,6 +14,7 @@ import kornell.core.to.TOFactory;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.forms.FormHelper;
 
 public class AdminAuditPresenter implements AdminAuditView.Presenter {
@@ -29,7 +30,7 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
-	private boolean asc = true;
+	private String asc = "true";
 	private String orderBy = "";
 	private EventBus bus;
 
@@ -130,7 +131,7 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 	}
 
 	@Override
-	public void setAsc(boolean asc) {
+	public void setAsc(String asc) {
 		this.asc = asc;
 	}
 
@@ -140,8 +141,15 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 	}
 
 	@Override
-	public boolean getAsc() {
+	public String getAsc() {
 		return asc;
+	}
+
+	@Override
+	public String getClientPropertyName(String property){
+		return session.getAdminHomePropertyPrefix() +
+				"audit" + ClientProperties.SEPARATOR +
+				property;
 	}
 	
 }

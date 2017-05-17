@@ -72,6 +72,7 @@ import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCo
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionView;
 import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminCourseVersionsView;
 import kornell.gui.client.util.AsciiUtils;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.KornellPagination;
@@ -89,7 +90,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 	private FormHelper formHelper = GWT.create(FormHelper.class);
 	private TextBox txtSearch;
 	private Button btnSearch;
-	private Timer updateTimer;
+	private Timer updateTimer, refreshTableTimer;
 	private boolean canPerformAction = true;
 
 	@UiField
@@ -158,6 +159,58 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 				filter();
 			}
 		};
+
+		refreshTableTimer = new Timer() {
+			@Override
+			public void run() {
+				refreshTable();
+			}
+		};
+		
+		
+		// Create a data provider.
+	    AsyncDataProvider<CourseVersionTO> dataProvider = new AsyncDataProvider<CourseVersionTO>() {
+	      @Override
+	      protected void onRangeChanged(HasData<CourseVersionTO> display) {
+	    	  scheduleRefreshTable();
+	      }
+	    };
+
+	    // Connect the list to the data provider.
+	    dataProvider.addDataDisplay(table);
+	}
+
+	private void scheduleRefreshTable() {   
+        if(table.getColumnSortList().size() > 0){
+	    	table.setVisible(false);
+	    	pagination.setVisible(false);
+			bus.fireEvent(new ShowPacifierEvent(true));
+        }
+		
+		refreshTableTimer.cancel();
+		refreshTableTimer.schedule(200);
+	}
+
+	private void refreshTable() {
+	    final ColumnSortList sortList = table.getColumnSortList();	        
+	    if(sortList.size() > 0){
+			final String orderBy = sortList.get(0).getColumn().getDataStoreName();
+			final String asc = ""+sortList.get(0).isAscending();
+			presenter.setOrderBy(orderBy);
+			presenter.setAsc(asc);
+			session.courseVersions().get(presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), orderBy, asc, new Callback<CourseVersionsTO>() {
+	  			@Override
+	  			public void ok(CourseVersionsTO to) {
+	  				pagination.setRowData(to.getCourseVersionTOs(), StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
+		        	table.setVisible(true);
+		        	pagination.setVisible(to.getCount() > to.getPageSize());
+					bus.fireEvent(new ShowPacifierEvent(false));
+
+					ClientProperties.set(presenter.getClientPropertyName("orderBy"), orderBy);
+					ClientProperties.set(presenter.getClientPropertyName("asc"), asc);
+	  			}
+	  		});
+	    }
 	}
 
 	private void scheduleFilter() {
@@ -219,6 +272,8 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		table.addStyleName("courseVersionsCellTable");
 		table.addStyleName("lineWithoutLink");
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
+		table.setWidth("100%", true);
+		
 		for (int i = 0; table.getColumnCount() > 0;) {
 			table.removeColumn(i);
 		}
@@ -235,6 +290,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		};	
 	    courseColumn.setSortable(true);
 	    courseColumn.setDataStoreName("c.title");
+		table.setColumnWidth(courseColumn, "20%");
 		table.addColumn(courseColumn, "Curso");
 		
 
@@ -249,6 +305,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		};	
 	    versionColumn.setSortable(true);
 	    versionColumn.setDataStoreName("cv.name");
+		table.setColumnWidth(versionColumn, "20%");
 		table.addColumn(versionColumn, "Versão");
 		
 
@@ -260,6 +317,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		};		
 	    distributionPrefixColumn.setSortable(true);
 	    distributionPrefixColumn.setDataStoreName("cv.distributionPrefix");
+		table.setColumnWidth(distributionPrefixColumn, "20%");
 		table.addColumn(distributionPrefixColumn, "Prefixo de Distribuição");
 		
 
@@ -271,6 +329,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		};		
 	    statusColumn.setSortable(true);
 	    statusColumn.setDataStoreName("cv.disabled");
+		table.setColumnWidth(statusColumn, "10%");
 		table.addColumn(statusColumn, "Status");
 		
 		
@@ -282,63 +341,53 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		};		
 	    creationDateColumn.setSortable(true);
 	    creationDateColumn.setDataStoreName("cv.versionCreatedAt");
-		table.addColumn(creationDateColumn, "Data de Criação");
+		table.setColumnWidth(creationDateColumn, "10%");
+		table.addColumn(creationDateColumn, "Criada em");
 		
-		table.addColumn(new TextColumn<CourseVersionTO>() {
+		TextColumn<CourseVersionTO> classesColumn = new TextColumn<CourseVersionTO>() {
 			@Override
 			public String getValue(CourseVersionTO courseVersionTO) {
 				return "" + courseVersionTO.getCourseClassesCount();
 			}
-		}, "Turmas");
+		};
+		table.setColumnWidth(classesColumn, "10%");
+		table.addColumn(classesColumn, "Turmas");
 
 		List<HasCell<CourseVersionTO, ?>> cells = new LinkedList<HasCell<CourseVersionTO, ?>>();
 		cells.add(new CourseVersionActionsHasCell("Gerenciar", getManageCourseVersionDelegate()));
 		cells.add(new CourseVersionActionsHasCell("Excluir", getDeleteCourseVersionDelegate()));
 
 		CompositeCell<CourseVersionTO> cell = new CompositeCell<CourseVersionTO>(cells);
-		table.addColumn(new Column<CourseVersionTO, CourseVersionTO>(cell) {
+		Column<CourseVersionTO, CourseVersionTO> actionsColumn = new Column<CourseVersionTO, CourseVersionTO>(cell) {
 			@Override
 			public CourseVersionTO getValue(CourseVersionTO courseVersionTO) {
 				return courseVersionTO;
 			}
-		}, "Ações");
+		};
+		table.setColumnWidth(actionsColumn, "10%");
+		table.addColumn(actionsColumn, "Ações");
 		
 		
-		// Create a data provider.
-	    AsyncDataProvider<CourseVersionTO> dataProvider = new AsyncDataProvider<CourseVersionTO>() {
-	      @Override
-	      protected void onRangeChanged(HasData<CourseVersionTO> display) {
-	        final ColumnSortList sortList = table.getColumnSortList();	        
-	        if(sortList.size() > 0){
-	        	table.setVisible(false);
-	        	pagination.setVisible(false);
-				presenter.setOrderBy(sortList.get(0).getColumn().getDataStoreName());
-				presenter.setAsc(sortList.get(0).isAscending());
-				bus.fireEvent(new ShowPacifierEvent(true));
-	    		session.courseVersions().get(presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), sortList.get(0).getColumn().getDataStoreName(), sortList.get(0).isAscending(), new Callback<CourseVersionsTO>() {
-	      			@Override
-	      			public void ok(CourseVersionsTO to) {
-	      				pagination.setRowData(to.getCourseVersionTOs(), StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
-	    	        	table.setVisible(true);
-	    	        	pagination.setVisible(to.getCount() > to.getPageSize());
-						bus.fireEvent(new ShowPacifierEvent(false));
-	      			}
-	      		});
-	        }
-	      }
-	    };
-
-	    // Connect the list to the data provider.
-	    dataProvider.addDataDisplay(table);
 	    table.addColumnSortHandler(new AsyncHandler(table));
 
 		Column<CourseVersionTO, ?> column;
+		int width = 0;
+		boolean showWarning = false;
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			column = table.getColumn(i);
 			if(presenter.getOrderBy().equals(column.getDataStoreName())){
 			    table.getColumnSortList().push(column);
-			    column.setDefaultSortAscending(presenter.getAsc());
+			    column.setDefaultSortAscending(presenter.getAsc() == "true");
 			}
+			if(table.getColumnWidth(column) == null){
+				showWarning = true;;
+			} else {
+				String widthStr = table.getColumnWidth(column).split("%")[0];
+				width += (Integer.parseInt(widthStr));
+			}
+		}
+		if(showWarning || width != 100){
+			GWT.log("Error with columns config: " + width);
 		}
 	}
 

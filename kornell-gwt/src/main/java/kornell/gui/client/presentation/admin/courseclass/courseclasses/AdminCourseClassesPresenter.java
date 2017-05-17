@@ -16,6 +16,7 @@ import kornell.core.to.CourseClassesTO;
 import kornell.core.to.TOFactory;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.forms.FormHelper;
 
 public class AdminCourseClassesPresenter implements AdminCourseClassesView.Presenter {
@@ -32,8 +33,8 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
-	private boolean asc = true;
-	private String orderBy = "cc.name";
+	private String asc;
+	private String orderBy;
 
 	public AdminCourseClassesPresenter(KornellSession session, EventBus bus,
 			PlaceController placeController, Place defaultPlace,
@@ -54,6 +55,11 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 				|| RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
 				|| RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
 				|| session.isInstitutionAdmin()) {
+			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
+			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
+			this.orderBy = orderByProperty != null ? orderByProperty : "cc.name";
+			this.asc = ascProperty != null ? ascProperty : "true";
+			
 			view = getView();
 			view.setPresenter(this);
 			
@@ -140,7 +146,7 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	}
 
 	@Override
-	public void setAsc(boolean asc) {
+	public void setAsc(String asc) {
 		this.asc = asc;
 	}
 
@@ -150,7 +156,14 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	}
 
 	@Override
-	public boolean getAsc() {
+	public String getAsc() {
 		return asc;
+	}
+
+	@Override
+	public String getClientPropertyName(String property){
+		return session.getAdminHomePropertyPrefix() +
+				"courseClasses" + ClientProperties.SEPARATOR +
+				property;
 	}
 }

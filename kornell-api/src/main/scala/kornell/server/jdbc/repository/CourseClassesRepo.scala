@@ -117,8 +117,10 @@ object CourseClassesRepo {
   def getAllClassesByInstitutionPaged(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, adminUUID: String, courseVersionUUID: String, courseClassUUID: String): kornell.core.to.CourseClassesTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
-    val orderColumn = if(orderBy != null && orderBy.indexOf(";") < 0) orderBy else "c.code"
-    val order = orderColumn + (if(asc) " asc" else " desc")
+    val orderColumn = if(orderBy != null && !orderBy.contains(";")) orderBy else "cc.name"
+    val orderMod =  (if(asc) " asc" else " desc")
+    val order = orderColumn + orderMod + (if(orderColumn.contains("cc.state")) (", cc.publicClass desc, cc.invisible desc ") else "")
+    println(order)
 
     val courseClassesTO = TOs.newCourseClassesTO(
       new PreparedStmt(s"""
