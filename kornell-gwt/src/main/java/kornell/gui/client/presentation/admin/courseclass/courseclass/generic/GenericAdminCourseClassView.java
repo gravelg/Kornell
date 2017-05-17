@@ -85,6 +85,7 @@ import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassView;
 import kornell.gui.client.presentation.message.MessagePresenter;
 import kornell.gui.client.util.AsciiUtils;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
@@ -114,7 +115,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	private GenericCourseClassReportsView reportsView;
 	private GenericCourseClassMessagesView messagesView;
 	private FormHelper formHelper;
-	private Timer updateTimer;
+	private Timer updateTimer, refreshTableTimer;
 	private boolean canPerformEnrollmentAction = true;
 	private MessagePresenter messagePresenter;
 	private int totalCount = 0;
@@ -322,6 +323,60 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			}
 		};
 
+		refreshTableTimer = new Timer() {
+			@Override
+			public void run() {
+				refreshTable();
+			}
+		};
+		
+		
+		// Create a data provider.
+	    AsyncDataProvider<EnrollmentTO> dataProvider = new AsyncDataProvider<EnrollmentTO>() {
+	      @Override
+	      protected void onRangeChanged(HasData<EnrollmentTO> display) {
+	    	  scheduleRefreshTable();
+	      }
+	    };
+
+	    // Connect the list to the data provider.
+	    dataProvider.addDataDisplay(table);
+
+	}
+
+	private void scheduleRefreshTable() {   
+        if(table.getColumnSortList().size() > 0){
+	    	table.setVisible(false);
+	    	pagination.setVisible(false);
+			bus.fireEvent(new ShowPacifierEvent(true));
+        }
+		
+		refreshTableTimer.cancel();
+		refreshTableTimer.schedule(200);
+	}
+
+	private void refreshTable() {      
+	    final ColumnSortList sortList = table.getColumnSortList();	   
+        if(sortList.size() > 0){
+			final String orderBy = sortList.get(0).getColumn().getDataStoreName();
+			final String asc = ""+sortList.get(0).isAscending();
+			presenter.setOrderBy(orderBy);
+			presenter.setAsc(asc);
+            session.enrollments().getEnrollmentsByCourseClass(session.getCurrentCourseClass().getCourseClass().getUUID(), presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), 
+            		presenter.getOrderBy(), presenter.getAsc(), new Callback<EnrollmentsTO>() {
+                @Override 
+                public void ok(EnrollmentsTO to) {
+      				enrollmentsOriginal = to.getEnrollmentTOs();
+      				pagination.setRowData(enrollmentsOriginal, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
+    	        	table.setVisible(true);
+    	        	pagination.setVisible(to.getCount() > to.getPageSize());	
+					bus.fireEvent(new ShowPacifierEvent(false));
+
+					ClientProperties.set(presenter.getClientPropertyName("orderBy"), orderBy);
+					ClientProperties.set(presenter.getClientPropertyName("asc"), asc);
+                } 
+            });
+        }
 	}
 
 	public void setTabsVisibility() {
@@ -449,6 +504,8 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		table.addStyleName("adminCellTable");
 		table.addStyleName("lineWithoutLink");
 		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
+		table.setWidth("100%", true);
+		
 		for (int i = 0; table.getColumnCount() > 0;) {
 			table.removeColumn(i);
 		}
@@ -461,8 +518,8 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    nameColumn.setSortable(true);
 	    nameColumn.setDataStoreName("p.fullName");
+		table.setColumnWidth(nameColumn, "25%");
 		table.addColumn(nameColumn, "Nome");
-
 		
 		TextColumn<EnrollmentTO> usernameColumn = new TextColumn<EnrollmentTO>() {
 			@Override
@@ -472,6 +529,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    usernameColumn.setSortable(true);
 	    usernameColumn.setDataStoreName("pw.username");
+		table.setColumnWidth(usernameColumn, "20%");
 		table.addColumn(usernameColumn, "Usuário");
 
 		
@@ -483,6 +541,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    stateColumn.setSortable(true);
 	    stateColumn.setDataStoreName("e.state");
+		table.setColumnWidth(stateColumn, "10%");
 		table.addColumn(stateColumn, "Matrícula");
 
 		
@@ -509,7 +568,9 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			}
 		};		
 	    progressColumn.setSortable(true);
+	    progressColumn.setDefaultSortAscending(false);
 	    progressColumn.setDataStoreName("e.progress");
+		table.setColumnWidth(progressColumn, "10%");
 		table.addColumn(progressColumn, "Progresso");
 
 		
@@ -520,10 +581,12 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			}
 		};		
 	    enrolledOnColumn.setSortable(true);
+	    enrolledOnColumn.setDefaultSortAscending(false);
 	    enrolledOnColumn.setDataStoreName("e.enrolledOn");
+		table.setColumnWidth(enrolledOnColumn, "10%");
 		table.addColumn(enrolledOnColumn, "Data da Matrícula");
 
-		table.addColumn(new TextColumn<EnrollmentTO>() {
+		TextColumn<EnrollmentTO> lastAccessColumn = new TextColumn<EnrollmentTO>() {
 			@Override
 			public String getValue(EnrollmentTO enrollmentTO) {
 				Date lastProgressUpdate = enrollmentTO.getEnrollment().getLastProgressUpdate();
@@ -539,7 +602,12 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 				}
 				
 			}
-		}, "Último acesso");
+		};
+		lastAccessColumn.setSortable(true);
+		lastAccessColumn.setDefaultSortAscending(false);
+		lastAccessColumn.setDataStoreName("e.lastProgressUpdate");
+		table.setColumnWidth(lastAccessColumn, "10%");
+		table.addColumn(lastAccessColumn, "Último acesso");
 
 		List<HasCell<EnrollmentTO, ?>> cells = new LinkedList<HasCell<EnrollmentTO, ?>>();
 		cells.add(new EnrollmentActionsHasCell("Reenviar Email de Matrícula", getStateChangeDelegate(EnrollmentState.enrolled)));
@@ -553,52 +621,38 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		cells.add(new EnrollmentActionsHasCell("Aceitar", getStateChangeDelegate(EnrollmentState.enrolled)));
 
 		CompositeCell<EnrollmentTO> cell = new CompositeCell<EnrollmentTO>(cells);
-		table.addColumn(new Column<EnrollmentTO, EnrollmentTO>(cell) {
+		Column<EnrollmentTO, EnrollmentTO> actionsColumn = new Column<EnrollmentTO, EnrollmentTO>(cell) {
 			@Override
 			public EnrollmentTO getValue(EnrollmentTO enrollmentTO) {
 				return enrollmentTO;
 			}
-		}, "Ações");
+		};
+		table.setColumnWidth(actionsColumn, "15%");
+		table.addColumn(actionsColumn, "Ações");
 		
 		
-		// Create a data provider.
-	    AsyncDataProvider<EnrollmentTO> dataProvider = new AsyncDataProvider<EnrollmentTO>() {
-	      @Override
-	      protected void onRangeChanged(HasData<EnrollmentTO> display) {
-	        final ColumnSortList sortList = table.getColumnSortList();	        
-	        if(sortList.size() > 0){
-	        	table.setVisible(false);
-	        	pagination.setVisible(false);
-				bus.fireEvent(new ShowPacifierEvent(true));
-				presenter.setOrderBy(sortList.get(0).getColumn().getDataStoreName());
-				presenter.setAsc(sortList.get(0).isAscending());
-	            session.enrollments().getEnrollmentsByCourseClass(session.getCurrentCourseClass().getCourseClass().getUUID(), presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), 
-	            		presenter.getOrderBy(), presenter.getAsc(), new Callback<EnrollmentsTO>() {
-	                @Override
-	                public void ok(EnrollmentsTO to) {
-	      				enrollmentsOriginal = to.getEnrollmentTOs();
-	      				pagination.setRowData(enrollmentsOriginal, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
-	    	        	table.setVisible(true);
-	    	        	pagination.setVisible(to.getCount() > to.getPageSize());	
-						bus.fireEvent(new ShowPacifierEvent(false));
-	                } 
-	            });
-	        }
-	      }
-	    };
-
-	    // Connect the list to the data provider.
-	    dataProvider.addDataDisplay(table);
 	    table.addColumnSortHandler(new AsyncHandler(table));
 
 		Column<EnrollmentTO, ?> column;
+		int width = 0;
+		boolean showWarning = false;
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			column = table.getColumn(i);
 			if(presenter.getOrderBy().equals(column.getDataStoreName())){
 			    table.getColumnSortList().push(column);
-			    column.setDefaultSortAscending(presenter.getAsc());
+			    column.setDefaultSortAscending(presenter.getAsc() == "true");
+			}
+			if(table.getColumnWidth(column) == null){
+				showWarning = true;;
+			} else {
+				String widthStr = table.getColumnWidth(column).split("%")[0];
+				width += (Integer.parseInt(widthStr));
 			}
 		}
+		if(showWarning || width != 100){
+			GWT.log("Error with columns config: " + width);
+		}
+		
 	}
 
 	@Override
@@ -913,7 +967,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 				private String buildButtonHTML(String actionName) {
 					Button btn = new Button();
 					btn.setSize(ButtonSize.SMALL);
-					btn.setTitle(actionName);
 					if ("Excluir".equals(actionName)) {
 						btn.setIcon(IconType.TRASH);
 						btn.addStyleName("btnNotSelected");
@@ -943,7 +996,8 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 						btn.addStyleName("btnNotSelected");
 					}
 
-					btn.addStyleName("btnIconSolo");					
+					btn.addStyleName("btnIconSolo");	
+					
 					return btn.toString();
 				}
 			};

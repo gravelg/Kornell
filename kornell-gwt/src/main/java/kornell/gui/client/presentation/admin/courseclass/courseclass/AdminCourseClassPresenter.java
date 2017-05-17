@@ -66,10 +66,8 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     private String pageSize = "20";
     private String pageNumber = "1";
     private String searchTerm = "";
-	private boolean asc = false;
-	private String orderBy = "e.state";
-
-    private static final String PREFIX = ClientProperties.PREFIX + "AdminHome";
+	private String asc;
+	private String orderBy;
 
     public AdminCourseClassPresenter(KornellSession session, EventBus bus, PlaceController placeController,
             Place defaultPlace, TOFactory toFactory, ViewFactory viewFactory) {
@@ -98,6 +96,11 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
                 || session.isInstitutionAdmin()) {
+			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
+			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
+			this.orderBy = orderByProperty != null ? orderByProperty : "e.state";
+			this.asc = ascProperty != null ? ascProperty : "false";
+			
             view = getView();
             view.showEnrollmentsPanel(false);
             view.setPresenter(this);
@@ -170,8 +173,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     }
 
     private String getLocalStoragePropertyName() {
-        return PREFIX + ClientProperties.SEPARATOR + session.getCurrentUser().getPerson().getUUID()
-                + ClientProperties.SEPARATOR + ClientProperties.SELECTED_COURSE_CLASS;
+        return session.getAdminHomePropertyPrefix() + ClientProperties.SELECTED_COURSE_CLASS;
     }
 
     @Override
@@ -731,7 +733,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 	}
 
 	@Override
-	public void setAsc(boolean asc) {
+	public void setAsc(String asc) {
 		this.asc = asc;
 	}
 
@@ -741,7 +743,15 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 	}
 
 	@Override
-	public boolean getAsc() {
+	public String getAsc() {
 		return asc;
+	}
+
+	@Override
+	public String getClientPropertyName(String property){
+		return session.getAdminHomePropertyPrefix() +
+				"courseClass" + ClientProperties.SEPARATOR +
+				((AdminCourseClassPlace)placeController.getWhere()).getCourseClassUUID() + ClientProperties.SEPARATOR +
+				property;
 	}
 }

@@ -277,7 +277,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 			@Override
 			public void ok(ThumbnailEntity to) {
 				hidePacifier();
-				KornellNotification.show("Atualização de imagem completa.");
+				KornellNotification.show("Atualização do ícone concluída.");
 			}
 		});
 	}
@@ -309,7 +309,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	private static void doSuccessUpsertCertificateDetails(CertificateDetails to) {
 		hidePacifier();
 		certificateDetails = to;
-		KornellNotification.show("Atualização de imagem completa.");
+		KornellNotification.show("Atualização do certificado concluída.");
 		view.initCertificateDetails(certificateDetails);
 	}
 

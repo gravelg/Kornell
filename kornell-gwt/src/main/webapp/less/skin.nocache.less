@@ -239,6 +239,19 @@ a:hover{
 		.com-github-gwtbootstrap-client-ui-CellTable-Style-cellTableSortableHeader,
 		.GAQA2TVDOC {
 			cursor: pointer;
+			&:hover{
+				.gradient(@buttonNotSelectedGradientEnd, @buttonNotSelectedGradientEnd);
+			}
+		}
+		.com-github-gwtbootstrap-client-ui-CellTable-Style-cellTableSortedHeaderDescending,
+		.GAQA2TVDAD,
+		.com-github-gwtbootstrap-client-ui-CellTable-Style-cellTableSortedHeaderAscending,
+		.GAQA2TVDPC {
+			color: #bec1c3;
+ 			.gradient(@buttonActionGradientStart, @buttonActionGradientEnd);
+ 			&:hover{
+				.gradient(@buttonActionGradientEnd, @buttonActionGradientEnd);
+			}
 		}
 	}
 	.courseClassesCellTable {

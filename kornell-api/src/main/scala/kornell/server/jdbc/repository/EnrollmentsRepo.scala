@@ -35,8 +35,9 @@ object EnrollmentsRepo {
   def byCourseClassPaged(courseClassUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean) = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
-    val orderColumn = if(orderBy != null && orderBy.indexOf(";") < 0) orderBy else "e.state"
-    val order = orderColumn + (if(asc) " asc" else " desc")
+    val orderColumn = if(orderBy != null && !orderBy.contains(";")) orderBy else "e.state"
+    val orderMod =  (if(asc) " asc" else " desc")
+    val order = orderColumn + orderMod + (if(orderColumn.contains("e.progress")) (", e.assessmentScore " + orderMod) else "")
 
     val enrollmentsTO = TOs.newEnrollmentsTO(
       new PreparedStmt(s"""

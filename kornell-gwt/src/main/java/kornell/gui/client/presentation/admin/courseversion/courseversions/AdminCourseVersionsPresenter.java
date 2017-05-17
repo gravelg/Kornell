@@ -13,6 +13,7 @@ import kornell.core.to.CourseVersionsTO;
 import kornell.core.to.TOFactory;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.forms.FormHelper;
 
 public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Presenter {
@@ -20,7 +21,7 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	private AdminCourseVersionsView view;
 	FormHelper formHelper;
 	private KornellSession session;
-	private PlaceController placeController;
+	private PlaceController placeCtrl;
 	private Place defaultPlace;
 	TOFactory toFactory;
 	private ViewFactory viewFactory;
@@ -28,17 +29,17 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
-	private boolean asc = true;
-	private String orderBy = "cv.name";
+	private String orderBy;
+	private String asc;
 	private EventBus bus;
 
 
 	public AdminCourseVersionsPresenter(KornellSession session, EventBus bus,
-			PlaceController placeController, Place defaultPlace,
+			PlaceController placeCtrl, Place defaultPlace,
 			TOFactory toFactory, ViewFactory viewFactory) {
 		this.session = session;
 		this.bus = bus;
-		this.placeController = placeController;
+		this.placeCtrl = placeCtrl;
 		this.defaultPlace = defaultPlace;
 		this.toFactory = toFactory;
 		this.viewFactory = viewFactory;
@@ -47,7 +48,12 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	}
 
 	private void init() {
-		if (session.isInstitutionAdmin()) {
+		if (session.isInstitutionAdmin()) {			
+			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
+			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
+			this.orderBy = orderByProperty != null ? orderByProperty : "cv.name";
+			this.asc = ascProperty != null ? ascProperty : "true";
+			
 			view = getView();
 			view.setPresenter(this);
 			bus.fireEvent(new ShowPacifierEvent(true));
@@ -56,7 +62,7 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 		} else {
 			logger.warning("Hey, only admins are allowed to see this! "
 					+ this.getClass().getName());
-			placeController.goTo(defaultPlace);
+			placeCtrl.goTo(defaultPlace);
 		}
 	}
 
@@ -121,7 +127,7 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	}
 
 	@Override
-	public void setAsc(boolean asc) {
+	public void setAsc(String asc) {
 		this.asc = asc;
 	}
 
@@ -131,8 +137,15 @@ public class AdminCourseVersionsPresenter implements AdminCourseVersionsView.Pre
 	}
 
 	@Override
-	public boolean getAsc() {
+	public String getAsc() {
 		return asc;
+	}
+
+	@Override
+	public String getClientPropertyName(String property){
+		return session.getAdminHomePropertyPrefix() +
+				placeCtrl.getWhere().toString() + ClientProperties.SEPARATOR +
+				property;
 	}
 	
 }

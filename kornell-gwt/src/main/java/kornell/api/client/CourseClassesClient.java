@@ -26,7 +26,7 @@ public class CourseClassesClient extends RESTClient {
 		getAdministratedCourseClassesTOByCourseVersionPaged("", ps, pn, searchTerm, cb);
 	}
 
-	public void getAdministratedCourseClassesTOPaged(String ps, String pn, String searchTerm, String orderBy, boolean isAscending, Callback<CourseClassesTO> cb) {
+	public void getAdministratedCourseClassesTOPaged(String ps, String pn, String searchTerm, String orderBy, String isAscending, Callback<CourseClassesTO> cb) {
 		getAdministratedCourseClassesTOByCourseVersionPaged("", ps, pn, searchTerm, orderBy, isAscending, cb);
 	}
 
@@ -35,10 +35,10 @@ public class CourseClassesClient extends RESTClient {
 	}
 
 	public void getAdministratedCourseClassesTOByCourseVersionPaged(String courseVersionUUID, String ps, String pn, String searchTerm, Callback<CourseClassesTO> cb) {
-		getAdministratedCourseClassesTOByCourseVersionPaged(courseVersionUUID, ps, pn, searchTerm, "cc.name", true, cb);
+		getAdministratedCourseClassesTOByCourseVersionPaged(courseVersionUUID, ps, pn, searchTerm, "cc.name", "true", cb);
 	}
 
-	public void getAdministratedCourseClassesTOByCourseVersionPaged(String courseVersionUUID, String ps, String pn, String searchTerm, String orderBy, boolean isAscending, Callback<CourseClassesTO> cb) {
+	public void getAdministratedCourseClassesTOByCourseVersionPaged(String courseVersionUUID, String ps, String pn, String searchTerm, String orderBy, String isAscending, Callback<CourseClassesTO> cb) {
 		GET("/courseClasses/administrated?courseVersionUUID="+courseVersionUUID + "&ps=" + ps + "&pn=" + pn + "&searchTerm=" + searchTerm + "&orderBy=" + orderBy + "&asc=" + isAscending).sendRequest(null, cb);
 	}
 

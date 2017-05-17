@@ -134,7 +134,7 @@ public class Dean implements LogoutEventHandler, UnreadMessagesPerThreadFetchedE
 		}
 	}-*/;
 
-	private static native void showBodyNative(boolean show) /*-{
+	public static native void showBodyNative(boolean show) /*-{
 		$wnd.document.getElementsByTagName('body')[0].setAttribute('style',
 				'display: ' + (show ? 'block' : 'none'));
 	}-*/;

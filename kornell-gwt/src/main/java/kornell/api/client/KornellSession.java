@@ -204,6 +204,12 @@ public class KornellSession extends KornellClient {
 		return institution == null ? "" : StringUtils.mkurl("repository", institution.getAssetsRepositoryUUID(), "knl");
 	}
 
+    public String getAdminHomePropertyPrefix() {
+    	return ClientProperties.PREFIX + 
+    			"AdminHome" + ClientProperties.SEPARATOR + 
+    			getCurrentUser().getPerson().getUUID() + ClientProperties.SEPARATOR;
+    }
+
 	public Institution getInstitution() {
 		return institution;
 	}

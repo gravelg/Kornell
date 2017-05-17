@@ -59,7 +59,7 @@ object CourseVersionsRepo {
   def byInstitution(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, courseUUID: String = null, courseVersionUUID: String = null) = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
-    val orderColumn = if(orderBy != null && orderBy.indexOf(";") < 0) orderBy else "cv.name"
+    val orderColumn = if(orderBy != null &&  !orderBy.contains(";")) orderBy else "cv.name"
     val order = orderColumn + (if(asc) " asc" else " desc")
     
     val courseVersionsTO = newCourseVersionsTO(new PreparedStmt(s"""

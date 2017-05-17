@@ -13,6 +13,7 @@ import kornell.core.to.CoursesTO;
 import kornell.core.to.TOFactory;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.forms.FormHelper;
 
 public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
@@ -28,8 +29,8 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
 	private String pageSize = "20";
 	private String pageNumber = "1";
 	private String searchTerm = "";
-	private boolean asc = true;
-	private String orderBy = "c.title";
+	private String asc;
+	private String orderBy;
 	private EventBus bus;
 
 
@@ -47,6 +48,11 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
 
 	private void init() {
 		if (session.isInstitutionAdmin()) {
+			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
+			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
+			this.orderBy = orderByProperty != null ? orderByProperty : "c.title";
+			this.asc = ascProperty != null ? ascProperty : "true";
+			
 			view = getView();
 			view.setPresenter(this);
 			bus.fireEvent(new ShowPacifierEvent(true));
@@ -120,7 +126,7 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
 	}
 
 	@Override
-	public void setAsc(boolean asc) {
+	public void setAsc(String asc) {
 		this.asc = asc;
 	}
 
@@ -130,8 +136,15 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
 	}
 
 	@Override
-	public boolean getAsc() {
+	public String getAsc() {
 		return asc;
+	}
+
+	@Override
+	public String getClientPropertyName(String property){
+		return session.getAdminHomePropertyPrefix() +
+				"courses" + ClientProperties.SEPARATOR +
+				property;
 	}
 	
 }
