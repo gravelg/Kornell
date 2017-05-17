@@ -6,8 +6,10 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
 
 import kornell.core.util.StringUtils;
+import kornell.gui.client.personnel.Dean;
 
 //TODO: if this is user specific, move to UserSession
 public class ClientProperties {
@@ -34,9 +36,16 @@ public class ClientProperties {
 	}
 
 	private static String getPropertiesStr() {
-		String propertiesB64 = localStorage.getItem(KEY);
-		String propertiesStr = propertiesB64 != null ? base64Decode(propertiesB64) : "{}";
-		return propertiesStr;
+		try {
+			String propertiesB64 = localStorage.getItem(KEY);
+			String propertiesStr = propertiesB64 != null ? base64Decode(propertiesB64) : "{}";
+			return propertiesStr;
+		} catch (Throwable e) {
+			localStorage.removeItem(KEY); 
+			Dean.showBodyNative(false);
+			Window.Location.reload();
+		}
+		return null;
 	}
 	
 	public static void set(String propertyName, String propertyValue){
