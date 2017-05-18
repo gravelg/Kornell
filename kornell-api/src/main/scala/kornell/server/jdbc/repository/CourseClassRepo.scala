@@ -6,6 +6,11 @@ import kornell.server.jdbc.SQL.SQLHelper
 import kornell.server.jdbc.SQL.rsToString
 import kornell.core.entity.AuditedEntityType
 import kornell.core.entity.ChatThreadType
+import kornell.server.authentication.ThreadLocalAuthenticator
+import kornell.core.util.UUID
+import kornell.server.service.AssetService
+import kornell.core.util.StringUtils
+import kornell.core.entity.CourseDetailsEntityType
 
 class CourseClassRepo(uuid:String) {
   lazy val finder = sql"""
@@ -68,6 +73,25 @@ class CourseClassRepo(uuid:String) {
         delete from CourseClass 
         where uuid = ${uuid}""".executeUpdate
     }
+  }
+  
+  def copy = {    
+    val courseClass = CourseClassRepo(uuid).first.get
+    val sourceCourseClassUUID = courseClass.getUUID
+    val targetCourseClassUUID = UUID.random
+    
+    //copy courseClass
+    courseClass.setUUID(targetCourseClassUUID)
+    courseClass.setName(courseClass.getName + " (2)")
+    courseClass.setCreatedBy(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
+    if(StringUtils.isSome(courseClass.getThumbUrl)){
+      courseClass.setThumbUrl(courseClass.getThumbUrl.replace(sourceCourseClassUUID+"/thumb.jpg", targetCourseClassUUID+"/thumb.jpg"))
+    }
+    CourseClassesRepo.create(courseClass)    
+    
+    AssetService.copyAssets(courseClass.getInstitutionUUID, CourseDetailsEntityType.COURSE_CLASS, sourceCourseClassUUID, targetCourseClassUUID, courseClass.getThumbUrl)
+	        
+    courseClass
   }
   
   def actomsVisitedBy(personUUID: String): List[String] = sql"""

@@ -354,6 +354,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 
 		List<HasCell<CourseClassTO, ?>> cells = new LinkedList<HasCell<CourseClassTO, ?>>();
 		cells.add(new CourseClassActionsHasCell("Gerenciar", getManageCourseClassDelegate()));
+		cells.add(new CourseClassActionsHasCell("Duplicar", getDuplicateCourseClassDelegate()));
 		cells.add(new CourseClassActionsHasCell("Excluir", getDeleteCourseClassDelegate()));
 		CompositeCell<CourseClassTO> cell = new CompositeCell<CourseClassTO>(cells);
 		Column<CourseClassTO, CourseClassTO> actionsColumn = new Column<CourseClassTO, CourseClassTO>(cell) {
@@ -474,6 +475,54 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		};
 	}
 
+	private Delegate<CourseClassTO> getDuplicateCourseClassDelegate() {
+		return new Delegate<CourseClassTO>() {
+
+			@Override
+			public void execute(CourseClassTO courseClassTO) {
+				if(canPerformAction){
+					canPerformAction = false;
+
+					confirmModal.showModal(
+							"Tem certeza que deseja duplicar a turma \"" + courseClassTO.getCourseClass().getName() + "\"?", 
+							new com.google.gwt.core.client.Callback<Void, Void>() {
+						@Override
+						public void onSuccess(Void result) {
+							bus.fireEvent(new ShowPacifierEvent(true));
+							session.courseClass(courseClassTO.getCourseClass().getUUID()).copy(new Callback<CourseClass>() {	
+								@Override
+								public void ok(CourseClass courseClass) {
+									canPerformAction = true;
+									bus.fireEvent(new ShowPacifierEvent(false));
+									KornellNotification.show("Turma duplicada com sucesso.");
+									placeCtrl.goTo(new AdminCourseClassPlace(courseClass.getUUID()));
+								}
+								
+								@Override
+								public void internalServerError(KornellErrorTO error){
+									canPerformAction = true;
+									bus.fireEvent(new ShowPacifierEvent(false));
+									KornellNotification.show("Erro ao tentar duplicar a turma.", AlertType.ERROR);
+								}
+								
+								@Override
+								public void conflict(KornellErrorTO error){
+									canPerformAction = true;
+									bus.fireEvent(new ShowPacifierEvent(false));
+									KornellNotification.show("Erro ao tentar duplicar a turma. Verifique se já existe uma turma com o nome \"" + courseClassTO.getCourseClass().getName() + "\" (2).", AlertType.ERROR, 5000);
+								}
+							});
+						}
+						@Override
+						public void onFailure(Void reason) {
+							canPerformAction = true;
+						}
+					});
+				}
+			}
+		};
+	}
+
 
 	@Override
 	public void setCourseClasses(List<CourseClassTO> courseClasses, Integer count, Integer searchCount) {
@@ -579,6 +628,9 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 						btn.addStyleName("btnAction");
 					} else if ("Excluir".equals(actionName)){
 						btn.setIcon(IconType.TRASH);
+						btn.addStyleName("btnNotSelected");
+					} else if ("Duplicar".equals(actionName)){
+						btn.setIcon(IconType.COPY);
 						btn.addStyleName("btnNotSelected");
 					}
 					btn.addStyleName("btnIconSolo");

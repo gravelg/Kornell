@@ -120,7 +120,6 @@ object CourseClassesRepo {
     val orderColumn = if(orderBy != null && !orderBy.contains(";")) orderBy else "cc.name"
     val orderMod =  (if(asc) " asc" else " desc")
     val order = orderColumn + orderMod + (if(orderColumn.contains("cc.state")) (", cc.publicClass desc, cc.invisible desc ") else "")
-    println(order)
 
     val courseClassesTO = TOs.newCourseClassesTO(
       new PreparedStmt(s"""

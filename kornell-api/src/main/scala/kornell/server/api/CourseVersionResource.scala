@@ -18,6 +18,7 @@ import javax.ws.rs.PathParam
 import javax.ws.rs.QueryParam
 import kornell.server.jdbc.repository.CourseVersionsRepo
 import kornell.server.jdbc.repository.AuthRepo
+import javax.ws.rs.POST
 
 class CourseVersionResource(uuid: String) {
 
@@ -42,6 +43,15 @@ class CourseVersionResource(uuid: String) {
   @Produces(Array(CourseVersion.TYPE))
   def delete() = {
     CourseVersionRepo(uuid).delete
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+  
+  @POST
+  @Path("copy")
+  @Produces(Array(CourseVersion.TYPE))
+  def copy = {
+    CourseVersionRepo(uuid).copy
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

@@ -6,6 +6,13 @@ import kornell.core.entity.Person
 import kornell.server.repository.Entities.newCourse
 import kornell.server.jdbc.SQL._ 
 import kornell.core.entity.AuditedEntityType
+import kornell.core.util.UUID
+import kornell.core.entity.CourseDetailsEntityType
+import scala.collection.JavaConverters._
+import kornell.server.service.S3Service
+import kornell.core.util.StringUtils._
+import kornell.server.service.AssetService
+import kornell.core.util.StringUtils
 
 
 class CourseRepo(uuid: String) {
@@ -16,7 +23,7 @@ class CourseRepo(uuid: String) {
   def first = finder.first[Course]
   
   def update(course: Course): Course = {    
-    //get previous version
+    //get previous course
     val oldCourse = CourseRepo(course.getUUID).first.get
 
     sql"""
@@ -45,6 +52,25 @@ class CourseRepo(uuid: String) {
         where uuid = ${uuid}""".executeUpdate
       course
     }
+  }
+  
+  def copy = {    
+    val course = CourseRepo(uuid).first.get
+    val sourceCourseUUID = course.getUUID
+    val targetCourseUUID = UUID.random
+    
+    //copy course
+    course.setUUID(targetCourseUUID)
+    course.setCode(targetCourseUUID)
+    course.setTitle(course.getTitle + " (2)")
+    if(StringUtils.isSome(course.getThumbUrl)){
+      course.setThumbUrl(course.getThumbUrl.replace(sourceCourseUUID, targetCourseUUID))
+    }
+    CoursesRepo.create(course)    
+    
+    AssetService.copyAssets(course.getInstitutionUUID, CourseDetailsEntityType.COURSE, sourceCourseUUID, targetCourseUUID, course.getThumbUrl)
+	        
+    course
   }
 
 }

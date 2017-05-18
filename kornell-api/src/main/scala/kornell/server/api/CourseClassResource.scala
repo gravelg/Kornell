@@ -34,6 +34,7 @@ import kornell.core.to.CourseClassTO
 import kornell.server.jdbc.repository.CourseClassesRepo
 import javax.ws.rs.PathParam
 import kornell.server.service.S3Service
+import javax.ws.rs.POST
 
 
 class CourseClassResource(uuid: String) {
@@ -90,6 +91,15 @@ class CourseClassResource(uuid: String) {
           throw new EntityConflictException("constraintViolatedUUIDName")
       }
   }
+  
+  @POST
+  @Path("copy")
+  @Produces(Array(CourseClass.TYPE))
+  def copy = {
+    CourseClassRepo(uuid).copy
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
 
   @Produces(Array(LibraryFilesTO.TYPE))
   @Path("libraryFiles")

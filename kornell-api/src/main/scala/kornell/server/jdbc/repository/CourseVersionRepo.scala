@@ -8,6 +8,10 @@ import kornell.core.to.CourseVersionTO
 import kornell.core.to.CourseClassesTO
 import kornell.server.repository.TOs
 import kornell.core.entity.AuditedEntityType
+import kornell.core.util.UUID
+import kornell.server.service.AssetService
+import kornell.core.util.StringUtils
+import kornell.core.entity.CourseDetailsEntityType
 
 class CourseVersionRepo(uuid: String) {
 
@@ -47,6 +51,28 @@ class CourseVersionRepo(uuid: String) {
         where uuid = ${uuid}""".executeUpdate
       courseVersion
     }
+  }
+  
+  def copy = {    
+    val courseVersion = CourseVersionRepo(uuid).first.get
+    val institutuionUUID = CoursesRepo.byCourseVersionUUID(courseVersion.getUUID).get.getInstitutionUUID
+    val sourceCourseVersionUUID = courseVersion.getUUID
+    val targetCourseVersionUUID = UUID.random
+    
+    println(courseVersion.getThumbUrl)
+    //copy courseVersion
+    courseVersion.setUUID(targetCourseVersionUUID)
+    courseVersion.setDistributionPrefix(targetCourseVersionUUID)
+    courseVersion.setName(courseVersion.getName + " (2)")
+    if(StringUtils.isSome(courseVersion.getThumbUrl)){
+      courseVersion.setThumbUrl(courseVersion.getThumbUrl.replace(sourceCourseVersionUUID+"/thumb.jpg", targetCourseVersionUUID+"/thumb.jpg"))
+    }
+    println(courseVersion.getThumbUrl)
+    CourseVersionsRepo.create(courseVersion, institutuionUUID)    
+    
+    AssetService.copyAssets(institutuionUUID, CourseDetailsEntityType.COURSE_VERSION, sourceCourseVersionUUID, targetCourseVersionUUID, courseVersion.getThumbUrl)
+	        
+    courseVersion
   }
   
   def getChildren(): List[CourseVersion] = {

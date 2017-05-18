@@ -21,5 +21,9 @@ public class CourseClient extends RESTClient {
 	public void delete(Callback<Course> cb) {
 		DELETE("courses",courseUUID).go(cb);
 	}
+
+	public void copy(Callback<Course> cb) {
+		POST("courses",courseUUID,"copy").go(cb);
+	}
 	
 }

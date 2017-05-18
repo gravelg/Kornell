@@ -16,6 +16,7 @@ import javax.ws.rs.PathParam
 import javax.ws.rs.Path
 import kornell.server.service.S3Service
 import javax.ws.rs.QueryParam
+import javax.ws.rs.POST
 
 class CourseResource(uuid: String) {
   
@@ -40,6 +41,15 @@ class CourseResource(uuid: String) {
   @Produces(Array(Course.TYPE))
   def delete() = {
     CourseRepo(uuid).delete
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+   .get
+  
+  @POST
+  @Path("copy")
+  @Produces(Array(Course.TYPE))
+  def copy = {
+    CourseRepo(uuid).copy
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

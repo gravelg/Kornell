@@ -355,6 +355,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 
 		List<HasCell<CourseVersionTO, ?>> cells = new LinkedList<HasCell<CourseVersionTO, ?>>();
 		cells.add(new CourseVersionActionsHasCell("Gerenciar", getManageCourseVersionDelegate()));
+		cells.add(new CourseVersionActionsHasCell("Duplicar", getDuplicateCourseVersionDelegate()));
 		cells.add(new CourseVersionActionsHasCell("Excluir", getDeleteCourseVersionDelegate()));
 
 		CompositeCell<CourseVersionTO> cell = new CompositeCell<CourseVersionTO>(cells);
@@ -434,6 +435,54 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 									canPerformAction = true;
 									bus.fireEvent(new ShowPacifierEvent(false));
 									KornellNotification.show("Erro ao tentar excluir a versão.", AlertType.ERROR);
+								}
+							});
+						}
+						@Override
+						public void onFailure(Void reason) {
+							canPerformAction = true;
+						}
+					});
+				}
+			}
+		};
+	}
+
+	private Delegate<CourseVersionTO> getDuplicateCourseVersionDelegate() {
+		return new Delegate<CourseVersionTO>() {
+
+			@Override
+			public void execute(CourseVersionTO courseVersionTO) {
+				if(canPerformAction){
+					canPerformAction = false;
+
+					confirmModal.showModal(
+							"Tem certeza que deseja duplicar a versão \"" + courseVersionTO.getCourseVersion().getName() + "\"?", 
+							new com.google.gwt.core.client.Callback<Void, Void>() {
+						@Override
+						public void onSuccess(Void result) {
+							bus.fireEvent(new ShowPacifierEvent(true));
+							session.courseVersion(courseVersionTO.getCourseVersion().getUUID()).copy(new Callback<CourseVersion>() {	
+								@Override
+								public void ok(CourseVersion courseVersion) {
+									canPerformAction = true;
+									bus.fireEvent(new ShowPacifierEvent(false));
+									KornellNotification.show("Versão duplicada com sucesso.");
+									placeCtrl.goTo(new AdminCourseVersionPlace(courseVersion.getUUID()));
+								}
+								
+								@Override
+								public void internalServerError(KornellErrorTO error){
+									canPerformAction = true;
+									bus.fireEvent(new ShowPacifierEvent(false));
+									KornellNotification.show("Erro ao tentar duplicar a versão.", AlertType.ERROR);
+								}
+								
+								@Override
+								public void conflict(KornellErrorTO error){
+									canPerformAction = true;
+									bus.fireEvent(new ShowPacifierEvent(false));
+									KornellNotification.show("Erro ao tentar duplicar a versão. Verifique se já existe uma versão com o nome \"" + courseVersionTO.getCourseVersion().getName() + "\" (2).", AlertType.ERROR, 5000);
 								}
 							});
 						}
@@ -566,6 +615,9 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 						btn.addStyleName("btnAction");
 					} else if ("Excluir".equals(actionName)){
 						btn.setIcon(IconType.TRASH);
+						btn.addStyleName("btnNotSelected");
+					} else if ("Duplicar".equals(actionName)){
+						btn.setIcon(IconType.COPY);
 						btn.addStyleName("btnNotSelected");
 					}
 					btn.addStyleName("btnIconSolo");

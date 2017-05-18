@@ -24,6 +24,8 @@ object S3Service {
   def COURSE_VERSIONS = "courseVersions"
   def COURSE_CLASSES = "courseClasses"
   def CERTIFICATES = "certificates"
+  def CERTIFICATE_FILENAME = "certificate-bg.jpg"
+  def THUMB_FILENAME = "thumb.jpg"
   
   def getCourseVersionContentUploadUrl(courseVersionUUID: String) = {
     val courseVersion = CourseVersionRepo(courseVersionUUID).get
@@ -42,19 +44,31 @@ object S3Service {
     }
   }
   
+  def getCourseAssetUrl(institutionUUID: String, courseUUID: String, fileName: String, path: String) = {
+    mkurl(getRepositoryUrl(institutionUUID), mkurl(PREFIX, COURSES, courseUUID, path, fileName))    
+  }
+  
   def getCourseUploadUrl(courseUUID: String, fileName: String, path: String) = {
-    val fullPath = mkurl(PREFIX, COURSES, courseUUID, path, fileName)
-    getUploadUrl(CourseRepo(courseUUID).get.getInstitutionUUID, fullPath, getContentType(fileName))
+    val institutionUUID = CourseRepo(courseUUID).get.getInstitutionUUID
+    getUploadUrl(institutionUUID, getCourseAssetUrl(institutionUUID, courseUUID, fileName, path), getContentType(fileName))
+  }
+  
+  def getCourseVersionAssetUrl(institutionUUID: String, courseVersionUUID: String, fileName: String, path: String) = {
+    mkurl(getRepositoryUrl(institutionUUID), mkurl(PREFIX, COURSE_VERSIONS, courseVersionUUID, path, fileName))    
   }
   
   def getCourseVersionUploadUrl(courseVersionUUID: String, fileName: String, path: String) = {
-    val fullPath = mkurl(PREFIX, COURSE_VERSIONS, courseVersionUUID, path, fileName)
-    getUploadUrl(CoursesRepo.byCourseVersionUUID(courseVersionUUID).get.getInstitutionUUID, fullPath, getContentType(fileName))
+    val institutionUUID = CoursesRepo.byCourseVersionUUID(courseVersionUUID).get.getInstitutionUUID
+    getUploadUrl(institutionUUID, getCourseVersionAssetUrl(institutionUUID, courseVersionUUID, fileName, path), getContentType(fileName))
+  }
+  
+  def getCourseClassAssetUrl(institutionUUID: String, courseClassUUID: String, fileName: String, path: String) = {
+    mkurl(getRepositoryUrl(institutionUUID), mkurl(PREFIX, COURSE_CLASSES, courseClassUUID, path, fileName))    
   }
   
   def getCourseClassUploadUrl(courseClassUUID: String, fileName: String, path: String) = {
-    val fullPath = mkurl(PREFIX, COURSE_CLASSES, courseClassUUID, path, fileName)
-    getUploadUrl(CourseClassRepo(courseClassUUID).get.getInstitutionUUID, fullPath, getContentType(fileName))
+    val institutionUUID = CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+    getUploadUrl(institutionUUID, getCourseClassAssetUrl(institutionUUID, courseClassUUID, fileName, path), getContentType(fileName))
   }
   
   def getInstitutionUploadUrl(institutionUUID: String, fileName: String) = {
@@ -62,20 +76,32 @@ object S3Service {
     getUploadUrl(institutionUUID, path, getContentType(fileName))
   }
   
-  def getUploadUrl(institutionUUID: String, path: String, contentType: String) = {
-    val institution = InstitutionRepo(institutionUUID).get
-    val repo = ContentRepositoriesRepo.firstRepository(institution.getAssetsRepositoryUUID).get
-    
+  def getRepositoryUrl(institutionUUID: String) = {
+    val repo = getRepo(institutionUUID)
+    mkurl("repository", repo.getUUID)
+  }
+  
+  def getUploadUrl(institutionUUID: String, path: String, contentType: String) = {  
+    val repo = getRepo(institutionUUID)
+    val presignedRequest = new GeneratePresignedUrlRequest(repo.getBucketName, path)
+    presignedRequest.setMethod(HttpMethod.PUT)
+    presignedRequest.setExpiration(new DateTime().plusMinutes(1).toDate)
+    presignedRequest.setContentType(contentType)
+    getAmazonS3Client(institutionUUID).generatePresignedUrl(presignedRequest).toString
+  }
+  
+  def getAmazonS3Client(institutionUUID: String) = {    
+    val repo = getRepo(institutionUUID)
     val s3 = if (isSome(repo.getAccessKeyId()))
       new AmazonS3Client(new BasicAWSCredentials(repo.getAccessKeyId(),repo.getSecretAccessKey()))
     else  
       new AmazonS3Client
       
-    val fullPath = mkurl("repository", repo.getUUID, path);
-    val presignedRequest = new GeneratePresignedUrlRequest(repo.getBucketName, fullPath)
-    presignedRequest.setMethod(HttpMethod.PUT)
-    presignedRequest.setExpiration(new DateTime().plusMinutes(1).toDate)
-    presignedRequest.setContentType(contentType)
-    s3.generatePresignedUrl(presignedRequest).toString
+    s3
+  }
+  
+  def getRepo(institutionUUID: String)  = {    
+    val institution = InstitutionRepo(institutionUUID).get
+    ContentRepositoriesRepo.firstRepository(institution.getAssetsRepositoryUUID).get
   }
 }
