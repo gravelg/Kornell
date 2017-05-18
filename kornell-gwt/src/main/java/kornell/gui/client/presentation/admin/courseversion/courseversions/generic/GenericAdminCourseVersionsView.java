@@ -42,6 +42,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
+import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -377,8 +378,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			column = table.getColumn(i);
 			if(presenter.getOrderBy().equals(column.getDataStoreName())){
-			    table.getColumnSortList().push(column);
-			    column.setDefaultSortAscending(presenter.getAsc() == "true");
+			    table.getColumnSortList().push(new ColumnSortInfo(column, presenter.getAsc() == "true"));
 			}
 			if(table.getColumnWidth(column) == null){
 				showWarning = true;;

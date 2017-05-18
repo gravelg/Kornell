@@ -95,12 +95,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         if (RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassAdmin)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
-                || session.isInstitutionAdmin()) {
-			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
-			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
-			this.orderBy = orderByProperty != null ? orderByProperty : "e.state";
-			this.asc = ascProperty != null ? ascProperty : "false";
-			
+                || session.isInstitutionAdmin()) {			
             view = getView();
             view.showEnrollmentsPanel(false);
             view.setPresenter(this);
@@ -150,6 +145,11 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                 public void ok(CourseClassTO courseClassTO) {
                     bus.fireEvent(new ShowPacifierEvent(false));
                     updateCourseClassUI(courseClassTO);
+                    
+        			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
+        			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
+        			orderBy = orderByProperty != null ? orderByProperty : "e.state";
+        			asc = ascProperty != null ? ascProperty : "false";
                 }
             });
         } else {
@@ -751,7 +751,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 	public String getClientPropertyName(String property){
 		return session.getAdminHomePropertyPrefix() +
 				"courseClass" + ClientProperties.SEPARATOR +
-				((AdminCourseClassPlace)placeController.getWhere()).getCourseClassUUID() + ClientProperties.SEPARATOR +
+				session.getCurrentCourseClass().getCourseClass().getUUID() + ClientProperties.SEPARATOR +
 				property;
 	}
 }
