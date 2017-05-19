@@ -141,7 +141,7 @@ object ReportCourseClassGenerator {
   			from 
   				Enrollment e 
   				join Person p on p.uuid = e.personUUID
-  				join CourseClass cc on cc.uuid = e.classUUID
+  				join CourseClass cc on cc.uuid = e.courseClassUUID
   				join CourseVersion cv on cv.uuid = cc.courseVersionUUID
   				join Course c on c.uuid = cv.courseUUID
   				left join Password pw on pw.personUUID = p.uuid
@@ -149,7 +149,7 @@ object ReportCourseClassGenerator {
   				(e.state = ${EnrollmentState.enrolled.toString} or ${fileType} = 'xls') and
       			cc.state <> ${EntityState.deleted.toString} and 
       			(cc.state = ${EntityState.active.toString} or ${courseUUID} is null) and
-  		  		(e.classUUID = ${courseClassUUID} or ${courseClassUUID} is null) and
+  		  		(e.courseClassUUID = ${courseClassUUID} or ${courseClassUUID} is null) and
   				(c.uuid = ${courseUUID} or ${courseUUID} is null) and
   				e.state <> ${EnrollmentState.deleted.toString}
   			order by 
@@ -214,8 +214,8 @@ object ReportCourseClassGenerator {
 				(select replace(GROUP_CONCAT(p.fullName),',',', ')
 					from Role r 
 					join Person p on p.uuid = r.personUUID 
-					where course_classUUID = cc.uuid
-					group by course_classUUID) as courseClassAdminNames,
+					where courseClassUUID = cc.uuid
+					group by courseClassUUID) as courseClassAdminNames,
         i.baseURL
 			from
 				CourseClass cc
@@ -255,12 +255,12 @@ object ReportCourseClassGenerator {
 					count(*) as total
 				from 
 					Enrollment e 
-					join CourseClass cc on cc.uuid = e.classUUID
+					join CourseClass cc on cc.uuid = e.courseClassUUID
 					join CourseVersion cv on cv.uuid = cc.courseVersionUUID
 				where      
 					(e.state = ${EnrollmentState.enrolled.toString} or ${fileType} = 'xls') and
     				cc.state = ${EntityState.active.toString} and 
-    		  		(e.classUUID = ${courseClassUUID} or ${courseClassUUID} is null) and
+    		  		(e.courseClassUUID = ${courseClassUUID} or ${courseClassUUID} is null) and
 					(cv.courseUUID = ${courseUUID} or ${courseUUID} is null) and
 					e.state <> ${EnrollmentState.deleted.toString}
 				group by 

@@ -30,7 +30,7 @@ trait SimpleInstitution extends SuiteMixin with Generator with BeforeAndAfter{ t
   val courseClassesResource =  CourseClassesResource()
   val enrollmentsResource = new EnrollmentsResource
 	val className = randStr
-	val classUUID = randUUID
+	val courseClassUUID = randUUID
 	val fullName = randName
   val email = randEmail
   val cpf = randStr
@@ -61,7 +61,7 @@ trait SimpleInstitution extends SuiteMixin with Generator with BeforeAndAfter{ t
     institution = InstitutionsRepo.create(Entities.newInstitution(randUUID, randStr, randStr, randStr, randURL, false, false, false, false, null, "", BillingType.enrollment, InstitutionType.DEFAULT, null, false, false, null, "America/Sao_Paulo"))
 	  course = CoursesRepo.create(Entities.newCourse(randUUID, randStr, randStr, randStr, randStr, institution.getUUID, false))
 	  courseVersion = CourseVersionsRepo.create(Entities.newCourseVersion(randUUID, randStr, course.getUUID, new Date, randStr, "KNL", false), institution.getUUID)
-	  courseClass = Entities.newCourseClass(classUUID, className, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, EntityState.active)
+	  courseClass = Entities.newCourseClass(courseClassUUID, className, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, EntityState.active)
 	  courseClass2 = Entities.newCourseClass(randUUID, randStr, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, EntityState.active)
 	  courseClass3 = Entities.newCourseClass(randUUID, randStr, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, EntityState.active)
     
@@ -69,7 +69,7 @@ trait SimpleInstitution extends SuiteMixin with Generator with BeforeAndAfter{ t
 	    val platformAdmin = PeopleRepo.createPersonCPF(institution.getUUID, platformAdminCPF, randName)
 	    PersonRepo(platformAdmin.getUUID).setPassword(institution.getUUID, platformAdmin.getCPF, platformAdmin.getCPF)
 	    sql"""
-	    	insert into Role (uuid, username, role, institutionUUID, course_classUUID)
+	    	insert into Role (uuid, username, role, institutionUUID, courseClassUUID)
 	    	values (${randUUID}, ${platformAdmin.getCPF}, 
 	    	${RoleType.platformAdmin.toString}, 
 	    	${null}, 
@@ -85,7 +85,7 @@ trait SimpleInstitution extends SuiteMixin with Generator with BeforeAndAfter{ t
 	    PersonRepo(institutionAdmin.getUUID).setPassword(institution.getUUID, institutionAdmin.getCPF, institutionAdmin.getCPF)
 	    
 	    sql"""
-	    	insert into Role (uuid, username, role, institutionUUID, course_classUUID)
+	    	insert into Role (uuid, username, role, institutionUUID, courseClassUUID)
 	    	values (${randUUID}, ${institutionAdmin.getCPF}, 
 	    	${RoleType.institutionAdmin.toString}, 
 	    	${institution.getUUID}, 

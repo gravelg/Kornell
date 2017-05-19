@@ -83,7 +83,7 @@ object ReportInstitutionBillingGenerator {
 				pw.username,
     			ae.firstEventFiredAt
 			FROM Enrollment e
-			JOIN CourseClass cc ON cc.uuid = e.classUUID
+			JOIN CourseClass cc ON cc.uuid = e.courseClassUUID
 			JOIN CourseVersion cv ON cv.uuid = cc.courseVersionUUID
 			JOIN Course c ON c.uuid = cv.courseUUID
 			JOIN Person p ON p.uuid = e.personUUID

@@ -176,7 +176,7 @@ object CourseClassesRepo {
 				(select count(*) from Role r where personUUID = '${adminUUID}' and (
 					(r.role = '${RoleType.platformAdmin.toString}' and r.institutionUUID = '${institutionUUID}') or 
 					(r.role = '${RoleType.institutionAdmin.toString}' and r.institutionUUID = '${institutionUUID}') or 
-				( (r.role = '${RoleType.courseClassAdmin.toString}' or r.role = '${RoleType.observer.toString}' or r.role = '${RoleType.tutor.toString}') and r.course_classUUID = cc.uuid)
+				( (r.role = '${RoleType.courseClassAdmin.toString}' or r.role = '${RoleType.observer.toString}' or r.role = '${RoleType.tutor.toString}') and r.courseClassUUID = cc.uuid)
 			)) > 0)
       	  	order by ${order}, cc.state, c.name, cv.versionCreatedAt desc, cc.name limit ${resultOffset}, ${pageSize};
 		""", List[String]()).map[CourseClassTO](toCourseClassTO))
@@ -185,7 +185,7 @@ object CourseClassesRepo {
 					(select count(*) from Role r where personUUID = ${adminUUID} and (
 						(r.role = ${RoleType.platformAdmin.toString} and r.institutionUUID = ${institutionUUID}) or 
 						(r.role = ${RoleType.institutionAdmin.toString} and r.institutionUUID = ${institutionUUID}) or 
-						( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.course_classUUID = cc.uuid)
+						( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.courseClassUUID = cc.uuid)
 					)) > 0)
       	  	    and (cc.courseVersionUUID = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)})
       	  	    and (cc.uuid = ${courseClassUUID} or ${StringUtils.isNone(courseClassUUID)})
@@ -204,7 +204,7 @@ object CourseClassesRepo {
 				(select count(*) from Role r where personUUID = ${adminUUID} and (
 					(r.role = ${RoleType.platformAdmin.toString} and r.institutionUUID = ${institutionUUID}) or 
 					(r.role = ${RoleType.institutionAdmin.toString} and r.institutionUUID = ${institutionUUID}) or 
-					( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.course_classUUID = cc.uuid)
+					( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.courseClassUUID = cc.uuid)
 				)) > 0)
       	  	    and (cc.courseVersionUUID = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)})
       	  	    and (cc.uuid = ${courseClassUUID} or ${StringUtils.isNone(courseClassUUID)})
@@ -296,7 +296,7 @@ object CourseClassesRepo {
     sql"""
 	    | select cc.* from 
     	| CourseClass cc
-    	| join Enrollment e on e.classUUID = cc.uuid
+    	| join Enrollment e on e.courseClassUUID = cc.uuid
     	| where e.uuid = ${enrollmentUUID}
 	    | and cc.state <> ${EntityState.deleted.toString}
 	    """.first[CourseClass](toCourseClass)
@@ -328,7 +328,7 @@ object CourseClassesRepo {
     			val parentCourseClass = sql"""
             select cc.* from Enrollment e
             left join Enrollment pe on e.parentEnrollmentUUID = pe.uuid
-            left join CourseClass cc on cc.uuid = pe.classUUID 
+            left join CourseClass cc on cc.uuid = pe.courseClassUUID 
             where e.uuid = ${enrollmentUUID}
           """.first[CourseClass]
     			  

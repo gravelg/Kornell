@@ -200,7 +200,7 @@ class EnrollmentRepo(uuid: String) {
   }  
   
   def checkExistingEnrollment(courseClassUUID: String):Boolean = {
-    sql"""select count(*) as enrollmentExists from Enrollment where  personUUID = ${first.get.getPersonUUID} and classUUID = ${courseClassUUID}"""
+    sql"""select count(*) as enrollmentExists from Enrollment where  personUUID = ${first.get.getPersonUUID} and courseClassUUID = ${courseClassUUID}"""
     	.first[Integer] { rs => rs.getInt("enrollmentExists") }.get >= 1
   }
   
@@ -210,7 +210,7 @@ class EnrollmentRepo(uuid: String) {
     ChatThreadsRepo.disableParticipantFromCourseClassThread(enrollment)
 
     //update enrollment
-    sql"""update Enrollment set classUUID = ${toCourseClassUUID} where uuid = ${uuid}""".executeUpdate
+    sql"""update Enrollment set courseClassUUID = ${toCourseClassUUID} where uuid = ${uuid}""".executeUpdate
 
     //disable old support and tutoring threads
     sql"""update ChatThread set active = 0 where courseClassUUID = ${fromCourseClassUUID} and personUUID = ${enrollment.getPersonUUID} and threadType in  (${ChatThreadType.SUPPORT.toString}, ${ChatThreadType.TUTORING.toString})""".executeUpdate

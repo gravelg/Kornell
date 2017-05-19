@@ -166,7 +166,7 @@ class AuthRepo() {
 
   def grantPlatformAdmin(personUUID: String, institutionUUID: String) = {
     sql"""
-	    	insert into Role (uuid, personUUID, role, institutionUUID, course_classUUID)
+	    	insert into Role (uuid, personUUID, role, institutionUUID, courseClassUUID)
 	    	values (${randomUUID}, ${personUUID}, 
 	    	${RoleType.platformAdmin.toString}, 
 	    	${institutionUUID}, 
@@ -176,7 +176,7 @@ class AuthRepo() {
   
   def grantInstitutionAdmin(personUUID:String,institutionUUID:String) = 
     sql"""
-	    	insert into Role (uuid, personUUID, role, institutionUUID, course_classUUID)
+	    	insert into Role (uuid, personUUID, role, institutionUUID, courseClassUUID)
 	    	values (${randomUUID}, 
     		${personUUID}, 
 	    	${RoleType.institutionAdmin.toString}, 

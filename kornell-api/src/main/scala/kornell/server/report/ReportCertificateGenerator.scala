@@ -96,7 +96,7 @@ object ReportCertificateGenerator {
 				select p.fullName, c.name as courseName, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType, c.code
 	    		from Person p
 					join Enrollment e on p.uuid = e.personUUID
-					join CourseClass cc on cc.uuid = e.classUUID
+					join CourseClass cc on cc.uuid = e.courseClassUUID
 		    	join CourseVersion cv on cv.uuid = cc.courseVersionUUID
 		    	join Course c on c.uuid = cv.courseUUID
 				join Institution i on i.uuid = cc.institutionUUID
@@ -122,7 +122,7 @@ object ReportCertificateGenerator {
     var sql = """select p.fullName, c.name as courseName, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType, c.code
       from Person p 
       join Enrollment e on p.uuid = e.personUUID 
-      join CourseClass cc on cc.uuid = e.classUUID 
+      join CourseClass cc on cc.uuid = e.courseClassUUID 
       join CourseVersion cv on cv.uuid = cc.courseVersionUUID  
       join Course c on c.uuid = cv.courseUUID  
       join Institution i on i.uuid = cc.institutionUUID 

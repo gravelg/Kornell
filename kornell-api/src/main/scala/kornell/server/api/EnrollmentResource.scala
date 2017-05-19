@@ -103,12 +103,12 @@ class EnrollmentResource(uuid: String) {
   @Produces(Array(EnrollmentLaunchTO.TYPE))
   def launch() = AuthRepo().withPerson { person =>
     
-    val classUUID = Option(enrollment.getCourseClassUUID).getOrElse {
+    val courseClassUUID = Option(enrollment.getCourseClassUUID).getOrElse {
       val parent = EnrollmentRepo(enrollment.getParentEnrollmentUUID).first
       parent.map{_.getCourseClassUUID()}.getOrElse(null)
     }
-    val courseClass = if(classUUID != null){
-      CourseClassesRepo(classUUID).get
+    val courseClass = if(courseClassUUID != null){
+      CourseClassesRepo(courseClassUUID).get
     } else null
     val courseVersion = CourseVersionRepo(courseClass.getCourseVersionUUID).get
     

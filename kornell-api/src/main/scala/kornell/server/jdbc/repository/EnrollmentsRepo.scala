@@ -49,7 +49,7 @@ object EnrollmentsRepo {
 				from Enrollment e 
 				join Person p on e.personUUID = p.uuid
 				left join Password pw on p.uuid = pw.personUUID
-				where e.classUUID = '${courseClassUUID}' and 
+				where e.courseClassUUID = '${courseClassUUID}' and 
        			e.state <> '${EnrollmentState.deleted.toString}' and 
                 (p.fullName like '${filteredSearchTerm}'
                 or pw.username like '${filteredSearchTerm}'
@@ -71,7 +71,7 @@ object EnrollmentsRepo {
           from Enrollment e 
           join Person p on e.personUUID = p.uuid
           left join Password pw on p.uuid = pw.personUUID
-          where e.classUUID = ${courseClassUUID} and 
+          where e.courseClassUUID = ${courseClassUUID} and 
       	  e.state <> ${EnrollmentState.deleted.toString} and 
           (p.fullName like ${filteredSearchTerm}
           or pw.username like ${filteredSearchTerm}
@@ -84,14 +84,14 @@ object EnrollmentsRepo {
   def countByCourseClass(courseClassUUID: String) = 
     sql"""select count(*) 
       from Enrollment e 
-      where e.classUUID = ${courseClassUUID} 
+      where e.courseClassUUID = ${courseClassUUID} 
       and e.state <> ${EnrollmentState.deleted.toString}
     """.first[String].get.toInt
   
   def countByCourseClassAndState(courseClassUUID: String, enrollmentState: EnrollmentState) = 
     sql"""select count(*) 
       from Enrollment e 
-      where e.classUUID = ${courseClassUUID} 
+      where e.courseClassUUID = ${courseClassUUID} 
       and e.state = ${enrollmentState.toString}
     """.first[String].get.toInt
     
@@ -107,7 +107,7 @@ object EnrollmentsRepo {
     sql"""
   	  SELECT e.*, p.* 
       FROM Enrollment e join Person p on e.personUUID = p.uuid
-      WHERE e.classUUID = ${courseClassUUID} and 
+      WHERE e.courseClassUUID = ${courseClassUUID} and 
   	    (e.state <> ${EnrollmentState.deleted.toString} or ${getDeleted} = true)  
   	    AND e.personUUID = ${personUUID}
     """.first[Enrollment]
@@ -117,7 +117,7 @@ object EnrollmentsRepo {
   	  SELECT e.uuid
       FROM Enrollment e join Person p on e.personUUID = p.uuid
   	  join Password pw on pw.personUUID = p.uuid
-      WHERE e.classUUID = ${courseClassUUID} and e.state <> ${EnrollmentState.deleted.toString} 
+      WHERE e.courseClassUUID = ${courseClassUUID} and e.state <> ${EnrollmentState.deleted.toString} 
       AND pw.username = ${username}
     """.first[String]
 
@@ -154,7 +154,7 @@ object EnrollmentsRepo {
     if (enrollment.getCourseClassUUID != null && enrollment.getCourseVersionUUID != null)
       throw new EntityConflictException("doubleEnrollmentCriteria")
     sql""" 
-    	insert into Enrollment(uuid,classUUID,personUUID,enrolledOn,state,courseVersionUUID,parentEnrollmentUUID,enrollmentSource)
+    	insert into Enrollment(uuid,courseClassUUID,personUUID,enrolledOn,state,courseVersionUUID,parentEnrollmentUUID,enrollmentSource)
     	values(
     		${enrollment.getUUID},
     		${enrollment.getCourseClassUUID},
@@ -173,7 +173,7 @@ object EnrollmentsRepo {
   def find(personUUID: String, courseClassUUID: String): Option[Enrollment] = sql"""
 	  select * from Enrollment 
 	  where personUUID=${personUUID}
-	   and classUUID=${courseClassUUID}"""
+	   and courseClassUUID=${courseClassUUID}"""
     .first[Enrollment]
 
   def simplePersonList(courseClassUUID: String): SimplePeopleTO = {
@@ -182,7 +182,7 @@ object EnrollmentsRepo {
     join Person p on enr.personUUID = p.uuid
     left join Password pw on p.uuid = pw.personUUID
     where enr.state <> ${EnrollmentState.cancelled.toString} and enr.state <> ${EnrollmentState.deleted.toString} and
-    enr.classUUID = ${courseClassUUID}""".map[SimplePersonTO](toSimplePersonTO))
+    enr.courseClassUUID = ${courseClassUUID}""".map[SimplePersonTO](toSimplePersonTO))
   }
     
   def getEspinafreEmailList(): List[Person] = {
@@ -210,7 +210,7 @@ object EnrollmentsRepo {
         from Person p
         	join Enrollment e on e.personUUID = p.uuid
         where
-            e.uuid in (select uuid from Enrollment where classUUID in (select classUUID from Enrollment where uuid = ${dashboardEnrollmentUUID}))
+            e.uuid in (select uuid from Enrollment where courseClassUUID in (select courseClassUUID from Enrollment where uuid = ${dashboardEnrollmentUUID}))
         order by CONVERT(SUBSTRING_INDEX(attribute,'-',-1),UNSIGNED INTEGER) desc, p.fullName;
   	    """.map[DashboardLeaderboardItemTO](toDashboardLeaderboardItemTO)
   	 )

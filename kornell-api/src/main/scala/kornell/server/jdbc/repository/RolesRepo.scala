@@ -26,7 +26,7 @@ object RolesRepo {
 		    | select *, pw.username, cc.name as courseClassName
 	      	| from Role r
 			  | join Password pw on pw.personUUID = r.personUUID
-			  | left join CourseClass cc on r.course_classUUID = cc.uuid
+			  | left join CourseClass cc on r.courseClassUUID = cc.uuid
 	        | where pw.personUUID = ${personUUID}
 	  		| order by r.role, pw.username
             """.map[RoleTO](toRoleTO(_,bindMode)))   
@@ -36,8 +36,8 @@ object RolesRepo {
 		    | select *, pw.username, cc.name as courseClassName
 	      	| from Role r
 		        | join Password pw on pw.personUUID = r.personUUID
-		        | left join CourseClass cc on r.course_classUUID = cc.uuid
-	        | where r.course_classUUID = ${courseClassUUID}
+		        | left join CourseClass cc on r.courseClassUUID = cc.uuid
+	        | where r.courseClassUUID = ${courseClassUUID}
 	  			| and r.role = ${roleType.toString}
 	  		| order by r.role, pw.username
             """.map[RoleTO](toRoleTO(_,bindMode)))   
@@ -72,8 +72,8 @@ object RolesRepo {
 				|	when 'courseClassAdmin' then 3
 				|	END) r
 	        | join Password pw on pw.personUUID = r.personUUID
-	        | left join CourseClass cc on r.course_classUUID = cc.uuid
-	        | where (r.course_classUUID = ${courseClassUUID}
+	        | left join CourseClass cc on r.courseClassUUID = cc.uuid
+	        | where (r.courseClassUUID = ${courseClassUUID}
 	  			| 	and r.role = ${RoleType.courseClassAdmin.toString})
 	  			| or (r.institutionUUID = ${institutionUUID}
 	  			| 	and r.role = ${RoleType.institutionAdmin.toString})
@@ -155,7 +155,7 @@ object RolesRepo {
         else ""
       }
 	    sql"""
-	    	insert into Role (uuid, personUUID, role, course_classUUID)
+	    	insert into Role (uuid, personUUID, role, courseClassUUID)
 	    	values (${UUID.random}, 
     		${role.getPersonUUID}, 
 	    	${role.getRoleType.toString}, 
@@ -176,7 +176,7 @@ object RolesRepo {
   def removeCourseClassRole(courseClassUUID: String, roleType: RoleType) = {
     sql"""
     	delete from Role
-    	where course_classUUID = ${courseClassUUID}
+    	where courseClassUUID = ${courseClassUUID}
         and role = ${roleType.toString}
     """.executeUpdate
     this

@@ -99,7 +99,7 @@ object ReportCourseClassAuditGenerator {
 			join Person admin on admin.uuid = esc.personUUID
 			join Password adminPwd on adminPwd.personUUID = admin.uuid
 			join Enrollment e on e.uuid = esc.enrollmentUUID
-			join CourseClass cc on cc.uuid = e.classUUID and cc.uuid = ${courseClassUUID}
+			join CourseClass cc on cc.uuid = e.courseClassUUID and cc.uuid = ${courseClassUUID}
 			join Person participant on participant.uuid = e.personUUID
 			left join Password participantPwd on participantPwd.personUUID = participant.uuid
 		union

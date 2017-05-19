@@ -228,7 +228,7 @@ package object repository {
     newEnrollment(
       rs.getString("uuid"),
       rs.getTimestamp("enrolledOn"),
-      rs.getString("classUUID"),
+      rs.getString("courseClassUUID"),
       rs.getString("personUUID"),
       rs.getInt("progress"),
       rs.getString("notes"),      
@@ -255,7 +255,7 @@ package object repository {
     val enrollment = newEnrollment(
       rs.getString("uuid"),
       rs.getDate("enrolledOn"),
-      rs.getString("classUUID"),
+      rs.getString("courseClassUUID"),
       rs.getString("personUUID"),
       rs.getInt("progress"),
       rs.getString("notes"),      
@@ -306,9 +306,9 @@ package object repository {
       case RoleType.user => Entities.newUserRole
       case RoleType.platformAdmin => Entities.newRoleAsPlatformAdmin(rs.getString("personUUID"), rs.getString("institutionUUID"))
       case RoleType.institutionAdmin => Entities.newInstitutionAdminRole(rs.getString("personUUID"), rs.getString("institutionUUID"))
-      case RoleType.courseClassAdmin => Entities.newCourseClassAdminRole(rs.getString("personUUID"), rs.getString("course_classUUID"))
-      case RoleType.tutor => Entities.newTutorRole(rs.getString("personUUID"), rs.getString("course_classUUID"))
-      case RoleType.observer => Entities.newObserverRole(rs.getString("personUUID"), rs.getString("course_classUUID"))
+      case RoleType.courseClassAdmin => Entities.newCourseClassAdminRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
+      case RoleType.tutor => Entities.newTutorRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
+      case RoleType.observer => Entities.newObserverRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
       case RoleType.controlPanelAdmin => Entities.newControlPanelAdminRole(rs.getString("personUUID"))
     }
     role

@@ -319,7 +319,7 @@ object ChatThreadsRepo {
 				(select role 
 				from Role r
 				where r.personUUID = p.uuid and
-				(r.institutionUUID = t.institutionUUID or r.course_classUUID = t.courseClassUUID) and
+				(r.institutionUUID = t.institutionUUID or r.courseClassUUID = t.courseClassUUID) and
 				(r.role <> ${RoleType.tutor.toString} or t.threadType = ${ChatThreadType.TUTORING.toString})
 				order by 
 					case 
@@ -348,7 +348,7 @@ object ChatThreadsRepo {
 				(select role 
 				from Role r
 				where r.personUUID = p.uuid and
-				(r.institutionUUID = t.institutionUUID or r.course_classUUID = t.courseClassUUID) and
+				(r.institutionUUID = t.institutionUUID or r.courseClassUUID = t.courseClassUUID) and
 				(r.role <> ${RoleType.tutor.toString} or t.threadType = ${ChatThreadType.TUTORING.toString})
 				order by 
 					case 
@@ -385,7 +385,7 @@ object ChatThreadsRepo {
 				(select role 
 				from Role r
 				where r.personUUID = p.uuid and
-				(r.institutionUUID = t.institutionUUID or r.course_classUUID = t.courseClassUUID) and
+				(r.institutionUUID = t.institutionUUID or r.courseClassUUID = t.courseClassUUID) and
 				(r.role <> ${RoleType.tutor.toString} or t.threadType = ${ChatThreadType.TUTORING.toString})
 				order by 
 					case 

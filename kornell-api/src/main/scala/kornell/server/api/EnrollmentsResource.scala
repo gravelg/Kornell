@@ -93,7 +93,7 @@ class EnrollmentsResource {
       sql"""
     	update Enrollment set notes=$notes
     	where personUUID=${p.getUUID}
-    	and classUUID=${courseClassUUID}
+    	and courseClassUUID=${courseClassUUID}
     	""".executeUpdate
     }
 
