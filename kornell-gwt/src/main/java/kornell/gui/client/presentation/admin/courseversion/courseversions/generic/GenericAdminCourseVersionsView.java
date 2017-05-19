@@ -290,7 +290,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 			}
 		};	
 	    courseColumn.setSortable(true);
-	    courseColumn.setDataStoreName("c.title");
+	    courseColumn.setDataStoreName("c.name");
 		table.setColumnWidth(courseColumn, "20%");
 		table.addColumn(courseColumn, "Curso");
 		
@@ -661,7 +661,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 				private String buildButtonHTML(String text, CourseVersionTO courseVersionTO) {
 					Anchor anchor = new Anchor();
 					if(CourseDetailsEntityType.COURSE.toString().equals(text)){
-						anchor.setText(courseVersionTO.getCourseTO().getCourse().getTitle());
+						anchor.setText(courseVersionTO.getCourseTO().getCourse().getName());
 					} else if(CourseDetailsEntityType.COURSE_VERSION.toString().equals(text)){
 						anchor.setText(courseVersionTO.getCourseVersion().getName());
 					} 

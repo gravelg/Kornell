@@ -50,7 +50,7 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
 		if (session.isInstitutionAdmin()) {
 			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
 			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
-			this.orderBy = orderByProperty != null ? orderByProperty : "c.title";
+			this.orderBy = orderByProperty != null ? orderByProperty : "c.name";
 			this.asc = ascProperty != null ? ascProperty : "true";
 			
 			view = getView();

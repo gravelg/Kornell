@@ -2,30 +2,45 @@ package kornell.server.jdbc
 
 import java.sql.ResultSet
 import java.util.logging.Logger
+
 import kornell.core.entity.Assessment
 import kornell.core.entity.AuditedEntityType
 import kornell.core.entity.AuthClientType
 import kornell.core.entity.BillingType
+import kornell.core.entity.CertificateDetails
+import kornell.core.entity.CertificateType
 import kornell.core.entity.ChatThread
 import kornell.core.entity.ChatThreadParticipant
+import kornell.core.entity.ContentRepository
+import kornell.core.entity.ContentSpec
 import kornell.core.entity.Course
 import kornell.core.entity.CourseClass
-import kornell.core.entity.CourseClassState
+import kornell.core.entity.CourseDetailsEntityType
+import kornell.core.entity.CourseDetailsHint
+import kornell.core.entity.CourseDetailsLibrary
+import kornell.core.entity.CourseDetailsSection
 import kornell.core.entity.CourseVersion
 import kornell.core.entity.Enrollment
+import kornell.core.entity.EnrollmentSource
 import kornell.core.entity.EnrollmentState
+import kornell.core.entity.EntityState
 import kornell.core.entity.Institution
 import kornell.core.entity.InstitutionRegistrationPrefix
 import kornell.core.entity.InstitutionType
 import kornell.core.entity.Person
+import kornell.core.entity.PostbackConfig
+import kornell.core.entity.PostbackType
 import kornell.core.entity.RegistrationType
 import kornell.core.entity.RegistrationType
+import kornell.core.entity.RepositoryType
 import kornell.core.entity.RoleCategory
 import kornell.core.entity.RoleType
 import kornell.core.event.EntityChanged
 import kornell.core.to.ChatThreadMessageTO
 import kornell.core.to.CourseClassTO
+import kornell.core.to.CourseTO
 import kornell.core.to.CourseVersionTO
+import kornell.core.to.DashboardLeaderboardItemTO
 import kornell.core.to.EnrollmentTO
 import kornell.core.to.PersonTO
 import kornell.core.to.RoleTO
@@ -36,22 +51,6 @@ import kornell.server.repository.Entities._
 import kornell.server.repository.Entities
 import kornell.server.repository.TOs._
 import kornell.server.repository.TOs
-import java.util.UUID
-import kornell.core.to.DashboardLeaderboardTO
-import kornell.core.to.DashboardLeaderboardItemTO
-import kornell.core.entity.CourseDetailsHint
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.entity.CourseDetailsLibrary
-import kornell.core.entity.CourseDetailsSection
-import kornell.core.to.CourseTO
-import kornell.core.entity.ContentRepository
-import kornell.core.entity.RepositoryType
-import kornell.core.entity.CertificateDetails
-import kornell.core.entity.CertificateType
-import kornell.core.entity.EnrollmentSource
-import kornell.core.entity.PostbackType
-import kornell.core.entity.PostbackConfig
-import kornell.core.entity.ContentSpec
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -108,7 +107,7 @@ package object repository {
         r.getBoolean("overrideEnrollments"),
         r.getBoolean("invisible"), r.getInt("maxEnrollments"), 
         r.getDate("createdAt"), r.getString("createdBy"), 
-        CourseClassState.valueOf(r.getString("state")), 
+        EntityState.valueOf(r.getString("state")), 
         RegistrationType.valueOf(r.getString("registrationType")),
         r.getString("institutionRegistrationPrefixUUID"), r.getBoolean("courseClassChatEnabled"), 
         r.getBoolean("chatDockEnabled"), r.getBoolean("allowBatchCancellation"),  
@@ -118,9 +117,10 @@ package object repository {
   implicit def toCourse(rs: ResultSet): Course = newCourse(
     rs.getString("uuid"),
     rs.getString("code"),
-    rs.getString("title"),
+    rs.getString("name"),
     rs.getString("description"),
     rs.getString("infoJson"),
+    EntityState.valueOf(rs.getString("state")),
     rs.getString("institutionUUID"),
     rs.getBoolean("childCourse"),
     rs.getString("thumbUrl"),
@@ -135,6 +135,7 @@ package object repository {
     rs.getString("course_uuid"), 
     rs.getDate("versionCreatedAt"),
     rs.getString("distributionPrefix"),
+    EntityState.valueOf(rs.getString("state")),
     rs.getBoolean("disabled"),
     rs.getString("parentVersionUUID"),
     rs.getInt("instanceCount"),
@@ -145,9 +146,10 @@ package object repository {
     val course = newCourse(
     		rs.getString("courseUUID"), 
 		    rs.getString("code"), 
-		    rs.getString("title"),
+		    rs.getString("name"),
 		    rs.getString("description"), 
 		    rs.getString("infoJson"),
+        EntityState.valueOf(rs.getString("state")),
 		    rs.getString("institutionUUID"),
 		    rs.getBoolean("childCourse"),
 		    rs.getString("courseThumbUrl"),
@@ -159,6 +161,7 @@ package object repository {
 		    rs.getString("courseUUID"), 
 		    rs.getDate("versionCreatedAt"),
 		    rs.getString("distributionPrefix"),
+        EntityState.valueOf(rs.getString("courseVersionState")),
 		    rs.getBoolean("disabled"),
         rs.getString("parentVersionUUID"),
         rs.getInt("instanceCount"),
@@ -177,7 +180,7 @@ package object repository {
 			rs.getInt("maxEnrollments"),
 			rs.getDate("createdAt"),
 			rs.getString("createdBy"), 
-			CourseClassState.valueOf(rs.getString("state")), 
+			EntityState.valueOf(rs.getString("courseClassState")), 
 			RegistrationType.valueOf(rs.getString("registrationType")),
 			rs.getString("institutionRegistrationPrefixUUID"),
 			rs.getBoolean("courseClassChatEnabled"),
@@ -199,6 +202,7 @@ package object repository {
         rs.getString("courseUUID"), 
         rs.getDate("versionCreatedAt"), 
         rs.getString("distributionPrefix"), 
+        EntityState.valueOf(rs.getString("courseVersionState")),
         rs.getBoolean("courseVersionDisabled"),
         rs.getString("parentVersionUUID"),
         rs.getInt("instanceCount"),
@@ -208,9 +212,10 @@ package object repository {
     val course = newCourse(
         rs.getString("courseUUID"), 
         rs.getString("courseCode"), 
-        rs.getString("courseTitle"), 
+        rs.getString("courseName"), 
         rs.getString("courseDescription"), 
         rs.getString("infoJson"),
+        EntityState.valueOf(rs.getString("courseState")),
         rs.getString("institutionUUID"),
         rs.getBoolean("childCourse"),
         rs.getString("courseThumbUrl"),

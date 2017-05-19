@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
@@ -16,7 +17,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClass;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.EnrollmentCategory;
 import kornell.core.entity.EnrollmentProgressDescription;
 import kornell.core.entity.EnrollmentState;
@@ -102,10 +103,11 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
             view.clearPagination();
             String selectedCourseClass;
             if (placeController.getWhere() instanceof AdminCourseClassPlace
-                    && ((AdminCourseClassPlace) placeController.getWhere()).getCourseClassUUID() != null) {
+                    && StringUtils.isSome(((AdminCourseClassPlace) placeController.getWhere()).getCourseClassUUID())) {
                 selectedCourseClass = ((AdminCourseClassPlace) placeController.getWhere()).getCourseClassUUID();
             } else {
-                selectedCourseClass = ClientProperties.get(getLocalStoragePropertyName());
+            	placeController.goTo(new AdminCourseClassesPlace());
+            	return;
             }
             updateCourseClass(selectedCourseClass);
         } else {
@@ -114,9 +116,12 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         }
     }
 
-    private void getEnrollments(final String courseClassUUID) {
-    	
-        ClientProperties.set(getLocalStoragePropertyName(), courseClassUUID);
+    private void getEnrollments(final String courseClassUUID) {           
+		String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
+		String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
+		orderBy = orderByProperty != null ? orderByProperty : "e.state";
+		asc = ascProperty != null ? ascProperty : "false";
+		
         bus.fireEvent(new ShowPacifierEvent(true));
         session.enrollments().getEnrollmentsByCourseClass(courseClassUUID, pageSize, pageNumber, searchTerm, orderBy, asc, new Callback<EnrollmentsTO>() {
             @Override
@@ -145,11 +150,6 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                 public void ok(CourseClassTO courseClassTO) {
                     bus.fireEvent(new ShowPacifierEvent(false));
                     updateCourseClassUI(courseClassTO);
-                    
-        			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
-        			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
-        			orderBy = orderByProperty != null ? orderByProperty : "e.state";
-        			asc = ascProperty != null ? ascProperty : "false";
                 }
             });
         } else {
@@ -169,11 +169,8 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         view.setCourseClassTO(courseClassTO);
         view.setUserEnrollmentIdentificationType(courseClassTO.getCourseClass().getRegistrationType());
         view.setCanPerformEnrollmentAction(true);
+        
         getEnrollments(courseClassTO.getCourseClass().getUUID());
-    }
-
-    private String getLocalStoragePropertyName() {
-        return session.getAdminHomePropertyPrefix() + ClientProperties.SELECTED_COURSE_CLASS;
     }
 
     @Override
@@ -202,7 +199,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     }
 
     @Override
-    public void changeCourseClassState(final CourseClassTO courseClassTO, final CourseClassState toState) {
+    public void changeCourseClassState(final CourseClassTO courseClassTO, final EntityState toState) {
         bus.fireEvent(new ShowPacifierEvent(true));
 
         String personUUID = session.getCurrentUser().getPerson().getUUID();
@@ -212,7 +209,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
                     @Override
                     public void ok(Void to) {
                         bus.fireEvent(new ShowPacifierEvent(false));
-                        if(CourseClassState.inactive.equals(toState)){
+                        if(EntityState.inactive.equals(toState)){
                             KornellNotification.show("Turma desabilitada com sucesso!");
                             updateCourseClass(courseClassTO.getCourseClass().getUUID());
                         } else {
@@ -234,7 +231,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
     @Override
     public boolean showActionButton(String actionName, EnrollmentTO enrollmentTO) {
-        boolean isEnabled = CourseClassState.active.equals(session.getCurrentCourseClass().getCourseClass()
+        boolean isEnabled = EntityState.active.equals(session.getCurrentCourseClass().getCourseClass()
                 .getState());
         EnrollmentState state = enrollmentTO.getEnrollment().getState();
         EnrollmentProgressDescription progressDescription = EnrollmentCategory
@@ -427,7 +424,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
     private void prepareCreateEnrollments(boolean isBatch) {
         enrollmentRequestsTO.setEnrollmentRequests(batchEnrollments);
-        if (CourseClassState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState())) {
+        if (EntityState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState())) {
             KornellNotification.show("Não é possível matricular participantes em uma turma desabilidada.",
                     AlertType.ERROR);
             return;
@@ -749,9 +746,10 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
 	@Override
 	public String getClientPropertyName(String property){
-		return session.getAdminHomePropertyPrefix() +
+		String propertyName = session.getAdminHomePropertyPrefix() +
 				"courseClass" + ClientProperties.SEPARATOR +
 				session.getCurrentCourseClass().getCourseClass().getUUID() + ClientProperties.SEPARATOR +
 				property;
+		return propertyName;
 	}
 }

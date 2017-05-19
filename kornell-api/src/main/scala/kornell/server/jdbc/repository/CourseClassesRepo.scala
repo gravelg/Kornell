@@ -1,38 +1,37 @@
 package kornell.server.jdbc.repository
 
+import java.sql.ResultSet
+import java.util.ArrayList
+import java.util.Date
+
+import scala.collection.JavaConverters._
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.JavaConverters.bufferAsJavaListConverter
 import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.collection.mutable.Buffer
+
+import kornell.core.entity.AssetEntity
+import kornell.core.entity.AuditedEntityType
+import kornell.core.entity.Course
 import kornell.core.entity.CourseClass
-import kornell.core.entity.Person
+import kornell.core.entity.CourseDetailsEntityType
+import kornell.core.entity.CourseDetailsHint
+import kornell.core.entity.CourseDetailsLibrary
+import kornell.core.entity.CourseDetailsSection
+import kornell.core.entity.CourseVersion
+import kornell.core.entity.EntityState
 import kornell.core.entity.Role
 import kornell.core.entity.RoleCategory
 import kornell.core.entity.RoleType
-import kornell.core.to.CourseClassTO
-import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.repository.TOs
-import kornell.core.entity.Roles
-import kornell.core.util.UUID
-import java.util.Date
-import kornell.core.entity.CourseClassState
-import java.sql.ResultSet
 import kornell.core.error.exception.EntityConflictException
 import kornell.core.error.exception.EntityNotFoundException
-import kornell.core.util.StringUtils
-import kornell.core.entity.AuditedEntityType
+import kornell.core.to.CourseClassTO
 import kornell.core.to.CourseClassesTO
-import kornell.core.entity.CourseVersion
-import com.sun.xml.internal.bind.v2.TODO
-import kornell.core.entity.Course
-import java.util.ArrayList
-import kornell.core.entity.CourseDetailsEntityType
-import scala.collection.JavaConverters._
-import kornell.core.entity.CourseDetailsSection
-import scala.collection.mutable.Buffer
-import kornell.core.entity.AssetEntity
-import kornell.core.entity.CourseDetailsHint
-import kornell.core.entity.CourseDetailsLibrary
+import kornell.core.util.StringUtils
+import kornell.core.util.UUID
 import kornell.server.jdbc.PreparedStmt
+import kornell.server.jdbc.SQL.SQLHelper
+import kornell.server.repository.TOs
 
 class CourseClassesRepo {
 }
@@ -126,16 +125,18 @@ object CourseClassesRepo {
 			select     
 				c.uuid as courseUUID, 
 			    c.code,
-			    c.title, 
+			    c.name, 
 			    c.description,
     			c.contentSpec as contentSpec,
 			    c.infoJson,
+          c.state,
       		c.childCourse,
           c.thumbUrl as courseThumbUrl,
 			    cv.uuid as courseVersionUUID,
 			    cv.name as courseVersionName,
 			    cv.versionCreatedAt as versionCreatedAt,
 		  		cv.distributionPrefix as distributionPrefix,
+    			cv.state as courseVersionState,
     			cv.disabled as disabled,
     			cv.parentVersionUUID as parentVersionUUID,
     			cv.instanceCount as instanceCount,
@@ -151,7 +152,7 @@ object CourseClassesRepo {
 	  		  cc.maxEnrollments as maxEnrollments,
     			cc.createdAt as createdAt,
     			cc.createdBy as createdBy,
-    			cc.state,
+    			cc.state as courseClassState,
 		  		cc.registrationType as registrationType,
 		  		cc.institutionRegistrationPrefixUUID as institutionRegistrationPrefixUUID, 
 		  		cc.courseClassChatEnabled as courseClassChatEnabled, 
@@ -166,7 +167,7 @@ object CourseClassesRepo {
 				join CourseVersion cv on cv.course_uuid = c.uuid
 				join CourseClass cc on cc.courseVersion_uuid = cv.uuid and cc.institution_uuid = '${institutionUUID}'
 			    left join InstitutionRegistrationPrefix irp on irp.uuid = cc.institutionRegistrationPrefixUUID
-      	  	where cc.state <> '${CourseClassState.deleted.toString}' and
+      	  	where cc.state <> '${EntityState.deleted.toString}' and
       	  	    (cc.courseVersion_uuid = '${courseVersionUUID}' or ${StringUtils.isNone(courseVersionUUID)}) and
       	  	    (cc.uuid = '${courseClassUUID}' or ${StringUtils.isNone(courseClassUUID)}) and
 		    	cc.institution_uuid = '${institutionUUID}' and
@@ -177,10 +178,10 @@ object CourseClassesRepo {
 					(r.role = '${RoleType.institutionAdmin.toString}' and r.institution_uuid = '${institutionUUID}') or 
 				( (r.role = '${RoleType.courseClassAdmin.toString}' or r.role = '${RoleType.observer.toString}' or r.role = '${RoleType.tutor.toString}') and r.course_class_uuid = cc.uuid)
 			)) > 0)
-      	  	order by ${order}, cc.state, c.title, cv.versionCreatedAt desc, cc.name limit ${resultOffset}, ${pageSize};
+      	  	order by ${order}, cc.state, c.name, cv.versionCreatedAt desc, cc.name limit ${resultOffset}, ${pageSize};
 		""", List[String]()).map[CourseClassTO](toCourseClassTO))
     courseClassesTO.setCount(
-      sql"""select count(cc.uuid) from CourseClass cc where cc.state <> ${CourseClassState.deleted.toString} and (${StringUtils.isSome(adminUUID)} and
+      sql"""select count(cc.uuid) from CourseClass cc where cc.state <> ${EntityState.deleted.toString} and (${StringUtils.isSome(adminUUID)} and
 					(select count(*) from Role r where person_uuid = ${adminUUID} and (
 						(r.role = ${RoleType.platformAdmin.toString} and r.institution_uuid = ${institutionUUID}) or 
 						(r.role = ${RoleType.institutionAdmin.toString} and r.institution_uuid = ${institutionUUID}) or 
@@ -197,7 +198,7 @@ object CourseClassesRepo {
       else
         sql"""select count(cc.uuid) from CourseClass cc 
 		    	join CourseVersion cv on cc.courseVersion_uuid = cv.uuid
-		    	where cc.state <> ${CourseClassState.deleted.toString} and
+		    	where cc.state <> ${EntityState.deleted.toString} and
             	(cv.name like ${filteredSearchTerm}
             	or cc.name like ${filteredSearchTerm}) and (${StringUtils.isSome(adminUUID)} and
 				(select count(*) from Role r where person_uuid = ${adminUUID} and (
@@ -297,7 +298,7 @@ object CourseClassesRepo {
     	| CourseClass cc
     	| join Enrollment e on e.class_uuid = cc.uuid
     	| where e.uuid = ${enrollmentUUID}
-	    | and cc.state <> ${CourseClassState.deleted.toString}
+	    | and cc.state <> ${EntityState.deleted.toString}
 	    """.first[CourseClass](toCourseClass)
   }
 
@@ -353,7 +354,7 @@ object CourseClassesRepo {
     sql"""select count(*) 
       from CourseClass cc 
       where cc.courseVersion_uuid = ${courseVersionUUID} 
-      and cc.state <> ${CourseClassState.deleted.toString}
+      and cc.state <> ${EntityState.deleted.toString}
     """.first[String].get.toInt
   
   private def bindEnrollments(personUUID: String, courseClassesTO: CourseClassesTO) = {

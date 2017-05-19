@@ -62,7 +62,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.EnrollmentCategory;
 import kornell.core.entity.EnrollmentProgressDescription;
@@ -729,7 +729,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 
 		setTabsVisibility();
 		enrollmentsOriginal = enrollmentsIn;
-		this.isEnabled = CourseClassState.active.equals(session.getCurrentCourseClass().getCourseClass().getState());
+		this.isEnabled = EntityState.active.equals(session.getCurrentCourseClass().getCourseClass().getState());
 		addEnrollmentsPanel.setVisible(isEnabled);
 
 		numEnrollments = count;
@@ -1023,7 +1023,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	public void setCourseClassTO(CourseClassTO courseClassTO) {
 		this.courseClassTO = courseClassTO;
 		this.lblCourseClassName.setText(courseClassTO.getCourseClass().getName());
-		this.lblCourseName.setText(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getTitle());
+		this.lblCourseName.setText(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getName());
 		String status = EnumTranslator.translateEnum(courseClassTO.getCourseClass().getState());
 		status += courseClassTO.getCourseClass().isInvisible() ? " / Invísivel" : "";
 		status += courseClassTO.getCourseClass().isPublicClass() ? " / Pública" : "";

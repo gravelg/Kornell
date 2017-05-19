@@ -16,18 +16,20 @@ import kornell.core.error.exception.EntityConflictException
 import kornell.core.entity.AuditedEntityType
 import kornell.core.util.StringUtils
 import kornell.server.jdbc.PreparedStmt
+import kornell.core.entity.EntityState
 
 object CourseVersionsRepo {
   
   def create(courseVersion: CourseVersion, institutionUUID: String): CourseVersion = {  
     val courseVersionExists = sql"""
 	    select count(*) from CourseVersion where course_uuid = ${courseVersion.getCourseUUID} and name = ${courseVersion.getName}
+        and state <> ${EntityState.deleted.toString}
 	    """.first[String].get
     if (courseVersionExists == "0") {  
 	    if (courseVersion.getUUID == null){
 	      courseVersion.setUUID(UUID.random)
 	    }
-		courseVersion.setVersionCreatedAt(new Date());
+		  courseVersion.setVersionCreatedAt(new Date());
 		
 	    sql"""
 	    | insert into CourseVersion (uuid,name,course_uuid,versionCreatedAt,distributionPrefix,disabled,thumbUrl) 
@@ -69,6 +71,7 @@ object CourseVersionsRepo {
       cv.course_uuid as courseUUID,
       cv.versionCreatedAt as versionCreatedAt,
       cv.distributionPrefix as distributionPrefix,
+      cv.state as courseVersionState,
       cv.disabled as courseVersionDisabled,
       cv.parentVersionUUID as parentVersionUUID,
       cv.instanceCount as instanceCount,
@@ -76,10 +79,11 @@ object CourseVersionsRepo {
       cv.thumbUrl as courseVersionThumbUrl,
       c.uuid as courseUUID,
       c.code as courseCode,
-      c.title as courseTitle,
+      c.name as courseName,
       c.description as courseDescription,
       c.contentSpec as contentSpec,
       c.infoJson as infoJson,
+      c.state as courseState,
       c.institutionUUID as institutionUUID,
       c.childCourse as childCourse,
       c.thumbUrl as courseThumbUrl
@@ -87,9 +91,10 @@ object CourseVersionsRepo {
   		join Course c on cv.course_uuid = c.uuid
   		where c.institutionUUID = '$institutionUUID'
   		and cv.name like '${filteredSearchTerm}'
+      and cv.state <> '${EntityState.deleted.toString}'
       and (cv.uuid = '${courseVersionUUID}'  or ${StringUtils.isNone(courseVersionUUID)})
       and (c.uuid = '${courseUUID}'  or ${StringUtils.isNone(courseUUID)})
-  		order by ${order}, c.title, cv.versionCreatedAt desc limit ${resultOffset}, ${pageSize}
+  		order by ${order}, c.name, cv.versionCreatedAt desc limit ${resultOffset}, ${pageSize}
 	  """, List[String]()).map[CourseVersionTO](toCourseVersionTO))
 	  courseVersionsTO.setPageSize(pageSize)
 	  courseVersionsTO.setPageNumber(pageNumber.max(1))
@@ -97,6 +102,7 @@ object CourseVersionsRepo {
 	    sql"""select count(cv.uuid) from CourseVersion cv
 	    	join Course c on cv.course_uuid = c.uuid
 			  where c.institutionUUID = $institutionUUID
+        and cv.state <> ${EntityState.deleted.toString}
 	    """.first[String].get.toInt
 	  })
 	  courseVersionsTO.setSearchCount({
@@ -107,6 +113,7 @@ object CourseVersionsRepo {
   	    	join Course c on cv.course_uuid = c.uuid
     			where c.institutionUUID = $institutionUUID
     			and cv.name like ${filteredSearchTerm}
+          and cv.state <> ${EntityState.deleted.toString}
 	    	""".first[String].get.toInt
 	  })
 	  
@@ -123,6 +130,7 @@ object CourseVersionsRepo {
 
   def byParentVersionUUID(parentVersionUUID: String) = sql"""
     select * from CourseVersion where parentVersionUUID = ${parentVersionUUID}
+      and state <> ${EntityState.deleted.toString}
   """.map[CourseVersion]
 
   
@@ -133,6 +141,7 @@ object CourseVersionsRepo {
   		| join Enrollment e on e.courseVersionUUID = cv.uuid
   		| where e.uuid = ${enrollmentUUID}
 	    | and cv.disabled = 0
+      | and cv.state <> ${EntityState.deleted.toString}
 	    """.first[CourseVersion](toCourseVersion)
   }
   
@@ -140,6 +149,7 @@ object CourseVersionsRepo {
     sql"""select count(*) 
       from CourseVersion cv 
       where cv.course_uuid = ${courseUUID} 
+      and cv.state <> ${EntityState.deleted.toString}
     """.first[String].get.toInt
   
   

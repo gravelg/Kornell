@@ -2,7 +2,7 @@ package kornell.api.client;
 
 import com.google.gwt.core.client.GWT;
 
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.event.ActomEntered;
 import kornell.core.event.AttendanceSheetSigned;
@@ -44,7 +44,7 @@ public class EventsClient extends RESTClient {
 		return withEvent("/events/enrollmentStateChanged",EnrollmentStateChanged.TYPE,enrollmentStateChanged);
 	}
 
-	public EventClient courseClassStateChanged(String courseClassUUID, String personUUID, CourseClassState fromState, CourseClassState toState) {
+	public EventClient courseClassStateChanged(String courseClassUUID, String personUUID, EntityState fromState, EntityState toState) {
 		CourseClassStateChanged courseClassStateChanged = factory.newCourseClassStateChanged().as();
 		courseClassStateChanged.setCourseClassUUID(courseClassUUID);
 		courseClassStateChanged.setFromPersonUUID(personUUID);

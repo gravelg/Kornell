@@ -1,6 +1,6 @@
 package kornell.api.client;
 
-import kornell.core.entity.ThumbnailEntity;
+import kornell.core.entity.LearningEntity;
 
 public class AssetsClient extends RESTClient {
 
@@ -11,7 +11,7 @@ public class AssetsClient extends RESTClient {
 		GET(entityName, entityUUID, "uploadUrl", filename, "?path=" + path).go(callback);
 	}
 	
-	public void updateThumbnail(String entityName, String entityUUID, ThumbnailEntity entity, String entityType, Callback<ThumbnailEntity> callback) {
+	public void updateThumbnail(String entityName, String entityUUID, LearningEntity entity, String entityType, Callback<LearningEntity> callback) {
 		PUT(entityName, entityUUID).withContentType(entityType).withEntityBody(entity).go(callback);
 	}
 	

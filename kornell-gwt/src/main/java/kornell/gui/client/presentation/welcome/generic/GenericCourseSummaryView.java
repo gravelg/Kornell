@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.Course;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.Enrollment;
 import kornell.core.entity.EnrollmentProgress;
 import kornell.core.entity.EnrollmentProgressDescription;
@@ -102,7 +102,7 @@ public class GenericCourseSummaryView extends Composite {
 		this.placeCtrl = placeCtrl;
 		this.session = session;
 		Course course = courseClassTO.getCourseVersionTO().getCourseTO().getCourse();
-		hTitle.setText(course.getTitle());
+		hTitle.setText(course.getName());
 		lblSubTitle.setText(constants.courseClass() + ": " + courseClassTO.getCourseClass().getName());
 		pDescription.setText(course.getDescription());
 
@@ -112,7 +112,7 @@ public class GenericCourseSummaryView extends Composite {
 			pStatusErr.setText(constants.cancelledClassLabel());
 			pStatusErr.removeStyleName("shy");
 		}
-		if(!CourseClassState.active.equals(courseClassTO.getCourseClass().getState())){
+		if(!EntityState.active.equals(courseClassTO.getCourseClass().getState())){
 			pStatus.setText(constants.inactiveClassLabel());
 			iconCourseURL = mkurl(ICON_COURSE_URL, "iconNotStarted.png");
 		} else if (student.isEnrolled()) {

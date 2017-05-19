@@ -2,14 +2,11 @@ package kornell.core.entity;
 
 import java.util.Date;
 
-public interface CourseVersion extends ThumbnailEntity {
+public interface CourseVersion extends LearningEntity {
     public static String TYPE = EntityFactory.PREFIX + "courseVersion+json";
     
 	String getCourseUUID();
 	void setCourseUUID(String courseUUID);
-	
-	String getName();
-	void setName(String name);
 	
 	String getDistributionPrefix();
 	void setDistributionPrefix(String distributionPrefix);

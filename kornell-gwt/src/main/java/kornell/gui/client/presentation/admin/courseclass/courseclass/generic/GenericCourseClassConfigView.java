@@ -30,7 +30,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClass;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.EntityFactory;
 import kornell.core.entity.InstitutionRegistrationPrefix;
 import kornell.core.entity.RegistrationType;
@@ -57,7 +57,6 @@ public class GenericCourseClassConfigView extends Composite {
 
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
     public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
-    private static final String MODAL_DELETE = "delete";
     private static final String MODAL_DEACTIVATE = "deactivate";
     private static final String MODAL_PUBLIC = "public";
     private static final String MODAL_APPROVE_ENROLLMENTS_AUTOMATICALLY = "approveEnrollmentsAutomatically";
@@ -70,7 +69,7 @@ public class GenericCourseClassConfigView extends Composite {
 
     private KornellSession session;
     private FormHelper formHelper = GWT.create(FormHelper.class);
-    private boolean isCreationMode, canDelete, isInstitutionAdmin, allowPrefixEdit;
+    private boolean isCreationMode, isInstitutionAdmin, allowPrefixEdit;
     boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
     private Presenter presenter;
@@ -87,8 +86,6 @@ public class GenericCourseClassConfigView extends Composite {
     Button btnOK;
     @UiField
     Button btnCancel;
-    @UiField
-    Button btnDelete;
 
     @UiField
     Modal confirmModal;
@@ -119,14 +116,11 @@ public class GenericCourseClassConfigView extends Composite {
         this.isInstitutionAdmin = session.isInstitutionAdmin();
         this.isCreationMode = (courseClassTO == null) && isInstitutionAdmin;
         this.allowPrefixEdit = session.getInstitution().isAllowRegistrationByUsername() && (isCreationMode || (presenter.getEnrollments().size() == 0) || StringUtils.isNone(courseClassTO.getCourseClass().getInstitutionRegistrationPrefixUUID()));
-        this.canDelete = presenter.getEnrollments() == null || presenter.getEnrollments().size() == 0;
         initWidget(uiBinder.createAndBindUi(this));
 
         // i18n
         btnOK.setText("OK".toUpperCase());
         btnCancel.setText(isCreationMode ? "Cancelar".toUpperCase() : "Limpar".toUpperCase());
-        btnDelete.setVisible(isInstitutionAdmin && !isCreationMode && CourseClassState.active.equals(session.getCurrentCourseClass().getCourseClass().getState()));
-        btnDelete.setText(canDelete?"Excluir".toUpperCase():"Desabilitar".toUpperCase());
 
         btnModalOK.setText("OK".toUpperCase());
         btnModalCancel.setText("Cancelar".toUpperCase());
@@ -355,10 +349,10 @@ public class GenericCourseClassConfigView extends Composite {
         final ListBox courses = new ListBox();
         if(to != null){
             for (CourseTO courseTO : to.getCourses()) {
-                courses.addItem(courseTO.getCourse().getTitle(), courseTO.getCourse().getUUID());
+                courses.addItem(courseTO.getCourse().getName(), courseTO.getCourse().getUUID());
             }
         } else {
-            courses.addItem(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getTitle(), courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getUUID());
+            courses.addItem(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getName(), courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getUUID());
         }
         courses.addChangeHandler(new ChangeHandler() {
             @Override
@@ -489,23 +483,9 @@ public class GenericCourseClassConfigView extends Composite {
         }
     }
 
-    @UiHandler("btnDelete")
-    void doDelete(ClickEvent e) {
-    	if(!isInstitutionAdmin)
-    		return;
-        if(!isCreationMode && canDelete){
-            showModal(MODAL_DELETE);
-        } else {
-            showModal(MODAL_DEACTIVATE);
-        }
-    }
-
     private void showModal(String mode) {
         this.modalMode = mode;
-        if(MODAL_DELETE.equals(modalMode)){
-            confirmText.setText("Tem certeza que deseja excluir esta turma?"
-                    + "\nEsta operação não pode ser desfeita.");
-        } else if (MODAL_DEACTIVATE.equals(modalMode)){
+        if (MODAL_DEACTIVATE.equals(modalMode)){
             confirmText.setText("Tem certeza que deseja desabilitar esta turma? Os participantes matriculados ainda poderão acessar os detalhes da turma e emitir o certificado, mas não terão acesso ao material relacionado à turma."
                     + "\nEsta operação não pode ser desfeita. Caso deseje evitar que essa turma apareça para os participantes, coloque-a como invisível.");
         } else if (MODAL_PUBLIC.equals(modalMode)){
@@ -530,10 +510,8 @@ public class GenericCourseClassConfigView extends Composite {
 
     @UiHandler("btnModalOK")
     void onModalOkButtonClicked(ClickEvent e) {
-        if(MODAL_DELETE.equals(modalMode)){
-            presenter.changeCourseClassState(courseClassTO, CourseClassState.deleted);
-        } else if (MODAL_DEACTIVATE.equals(modalMode)){
-            presenter.changeCourseClassState(courseClassTO, CourseClassState.inactive);
+        if (MODAL_DEACTIVATE.equals(modalMode)){
+            presenter.changeCourseClassState(courseClassTO, EntityState.inactive);
         } else if (MODAL_PUBLIC.equals(modalMode)){
             ((CheckBox)publicClass.getFieldWidget()).setValue(true);
             ((CheckBox)invisible.getFieldWidget()).setValue(false);

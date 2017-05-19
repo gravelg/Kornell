@@ -66,7 +66,7 @@ object ReportInstitutionBillingGenerator {
 	  implicit def toInstitutionBillingEnrollmentReportTO(rs: ResultSet): InstitutionBillingEnrollmentReportTO =
 	    TOs.newInstitutionBillingEnrollmentReportTO(
 	      rs.getString("enrollmentUUID"),
-	      rs.getString("courseTitle"),
+	      rs.getString("courseName"),
 	      rs.getString("courseVersionName"),
 	      rs.getString("courseClassName"),
 	      rs.getString("fullName"),
@@ -76,7 +76,7 @@ object ReportInstitutionBillingGenerator {
     val institutionBillingReportTO = sql"""
     		SELECT 
 				e.uuid AS 'enrollmentUUID', 
-				c.title AS 'courseTitle',
+				c.name AS 'courseName',
 				cv.name AS 'courseVersionName',
 				cc.name AS 'courseClassName',
 				p.fullName, 
@@ -101,7 +101,7 @@ object ReportInstitutionBillingGenerator {
 					AND e.lastBilledAt < ${periodEnd + "-01 00:00:00"})
 				) 
 			AND (email IS null OR email NOT LIKE '%craftware.com.br%')
-			ORDER BY LOWER(c.title),LOWER(cv.name),LOWER(cc.name), LOWER(p.fullName)
+			ORDER BY LOWER(c.name),LOWER(cv.name),LOWER(cc.name), LOWER(p.fullName)
 	    """.map[InstitutionBillingEnrollmentReportTO](toInstitutionBillingEnrollmentReportTO)
 		  
     val cl = Thread.currentThread.getContextClassLoader

@@ -1,24 +1,23 @@
 package kornell.server.service
 
-import kornell.core.entity.EntityFactory
-import kornell.server.repository.Entities
-import kornell.core.util.UUID
 import java.util.Date
-import kornell.core.entity.RegistrationType
-import java.math.BigDecimal
-import kornell.core.entity.CourseClassState
-import kornell.server.authentication.ThreadLocalAuthenticator
+
+import kornell.core.entity.ContentSpec
+import kornell.core.entity.Course
 import kornell.core.entity.CourseDetailsEntityType
+import kornell.core.util.StringUtils
+import kornell.core.util.UUID
+import kornell.server.jdbc.repository.CourseClassesRepo
 import kornell.server.jdbc.repository.CourseDetailsHintsRepo
 import kornell.server.jdbc.repository.CourseDetailsSectionsRepo
-import kornell.server.jdbc.repository.CoursesRepo
-import kornell.server.jdbc.repository.CourseVersionRepo
 import kornell.server.jdbc.repository.CourseVersionsRepo
-import kornell.server.jdbc.repository.CourseClassesRepo
+import kornell.server.jdbc.repository.CoursesRepo
+import kornell.server.repository.Entities
 import kornell.server.repository.TOs
-import kornell.core.entity.Course
-import kornell.core.entity.ContentSpec
-import kornell.core.util.StringUtils
+import kornell.core.entity.RegistrationType
+import kornell.core.entity.EntityState
+import kornell.server.authentication.ThreadLocalAuthenticator
+import java.math.BigDecimal
 
 object CourseCreationService {
   
@@ -44,9 +43,10 @@ object CourseCreationService {
     val course = CoursesRepo.create(Entities.newCourse(
         courseUUID,
         to.getCode,
-        to.getTitle,
+        to.getName,
         to.getDescription,
         null,
+        EntityState.active,
         institutionUUID,
         false,
         null,
@@ -63,6 +63,7 @@ object CourseCreationService {
         courseUUID,
         new Date(),
         versionUUID,
+        EntityState.active,
         false,
         null,
         1,
@@ -73,7 +74,7 @@ object CourseCreationService {
   def createCourseClass(institutionUUID: String, versionUUID: String, to: Course) = {
     val courseClass = CourseClassesRepo.create(Entities.newCourseClass(
         UUID.random,
-        to.getTitle,
+        to.getName,
         versionUUID,
         institutionUUID,
         new BigDecimal(60.00),
@@ -83,7 +84,7 @@ object CourseCreationService {
         1000,
         new Date(),
         ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get,
-        CourseClassState.active,
+        EntityState.active,
         RegistrationType.email,
         null,
         false,

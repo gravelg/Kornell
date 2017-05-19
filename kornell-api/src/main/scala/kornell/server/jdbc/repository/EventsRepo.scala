@@ -1,43 +1,46 @@
 package kornell.server.jdbc.repository
 
+import java.util.Date
+
+import scala.collection.JavaConverters._
+
+import org.joda.time.DateTime
+
+import com.google.web.bindery.autobean.shared.AutoBean
 import com.google.web.bindery.autobean.shared.AutoBeanCodex
 import com.google.web.bindery.autobean.shared.AutoBeanUtils
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource
+
 import kornell.core.entity.AuditedEntityType
-import kornell.core.entity.CourseClassState
+import kornell.core.entity.AuditedEntityType
 import kornell.core.entity.EnrollmentState
+import kornell.core.entity.EnrollmentState
+import kornell.core.entity.EntityState
+import kornell.core.error.exception.EntityConflictException
 import kornell.core.error.exception.EntityConflictException
 import kornell.core.event.ActomEntered
+import kornell.core.event.ActomEntered
+import kornell.core.event.AttendanceSheetSigned
 import kornell.core.event.AttendanceSheetSigned
 import kornell.core.event.CourseClassStateChanged
+import kornell.core.event.CourseClassStateChanged
+import kornell.core.event.EnrollmentStateChanged
 import kornell.core.event.EnrollmentStateChanged
 import kornell.core.event.EnrollmentTransferred
+import kornell.core.event.EnrollmentTransferred
+import kornell.core.event.EntityChanged
 import kornell.core.event.EventFactory
+import kornell.core.event.EventFactory
+import kornell.core.to.EntityChangedEventsTO
+import kornell.core.to.EntityChangedEventsTO
 import kornell.core.util.UUID
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.ep.EnrollmentSEP
+import kornell.server.jdbc.SQL._
 import kornell.server.jdbc.SQL.SQLHelper
+import kornell.server.repository.TOs._
 import kornell.server.util.EmailService
 import kornell.server.util.Settings
-import com.google.web.bindery.autobean.shared.AutoBean
-import kornell.core.to.EntityChangedEventsTO
-import kornell.core.event.EnrollmentTransferred
-import kornell.core.event.AttendanceSheetSigned
-import kornell.core.event.EnrollmentStateChanged
-import kornell.core.event.EventFactory
-import kornell.core.entity.CourseClassState
-import kornell.core.entity.EnrollmentState
-import kornell.core.event.ActomEntered
-import kornell.core.event.CourseClassStateChanged
-import kornell.core.to.EntityChangedEventsTO
-import kornell.core.error.exception.EntityConflictException
-import kornell.core.entity.AuditedEntityType
-import kornell.server.repository.TOs._
-import kornell.server.jdbc.SQL._
-import scala.collection.JavaConverters._
-import kornell.core.event.EntityChanged
-import java.util.Date
-import org.joda.time.DateTime
 
 object EventsRepo {
   val events = AutoBeanFactorySource.create(classOf[EventFactory])
@@ -78,7 +81,7 @@ object EventsRepo {
 
   def logEnrollmentStateChanged(uuid: String, fromPersonUUID: String,
     enrollmentUUID: String, fromState: EnrollmentState, toState: EnrollmentState, sendEmail: Boolean, notes: String) = {
-
+    
     sql"""insert into EnrollmentStateChanged(uuid,eventFiredAt,person_uuid,enrollment_uuid,fromState,toState,notes)
 	    values(${uuid},
 			   now(),
@@ -102,7 +105,7 @@ object EventsRepo {
       if (person.getEmail != null && notTestMode) {
         if (enrollment.getCourseClassUUID != null) {
           val courseClass = CourseClassesRepo(enrollment.getCourseClassUUID).get
-		  val course = CoursesRepo.byCourseClassUUID(courseClass.getUUID).get
+		      val course = CoursesRepo.byCourseClassUUID(courseClass.getUUID).get
           val institution = InstitutionsRepo.getByUUID(courseClass.getInstitutionUUID).get
           EmailService.sendEmailEnrolled(person, institution, course, enrollment, courseClass)
         } else {
@@ -120,7 +123,7 @@ object EventsRepo {
       event.getEnrollmentUUID, event.getFromState, event.getToState, true, null)
 
   def logCourseClassStateChanged(uuid: String, fromPersonUUID: String,
-    courseClassUUID: String, fromState: CourseClassState, toState: CourseClassState) = {
+    courseClassUUID: String, fromState: EntityState, toState: EntityState) = {
 
     sql"""insert into CourseClassStateChanged(uuid,eventFiredAt,personUUID,courseClassUUID,fromState,toState)
 	    values(${uuid},
@@ -222,7 +225,7 @@ object EventsRepo {
 	      	AuditedEntityType.institutionAdmin | 
 	      	AuditedEntityType.institutionHostName | 
 	      	AuditedEntityType.institutionEmailWhitelist => InstitutionsRepo.getByUUID(entityChanged.getEntityUUID).get.getName
-	      case AuditedEntityType.course => CourseRepo(entityChanged.getEntityUUID).first.get.getTitle
+	      case AuditedEntityType.course => CourseRepo(entityChanged.getEntityUUID).first.get.getName
 	      case AuditedEntityType.courseVersion => CourseVersionRepo(entityChanged.getEntityUUID).first.get.getName
 	      case AuditedEntityType.courseClass | 
 	      	AuditedEntityType.courseClassAdmin | 

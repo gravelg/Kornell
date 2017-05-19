@@ -17,7 +17,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import kornell.api.client.KornellSession;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.UserInfoTO;
@@ -116,7 +116,7 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 		
 		isEnrolled = courseClassTO != null && courseClassTO.getEnrollment() != null && EnrollmentState.enrolled.equals(courseClassTO.getEnrollment().getState());
 		shouldShowActivityBar = isEnrolled && session.getCurrentCourseClass() != null
-				&& !CourseClassState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState());
+				&& !EntityState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState());
 
 		showDetails = !isEnrolled;
 
@@ -380,7 +380,7 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 			btnNotes.removeStyleName("last");
 		}
 		shouldShowActivityBar = isEnrolled && session.getCurrentCourseClass() != null
-				&& !CourseClassState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState())
+				&& !EntityState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState())
 				&& session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null;
 		clientFactory.getEventBus().fireEvent(new HideSouthBarEvent(!shouldShowActivityBar));
 		this.setVisible(shouldShowActivityBar);

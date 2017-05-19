@@ -1,28 +1,29 @@
 package kornell.server.report
 
 import java.io.InputStream
+import java.math.BigDecimal
 import java.sql.ResultSet
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.HashMap
+
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.collection.mutable.ListBuffer
+
+import javax.servlet.http.HttpServletResponse
+import kornell.core.entity.EnrollmentState
+import kornell.core.entity.EntityState
 import kornell.core.to.report.CourseClassReportTO
 import kornell.core.to.report.EnrollmentsBreakdownTO
-import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.repository.TOs
-import kornell.core.entity.EnrollmentState
-import kornell.core.entity.CourseClassState
 import kornell.core.util.StringUtils._
 import kornell.server.jdbc.PreparedStmt
 import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.util.DateConverter
-import kornell.server.authentication.ThreadLocalAuthenticator
-import java.math.BigDecimal
+import kornell.server.jdbc.SQL.SQLHelper
 import kornell.server.jdbc.repository.CourseClassRepo
 import kornell.server.jdbc.repository.CourseRepo
-import java.text.SimpleDateFormat
-import javax.servlet.http.HttpServletResponse
+import kornell.server.repository.TOs
 import kornell.server.service.S3Service
+import kornell.server.util.DateConverter
 
 object ReportCourseClassGenerator {
 
@@ -48,17 +49,17 @@ object ReportCourseClassGenerator {
     to.setCourseName(courseName)
     to.setCourseVersionName(courseVersionName)
     to.setCourseClassName(courseClassName)
-	to.setCompany(company)
-	to.setTitle(title)
-	to.setSex(sex)
-	to.setBirthDate(birthDate)
-	to.setTelephone(telephone)
-	to.setCountry(country)
-	to.setStateProvince(stateProvince)
-	to.setCity(city)
-	to.setAddressLine1(addressLine1)
-	to.setAddressLine2(addressLine2)
-	to.setPostalCode(postalCode)
+  	to.setCompany(company)
+  	to.setTitle(title)
+  	to.setSex(sex)
+  	to.setBirthDate(birthDate)
+  	to.setTelephone(telephone)
+  	to.setCountry(country)
+  	to.setStateProvince(stateProvince)
+  	to.setCity(city)
+  	to.setAddressLine1(addressLine1)
+  	to.setAddressLine2(addressLine2)
+  	to.setPostalCode(postalCode)
     to
   }
 
@@ -123,9 +124,9 @@ object ReportCourseClassGenerator {
   				e.postAssessmentScore,
   				e.certifiedAt,
   				e.enrolledOn as enrolledAt,
-      			c.title as courseName,
-      			cv.name as courseVersionName,
-      			cc.name as courseClassName,
+    			c.name as courseName,
+    			cv.name as courseVersionName,
+    			cc.name as courseClassName,
   				p.company,
   				p.title,
   				p.sex,
@@ -146,8 +147,8 @@ object ReportCourseClassGenerator {
   				left join Password pw on pw.person_uuid = p.uuid
   			where
   				(e.state = ${EnrollmentState.enrolled.toString} or ${fileType} = 'xls') and
-      			cc.state <> ${CourseClassState.deleted.toString} and 
-      			(cc.state = ${CourseClassState.active.toString} or ${courseUUID} is null) and
+      			cc.state <> ${EntityState.deleted.toString} and 
+      			(cc.state = ${EntityState.active.toString} or ${courseUUID} is null) and
   		  		(e.class_uuid = ${courseClassUUID} or ${courseClassUUID} is null) and
   				(c.uuid = ${courseUUID} or ${courseUUID} is null) and
   				e.state <> ${EnrollmentState.deleted.toString}
@@ -165,7 +166,7 @@ object ReportCourseClassGenerator {
   					when progressState = 'inProgress'  then 3
   					else 4 
   					end,
-  				c.title,
+  				c.name,
   				cv.name,
   				cc.name,
   				e.certifiedAt desc,
@@ -202,7 +203,7 @@ object ReportCourseClassGenerator {
     val headerInfo = sql"""
 			select 
 				i.fullName as 'institutionName',
-				c.title as 'courseTitle',
+				c.name as 'courseName',
 				cc.name as 'courseClassName',
 				cc.createdAt,
 				cc.maxEnrollments,
@@ -223,8 +224,8 @@ object ReportCourseClassGenerator {
 				join Institution i on i.uuid = cc.institution_uuid
 			where (cc.uuid = ${courseClassUUID} or ${courseClassUUID} is null) and
 				(cv.course_uuid = ${courseUUID} or ${courseUUID} is null) and
-    			cc.state <> ${CourseClassState.deleted.toString} and 
-    			(cc.state = ${CourseClassState.active.toString} or ${courseUUID} is null)
+    			cc.state <> ${EntityState.deleted.toString} and 
+    			(cc.state = ${EntityState.active.toString} or ${courseUUID} is null)
     """.first[ReportHeaderData](headerDataConvertion)
     
     if(headerInfo.isDefined) {
@@ -258,7 +259,7 @@ object ReportCourseClassGenerator {
 					join CourseVersion cv on cv.uuid = cc.courseVersion_uuid
 				where      
 					(e.state = ${EnrollmentState.enrolled.toString} or ${fileType} = 'xls') and
-    				cc.state = ${CourseClassState.active.toString} and 
+    				cc.state = ${EntityState.active.toString} and 
     		  		(e.class_uuid = ${courseClassUUID} or ${courseClassUUID} is null) and
 					(cv.course_uuid = ${courseUUID} or ${courseUUID} is null) and
 					e.state <> ${EnrollmentState.deleted.toString}
@@ -277,7 +278,7 @@ object ReportCourseClassGenerator {
   }
   
   def getFileName(courseUUID: String, courseClassUUID: String, fileType: String) = { 
-  	val title = if(courseUUID != null) CourseRepo(courseUUID).get.getTitle else CourseClassRepo(courseClassUUID).get.getName
+  	val title = if(courseUUID != null) CourseRepo(courseUUID).get.getName else CourseClassRepo(courseClassUUID).get.getName
     title + " - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) + "." + getFileType(fileType)
   }
 

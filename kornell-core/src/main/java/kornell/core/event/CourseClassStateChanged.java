@@ -1,6 +1,6 @@
 package kornell.core.event;
 
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 
 
 public interface CourseClassStateChanged extends Event {
@@ -12,9 +12,9 @@ public interface CourseClassStateChanged extends Event {
 	String getCourseClassUUID();
 	void setCourseClassUUID(String courseClassUUID);
 	
-	CourseClassState getFromState();
-	void setFromState(CourseClassState fromState);
+	EntityState getFromState();
+	void setFromState(EntityState fromState);
 	
-	CourseClassState getToState();
-	void setToState(CourseClassState toState);
+	EntityState getToState();
+	void setToState(EntityState toState);
 }

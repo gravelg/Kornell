@@ -39,11 +39,11 @@ import com.amazonaws.services.s3.metrics.S3ServiceMetric
 object ReportCertificateGenerator {
 
   def newCertificateInformationTO: CertificateInformationTO = new CertificateInformationTO
-  def newCertificateInformationTO(personFullName: String, personCPF: String, courseTitle: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsRepositoryUUID: String, distributionPrefix: String, courseVersionUUID: String, courseClassUUID: String, courseUUID: String, baseURL: String, repositoryType: RepositoryType, courseCode: String): CertificateInformationTO = {
+  def newCertificateInformationTO(personFullName: String, personCPF: String, courseName: String, courseClassName: String, institutionName: String, courseClassFinishedDate: Date, assetsRepositoryUUID: String, distributionPrefix: String, courseVersionUUID: String, courseClassUUID: String, courseUUID: String, baseURL: String, repositoryType: RepositoryType, courseCode: String): CertificateInformationTO = {
     val to = newCertificateInformationTO
     to.setPersonFullName(personFullName)
     to.setPersonCPF(personCPF)
-    to.setCourseTitle(courseTitle)
+    to.setCourseTitle(courseName)
     to.setCourseClassName(courseClassName)
     to.setInstitutionName(institutionName)
     to.setAssetsRepositoryUUID(assetsRepositoryUUID)
@@ -62,7 +62,7 @@ object ReportCertificateGenerator {
     newCertificateInformationTO(
       rs.getString("fullName"),
       rs.getString("cpf"),
-      rs.getString("title"),
+      rs.getString("courseName"),
       rs.getString("name"),
       rs.getString("institutionName"),
       rs.getTimestamp("certifiedAt"),
@@ -93,7 +93,7 @@ object ReportCertificateGenerator {
     resp.addHeader("Content-disposition", "attachment; filename=Certificado.pdf")
 
     val certificateData = sql"""
-				select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType, c.code
+				select p.fullName, c.name as courseName, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType, c.code
 	    		from Person p
 					join Enrollment e on p.uuid = e.person_uuid
 					join CourseClass cc on cc.uuid = e.class_uuid
@@ -119,7 +119,7 @@ object ReportCertificateGenerator {
   
   def getCertificateInformationTOsByCourseClass(courseClassUUID: String, enrollments: String) = {
 
-    var sql = """select p.fullName, c.title, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType, c.code
+    var sql = """select p.fullName, c.name as courseName, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType, c.code
       from Person p 
       join Enrollment e on p.uuid = e.person_uuid 
       join CourseClass cc on cc.uuid = e.class_uuid 

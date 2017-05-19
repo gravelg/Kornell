@@ -15,7 +15,7 @@ public class CoursesClient extends RESTClient {
 	}
 
 	public void get(boolean fetchChildCourses, String ps, String pn, String searchTerm, Callback<CoursesTO> callback) {
-		get(fetchChildCourses, ps, pn, searchTerm, "c.title", "true", callback);
+		get(fetchChildCourses, ps, pn, searchTerm, "c.name", "true", callback);
 	}
 
 	public void get(boolean fetchChildCourses, String ps, String pn, String searchTerm, String orderBy, String isAscending, Callback<CoursesTO> callback) {

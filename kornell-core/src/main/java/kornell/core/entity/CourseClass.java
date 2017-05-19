@@ -3,7 +3,7 @@ package kornell.core.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public interface CourseClass extends ThumbnailEntity {
+public interface CourseClass extends LearningEntity {
 	public static String TYPE = EntityFactory.PREFIX + "courseClass+json";
 	
 	String getInstitutionUUID();
@@ -36,8 +36,8 @@ public interface CourseClass extends ThumbnailEntity {
 	String getCreatedBy();
 	void setCreatedBy(String createdBy);
 	
-	CourseClassState getState();
-	void setState(CourseClassState state);
+	EntityState getState();
+	void setState(EntityState state);
 	
 	RegistrationType getRegistrationType();
 	void setRegistrationType(RegistrationType registrationType);

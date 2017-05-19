@@ -25,7 +25,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.CourseDetailsHint;
 import kornell.core.entity.CourseDetailsLibrary;
 import kornell.core.entity.CourseDetailsSection;
@@ -153,7 +153,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 				isCancelled = true;
 			}
 		}
-		isInactiveCourseClass = CourseClassState.inactive.equals(courseClassTO.getCourseClass().getState());
+		isInactiveCourseClass = EntityState.inactive.equals(courseClassTO.getCourseClass().getState());
 		displayButtons();
 
 		CourseDetailsTOBuilder builder = new CourseDetailsTOBuilder(courseClassTO.getCourseVersionTO().getCourseTO().getCourse()
@@ -385,7 +385,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		titleLabel.addStyleName("titleLabel");
 		titlePanel.add(titleLabel);
 
-		Label courseNameLabel = new Label(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getTitle());
+		Label courseNameLabel = new Label(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getName());
 		courseNameLabel.addStyleName("courseNameLabel");
 		titlePanel.add(courseNameLabel);
 

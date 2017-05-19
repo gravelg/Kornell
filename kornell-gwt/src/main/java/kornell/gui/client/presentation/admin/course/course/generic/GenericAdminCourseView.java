@@ -202,7 +202,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 			courseFields.add(code);
 		}
 		
-		title = new KornellFormFieldWrapper("Nome", formHelper.createTextBoxFormField(course.getTitle()), isInstitutionAdmin);
+		title = new KornellFormFieldWrapper("Nome", formHelper.createTextBoxFormField(course.getName()), isInstitutionAdmin);
 		fields.add(title);
 		courseFields.add(title);
 
@@ -302,7 +302,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 
 	private Course getCourseInfoFromForm() {
 		course.setCode(code.getFieldPersistText());
-		course.setTitle(title.getFieldPersistText());
+		course.setName(title.getFieldPersistText());
 		course.setDescription(description.getFieldPersistText());
 		course.setContentSpec(ContentSpec.valueOf(contentSpec.getFieldPersistText()));
 		course.setInfoJson(infoJson.getFieldPersistText());

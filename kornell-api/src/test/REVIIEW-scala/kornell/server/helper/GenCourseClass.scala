@@ -2,7 +2,7 @@ package kornell.server.helper
 
 import kornell.server.repository.Entities
 import java.util.Date
-import kornell.core.entity.CourseClassState
+import kornell.core.entity.EntityState
 import kornell.server.api.CoursesResource
 import kornell.server.api.CourseVersionsResource
 import kornell.server.api.CourseClassesResource

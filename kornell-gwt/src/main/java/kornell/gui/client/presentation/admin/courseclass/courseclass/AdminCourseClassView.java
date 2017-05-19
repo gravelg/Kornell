@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.gwt.user.client.ui.IsWidget;
 
 import kornell.core.entity.CourseClass;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.entity.RegistrationType;
 import kornell.core.to.CourseClassTO;
@@ -15,7 +15,7 @@ import kornell.gui.client.util.view.PaginationPresenter;
 public interface AdminCourseClassView extends IsWidget {
 	public interface Presenter extends PaginationPresenter {
 		void changeEnrollmentState(EnrollmentTO object, EnrollmentState state);
-		void changeCourseClassState(CourseClassTO courseClassTO, CourseClassState toState);
+		void changeCourseClassState(CourseClassTO courseClassTO, EntityState toState);
 		boolean showActionButton(String actionName, EnrollmentTO enrollmentTO);
 		void onAddEnrollmentButtonClicked(String fullName, String email);
 		void onAddEnrollmentBatchButtonClicked(String txtAddEnrollmentBatch);

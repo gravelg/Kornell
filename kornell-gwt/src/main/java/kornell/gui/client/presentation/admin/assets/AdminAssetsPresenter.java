@@ -18,7 +18,7 @@ import kornell.core.entity.CourseClass;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseVersion;
 import kornell.core.entity.EntityFactory;
-import kornell.core.entity.ThumbnailEntity;
+import kornell.core.entity.LearningEntity;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseDetailsHintsTO;
 import kornell.core.to.CourseDetailsLibrariesTO;
@@ -48,7 +48,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	private static KornellSession session;
 	private static EventBus bus;
 	private ViewFactory viewFactory;
-	private static ThumbnailEntity entity;
+	private static LearningEntity entity;
 	private CourseDetailsEntityType courseDetailsEntityType;
 	public static String entityName;
 	private static  String entityUUID;
@@ -84,7 +84,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	}
 
 	@Override
-	public void init(CourseDetailsEntityType courseDetailsEntityType, ThumbnailEntity entity) {
+	public void init(CourseDetailsEntityType courseDetailsEntityType, LearningEntity entity) {
 		this.courseDetailsEntityType = courseDetailsEntityType;
 		AdminAssetsPresenter.entity = entity;
 		AdminAssetsPresenter.entityUUID = entity.getUUID();
@@ -102,7 +102,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		view.initThumb(AdminAssetsPresenter.entity.getThumbUrl() != null);
 	}
 
-	private void buildViewInfo(CourseDetailsEntityType courseDetailsEntityType, ThumbnailEntity entity) {
+	private void buildViewInfo(CourseDetailsEntityType courseDetailsEntityType, LearningEntity entity) {
 		String thumbSubTitle = null;
 		String certificateDetailsSubTitle = null;
 		String sectionsSubTitle = " HTML básico é suportado.";
@@ -272,10 +272,10 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	private static void updateThumbnail(String fileName) {
 		entity.setThumbUrl(StringUtils.mkurl(filePath, fileName));
 		view.initThumb(entity.getThumbUrl() != null);
-		session.assets().updateThumbnail(entityName, entityUUID, entity, entityType, new Callback<ThumbnailEntity>() {
+		session.assets().updateThumbnail(entityName, entityUUID, entity, entityType, new Callback<LearningEntity>() {
 			
 			@Override
-			public void ok(ThumbnailEntity to) {
+			public void ok(LearningEntity to) {
 				hidePacifier();
 				KornellNotification.show("Atualização do ícone concluída.");
 			}

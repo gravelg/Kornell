@@ -4,38 +4,39 @@ import java.math.BigDecimal
 import java.util.Date
 import java.util.HashMap
 import java.util.Map
+
 import scala.collection.JavaConverters.seqAsJavaListConverter
+
 import org.joda.time.LocalDate
+
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource
+
 import kornell.core.entity.ActomEntries
 import kornell.core.entity.Assessment
 import kornell.core.entity.BillingType
+import kornell.core.entity.CertificateType
 import kornell.core.entity.ContentSpec
 import kornell.core.entity.Course
-import kornell.core.entity.CourseClassState
-import kornell.core.entity.Enrollment
-import kornell.core.entity.EnrollmentEntries
-import kornell.core.entity.EnrollmentState
-import kornell.core.entity.EntityFactory
-import kornell.core.entity.InstitutionRegistrationPrefix
-import kornell.core.entity.InstitutionType
-import kornell.core.entity.Person
-import kornell.core.entity.RegistrationType
-import kornell.core.entity.Role
-import kornell.core.entity.RoleType
-import kornell.core.util.StringUtils
-import kornell.core.util.UUID
-import kornell.server.util.DateConverter
-import kornell.server.authentication.ThreadLocalAuthenticator
-import kornell.server.jdbc.repository.CourseRepo
-import kornell.core.entity.RepositoryType
 import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.entity.CertificateType
-import kornell.core.entity.EnrollmentSource
-import kornell.core.entity.PostbackType
 import kornell.core.entity.CourseDetailsHint
 import kornell.core.entity.CourseDetailsLibrary
 import kornell.core.entity.CourseDetailsSection
+import kornell.core.entity.Enrollment
+import kornell.core.entity.EnrollmentEntries
+import kornell.core.entity.EnrollmentSource
+import kornell.core.entity.EnrollmentState
+import kornell.core.entity.EntityFactory
+import kornell.core.entity.EntityState
+import kornell.core.entity.InstitutionRegistrationPrefix
+import kornell.core.entity.InstitutionType
+import kornell.core.entity.Person
+import kornell.core.entity.PostbackType
+import kornell.core.entity.RegistrationType
+import kornell.core.entity.RepositoryType
+import kornell.core.entity.Role
+import kornell.core.entity.RoleType
+import kornell.core.util.UUID
+import kornell.server.util.DateConverter
 
 
 //TODO: Remove this class without spreading dependency on AutoBeanFactorySource
@@ -113,8 +114,9 @@ object Entities {
   }
 
   def newCourse(uuid: String = randUUID, code: String = null,
-    title: String = null, description: String = null,
+    name: String = null, description: String = null,
     infoJson: String = null,
+    state: EntityState = null,
     institutionUUID: String = null,
     childCourse: Boolean, 
     thumbUrl: String = null,
@@ -123,8 +125,9 @@ object Entities {
     c.setUUID(uuid)
     c.setCode(code)
     c.setDescription(description)
-    c.setTitle(title)
+    c.setName(name)
     c.setInfoJson(infoJson)
+    c.setState(state)
     c.setInstitutionUUID(institutionUUID)
     c.setChildCourse(childCourse)
     c.setThumbUrl(thumbUrl)
@@ -288,7 +291,7 @@ object Entities {
   def newCourseVersion(
     uuid: String = randUUID, name: String = null, 
     courseUUID: String = null, versionCreatedAt: Date = new Date, distributionPrefix: String = null, 
-    disabled: Boolean = false, parentVersionUUID: String = null,
+    state: EntityState = null, disabled: Boolean = false, parentVersionUUID: String = null,
     instanceCount: Integer = 1, label: String = null, thumbUrl: String = null) = {
     val version = factory.newCourseVersion.as
     version.setUUID(uuid);
@@ -296,6 +299,7 @@ object Entities {
     version.setCourseUUID(courseUUID);
     version.setVersionCreatedAt(DateConverter.convertDate(versionCreatedAt))
     version.setDistributionPrefix(distributionPrefix)
+    version.setState(state)
     version.setDisabled(disabled)
     version.setParentVersionUUID(parentVersionUUID)
     version.setInstanceCount(instanceCount)
@@ -310,7 +314,7 @@ object Entities {
     overrideEnrollments: Boolean = false,
     invisible: Boolean = false, maxEnrollments: Integer = null,
     createdAt: Date = null, createdBy: String = null,
-    state: CourseClassState = null,
+    state: EntityState = null,
     registrationType: RegistrationType = null,
     institutionRegistrationPrefixUUID: String = null,
     courseClassChatEnabled: Boolean = false,

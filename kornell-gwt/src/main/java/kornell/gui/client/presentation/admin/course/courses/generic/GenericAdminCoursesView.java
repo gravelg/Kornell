@@ -296,7 +296,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 			}
 		};	
 	    titleColumn.setSortable(true);
-	    titleColumn.setDataStoreName("c.title");
+	    titleColumn.setDataStoreName("c.name");
 		table.setColumnWidth(titleColumn, "20%");
 		table.addColumn(titleColumn, "Curso");
 		
@@ -392,7 +392,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 					canPerformAction = false;
 
 					confirmModal.showModal(
-							"Tem certeza que deseja excluir o curso \"" + courseTO.getCourse().getTitle() + "\"?", 
+							"Tem certeza que deseja excluir o curso \"" + courseTO.getCourse().getName() + "\"?", 
 							new com.google.gwt.core.client.Callback<Void, Void>() {
 						@Override
 						public void onSuccess(Void result) {
@@ -433,7 +433,7 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 					canPerformAction = false;
 
 					confirmModal.showModal(
-							"Tem certeza que deseja duplicar o curso \"" + courseTO.getCourse().getTitle() + "\"?", 
+							"Tem certeza que deseja duplicar o curso \"" + courseTO.getCourse().getName() + "\"?", 
 							new com.google.gwt.core.client.Callback<Void, Void>() {
 						@Override
 						public void onSuccess(Void result) {
@@ -622,9 +622,9 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
 				private String buildButtonHTML(String text, CourseTO courseTO) {
 					Anchor anchor = new Anchor();
 					if(CourseDetailsEntityType.COURSE.toString().equals(text)){
-						anchor.setText(courseTO.getCourse().getTitle());
+						anchor.setText(courseTO.getCourse().getName());
 					} else if(CourseDetailsEntityType.COURSE_VERSION.toString().equals(text)){
-						anchor.setText(courseTO.getCourse().getTitle());
+						anchor.setText(courseTO.getCourse().getName());
 					} 
 					return anchor.toString();
 				}

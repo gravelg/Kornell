@@ -11,15 +11,14 @@ import kornell.core.util.UUID
 import kornell.server.service.AssetService
 import kornell.core.util.StringUtils
 import kornell.core.entity.CourseDetailsEntityType
+import kornell.core.entity.EntityState
 
 class CourseClassRepo(uuid:String) {
-  lazy val finder = sql"""
-  select * from CourseClass where uuid=$uuid
-  """
   
+  val finder = sql"""select * from CourseClass where uuid = $uuid and state <> ${EntityState.deleted.toString}"""
+  
+  def get = finder.get[CourseClass]   
   def first = finder.first[CourseClass]
-  
-  def get = finder.get[CourseClass] 
   
   def version = CourseVersionRepo(get.getCourseVersionUUID)
   
@@ -30,7 +29,11 @@ class CourseClassRepo(uuid:String) {
     val oldCourseClass = CourseClassRepo(courseClass.getUUID).first.get
 
     val courseClassExists = sql"""
-    select count(*) from CourseClass where courseVersion_uuid = ${courseClass.getCourseVersionUUID} and name = ${courseClass.getName} and uuid <> ${courseClass.getUUID}
+      select count(*) from CourseClass 
+      where courseVersion_uuid = ${courseClass.getCourseVersionUUID} 
+      and name = ${courseClass.getName} 
+      and uuid <> ${courseClass.getUUID}
+      and state <> ${EntityState.deleted.toString}
     """.first[String].get
     if (courseClassExists == "0") {
 	    sql"""
@@ -68,11 +71,15 @@ class CourseClassRepo(uuid:String) {
   }
   
   def delete = {    
+    val courseClass = get
     if(EnrollmentsRepo.countByCourseClass(uuid) == 0){
       sql"""
-        delete from CourseClass 
-        where uuid = ${uuid}""".executeUpdate
+        update CourseClass 
+        set state = ${EntityState.deleted.toString} 
+        where uuid = ${uuid}
+  		""".executeUpdate
     }
+    courseClass
   }
   
   def copy = {    

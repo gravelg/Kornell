@@ -27,7 +27,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellClient;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.Enrollment;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.lom.Content;
@@ -135,7 +135,7 @@ public class GenericTopicView extends Composite {
 				boolean enableAnchor = (page.isVisited()
 							|| (childrenIndex == 0 && enableAnchorOnFirstChild))
 						&& EnrollmentState.enrolled.equals(state)
-						&& !CourseClassState.inactive.equals(currentCourse.getCourseClass().getState());
+						&& !EntityState.inactive.equals(currentCourse.getCourseClass().getState());
 				childrenPanel.add(new GenericPageView(bus, session, placeCtrl, page, currentCourse, enableAnchor));
 			}
 			childrenIndex++;

@@ -85,6 +85,13 @@ public class AdminCoursePresenter implements AdminCourseView.Presenter {
 					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR, 2500);
 				}
+
+				@Override
+				public void conflict(KornellErrorTO kornellErrorTO) {
+					bus.fireEvent(new ShowPacifierEvent(false));
+					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
+							2500);
+				}
 			});
 		} else {
 			session.course(course.getUUID()).update(course, new Callback<Course>() {
@@ -99,6 +106,13 @@ public class AdminCoursePresenter implements AdminCourseView.Presenter {
 				public void unauthorized(KornellErrorTO kornellErrorTO){
 					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR, 2500);
+				}
+
+				@Override
+				public void conflict(KornellErrorTO kornellErrorTO) {
+					bus.fireEvent(new ShowPacifierEvent(false));
+					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
+							2500);
 				}
 			});
 		}

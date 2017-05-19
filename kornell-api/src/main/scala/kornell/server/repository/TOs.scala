@@ -252,10 +252,10 @@ object TOs {
   }
 
   def newInstitutionBillingEnrollmentReportTO: InstitutionBillingEnrollmentReportTO = new InstitutionBillingEnrollmentReportTO
-  def newInstitutionBillingEnrollmentReportTO(enrollmentUUID: String, courseTitle: String, courseVersionName: String, courseClassName: String, fullName: String, username: String, firstEventFiredAt: Date): InstitutionBillingEnrollmentReportTO = {
+  def newInstitutionBillingEnrollmentReportTO(enrollmentUUID: String, courseName: String, courseVersionName: String, courseClassName: String, fullName: String, username: String, firstEventFiredAt: Date): InstitutionBillingEnrollmentReportTO = {
     val to = newInstitutionBillingEnrollmentReportTO
     to.setEnrollmentUUID(enrollmentUUID)
-    to.setCourseTitle(courseTitle)
+    to.setCourseTitle(courseName)
     to.setCourseVersionName(courseVersionName)
     to.setCourseClassName(courseClassName)
     to.setFullName(fullName)

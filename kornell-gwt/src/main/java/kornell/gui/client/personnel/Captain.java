@@ -10,7 +10,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;
 import kornell.core.entity.ContentSpec;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.UserInfoTO;
@@ -53,7 +53,7 @@ public class Captain implements LogoutEventHandler, LoginEventHandler {
 											.getCourseTO().getCourse().getContentSpec())
 									&& courseClassTO.getEnrollment() != null
 									&& courseClassTO.getEnrollment().getCertifiedAt() == null
-									&& CourseClassState.active.equals(courseClassTO.getCourseClass().getState())
+									&& EntityState.active.equals(courseClassTO.getCourseClass().getState())
 									&& EnrollmentState.enrolled.equals(courseClassTO.getEnrollment().getState())
 									)
 						) {

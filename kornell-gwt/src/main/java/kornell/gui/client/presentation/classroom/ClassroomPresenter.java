@@ -12,7 +12,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClass;
-import kornell.core.entity.CourseClassState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.Enrollment;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.entity.EnrollmentsEntries;
@@ -102,10 +102,10 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 		}
 		
 		CourseClass courseClass = session.getCurrentCourseClass() != null ? session.getCurrentCourseClass().getCourseClass() : null;
-		CourseClassState courseClassState = courseClass != null ? courseClass.getState() : null;
+		EntityState courseClassState = courseClass != null ? courseClass.getState() : null;
 		
 		//TODO: Consider if the null state is inactive				
-        final boolean showCourseClassContent = enrollment == null || (isEnrolled && (courseClassState != null && !CourseClassState.inactive.equals(courseClassState)));
+        final boolean showCourseClassContent = enrollment == null || (isEnrolled && (courseClassState != null && !EntityState.inactive.equals(courseClassState)));
 
         if(showCourseClassContent){
 			bus.fireEvent(new ShowPacifierEvent(true));		

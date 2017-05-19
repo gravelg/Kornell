@@ -95,6 +95,8 @@ object RegistrationEnrollmentService {
   }
 
   private def deanEnrollExistingPerson(person: Person, enrollmentRequest: EnrollmentRequestTO, dean: Person, notes: String = null) = {
+    println(person.getFullName)
+    println(person.getUUID)
     val personRepo = PersonRepo(person.getUUID)
     if (enrollmentRequest.getCourseVersionUUID == null) {
       EnrollmentsRepo.byCourseClassAndPerson(enrollmentRequest.getCourseClassUUID, person.getUUID, true) match {

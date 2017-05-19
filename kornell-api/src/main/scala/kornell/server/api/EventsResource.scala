@@ -35,6 +35,7 @@ class EventsResource {
 	 Response.noContent().build()
   }.requiring(EnrollmentRepo(event.getEnrollmentUUID).get.getPersonUUID == getAuthenticatedPersonUUID, AccessDeniedErr()).get
   
+  //TODO permissions
   @PUT
   @Path("enrollmentStateChanged")
   @Consumes(Array(EnrollmentStateChanged.TYPE))

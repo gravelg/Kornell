@@ -5,7 +5,6 @@
 		<g:HTMLPanel ui:field="titleEdit" addStyleNames="title unclear fillWidth left">Editar Turma</g:HTMLPanel>
 		<g:HTMLPanel ui:field="titleCreate" addStyleNames="title marginTop25">Criar Turma</g:HTMLPanel>
 	    <g:FlowPanel addStyleNames="standardButtonBar unclear right">
-	      <g:Button ui:field="btnDelete" addStyleNames="btnSelected btnStandard right"/>
 	    </g:FlowPanel>
 			<b:Form ui:field="form" addStyleNames="profileForm left">
 				<g:FlowPanel ui:field="profileFields" addStyleNames="fieldsWrapper">		

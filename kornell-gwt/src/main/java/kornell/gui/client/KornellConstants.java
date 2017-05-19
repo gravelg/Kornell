@@ -660,16 +660,16 @@ public interface KornellConstants extends ConstantsWithLookup {
 	
 	
 	/**
-	 * CourseClassState
+	 * EntityState
 	 */
 	@DefaultStringValue("Active")
-	String CourseClassState_active();
+	String EntityState_active();
 	
 	@DefaultStringValue("Inactive")
-	String CourseClassState_inactive();
+	String EntityState_inactive();
 	
 	@DefaultStringValue("Deleted")
-	String CourseClassState_deleted();
+	String EntityState_deleted();
 	
 	
 	/**
@@ -780,10 +780,12 @@ public interface KornellConstants extends ConstantsWithLookup {
 	/**
 	 * Errors 409
 	 */
-	@DefaultStringValue("A class with this name already exists.")
-	String courseClassAlreadyExists();
+	@DefaultStringValue("A course with this name already exists.")
+	String courseAlreadyExists();
 	@DefaultStringValue("A course version with this name already exists.")
 	String courseVersionAlreadyExists();
+	@DefaultStringValue("A class with this name already exists.")
+	String courseClassAlreadyExists();
 	@DefaultStringValue("Invalid input value")
 	String invalidValue();
 	@DefaultStringValue("Constraint Violated (uuid or name).")

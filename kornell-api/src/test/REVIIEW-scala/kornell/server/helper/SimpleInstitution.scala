@@ -6,7 +6,7 @@ import org.scalatest.Suite
 import org.scalatest.SuiteMixin
 import kornell.core.entity.Course
 import kornell.core.entity.CourseClass
-import kornell.core.entity.CourseClassState
+import kornell.core.entity.EntityState
 import kornell.core.entity.CourseVersion
 import kornell.core.entity.Institution
 import kornell.core.entity.Person
@@ -61,9 +61,9 @@ trait SimpleInstitution extends SuiteMixin with Generator with BeforeAndAfter{ t
     institution = InstitutionsRepo.create(Entities.newInstitution(randUUID, randStr, randStr, randStr, randURL, false, false, false, false, null, "", BillingType.enrollment, InstitutionType.DEFAULT, null, false, false, null, "America/Sao_Paulo"))
 	  course = CoursesRepo.create(Entities.newCourse(randUUID, randStr, randStr, randStr, randStr, institution.getUUID, false))
 	  courseVersion = CourseVersionsRepo.create(Entities.newCourseVersion(randUUID, randStr, course.getUUID, new Date, randStr, "KNL", false), institution.getUUID)
-	  courseClass = Entities.newCourseClass(classUUID, className, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, CourseClassState.active)
-	  courseClass2 = Entities.newCourseClass(randUUID, randStr, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, CourseClassState.active)
-	  courseClass3 = Entities.newCourseClass(randUUID, randStr, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, CourseClassState.active)
+	  courseClass = Entities.newCourseClass(classUUID, className, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, EntityState.active)
+	  courseClass2 = Entities.newCourseClass(randUUID, randStr, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, EntityState.active)
+	  courseClass3 = Entities.newCourseClass(randUUID, randStr, courseVersion.getUUID, institution.getUUID, new java.math.BigDecimal(60), true, false, false, 23451, new Date(), null, EntityState.active)
     
 	  platformAdmin = {
 	    val platformAdmin = PeopleRepo.createPersonCPF(institution.getUUID, platformAdminCPF, randName)
