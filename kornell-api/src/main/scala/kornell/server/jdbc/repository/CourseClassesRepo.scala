@@ -42,7 +42,7 @@ object CourseClassesRepo {
 
   def create(courseClass: CourseClass): CourseClass = {
     val courseClassExists = sql"""
-	    select count(*) from CourseClass where courseVersion_uuid = ${courseClass.getCourseVersionUUID} and name = ${courseClass.getName}
+	    select count(*) from CourseClass where courseVersionUUID = ${courseClass.getCourseVersionUUID} and name = ${courseClass.getName}
 	    """.first[String].get
     if (courseClassExists == "0") {
       if (courseClass.getUUID == null) {
@@ -51,8 +51,8 @@ object CourseClassesRepo {
       sql""" 
 	    	insert into CourseClass(uuid,
                 name,
-                courseVersion_uuid,
-                institution_uuid,
+                courseVersionUUID,
+                institutionUUID,
                 publicClass,
                 requiredScore,
                 overrideEnrollments,
@@ -144,7 +144,7 @@ object CourseClassesRepo {
           cv.thumbUrl as courseVersionThumbUrl,
 			    cc.uuid as courseClassUUID,
 			    cc.name as courseClassName,
-			    cc.institution_uuid as institutionUUID,
+			    cc.institutionUUID as institutionUUID,
 		  		cc.requiredScore as requiredScore,
 		  		cc.publicClass as publicClass,
     			cc.overrideEnrollments as overrideEnrollments,
@@ -164,32 +164,32 @@ object CourseClassesRepo {
           cc.thumbUrl as courseClassThumbUrl,
       		irp.name as institutionRegistrationPrefixName
 			from Course c
-				join CourseVersion cv on cv.course_uuid = c.uuid
-				join CourseClass cc on cc.courseVersion_uuid = cv.uuid and cc.institution_uuid = '${institutionUUID}'
+				join CourseVersion cv on cv.courseUUID = c.uuid
+				join CourseClass cc on cc.courseVersionUUID = cv.uuid and cc.institutionUUID = '${institutionUUID}'
 			    left join InstitutionRegistrationPrefix irp on irp.uuid = cc.institutionRegistrationPrefixUUID
       	  	where cc.state <> '${EntityState.deleted.toString}' and
-      	  	    (cc.courseVersion_uuid = '${courseVersionUUID}' or ${StringUtils.isNone(courseVersionUUID)}) and
+      	  	    (cc.courseVersionUUID = '${courseVersionUUID}' or ${StringUtils.isNone(courseVersionUUID)}) and
       	  	    (cc.uuid = '${courseClassUUID}' or ${StringUtils.isNone(courseClassUUID)}) and
-		    	cc.institution_uuid = '${institutionUUID}' and
+		    	cc.institutionUUID = '${institutionUUID}' and
 	            (cv.name like '${filteredSearchTerm}' or cc.name like '${filteredSearchTerm}') and 
 	            (${StringUtils.isNone(adminUUID)} or
-				(select count(*) from Role r where person_uuid = '${adminUUID}' and (
-					(r.role = '${RoleType.platformAdmin.toString}' and r.institution_uuid = '${institutionUUID}') or 
-					(r.role = '${RoleType.institutionAdmin.toString}' and r.institution_uuid = '${institutionUUID}') or 
-				( (r.role = '${RoleType.courseClassAdmin.toString}' or r.role = '${RoleType.observer.toString}' or r.role = '${RoleType.tutor.toString}') and r.course_class_uuid = cc.uuid)
+				(select count(*) from Role r where personUUID = '${adminUUID}' and (
+					(r.role = '${RoleType.platformAdmin.toString}' and r.institutionUUID = '${institutionUUID}') or 
+					(r.role = '${RoleType.institutionAdmin.toString}' and r.institutionUUID = '${institutionUUID}') or 
+				( (r.role = '${RoleType.courseClassAdmin.toString}' or r.role = '${RoleType.observer.toString}' or r.role = '${RoleType.tutor.toString}') and r.course_classUUID = cc.uuid)
 			)) > 0)
       	  	order by ${order}, cc.state, c.name, cv.versionCreatedAt desc, cc.name limit ${resultOffset}, ${pageSize};
 		""", List[String]()).map[CourseClassTO](toCourseClassTO))
     courseClassesTO.setCount(
       sql"""select count(cc.uuid) from CourseClass cc where cc.state <> ${EntityState.deleted.toString} and (${StringUtils.isSome(adminUUID)} and
-					(select count(*) from Role r where person_uuid = ${adminUUID} and (
-						(r.role = ${RoleType.platformAdmin.toString} and r.institution_uuid = ${institutionUUID}) or 
-						(r.role = ${RoleType.institutionAdmin.toString} and r.institution_uuid = ${institutionUUID}) or 
-						( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.course_class_uuid = cc.uuid)
+					(select count(*) from Role r where personUUID = ${adminUUID} and (
+						(r.role = ${RoleType.platformAdmin.toString} and r.institutionUUID = ${institutionUUID}) or 
+						(r.role = ${RoleType.institutionAdmin.toString} and r.institutionUUID = ${institutionUUID}) or 
+						( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.course_classUUID = cc.uuid)
 					)) > 0)
-      	  	    and (cc.courseVersion_uuid = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)})
+      	  	    and (cc.courseVersionUUID = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)})
       	  	    and (cc.uuid = ${courseClassUUID} or ${StringUtils.isNone(courseClassUUID)})
-		    	and cc.institution_uuid = ${institutionUUID}""".first[String].get.toInt)
+		    	and cc.institutionUUID = ${institutionUUID}""".first[String].get.toInt)
     courseClassesTO.setPageSize(pageSize)
     courseClassesTO.setPageNumber(pageNumber.max(1))
     courseClassesTO.setSearchCount({
@@ -197,18 +197,18 @@ object CourseClassesRepo {
         0
       else
         sql"""select count(cc.uuid) from CourseClass cc 
-		    	join CourseVersion cv on cc.courseVersion_uuid = cv.uuid
+		    	join CourseVersion cv on cc.courseVersionUUID = cv.uuid
 		    	where cc.state <> ${EntityState.deleted.toString} and
             	(cv.name like ${filteredSearchTerm}
             	or cc.name like ${filteredSearchTerm}) and (${StringUtils.isSome(adminUUID)} and
-				(select count(*) from Role r where person_uuid = ${adminUUID} and (
-					(r.role = ${RoleType.platformAdmin.toString} and r.institution_uuid = ${institutionUUID}) or 
-					(r.role = ${RoleType.institutionAdmin.toString} and r.institution_uuid = ${institutionUUID}) or 
-					( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.course_class_uuid = cc.uuid)
+				(select count(*) from Role r where personUUID = ${adminUUID} and (
+					(r.role = ${RoleType.platformAdmin.toString} and r.institutionUUID = ${institutionUUID}) or 
+					(r.role = ${RoleType.institutionAdmin.toString} and r.institutionUUID = ${institutionUUID}) or 
+					( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.course_classUUID = cc.uuid)
 				)) > 0)
-      	  	    and (cc.courseVersion_uuid = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)})
+      	  	    and (cc.courseVersionUUID = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)})
       	  	    and (cc.uuid = ${courseClassUUID} or ${StringUtils.isNone(courseClassUUID)})
-            	and cc.institution_uuid = ${institutionUUID}""".first[String].get.toInt
+            	and cc.institutionUUID = ${institutionUUID}""".first[String].get.toInt
     })
     
     if(courseClassUUID != null && courseClassesTO.getCourseClasses.size == 1){
@@ -296,7 +296,7 @@ object CourseClassesRepo {
     sql"""
 	    | select cc.* from 
     	| CourseClass cc
-    	| join Enrollment e on e.class_uuid = cc.uuid
+    	| join Enrollment e on e.classUUID = cc.uuid
     	| where e.uuid = ${enrollmentUUID}
 	    | and cc.state <> ${EntityState.deleted.toString}
 	    """.first[CourseClass](toCourseClass)
@@ -321,14 +321,14 @@ object CourseClassesRepo {
   		    val course = sql"""
   			    | select c.* from 
     				| Course c
-    				| join CourseVersion cv on cv.course_uuid = c.uuid
+    				| join CourseVersion cv on cv.courseUUID = c.uuid
     				| where cv.uuid = ${courseVersion.get.getUUID}
     			""".first[Course](toCourse)
   			
     			val parentCourseClass = sql"""
             select cc.* from Enrollment e
             left join Enrollment pe on e.parentEnrollmentUUID = pe.uuid
-            left join CourseClass cc on cc.uuid = pe.class_uuid 
+            left join CourseClass cc on cc.uuid = pe.classUUID 
             where e.uuid = ${enrollmentUUID}
           """.first[CourseClass]
     			  
@@ -353,7 +353,7 @@ object CourseClassesRepo {
   def countByCourseVersion(courseVersionUUID: String) = 
     sql"""select count(*) 
       from CourseClass cc 
-      where cc.courseVersion_uuid = ${courseVersionUUID} 
+      where cc.courseVersionUUID = ${courseVersionUUID} 
       and cc.state <> ${EntityState.deleted.toString}
     """.first[String].get.toInt
   

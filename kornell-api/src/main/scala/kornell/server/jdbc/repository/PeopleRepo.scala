@@ -70,7 +70,7 @@ object PeopleRepo {
   def lookupByUsername(institutionUUID: String, username: String) = sql"""
 		select p.* from Person p
 		join Password pwd
-		on p.uuid = pwd.person_uuid
+		on p.uuid = pwd.personUUID
 		where pwd.username = $username
 		and p.institutionUUID = $institutionUUID
 	""".first[Person]
@@ -116,7 +116,7 @@ object PeopleRepo {
     newPeopleTO(
       sql"""
       	| select p.*, pw.username from Person p 
-      	| join Password pw on p.uuid = pw.person_uuid
+      	| join Password pw on p.uuid = pw.personUUID
       	| where (pw.username like ${"%" + search + "%"}
       	| or p.fullName like ${"%" + search + "%"}
       	| or p.email like ${"%" + search + "%"}

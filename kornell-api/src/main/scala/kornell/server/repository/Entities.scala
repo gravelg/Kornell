@@ -229,9 +229,9 @@ object Entities {
     role
   }
 
-  def newRoleAsPlatformAdmin(person_uuid: String, institutionUUID: String): Role = {
+  def newRoleAsPlatformAdmin(personUUID: String, institutionUUID: String): Role = {
     val role = factory.newRole().as
-    role.setPersonUUID(person_uuid)
+    role.setPersonUUID(personUUID)
     val platformAdminRole = factory.newPlatformAdminRole().as
     platformAdminRole.setInstitutionUUID(institutionUUID)
     role.setRoleType(RoleType.platformAdmin)
@@ -239,9 +239,9 @@ object Entities {
     role
   }
 
-  def newInstitutionAdminRole(person_uuid: String, institutionUUID: String) = {
+  def newInstitutionAdminRole(personUUID: String, institutionUUID: String) = {
     val role = factory.newRole().as
-    role.setPersonUUID(person_uuid)
+    role.setPersonUUID(personUUID)
     val institutionAdminRole = factory.newInstitutionAdminRole().as
     institutionAdminRole.setInstitutionUUID(institutionUUID)
     role.setRoleType(RoleType.institutionAdmin)
@@ -249,9 +249,9 @@ object Entities {
     role
   }
 
-  def newCourseClassAdminRole(person_uuid: String, courseClassUUID: String) = {
+  def newCourseClassAdminRole(personUUID: String, courseClassUUID: String) = {
     val role = factory.newRole().as
-    role.setPersonUUID(person_uuid)
+    role.setPersonUUID(personUUID)
     val courseClassAdminRole = factory.newCourseClassAdminRole().as
     courseClassAdminRole.setCourseClassUUID(courseClassUUID)
     role.setRoleType(RoleType.courseClassAdmin)
@@ -259,9 +259,9 @@ object Entities {
     role
   }
   
-  def newTutorRole(person_uuid: String, courseClassUUID: String) = {
+  def newTutorRole(personUUID: String, courseClassUUID: String) = {
     val role = factory.newRole().as
-    role.setPersonUUID(person_uuid)
+    role.setPersonUUID(personUUID)
     val tutorRole = factory.newTutorRole().as
     tutorRole.setCourseClassUUID(courseClassUUID)
     role.setRoleType(RoleType.tutor)
@@ -269,9 +269,9 @@ object Entities {
     role
   }
   
-  def newObserverRole(person_uuid: String, courseClassUUID: String) = {
+  def newObserverRole(personUUID: String, courseClassUUID: String) = {
     val role = factory.newRole().as
-    role.setPersonUUID(person_uuid)
+    role.setPersonUUID(personUUID)
     val observerRole = factory.newObserverRole().as
     observerRole.setCourseClassUUID(courseClassUUID)
     role.setRoleType(RoleType.observer)
@@ -279,9 +279,9 @@ object Entities {
     role
   }
   
-  def newControlPanelAdminRole(person_uuid: String) = {
+  def newControlPanelAdminRole(personUUID: String) = {
     val role = factory.newRole().as
-    role.setPersonUUID(person_uuid)
+    role.setPersonUUID(personUUID)
     val controlPanelAdminRole = factory.newControlPanelAdminRole().as
     role.setRoleType(RoleType.controlPanelAdmin)
     role.setControlPanelAdminRole(controlPanelAdminRole)

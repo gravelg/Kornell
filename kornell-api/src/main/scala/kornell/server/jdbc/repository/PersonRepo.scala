@@ -48,7 +48,7 @@ class PersonRepo(val uuid: String) {
   }
 
   def hasPassword(institutionUUID: String): Boolean = {
-    var sql = s"select count(*) from Person p join Password pw on pw.person_uuid = p.uuid where p.uuid = '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null"
+    var sql = s"select count(*) from Person p join Password pw on pw.personUUID = p.uuid where p.uuid = '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null"
     val pstmt = new PreparedStmt(sql,List())    
     val result = pstmt.get[Boolean]
     result
@@ -58,7 +58,7 @@ class PersonRepo(val uuid: String) {
   //TODO: Better dynamic queries
   //TODO: Teste BOTH args case!!
   def isRegistered(institutionUUID: String, cpf: String,email:String): Boolean = {
-    var sql = s"select count(*) from Person p left join Password pw on pw.person_uuid = p.uuid where p.uuid != '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null "
+    var sql = s"select count(*) from Person p left join Password pw on pw.personUUID = p.uuid where p.uuid != '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null "
     if (isSome(cpf)) {
       sql = sql + s"and (p.cpf = '${digitsOf(cpf)}' or pw.username = '${digitsOf(cpf)}')";
     }
@@ -105,7 +105,7 @@ class PersonRepo(val uuid: String) {
       }
   }
   
-  def getUsername = sql"""select username from Password where person_uuid=${uuid}""".first[String].getOrElse(null)
+  def getUsername = sql"""select username from Password where personUUID=${uuid}""".first[String].getOrElse(null)
   
   def acceptTerms(p: Person) = {
     sql"""update Person
@@ -119,7 +119,7 @@ class PersonRepo(val uuid: String) {
   	select actomKey from ActomEntered ae
   	join Enrollment e on ae.enrollmentUUID=e.uuid
   	where e.uuid = ${enrollmentUUID}
-  	and e.person_uuid = ${uuid}
+  	and e.personUUID = ${uuid}
   	order by eventFiredAt
   	""".map[String]({ rs => rs.getString("actomKey") })
 

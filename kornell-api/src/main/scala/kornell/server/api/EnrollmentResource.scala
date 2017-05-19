@@ -176,12 +176,12 @@ class EnrollmentResource(uuid: String) {
     
     val sql = s"""
       select * from ActomEntries
-      where enrollment_uuid IN (${es.map{s => s"'${s}'"}.mkString(",")})
-      order by enrollment_uuid, actomKey      
+      where enrollmentUUID IN (${es.map{s => s"'${s}'"}.mkString(",")})
+      order by enrollmentUUID, actomKey      
     """
     
     new PreparedStmt(sql,List()).foreach { rs =>  
-      val enrollmentUUID = rs.getString("enrollment_uuid")
+      val enrollmentUUID = rs.getString("enrollmentUUID")
       val actomKey = rs.getString("actomKey")
       val entryKey = rs.getString("entryKey")
       val entryValue = rs.getString("entryValue")

@@ -30,7 +30,7 @@ class CourseClassRepo(uuid:String) {
 
     val courseClassExists = sql"""
       select count(*) from CourseClass 
-      where courseVersion_uuid = ${courseClass.getCourseVersionUUID} 
+      where courseVersionUUID = ${courseClass.getCourseVersionUUID} 
       and name = ${courseClass.getName} 
       and uuid <> ${courseClass.getUUID}
       and state <> ${EntityState.deleted.toString}
@@ -39,7 +39,7 @@ class CourseClassRepo(uuid:String) {
 	    sql"""
 	      update CourseClass cc set
 			    cc.name = ${courseClass.getName},
-			    cc.institution_uuid = ${courseClass.getInstitutionUUID},
+			    cc.institutionUUID = ${courseClass.getInstitutionUUID},
 		  		cc.requiredScore = ${courseClass.getRequiredScore},
 		  		cc.publicClass = ${courseClass.isPublicClass},
 		  		cc.overrideEnrollments = ${courseClass.isOverrideEnrollments},
@@ -104,8 +104,8 @@ class CourseClassRepo(uuid:String) {
   def actomsVisitedBy(personUUID: String): List[String] = sql"""
   	select actomKey from ActomEntered ae
   	join Enrollment e on ae.enrollmentUUID=e.uuid
-  	where e.class_uuid = ${uuid}
-  	and person_uuid = ${personUUID}
+  	where e.classUUID = ${uuid}
+  	and personUUID = ${personUUID}
   	order by eventFiredAt
   	""".map[String]({ rs => rs.getString("actomKey") })
 }

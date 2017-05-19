@@ -92,8 +92,8 @@ class EnrollmentsResource {
     AuthRepo().withPerson { p =>
       sql"""
     	update Enrollment set notes=$notes
-    	where person_uuid=${p.getUUID}
-    	and class_uuid=${courseClassUUID}
+    	where personUUID=${p.getUUID}
+    	and classUUID=${courseClassUUID}
     	""".executeUpdate
     }
 

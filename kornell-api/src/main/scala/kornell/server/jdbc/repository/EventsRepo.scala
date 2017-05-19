@@ -82,7 +82,7 @@ object EventsRepo {
   def logEnrollmentStateChanged(uuid: String, fromPersonUUID: String,
     enrollmentUUID: String, fromState: EnrollmentState, toState: EnrollmentState, sendEmail: Boolean, notes: String) = {
     
-    sql"""insert into EnrollmentStateChanged(uuid,eventFiredAt,person_uuid,enrollment_uuid,fromState,toState,notes)
+    sql"""insert into EnrollmentStateChanged(uuid,eventFiredAt,personUUID,enrollmentUUID,fromState,toState,notes)
 	    values(${uuid},
 			   now(),
          ${fromPersonUUID},
@@ -200,7 +200,7 @@ object EventsRepo {
 	  	select ec.*, p.fullName as fromPersonName, pwd.username as fromUsername, 'FIX-ME' as entityName
 		from EntityChanged ec
 			join Person p on p.uuid = ec.personUUID
-			join Password pwd on p.uuid = pwd.person_uuid
+			join Password pwd on p.uuid = pwd.personUUID
 		where ec.institutionUUID = ${institutionUUID}
     		and ec.entityType = ${entityType.toString}
 		order by eventFiredAt desc limit ${resultOffset}, ${pageSize} 

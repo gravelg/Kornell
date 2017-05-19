@@ -83,7 +83,7 @@ class EnrollmentRepo(uuid: String) {
       val progress = sql"""
     	  select progress from ActomEntries AE
     		join ProgressMilestone PM on AE.actomKey = PM.actomKey and AE.entryValue = PM.entryValue
-          where AE.enrollment_uuid = ${enrollmentUUID}
+          where AE.enrollmentUUID = ${enrollmentUUID}
     		and AE.actomKey LIKE ${actomLike}
     		and AE.entryKey = 'cmi.core.lesson_location'
       """.map[Integer] { rs => rs.getInt("progress") }
@@ -160,7 +160,7 @@ class EnrollmentRepo(uuid: String) {
   def findMaxScore(enrollmentUUID: String): Option[BigDecimal] = sql"""
   		SELECT  MAX(CAST(entryValue AS DECIMAL(8,5))) as maxScore
   		FROM ActomEntries
-  		WHERE enrollment_uuid = ${enrollmentUUID}
+  		WHERE enrollmentUUID = ${enrollmentUUID}
   		AND entryKey = 'cmi.core.score.raw'
   """.first[BigDecimal] { rs => rs.getBigDecimal("maxScore") }
 
@@ -200,7 +200,7 @@ class EnrollmentRepo(uuid: String) {
   }  
   
   def checkExistingEnrollment(courseClassUUID: String):Boolean = {
-    sql"""select count(*) as enrollmentExists from Enrollment where  person_uuid = ${first.get.getPersonUUID} and class_uuid = ${courseClassUUID}"""
+    sql"""select count(*) as enrollmentExists from Enrollment where  personUUID = ${first.get.getPersonUUID} and classUUID = ${courseClassUUID}"""
     	.first[Integer] { rs => rs.getInt("enrollmentExists") }.get >= 1
   }
   
@@ -210,7 +210,7 @@ class EnrollmentRepo(uuid: String) {
     ChatThreadsRepo.disableParticipantFromCourseClassThread(enrollment)
 
     //update enrollment
-    sql"""update Enrollment set class_uuid = ${toCourseClassUUID} where uuid = ${uuid}""".executeUpdate
+    sql"""update Enrollment set classUUID = ${toCourseClassUUID} where uuid = ${uuid}""".executeUpdate
 
     //disable old support and tutoring threads
     sql"""update ChatThread set active = 0 where courseClassUUID = ${fromCourseClassUUID} and personUUID = ${enrollment.getPersonUUID} and threadType in  (${ChatThreadType.SUPPORT.toString}, ${ChatThreadType.TUTORING.toString})""".executeUpdate

@@ -26,7 +26,7 @@ object ZipEventsTableFix extends App {
     val entries = sql"""
 	  select *
 	  from ActomEntryChangedEvent
-	  where enrollment_uuid=$enrollmentUUID
+	  where enrollmentUUID=$enrollmentUUID
 	   and actomKey=$actomKey
 	   and entryKey=$entryKey
 	  order by ingestedAt
@@ -61,7 +61,7 @@ object ZipEventsTableFix extends App {
     val entryKeys = sql"""
 	 select distinct(entryKey)
 	 from ActomEntryChangedEvent
-	 where enrollment_uuid=$enrollmentUUID
+	 where enrollmentUUID=$enrollmentUUID
 	   and actomKey=$actomKey
 	 """.map[String]
     entryKeys foreach { key =>
@@ -89,7 +89,7 @@ object ZipEventsTableFix extends App {
     val actoms = sql"""
     select distinct(actomKey)
     from ActomEntryChangedEvent
-    where enrollment_uuid=${enrollmentUUID}
+    where enrollmentUUID=${enrollmentUUID}
     """.map[String]
     actoms foreach { actomKey => zipActom(enrollmentUUID, actomKey) }
   }
@@ -98,7 +98,7 @@ object ZipEventsTableFix extends App {
   val mainThread = Thread.currentThread();
   var count = new AtomicInteger
   var fixed = new AtomicInteger
-  val enrollments = sql"""select distinct(enrollment_uuid)
+  val enrollments = sql"""select distinct(enrollmentUUID)
   	from ActomEntryChangedEvent""".map[String]
   println(s"* Zipping ${enrollments.size} enrollments")
   //God bless parallel colletions #scala

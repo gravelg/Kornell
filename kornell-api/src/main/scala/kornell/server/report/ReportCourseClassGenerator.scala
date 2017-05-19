@@ -140,16 +140,16 @@ object ReportCourseClassGenerator {
   				p.postalCode
   			from 
   				Enrollment e 
-  				join Person p on p.uuid = e.person_uuid
-  				join CourseClass cc on cc.uuid = e.class_uuid
-  				join CourseVersion cv on cv.uuid = cc.courseVersion_uuid
-  				join Course c on c.uuid = cv.course_uuid
-  				left join Password pw on pw.person_uuid = p.uuid
+  				join Person p on p.uuid = e.personUUID
+  				join CourseClass cc on cc.uuid = e.classUUID
+  				join CourseVersion cv on cv.uuid = cc.courseVersionUUID
+  				join Course c on c.uuid = cv.courseUUID
+  				left join Password pw on pw.personUUID = p.uuid
   			where
   				(e.state = ${EnrollmentState.enrolled.toString} or ${fileType} = 'xls') and
       			cc.state <> ${EntityState.deleted.toString} and 
       			(cc.state = ${EntityState.active.toString} or ${courseUUID} is null) and
-  		  		(e.class_uuid = ${courseClassUUID} or ${courseClassUUID} is null) and
+  		  		(e.classUUID = ${courseClassUUID} or ${courseClassUUID} is null) and
   				(c.uuid = ${courseUUID} or ${courseUUID} is null) and
   				e.state <> ${EnrollmentState.deleted.toString}
   			order by 
@@ -213,17 +213,17 @@ object ReportCourseClassGenerator {
 					order by eventFiredAt desc) as disabledAt,
 				(select replace(GROUP_CONCAT(p.fullName),',',', ')
 					from Role r 
-					join Person p on p.uuid = r.person_uuid 
-					where course_class_uuid = cc.uuid
-					group by course_class_uuid) as courseClassAdminNames,
+					join Person p on p.uuid = r.personUUID 
+					where course_classUUID = cc.uuid
+					group by course_classUUID) as courseClassAdminNames,
         i.baseURL
 			from
 				CourseClass cc
-				join CourseVersion cv on cc.courseVersion_uuid = cv.uuid
-				join Course c on cv.course_uuid = c.uuid
-				join Institution i on i.uuid = cc.institution_uuid
+				join CourseVersion cv on cc.courseVersionUUID = cv.uuid
+				join Course c on cv.courseUUID = c.uuid
+				join Institution i on i.uuid = cc.institutionUUID
 			where (cc.uuid = ${courseClassUUID} or ${courseClassUUID} is null) and
-				(cv.course_uuid = ${courseUUID} or ${courseUUID} is null) and
+				(cv.courseUUID = ${courseUUID} or ${courseUUID} is null) and
     			cc.state <> ${EntityState.deleted.toString} and 
     			(cc.state = ${EntityState.active.toString} or ${courseUUID} is null)
     """.first[ReportHeaderData](headerDataConvertion)
@@ -255,13 +255,13 @@ object ReportCourseClassGenerator {
 					count(*) as total
 				from 
 					Enrollment e 
-					join CourseClass cc on cc.uuid = e.class_uuid
-					join CourseVersion cv on cv.uuid = cc.courseVersion_uuid
+					join CourseClass cc on cc.uuid = e.classUUID
+					join CourseVersion cv on cv.uuid = cc.courseVersionUUID
 				where      
 					(e.state = ${EnrollmentState.enrolled.toString} or ${fileType} = 'xls') and
     				cc.state = ${EntityState.active.toString} and 
-    		  		(e.class_uuid = ${courseClassUUID} or ${courseClassUUID} is null) and
-					(cv.course_uuid = ${courseUUID} or ${courseUUID} is null) and
+    		  		(e.classUUID = ${courseClassUUID} or ${courseClassUUID} is null) and
+					(cv.courseUUID = ${courseUUID} or ${courseUUID} is null) and
 					e.state <> ${EnrollmentState.deleted.toString}
 				group by 
 					case    

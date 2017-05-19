@@ -102,7 +102,7 @@ package object repository {
   
   implicit def toCourseClass(r: ResultSet): CourseClass = 
     newCourseClass(r.getString("uuid"), r.getString("name"), 
-        r.getString("courseVersion_uuid"), r.getString("institution_uuid"),
+        r.getString("courseVersionUUID"), r.getString("institutionUUID"),
         r.getBigDecimal("requiredScore"), r.getBoolean("publicClass"), 
         r.getBoolean("overrideEnrollments"),
         r.getBoolean("invisible"), r.getInt("maxEnrollments"), 
@@ -132,7 +132,7 @@ package object repository {
   implicit def toCourseVersion(rs: ResultSet): CourseVersion = newCourseVersion(
     rs.getString("uuid"), 
     rs.getString("name"), 
-    rs.getString("course_uuid"), 
+    rs.getString("courseUUID"), 
     rs.getDate("versionCreatedAt"),
     rs.getString("distributionPrefix"),
     EntityState.valueOf(rs.getString("state")),
@@ -228,8 +228,8 @@ package object repository {
     newEnrollment(
       rs.getString("uuid"),
       rs.getTimestamp("enrolledOn"),
-      rs.getString("class_uuid"),
-      rs.getString("person_uuid"),
+      rs.getString("classUUID"),
+      rs.getString("personUUID"),
       rs.getInt("progress"),
       rs.getString("notes"),      
       EnrollmentState.valueOf(rs.getString("state")),
@@ -255,8 +255,8 @@ package object repository {
     val enrollment = newEnrollment(
       rs.getString("uuid"),
       rs.getDate("enrolledOn"),
-      rs.getString("class_uuid"),
-      rs.getString("person_uuid"),
+      rs.getString("classUUID"),
+      rs.getString("personUUID"),
       rs.getInt("progress"),
       rs.getString("notes"),      
       EnrollmentState.valueOf(rs.getString("state")),
@@ -304,12 +304,12 @@ package object repository {
     val roleType = RoleType.valueOf(rs.getString("role"))
     val role = roleType match {
       case RoleType.user => Entities.newUserRole
-      case RoleType.platformAdmin => Entities.newRoleAsPlatformAdmin(rs.getString("person_uuid"), rs.getString("institution_uuid"))
-      case RoleType.institutionAdmin => Entities.newInstitutionAdminRole(rs.getString("person_uuid"), rs.getString("institution_uuid"))
-      case RoleType.courseClassAdmin => Entities.newCourseClassAdminRole(rs.getString("person_uuid"), rs.getString("course_class_uuid"))
-      case RoleType.tutor => Entities.newTutorRole(rs.getString("person_uuid"), rs.getString("course_class_uuid"))
-      case RoleType.observer => Entities.newObserverRole(rs.getString("person_uuid"), rs.getString("course_class_uuid"))
-      case RoleType.controlPanelAdmin => Entities.newControlPanelAdminRole(rs.getString("person_uuid"))
+      case RoleType.platformAdmin => Entities.newRoleAsPlatformAdmin(rs.getString("personUUID"), rs.getString("institutionUUID"))
+      case RoleType.institutionAdmin => Entities.newInstitutionAdminRole(rs.getString("personUUID"), rs.getString("institutionUUID"))
+      case RoleType.courseClassAdmin => Entities.newCourseClassAdminRole(rs.getString("personUUID"), rs.getString("course_classUUID"))
+      case RoleType.tutor => Entities.newTutorRole(rs.getString("personUUID"), rs.getString("course_classUUID"))
+      case RoleType.observer => Entities.newObserverRole(rs.getString("personUUID"), rs.getString("course_classUUID"))
+      case RoleType.controlPanelAdmin => Entities.newControlPanelAdminRole(rs.getString("personUUID"))
     }
     role
   }

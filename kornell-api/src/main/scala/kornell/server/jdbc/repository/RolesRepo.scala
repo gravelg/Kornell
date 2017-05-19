@@ -25,9 +25,9 @@ object RolesRepo {
 	  TOs.newRolesTO(sql"""
 		    | select *, pw.username, cc.name as courseClassName
 	      	| from Role r
-			  | join Password pw on pw.person_uuid = r.person_uuid
-			  | left join CourseClass cc on r.course_class_uuid = cc.uuid
-	        | where pw.person_uuid = ${personUUID}
+			  | join Password pw on pw.personUUID = r.personUUID
+			  | left join CourseClass cc on r.course_classUUID = cc.uuid
+	        | where pw.personUUID = ${personUUID}
 	  		| order by r.role, pw.username
             """.map[RoleTO](toRoleTO(_,bindMode)))   
   	
@@ -35,9 +35,9 @@ object RolesRepo {
 	  TOs.newRolesTO(sql"""
 		    | select *, pw.username, cc.name as courseClassName
 	      	| from Role r
-		        | join Password pw on pw.person_uuid = r.person_uuid
-		        | left join CourseClass cc on r.course_class_uuid = cc.uuid
-	        | where r.course_class_uuid = ${courseClassUUID}
+		        | join Password pw on pw.personUUID = r.personUUID
+		        | left join CourseClass cc on r.course_classUUID = cc.uuid
+	        | where r.course_classUUID = ${courseClassUUID}
 	  			| and r.role = ${roleType.toString}
 	  		| order by r.role, pw.username
             """.map[RoleTO](toRoleTO(_,bindMode)))   
@@ -46,8 +46,8 @@ object RolesRepo {
 	  TOs.newRolesTO(sql"""
 		    | select *, pw.username, null as courseClassName
 	      	| from Role r
-			  | join Password pw on pw.person_uuid = r.person_uuid
-	        | where r.institution_uuid = ${institutionUUID}
+			  | join Password pw on pw.personUUID = r.personUUID
+	        | where r.institutionUUID = ${institutionUUID}
 	  			| and r.role = ${RoleType.institutionAdmin.toString}
 	  		| order by r.role, pw.username
             """.map[RoleTO](toRoleTO(_,bindMode)))   
@@ -56,8 +56,8 @@ object RolesRepo {
 	  TOs.newRolesTO(sql"""
 		    | select *, pw.username, null as courseClassName
 	      	| from Role r
-			  | join Password pw on pw.person_uuid = r.person_uuid
-	        | where r.institution_uuid = ${institutionUUID}
+			  | join Password pw on pw.personUUID = r.personUUID
+	        | where r.institutionUUID = ${institutionUUID}
 	  			| and r.role = ${RoleType.platformAdmin.toString}
 	  		| order by r.role, pw.username
             """.map[RoleTO](toRoleTO(_,bindMode)))
@@ -71,13 +71,13 @@ object RolesRepo {
 				|	when 'institutionAdmin' then 2
 				|	when 'courseClassAdmin' then 3
 				|	END) r
-	        | join Password pw on pw.person_uuid = r.person_uuid
-	        | left join CourseClass cc on r.course_class_uuid = cc.uuid
-	        | where (r.course_class_uuid = ${courseClassUUID}
+	        | join Password pw on pw.personUUID = r.personUUID
+	        | left join CourseClass cc on r.course_classUUID = cc.uuid
+	        | where (r.course_classUUID = ${courseClassUUID}
 	  			| 	and r.role = ${RoleType.courseClassAdmin.toString})
-	  			| or (r.institution_uuid = ${institutionUUID}
+	  			| or (r.institutionUUID = ${institutionUUID}
 	  			| 	and r.role = ${RoleType.institutionAdmin.toString})
-	  			| or (r.institution_uuid = ${institutionUUID}
+	  			| or (r.institutionUUID = ${institutionUUID}
 	  			|   and r.role = ${RoleType.platformAdmin.toString})
 			| group by pw.username
             """.map[RoleTO](toRoleTO(_,bindMode)))    	
@@ -91,10 +91,10 @@ object RolesRepo {
 				|	when 'platformAdmin' then 1
 				|	when 'institutionAdmin' then 2
 				|	END) r
-	        | join Password pw on pw.person_uuid = r.person_uuid
-	        | where (r.institution_uuid = ${institutionUUID}
+	        | join Password pw on pw.personUUID = r.personUUID
+	        | where (r.institutionUUID = ${institutionUUID}
 	  			| 	and r.role = ${RoleType.institutionAdmin.toString})
-	  			| or (r.institution_uuid = ${institutionUUID}
+	  			| or (r.institutionUUID = ${institutionUUID}
 	  			|   and r.role = ${RoleType.platformAdmin.toString})
 			| group by pw.username
             """.map[RoleTO](toRoleTO(_,bindMode)))   
@@ -155,7 +155,7 @@ object RolesRepo {
         else ""
       }
 	    sql"""
-	    	insert into Role (uuid, person_uuid, role, course_class_uuid)
+	    	insert into Role (uuid, personUUID, role, course_classUUID)
 	    	values (${UUID.random}, 
     		${role.getPersonUUID}, 
 	    	${role.getRoleType.toString}, 
@@ -164,7 +164,7 @@ object RolesRepo {
     }
     if (RoleType.institutionAdmin.equals(role.getRoleType)) {
       sql"""
-            insert into Role (uuid, person_uuid, role, institution_uuid)
+            insert into Role (uuid, personUUID, role, institutionUUID)
             values (${UUID.random}, 
             ${role.getPersonUUID}, 
             ${role.getRoleType.toString}, 
@@ -176,7 +176,7 @@ object RolesRepo {
   def removeCourseClassRole(courseClassUUID: String, roleType: RoleType) = {
     sql"""
     	delete from Role
-    	where course_class_uuid = ${courseClassUUID}
+    	where course_classUUID = ${courseClassUUID}
         and role = ${roleType.toString}
     """.executeUpdate
     this
@@ -185,7 +185,7 @@ object RolesRepo {
   def removeInstitutionAdmins(institutionUUID: String) = {
     sql"""
         delete from Role
-        where institution_uuid = ${institutionUUID}
+        where institutionUUID = ${institutionUUID}
         and role = ${RoleType.institutionAdmin.toString}
     """.executeUpdate
     this

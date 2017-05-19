@@ -22,7 +22,7 @@ object CourseVersionsRepo {
   
   def create(courseVersion: CourseVersion, institutionUUID: String): CourseVersion = {  
     val courseVersionExists = sql"""
-	    select count(*) from CourseVersion where course_uuid = ${courseVersion.getCourseUUID} and name = ${courseVersion.getName}
+	    select count(*) from CourseVersion where courseUUID = ${courseVersion.getCourseUUID} and name = ${courseVersion.getName}
         and state <> ${EntityState.deleted.toString}
 	    """.first[String].get
     if (courseVersionExists == "0") {  
@@ -32,7 +32,7 @@ object CourseVersionsRepo {
 		  courseVersion.setVersionCreatedAt(new Date());
 		
 	    sql"""
-	    | insert into CourseVersion (uuid,name,course_uuid,versionCreatedAt,distributionPrefix,disabled,thumbUrl) 
+	    | insert into CourseVersion (uuid,name,courseUUID,versionCreatedAt,distributionPrefix,disabled,thumbUrl) 
 	    | values(
 	    | ${courseVersion.getUUID},
 	    | ${courseVersion.getName},
@@ -68,7 +68,7 @@ object CourseVersionsRepo {
       select
       cv.uuid as courseVersionUUID,
       cv.name as courseVersionName,
-      cv.course_uuid as courseUUID,
+      cv.courseUUID as courseUUID,
       cv.versionCreatedAt as versionCreatedAt,
       cv.distributionPrefix as distributionPrefix,
       cv.state as courseVersionState,
@@ -88,7 +88,7 @@ object CourseVersionsRepo {
       c.childCourse as childCourse,
       c.thumbUrl as courseThumbUrl
       from CourseVersion cv
-  		join Course c on cv.course_uuid = c.uuid
+  		join Course c on cv.courseUUID = c.uuid
   		where c.institutionUUID = '$institutionUUID'
   		and cv.name like '${filteredSearchTerm}'
       and cv.state <> '${EntityState.deleted.toString}'
@@ -100,7 +100,7 @@ object CourseVersionsRepo {
 	  courseVersionsTO.setPageNumber(pageNumber.max(1))
 	  courseVersionsTO.setCount({
 	    sql"""select count(cv.uuid) from CourseVersion cv
-	    	join Course c on cv.course_uuid = c.uuid
+	    	join Course c on cv.courseUUID = c.uuid
 			  where c.institutionUUID = $institutionUUID
         and cv.state <> ${EntityState.deleted.toString}
 	    """.first[String].get.toInt
@@ -110,7 +110,7 @@ object CourseVersionsRepo {
     		  0
 		  else
 		    sql"""select count(cv.uuid) from CourseVersion cv
-  	    	join Course c on cv.course_uuid = c.uuid
+  	    	join Course c on cv.courseUUID = c.uuid
     			where c.institutionUUID = $institutionUUID
     			and cv.name like ${filteredSearchTerm}
           and cv.state <> ${EntityState.deleted.toString}
@@ -148,7 +148,7 @@ object CourseVersionsRepo {
   def countByCourse(courseUUID: String) = 
     sql"""select count(*) 
       from CourseVersion cv 
-      where cv.course_uuid = ${courseUUID} 
+      where cv.courseUUID = ${courseUUID} 
       and cv.state <> ${EntityState.deleted.toString}
     """.first[String].get.toInt
   

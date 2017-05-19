@@ -47,11 +47,11 @@ object ReportInstitutionBillingGenerator {
 					pw.username AS 'username'
 				FROM AttendanceSheetSigned att
 				JOIN Person p ON p.uuid = att.personUUID
-				JOIN Password pw ON pw.person_uuid = p.uuid
+				JOIN Password pw ON pw.personUUID = p.uuid
 				WHERE att.eventFiredAt >= ${periodStart + "-01 00:00:00"} AND att.eventFiredAt < ${periodEnd + "-01 00:00:00"}
 				AND (email IS null OR email NOT LIKE '%craftware.com.br%')
 				AND att.institutionUUID = ${institutionUUID} 
-				AND (SELECT count(uuid) FROM Enrollment where person_uuid = p.uuid and DATE_FORMAT(enrolledOn, '%Y-%m-%d')< ${periodEnd}) > 0
+				AND (SELECT count(uuid) FROM Enrollment where personUUID = p.uuid and DATE_FORMAT(enrolledOn, '%Y-%m-%d')< ${periodEnd}) > 0
 				GROUP BY att.personUUID
 				ORDER BY LOWER(p.fullName)
 	    """.map[InstitutionBillingMonthlyReportTO](toInstitutionBillingMonthlyReportTO)
@@ -83,15 +83,15 @@ object ReportInstitutionBillingGenerator {
 				pw.username,
     			ae.firstEventFiredAt
 			FROM Enrollment e
-			JOIN CourseClass cc ON cc.uuid = e.class_uuid
-			JOIN CourseVersion cv ON cv.uuid = cc.courseVersion_uuid
-			JOIN Course c ON c.uuid = cv.course_uuid
-			JOIN Person p ON p.uuid = e.person_uuid
-			JOIN Password pw on pw.person_uuid = p.uuid
+			JOIN CourseClass cc ON cc.uuid = e.classUUID
+			JOIN CourseVersion cv ON cv.uuid = cc.courseVersionUUID
+			JOIN Course c ON c.uuid = cv.courseUUID
+			JOIN Person p ON p.uuid = e.personUUID
+			JOIN Password pw on pw.personUUID = p.uuid
 			LEFT JOIN (
 					SELECT enrollmentUUID, MIN(eventFiredAt) AS firstEventFiredAt FROM ActomEntered GROUP BY enrollmentUUID
 				) AS ae ON ae.enrollmentUUID = e.uuid
-			WHERE cc.institution_uuid = ${institutionUUID}
+			WHERE cc.institutionUUID = ${institutionUUID}
 			AND (
 					(e.lastBilledAt IS NULL
 					AND ae.firstEventFiredAt >= ${periodStart + "-01 00:00:00"}

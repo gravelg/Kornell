@@ -55,14 +55,14 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
   }
 
   def updateQueryModel(entryKey: String, entryValue: String) = sql"""
-  	insert into ActomEntries (uuid, enrollment_uuid, actomKey, entryKey, entryValue) 
+  	insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue) 
   	values (${randomUUID}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue})
   	on duplicate key update entryValue = ${entryValue}
   """.executeUpdate
 
   //Batch version of put value using a map
   def putValues(actomEntries: Map[String, String]) = {
-    var queryModelQuery = "insert into ActomEntries (uuid, enrollment_uuid, actomKey, entryKey, entryValue) values "
+    var queryModelQuery = "insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue) values "
     val queryModelStrings = new ListBuffer[String]
     for ((key, value) <- actomEntries) {
       queryModelStrings += ("('" + randomUUID + "','" + enrollmentUUID + "','" + actomKey + "','" + key + "','" + value + "')")
@@ -120,7 +120,7 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
     val entries = Entities.newActomEntries(enrollmentUUID, actomKey, new HashMap[String, String])
     sql"""
   	select * from ActomEntries 
-  	where enrollment_uuid=${enrollmentUUID}
+  	where enrollmentUUID=${enrollmentUUID}
   	  and actomKey=${actomKey}""".foreach { rs =>
       entries.getEntries().put(rs.getString("entryKey"), rs.getString("entryValue"))
     }

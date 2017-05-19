@@ -216,7 +216,7 @@ object ChatThreadsRepo {
   }
   
   def updateParticipantsInCourseClassSupportThreadsForInstitution(institutionUUID: String, threadType: ChatThreadType) = {
-    sql"""select uuid from CourseClass where institution_uuid = ${institutionUUID}""".map[String](toString)
+    sql"""select uuid from CourseClass where institutionUUID = ${institutionUUID}""".map[String](toString)
     .foreach(cc => updateParticipantsInThreads(cc, institutionUUID, threadType))
   }
   
@@ -318,8 +318,8 @@ object ChatThreadsRepo {
 				p.fullName as senderFullName, 
 				(select role 
 				from Role r
-				where r.person_uuid = p.uuid and
-				(r.institution_uuid = t.institutionUUID or r.course_class_uuid = t.courseClassUUID) and
+				where r.personUUID = p.uuid and
+				(r.institutionUUID = t.institutionUUID or r.course_classUUID = t.courseClassUUID) and
 				(r.role <> ${RoleType.tutor.toString} or t.threadType = ${ChatThreadType.TUTORING.toString})
 				order by 
 					case 
@@ -347,8 +347,8 @@ object ChatThreadsRepo {
 				p.fullName as senderFullName, 
 				(select role 
 				from Role r
-				where r.person_uuid = p.uuid and
-				(r.institution_uuid = t.institutionUUID or r.course_class_uuid = t.courseClassUUID) and
+				where r.personUUID = p.uuid and
+				(r.institutionUUID = t.institutionUUID or r.course_classUUID = t.courseClassUUID) and
 				(r.role <> ${RoleType.tutor.toString} or t.threadType = ${ChatThreadType.TUTORING.toString})
 				order by 
 					case 
@@ -384,8 +384,8 @@ object ChatThreadsRepo {
 				p.fullName as senderFullName, 
 				(select role 
 				from Role r
-				where r.person_uuid = p.uuid and
-				(r.institution_uuid = t.institutionUUID or r.course_class_uuid = t.courseClassUUID) and
+				where r.personUUID = p.uuid and
+				(r.institutionUUID = t.institutionUUID or r.course_classUUID = t.courseClassUUID) and
 				(r.role <> ${RoleType.tutor.toString} or t.threadType = ${ChatThreadType.TUTORING.toString})
 				order by 
 					case 

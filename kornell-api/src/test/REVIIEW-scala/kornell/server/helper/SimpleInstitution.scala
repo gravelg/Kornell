@@ -69,7 +69,7 @@ trait SimpleInstitution extends SuiteMixin with Generator with BeforeAndAfter{ t
 	    val platformAdmin = PeopleRepo.createPersonCPF(institution.getUUID, platformAdminCPF, randName)
 	    PersonRepo(platformAdmin.getUUID).setPassword(institution.getUUID, platformAdmin.getCPF, platformAdmin.getCPF)
 	    sql"""
-	    	insert into Role (uuid, username, role, institution_uuid, course_class_uuid)
+	    	insert into Role (uuid, username, role, institutionUUID, course_classUUID)
 	    	values (${randUUID}, ${platformAdmin.getCPF}, 
 	    	${RoleType.platformAdmin.toString}, 
 	    	${null}, 
@@ -85,7 +85,7 @@ trait SimpleInstitution extends SuiteMixin with Generator with BeforeAndAfter{ t
 	    PersonRepo(institutionAdmin.getUUID).setPassword(institution.getUUID, institutionAdmin.getCPF, institutionAdmin.getCPF)
 	    
 	    sql"""
-	    	insert into Role (uuid, username, role, institution_uuid, course_class_uuid)
+	    	insert into Role (uuid, username, role, institutionUUID, course_classUUID)
 	    	values (${randUUID}, ${institutionAdmin.getCPF}, 
 	    	${RoleType.institutionAdmin.toString}, 
 	    	${institution.getUUID}, 

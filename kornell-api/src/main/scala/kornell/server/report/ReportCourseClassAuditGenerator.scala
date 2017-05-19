@@ -96,12 +96,12 @@ object ReportCourseClassAuditGenerator {
 			    cc.uuid as fromCourseClassUUID,
 			    '-' as toCourseClassUUID
 			from EnrollmentStateChanged esc
-			join Person admin on admin.uuid = esc.person_uuid
-			join Password adminPwd on adminPwd.person_uuid = admin.uuid
-			join Enrollment e on e.uuid = esc.enrollment_uuid
-			join CourseClass cc on cc.uuid = e.class_uuid and cc.uuid = ${courseClassUUID}
-			join Person participant on participant.uuid = e.person_uuid
-			left join Password participantPwd on participantPwd.person_uuid = participant.uuid
+			join Person admin on admin.uuid = esc.personUUID
+			join Password adminPwd on adminPwd.personUUID = admin.uuid
+			join Enrollment e on e.uuid = esc.enrollmentUUID
+			join CourseClass cc on cc.uuid = e.classUUID and cc.uuid = ${courseClassUUID}
+			join Person participant on participant.uuid = e.personUUID
+			left join Password participantPwd on participantPwd.personUUID = participant.uuid
 		union
 			select 
 				et.eventFiredAt as eventFiredAt,
@@ -121,12 +121,12 @@ object ReportCourseClassAuditGenerator {
 			    ccTo.uuid as toCourseClassUUID
 			from EnrollmentTransferred et
 			join Person admin on admin.uuid = et.personUUID
-			join Password adminPwd on adminPwd.person_uuid = admin.uuid 
+			join Password adminPwd on adminPwd.personUUID = admin.uuid 
 			join Enrollment e on e.uuid = et.enrollmentUUID
 			join CourseClass ccFrom on ccFrom.uuid = et.fromCourseClassUUID and (et.fromCourseClassUUID = ${courseClassUUID} or et.toCourseClassUUID = ${courseClassUUID})
 			join CourseClass ccTo on ccTo.uuid = et.toCourseClassUUID and (et.toCourseClassUUID = ${courseClassUUID} or et.fromCourseClassUUID = ${courseClassUUID})
-			join Person participant on participant.uuid = e.person_uuid
-			left join Password participantPwd on participantPwd.person_uuid = participant.uuid
+			join Person participant on participant.uuid = e.personUUID
+			left join Password participantPwd on participantPwd.personUUID = participant.uuid
     where e.enrollmentSource = ${EnrollmentSource.WEBSITE.toString}
 		order by eventFiredAt desc
 	    """.map[CourseClassAuditTO](toCourseClassAuditTO)

@@ -53,8 +53,8 @@ object CoursesRepo {
   
   def byCourseClassUUID(courseClassUUID: String) = sql"""
 	  select c.* from Course c join
-	  CourseVersion cv on cv.course_uuid = c.uuid join
-	  CourseClass cc on cc.courseVersion_uuid = cv.uuid 
+	  CourseVersion cv on cv.courseUUID = c.uuid join
+	  CourseClass cc on cc.courseVersionUUID = cv.uuid 
     where cc.uuid = $courseClassUUID
 	  and c.state <> ${EntityState.deleted.toString}
 	  and cv.state <> ${EntityState.deleted.toString}
@@ -63,7 +63,7 @@ object CoursesRepo {
   
   def byCourseVersionUUID(courseVersionUUID: String) = sql"""
 	  select * from Course c join
-	  CourseVersion cv on cv.course_uuid = c.uuid 
+	  CourseVersion cv on cv.courseUUID = c.uuid 
     where cv.uuid = $courseVersionUUID
     and c.state <> ${EntityState.deleted.toString}
   """.first[Course]

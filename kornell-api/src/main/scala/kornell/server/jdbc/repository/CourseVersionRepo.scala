@@ -29,7 +29,7 @@ class CourseVersionRepo(uuid: String) {
     
     val courseVersionExists = sql"""
       select count(*) from CourseVersion 
-      where course_uuid = ${courseVersion.getCourseUUID} 
+      where courseUUID = ${courseVersion.getCourseUUID} 
       and name = ${courseVersion.getName} 
       and uuid <> ${courseVersion.getUUID}
       and state <> ${EntityState.deleted.toString}
@@ -38,7 +38,7 @@ class CourseVersionRepo(uuid: String) {
       sql"""
       | update CourseVersion c
       | set c.name = ${courseVersion.getName},
-      | c.course_uuid = ${courseVersion.getCourseUUID}, 
+      | c.courseUUID = ${courseVersion.getCourseUUID}, 
       | c.versionCreatedAt = ${courseVersion.getVersionCreatedAt},
       | c.distributionPrefix = ${courseVersion.getDistributionPrefix},
       | c.state = ${courseVersion.getState.toString},
