@@ -1,7 +1,9 @@
 package kornell.scorm.client.scorm12;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public abstract class CMITree {
 	static final String SEPARATOR = ".";
@@ -55,9 +57,12 @@ public abstract class CMITree {
 	public static Map<String, String> collectDirty(CMITree tree) {
 		Map<String, String> acc = new HashMap<String, String>();
 		collectValues("", tree, acc, true);
-		for (Map.Entry<String, String> entry : acc.entrySet()) {
+		Iterator<Entry<String, String>> it = acc.entrySet().iterator();
+		Entry<String, String> entry;
+		while (it.hasNext()){
+			entry = it.next();
 			if (entry.getKey().startsWith("knl.action.")) {
-				acc.remove(entry.getKey());
+				it.remove();
 			}
 		}
 		return acc;

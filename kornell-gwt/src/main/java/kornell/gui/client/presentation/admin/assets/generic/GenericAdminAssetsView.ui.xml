@@ -3,19 +3,19 @@
 	xmlns:knlAssets="urn:import:kornell.gui.client.presentation.admin.assets.generic">
 	
 	<g:FlowPanel ui:field="assetsWrapper" addStyleNames="deanWrapper assetsWrapper shy">
-		<g:FlowPanel addStyleNames="paddingBottom35 simpleBorderBottom left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingBottom75 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Ícone da Tela Inicial</g:HTMLPanel>
 			<g:Label ui:field="thumbSubTitle" addStyleNames="subTitle"></g:Label>
 			<g:FlowPanel ui:field="thumbFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
 			</g:FlowPanel>		
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="paddingTop35 paddingBottom35 simpleBorderBottom left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingTop75 paddingBottom75 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Plano de Fundo do Certificado</g:HTMLPanel>
 			<g:Label ui:field="certificateDetailsSubTitle" addStyleNames="subTitle"></g:Label>
 			<g:FlowPanel ui:field="certificateDetailsFieldPanel" addStyleNames="fieldsWrapper marginTop25">		
 			</g:FlowPanel>	
 		</g:FlowPanel>	
-		<g:FlowPanel addStyleNames="paddingTop35 paddingBottom35 simpleBorderBottom left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingTop75 paddingBottom75 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Seções da Tela de Detalhes</g:HTMLPanel>
 			<b:Tooltip text="Adicionar seção" placement="LEFT">
 				<b:Button ui:field="sectionsAddButton" addStyleNames="btnAction right"></b:Button>
@@ -24,7 +24,7 @@
 			<g:FlowPanel ui:field="sectionsFieldPanel" addStyleNames="marginTop25">
 			</g:FlowPanel>
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="paddingTop35 paddingBottom35 simpleBorderBottom left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingTop75 paddingBottom75 simpleBorderBottom left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Dicas da Tela de Detalhes</g:HTMLPanel>
 			<b:Tooltip text="Adicionar dica" placement="LEFT">
 				<b:Button ui:field="hintsAddButton" addStyleNames="btnAction right"></b:Button>
@@ -33,7 +33,7 @@
 			<g:FlowPanel ui:field="hintsFieldPanel" addStyleNames="marginTop25">		
 			</g:FlowPanel>	
 		</g:FlowPanel>
-		<g:FlowPanel addStyleNames="paddingTop35 paddingBottom35 left fillWidth">  
+		<g:FlowPanel addStyleNames="paddingTop75 paddingBottom75 left fillWidth">  
 			<g:HTMLPanel addStyleNames="title">Biblioteca</g:HTMLPanel>
 			<b:Tooltip text="Adicionar arquivo à biblioteca" placement="LEFT">
 				<b:Button ui:field="librariesAddButton" addStyleNames="btnAction right"></b:Button>
