@@ -18,86 +18,98 @@ import kornell.core.entity.RoleCategory
 import kornell.core.to.RoleTO
 import kornell.core.entity.AuditedEntityType
 import kornell.core.error.exception.EntityConflictException
+import kornell.core.util.StringUtils
 
 object RolesRepo {
   	
   def getUserRoles(personUUID: String, bindMode: String) =
 	  TOs.newRolesTO(sql"""
-		    | select *, pw.username, cc.name as courseClassName
-	      	| from Role r
-			  | join Password pw on pw.personUUID = r.personUUID
-			  | left join CourseClass cc on r.courseClassUUID = cc.uuid
-	        | where pw.personUUID = ${personUUID}
-	  		| order by r.role, pw.username
-            """.map[RoleTO](toRoleTO(_,bindMode)))   
+	    | select *, pw.username, cc.name as courseClassName
+      | from Role r
+		  | join Password pw on pw.personUUID = r.personUUID
+		  | left join CourseClass cc on r.courseClassUUID = cc.uuid
+      | where pw.personUUID = ${personUUID}
+  		| order by r.role, pw.username
+      """.map[RoleTO](toRoleTO(_,bindMode)))   
   	
-  def getUsersWithRoleForCourseClass(courseClassUUID: String, bindMode: String, roleType: RoleType) =
+  def getUsersForCourseClassByRole(courseClassUUID: String, roleType: RoleType, bindMode: String) =
 	  TOs.newRolesTO(sql"""
-		    | select *, pw.username, cc.name as courseClassName
-	      	| from Role r
-		        | join Password pw on pw.personUUID = r.personUUID
-		        | left join CourseClass cc on r.courseClassUUID = cc.uuid
-	        | where r.courseClassUUID = ${courseClassUUID}
-	  			| and r.role = ${roleType.toString}
-	  		| order by r.role, pw.username
-            """.map[RoleTO](toRoleTO(_,bindMode)))   
+	    | select *, pw.username, cc.name as courseClassName
+    	| from Role r
+      | join Password pw on pw.personUUID = r.personUUID
+      | left join CourseClass cc on r.courseClassUUID = cc.uuid
+      | where r.courseClassUUID = ${courseClassUUID}
+			| and r.role = ${roleType.toString}
+  		| order by r.role, pw.username
+    """.map[RoleTO](toRoleTO(_,bindMode)))  
+  	
+  def getAllUsersWithRoleForCourseClass(courseClassUUID: String) = 
+	  TOs.newRolesTO(sql"""
+	    | select *, pw.username, cc.name as courseClassName
+    	| from Role r
+      | join Password pw on pw.personUUID = r.personUUID
+      | left join CourseClass cc on r.courseClassUUID = cc.uuid
+      | where r.courseClassUUID = ${courseClassUUID}
+  		| order by r.role, pw.username
+    """.map[RoleTO](toRoleTO(_,RoleCategory.BIND_DEFAULT)))  
+	  
   	
   def getInstitutionAdmins(institutionUUID: String, bindMode: String) =
 	  TOs.newRolesTO(sql"""
-		    | select *, pw.username, null as courseClassName
-	      	| from Role r
-			  | join Password pw on pw.personUUID = r.personUUID
-	        | where r.institutionUUID = ${institutionUUID}
-	  			| and r.role = ${RoleType.institutionAdmin.toString}
-	  		| order by r.role, pw.username
-            """.map[RoleTO](toRoleTO(_,bindMode)))   
+	    | select *, pw.username, null as courseClassName
+    	| from Role r
+	    | join Password pw on pw.personUUID = r.personUUID
+      | where r.institutionUUID = ${institutionUUID}
+			| and r.role = ${RoleType.institutionAdmin.toString}
+  		| order by r.role, pw.username
+    """.map[RoleTO](toRoleTO(_,bindMode)))   
   	
   def getPlatformAdmins(institutionUUID: String, bindMode: String) =
 	  TOs.newRolesTO(sql"""
-		    | select *, pw.username, null as courseClassName
-	      	| from Role r
-			  | join Password pw on pw.personUUID = r.personUUID
-	        | where r.institutionUUID = ${institutionUUID}
-	  			| and r.role = ${RoleType.platformAdmin.toString}
-	  		| order by r.role, pw.username
-            """.map[RoleTO](toRoleTO(_,bindMode)))
+	    | select *, pw.username, null as courseClassName
+    	| from Role r
+		  | join Password pw on pw.personUUID = r.personUUID
+      | where r.institutionUUID = ${institutionUUID}
+			| and r.role = ${RoleType.platformAdmin.toString}
+  		| order by r.role, pw.username
+    """.map[RoleTO](toRoleTO(_,bindMode)))
   	
   def getCourseClassSupportThreadParticipants(courseClassUUID: String, institutionUUID: String, bindMode: String) =
 	  TOs.newRolesTO(sql"""
-		    | select *, pw.username, cc.name as courseClassName
-	      	| from (select * from Role 
-				|  	order by case `role`
-				|	when 'platformAdmin' then 1
-				|	when 'institutionAdmin' then 2
-				|	when 'courseClassAdmin' then 3
-				|	END) r
-	        | join Password pw on pw.personUUID = r.personUUID
-	        | left join CourseClass cc on r.courseClassUUID = cc.uuid
-	        | where (r.courseClassUUID = ${courseClassUUID}
-	  			| 	and r.role = ${RoleType.courseClassAdmin.toString})
-	  			| or (r.institutionUUID = ${institutionUUID}
-	  			| 	and r.role = ${RoleType.institutionAdmin.toString})
-	  			| or (r.institutionUUID = ${institutionUUID}
-	  			|   and r.role = ${RoleType.platformAdmin.toString})
+	    | select *, pw.username, cc.name as courseClassName
+    	| from (select * from Role 
+			|  	order by case `role`
+			|	when 'platformAdmin' then 1
+			|	when 'institutionAdmin' then 2
+			|	when 'courseClassAdmin' then 3
+			|	END) r
+      | join Password pw on pw.personUUID = r.personUUID
+      | left join CourseClass cc on r.courseClassUUID = cc.uuid
+      | where (r.courseClassUUID = ${courseClassUUID}
+			| 	and r.role = ${RoleType.courseClassAdmin.toString})
+			| or (r.institutionUUID = ${institutionUUID}
+			| 	and r.role = ${RoleType.institutionAdmin.toString})
+			| or (r.institutionUUID = ${institutionUUID}
+			|   and r.role = ${RoleType.platformAdmin.toString})
 			| group by pw.username
-            """.map[RoleTO](toRoleTO(_,bindMode)))    	
+    """.map[RoleTO](toRoleTO(_,bindMode)))    	
 
   	
   def getPlatformSupportThreadParticipants(institutionUUID: String, bindMode: String) =
 	  TOs.newRolesTO(sql"""
-		    | select *, pw.username, null as courseClassName
-	      	| from (select * from Role 
-				|  	order by case `role`
-				|	when 'platformAdmin' then 1
-				|	when 'institutionAdmin' then 2
-				|	END) r
-	        | join Password pw on pw.personUUID = r.personUUID
-	        | where (r.institutionUUID = ${institutionUUID}
-	  			| 	and r.role = ${RoleType.institutionAdmin.toString})
-	  			| or (r.institutionUUID = ${institutionUUID}
-	  			|   and r.role = ${RoleType.platformAdmin.toString})
+	    | select *, pw.username, null as courseClassName
+    	| from (select * from Role 
+			|  	order by case `role`
+			|	when 'platformAdmin' then 1
+			|	when 'institutionAdmin' then 2
+			|	END) r
+      | join Password pw on pw.personUUID = r.personUUID
+      | where (r.institutionUUID = ${institutionUUID}
+			| 	and r.role = ${RoleType.institutionAdmin.toString})
+			| or (r.institutionUUID = ${institutionUUID}
+			|   and r.role = ${RoleType.platformAdmin.toString})
 			| group by pw.username
-            """.map[RoleTO](toRoleTO(_,bindMode)))   
+    """.map[RoleTO](toRoleTO(_,bindMode)))   
   
   def updateCourseClassAdmins(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.courseClassAdmin, roles)
   
@@ -106,11 +118,11 @@ object RolesRepo {
   def updateObservers(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.observer, roles)
   
   def updateCourseClassRole(institutionUUID: String, courseClassUUID: String, roleType: RoleType, roles: Roles) = {
-    val from = getUsersWithRoleForCourseClass(courseClassUUID, RoleCategory.BIND_DEFAULT, roleType)
+    val from = getUsersForCourseClassByRole(courseClassUUID, roleType, RoleCategory.BIND_DEFAULT)
     
     removeCourseClassRole(courseClassUUID, roleType).addRoles(roles)
     
-    val to = getUsersWithRoleForCourseClass(courseClassUUID, RoleCategory.BIND_DEFAULT, roleType)
+    val to = getUsersForCourseClassByRole(courseClassUUID, roleType, RoleCategory.BIND_DEFAULT)
     
     val auditedEntityType = {
       roleType match {
@@ -141,35 +153,32 @@ object RolesRepo {
   }
   
   def addRoles(roles: Roles) = {
-    roles.getRoles.asScala.foreach(addRole _)
+    roles.getRoles.asScala.foreach(create _)
     roles
   }
 
-  private def addRole(role: Role) = {
+  def create(role: Role) = {
     if(RoleType.courseClassAdmin.equals(role.getRoleType) || RoleType.tutor.equals(role.getRoleType)
         || RoleType.observer.equals(role.getRoleType)) {
-      val courseClassUUID = {
-        if (RoleType.courseClassAdmin.equals(role.getRoleType)) role.getCourseClassAdminRole.getCourseClassUUID
-        else if (RoleType.tutor.equals(role.getRoleType)) role.getTutorRole.getCourseClassUUID
-        else if (RoleType.observer.equals(role.getRoleType)) role.getObserverRole.getCourseClassUUID
-        else ""
+      if(StringUtils.isNone(role.getUUID)){
+        role.setUUID(UUID.random)
       }
 	    sql"""
-	    	insert into Role (uuid, personUUID, role, courseClassUUID)
-	    	values (${UUID.random}, 
+	    	insert into Role (uuid, personUUID, role, courseClassUUID) values (
+        ${role.getUUID}, 
     		${role.getPersonUUID}, 
 	    	${role.getRoleType.toString}, 
-	    	${courseClassUUID})
+	    	${RoleCategory.getCourseClassUUID(role)})
 	    """.executeUpdate
     }
     if (RoleType.institutionAdmin.equals(role.getRoleType)) {
       sql"""
-            insert into Role (uuid, personUUID, role, institutionUUID)
-            values (${UUID.random}, 
-            ${role.getPersonUUID}, 
-            ${role.getRoleType.toString}, 
-            ${role.getInstitutionAdminRole.getInstitutionUUID})
-        """.executeUpdate
+        insert into Role (uuid, personUUID, role, institutionUUID) values (
+        ${role.getUUID}, 
+        ${role.getPersonUUID}, 
+        ${role.getRoleType.toString}, 
+        ${role.getInstitutionAdminRole.getInstitutionUUID})
+      """.executeUpdate
     }
   }
   

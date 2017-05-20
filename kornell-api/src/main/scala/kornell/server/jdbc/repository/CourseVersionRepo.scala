@@ -14,6 +14,7 @@ import kornell.core.util.StringUtils
 import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.entity.EntityState
 import kornell.core.error.exception.EntityConflictException
+import java.util.Date
 
 class CourseVersionRepo(uuid: String) {
 
@@ -81,6 +82,7 @@ class CourseVersionRepo(uuid: String) {
     courseVersion.setUUID(targetCourseVersionUUID)
     courseVersion.setDistributionPrefix(targetCourseVersionUUID)
     courseVersion.setName(courseVersion.getName + " (2)")
+    courseVersion.setVersionCreatedAt(new Date());
     if(StringUtils.isSome(courseVersion.getThumbUrl)){
       courseVersion.setThumbUrl(courseVersion.getThumbUrl.replace(sourceCourseVersionUUID+"/thumb.jpg", targetCourseVersionUUID+"/thumb.jpg"))
     }

@@ -92,7 +92,7 @@ object ChatThreadsRepo {
     threadType match {
       case ChatThreadType.SUPPORT => RolesRepo.getCourseClassSupportThreadParticipants(courseClass.getUUID, courseClass.getInstitutionUUID, RoleCategory.BIND_WITH_PERSON)
             .getRoleTOs.asScala.filter(role => !chatThread.getPersonUUID.equals(role.getPerson.getUUID)).map(role => EmailService.sendEmailNewChatThread(role.getPerson, institution, courseClass, chatThread, message))
-      case ChatThreadType.TUTORING => RolesRepo.getUsersWithRoleForCourseClass(courseClass.getUUID, RoleCategory.BIND_WITH_PERSON, RoleType.tutor)
+      case ChatThreadType.TUTORING => RolesRepo.getUsersForCourseClassByRole(courseClass.getUUID, RoleType.tutor, RoleCategory.BIND_WITH_PERSON)
           .getRoleTOs.asScala.filter(role => !chatThread.getPersonUUID.equals(role.getPerson.getUUID)).map(role => EmailService.sendEmailNewChatThread(role.getPerson, institution, courseClass, chatThread, message))
       case ChatThreadType.INSTITUTION_SUPPORT => RolesRepo.getPlatformSupportThreadParticipants(institutionUUID, RoleCategory.BIND_WITH_PERSON)
             .getRoleTOs.asScala.filter(role => !chatThread.getPersonUUID.equals(role.getPerson.getUUID)).map(role => EmailService.sendEmailNewChatThread(role.getPerson, institution, courseClass, chatThread, message))
@@ -106,7 +106,7 @@ object ChatThreadsRepo {
     val participantsThatShouldExist = threadType match {
       case ChatThreadType.SUPPORT => RolesRepo.getCourseClassSupportThreadParticipants(courseClass.getUUID, courseClass.getInstitutionUUID, null)
             .getRoleTOs.asScala.map(_.getRole.getPersonUUID).+:(threadCreatorUUID).toList.distinct
-      case ChatThreadType.TUTORING => RolesRepo.getUsersWithRoleForCourseClass(courseClass.getUUID, RoleCategory.BIND_WITH_PERSON, RoleType.tutor)
+      case ChatThreadType.TUTORING => RolesRepo.getUsersForCourseClassByRole(courseClass.getUUID, RoleType.tutor, RoleCategory.BIND_WITH_PERSON)
           .getRoleTOs.asScala.map(_.getRole.getPersonUUID).+:(threadCreatorUUID).toList.distinct
       case ChatThreadType.INSTITUTION_SUPPORT => RolesRepo.getPlatformSupportThreadParticipants(institutionUUID, null)
           .getRoleTOs.asScala.map(_.getRole.getPersonUUID).+:(threadCreatorUUID).toList.distinct

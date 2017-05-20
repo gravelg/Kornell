@@ -11,6 +11,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 
 import kornell.core.util.StringUtils;
 
@@ -74,14 +75,21 @@ public class KornellNotification {
 	
 	public static void repositionPopups(){
 		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
 			@Override
 			public void execute() {
-				int top = Positioning.hasPlaceBar() ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR;
+				int currentTopPosition = Positioning.hasPlaceBar() ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR;
 				for(int i = 0; i< popupList.size(); i++){
 					PopupPanel popup = popupList.get(i);
-					popup.setPopupPosition((Window.getClientWidth() - popup.getOffsetWidth()) / 2, top);
-					popup.show();
-					top += popup.getOffsetHeight() + 10;
+					popup.setPopupPositionAndShow(new PositionCallback() {						
+						@Override
+						public void setPosition(int offsetWidth, int offsetHeight) {
+							popup.setPopupPosition((Window.getClientWidth() - offsetWidth) / 2, offsetHeight + 10);
+							popup.show();
+						}
+					});
+					popup.setPopupPosition((Window.getClientWidth() - popup.getOffsetWidth()) / 2, currentTopPosition);
+					currentTopPosition += popup.getOffsetHeight() + 10;
 				}
 			}
 		});

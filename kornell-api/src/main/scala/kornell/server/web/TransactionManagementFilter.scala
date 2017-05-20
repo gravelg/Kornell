@@ -36,7 +36,9 @@ class TransactionManagementFilter extends Filter {
         // Gotta do this cause wildfly wraps uncaught exceptions
         e.getCause match {
           case sql: SQLException => ConnectionHandler.rollback
-          case other: Throwable => {}
+          case other: Throwable => { 
+            e.printStackTrace() 
+          }
         }
         throw e
       }

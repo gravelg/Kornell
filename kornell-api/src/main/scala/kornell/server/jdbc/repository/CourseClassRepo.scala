@@ -1,5 +1,6 @@
 package kornell.server.jdbc.repository
 
+import scala.collection.JavaConverters.asScalaBufferConverter
 import kornell.core.entity.CourseClass
 import kornell.core.error.exception.EntityConflictException
 import kornell.server.jdbc.SQL.SQLHelper
@@ -12,6 +13,9 @@ import kornell.server.service.AssetService
 import kornell.core.util.StringUtils
 import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.entity.EntityState
+import kornell.core.entity.RoleType
+import kornell.core.entity.RoleCategory
+import java.util.Date
 
 class CourseClassRepo(uuid:String) {
   
@@ -91,13 +95,24 @@ class CourseClassRepo(uuid:String) {
     courseClass.setUUID(targetCourseClassUUID)
     courseClass.setName(courseClass.getName + " (2)")
     courseClass.setCreatedBy(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
+    courseClass.setCreatedAt(new Date())
+    courseClass.setPagseguroId(null)
     if(StringUtils.isSome(courseClass.getThumbUrl)){
       courseClass.setThumbUrl(courseClass.getThumbUrl.replace(sourceCourseClassUUID+"/thumb.jpg", targetCourseClassUUID+"/thumb.jpg"))
     }
-    CourseClassesRepo.create(courseClass)    
+    CourseClassesRepo.create(courseClass)        
+    
+    //copy roles
+    val roles = RolesRepo.getAllUsersWithRoleForCourseClass(sourceCourseClassUUID)
+    roles.getRoleTOs.asScala.foreach(roleTO => {
+      val role = roleTO.getRole
+      role.setUUID(UUID.random)
+      RoleCategory.setCourseClassUUID(role, targetCourseClassUUID)
+      RolesRepo.create(role)
+    })
     
     AssetService.copyAssets(courseClass.getInstitutionUUID, CourseDetailsEntityType.COURSE_CLASS, sourceCourseClassUUID, targetCourseClassUUID, courseClass.getThumbUrl)
-	        
+	  
     courseClass
   }
   

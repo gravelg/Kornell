@@ -125,7 +125,7 @@ class CourseClassResource(uuid: String) {
   @Produces(Array(RolesTO.TYPE))
   @Path("admins")
   def getAdmins(@QueryParam("bind") bindMode:String) = AuthRepo().withPerson { person =>
-        RolesRepo.getUsersWithRoleForCourseClass(uuid, bindMode, RoleType.courseClassAdmin)
+        RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.courseClassAdmin, bindMode)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
@@ -148,7 +148,7 @@ class CourseClassResource(uuid: String) {
   @Produces(Array(RolesTO.TYPE))
   @Path("tutors")
   def getTutors(@QueryParam("bind") bindMode:String) = AuthRepo().withPerson { person =>
-        RolesRepo.getUsersWithRoleForCourseClass(uuid, bindMode, RoleType.tutor)
+        RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.tutor, bindMode)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get
@@ -167,7 +167,7 @@ class CourseClassResource(uuid: String) {
   @Produces(Array(RolesTO.TYPE))
   @Path("observers")
   def getObservers(@QueryParam("bind") bindMode:String) = AuthRepo().withPerson { person =>
-        RolesRepo.getUsersWithRoleForCourseClass(uuid, bindMode, RoleType.observer)
+        RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.observer, bindMode)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
    .get

@@ -142,4 +142,24 @@ public class RoleCategory {
 		return false;
 	}
 	
+	public static void setCourseClassUUID(Role role, String courseClassUUID){
+		if (RoleType.courseClassAdmin.equals(role.getRoleType())) 
+			role.getCourseClassAdminRole().setCourseClassUUID(courseClassUUID);
+		else if (RoleType.tutor.equals(role.getRoleType())) 
+			role.getTutorRole().setCourseClassUUID(courseClassUUID);
+		else if (RoleType.observer.equals(role.getRoleType())) 
+			role.getObserverRole().setCourseClassUUID(courseClassUUID);
+	}
+	
+	public static String getCourseClassUUID(Role role){
+        if (RoleType.courseClassAdmin.equals(role.getRoleType())) 
+        	return role.getCourseClassAdminRole().getCourseClassUUID();
+        else if (RoleType.tutor.equals(role.getRoleType())) 
+        	return role.getTutorRole().getCourseClassUUID();
+        else if (RoleType.observer.equals(role.getRoleType())) 
+        	return role.getObserverRole().getCourseClassUUID();
+        else 
+        	return "";
+	}
+	
 }
