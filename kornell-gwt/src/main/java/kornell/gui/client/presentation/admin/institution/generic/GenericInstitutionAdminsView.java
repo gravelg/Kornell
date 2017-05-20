@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.ListBox;
-import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -124,7 +123,7 @@ public class GenericInstitutionAdminsView extends Composite {
 			session.institution(institution.getUUID()).updateAdmins(roles, new Callback<Roles>() {
 				@Override
 				public void ok(Roles to) {
-					KornellNotification.show("Os administradores da instituição foram atualizados com sucesso.", AlertType.SUCCESS);
+					KornellNotification.show("Os administradores da instituição foram atualizados com sucesso.");
 				}
 			});
 		}

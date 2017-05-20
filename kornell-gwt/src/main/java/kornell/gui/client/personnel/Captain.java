@@ -21,6 +21,7 @@ import kornell.gui.client.event.LogoutEvent;
 import kornell.gui.client.event.LogoutEventHandler;
 import kornell.gui.client.presentation.classroom.ClassroomPlace;
 import kornell.gui.client.presentation.vitrine.VitrinePlace;
+import kornell.gui.client.util.view.KornellNotification;
 
 public class Captain implements LogoutEventHandler, LoginEventHandler {
 	Logger logger = Logger.getLogger(Captain.class.getName());
@@ -34,6 +35,7 @@ public class Captain implements LogoutEventHandler, LoginEventHandler {
 		this.session = session;
 		bus.addHandler(LogoutEvent.TYPE, this);
 		bus.addHandler(LoginEvent.TYPE, this);
+
 		bus.addHandler(PlaceChangeRequestEvent.TYPE, new PlaceChangeRequestEvent.Handler() {
 			@Override
 			public void onPlaceChangeRequest(PlaceChangeRequestEvent event) {
@@ -60,6 +62,8 @@ public class Captain implements LogoutEventHandler, LoginEventHandler {
 						}
 					}
 				}
+                //since the new place might have a placebar or not, reposition the notifications
+                KornellNotification.repositionPopups();
 			}
 		});
 	}

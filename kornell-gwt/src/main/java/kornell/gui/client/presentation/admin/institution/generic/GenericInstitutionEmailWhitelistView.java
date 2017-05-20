@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.ListBox;
-import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -107,7 +106,7 @@ public class GenericInstitutionEmailWhitelistView extends Composite {
 			session.institution(institution.getUUID()).updateEmailWhitelist(institutionEmailWhitelistTO, new Callback<InstitutionEmailWhitelistTO>() {
 				@Override
 				public void ok(InstitutionEmailWhitelistTO to) {
-					KornellNotification.show("Os domínios de email permitidos da instituição foram atualizados com sucesso.", AlertType.SUCCESS);
+					KornellNotification.show("Os domínios de email permitidos da instituição foram atualizados com sucesso.");
 				}
 			});
 		}

@@ -221,7 +221,7 @@ public class GenericCourseClassAdminsView extends Composite {
 			session.courseClass(courseClassTO.getCourseClass().getUUID()).updateAdmins(roles, new Callback<Roles>() {
 				@Override
 				public void ok(Roles to) {
-					KornellNotification.show("Os administradores da turma foram atualizados com sucesso.", AlertType.SUCCESS);
+					KornellNotification.show("Os administradores da turma foram atualizados com sucesso.");
 				}
 			});
 		}
@@ -251,7 +251,7 @@ public class GenericCourseClassAdminsView extends Composite {
             session.courseClass(courseClassTO.getCourseClass().getUUID()).updateTutors(roles, new Callback<Roles>() {
                 @Override
                 public void ok(Roles to) {
-                    KornellNotification.show("Os tutores da turma foram atualizados com sucesso.", AlertType.SUCCESS);
+                    KornellNotification.show("Os tutores da turma foram atualizados com sucesso.");
                 }
             });
         }
@@ -277,7 +277,7 @@ public class GenericCourseClassAdminsView extends Composite {
             session.courseClass(courseClassTO.getCourseClass().getUUID()).updateObservers(roles, new Callback<Roles>() {
                 @Override
                 public void ok(Roles to) {
-                    KornellNotification.show("Os observadores da turma foram atualizados com sucesso.", AlertType.SUCCESS);
+                    KornellNotification.show("Os observadores da turma foram atualizados com sucesso.");
                 }
             });
         }

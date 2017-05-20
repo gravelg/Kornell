@@ -1,21 +1,21 @@
 package kornell.gui.client.presentation.classroom;
 
+import com.github.gwtbootstrap.client.ui.Alert;
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClass;
-import kornell.core.entity.EntityState;
 import kornell.core.entity.Enrollment;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.entity.EnrollmentsEntries;
+import kornell.core.entity.EntityState;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.lom.Contents;
 import kornell.core.to.CourseClassTO;
@@ -109,17 +109,17 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 
         if(showCourseClassContent){
 			bus.fireEvent(new ShowPacifierEvent(true));		
-			final PopupPanel popup = KornellNotification.show(constants.loadingTheCourse(), AlertType.WARNING, -1);
+			final Alert alert = KornellNotification.show(constants.loadingTheCourse(), AlertType.WARNING, -1);
 			bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
 				@Override
 				public void onPlaceChange(PlaceChangeEvent event) {
-					popup.hide();
+					alert.close();
 				}
 			});
 			session.enrollment(place.getEnrollmentUUID()).launch(new Callback<EnrollmentLaunchTO>() {
 				
 				public void ok(EnrollmentLaunchTO to) {
-					popup.hide();
+					alert.close();
 					loadRuntime(to.getEnrollmentEntries());
 					loadContents(place.getEnrollmentUUID(),to.getContents());
 				};

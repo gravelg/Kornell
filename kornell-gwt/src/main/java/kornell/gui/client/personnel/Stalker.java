@@ -128,7 +128,7 @@ public class Stalker implements ActomEnteredEventHandler, LoginEventHandler {
 			@Override
 			public void ok(String text) {
 				if(StringUtils.isSome(text)){
-					if(/*StringUtils.isSome(versionAPI) &&*/ !text.equals(versionAPI)){
+					if(StringUtils.isSome(versionAPI) && !text.equals(versionAPI)){
 						showVersionPopup();
 					}
 					versionAPI = text;

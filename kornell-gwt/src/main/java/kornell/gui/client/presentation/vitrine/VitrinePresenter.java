@@ -99,7 +99,7 @@ public class VitrinePresenter implements VitrineView.Presenter {
 				logger.info(this.getClass().getName() + " - " + KornellConstantsHelper.getErrorMessage(kornellErrorTO));
 				view.setForcedPasswordUpdate(true);
 				view.displayView(VitrineViewType.newPassword);
-				view.setMessage(KornellConstantsHelper.getMessage("forcedPasswordChange"), AlertType.SUCCESS);
+				view.setMessage(KornellConstantsHelper.getMessage("forcedPasswordChange"));
 				view.showMessage();
 			}
 		};

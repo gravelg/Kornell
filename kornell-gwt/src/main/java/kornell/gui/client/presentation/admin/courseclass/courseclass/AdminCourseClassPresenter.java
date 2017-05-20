@@ -633,7 +633,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         			EnrollmentState.deleted).fire(new Callback<Void>(){
 				@Override
 				public void ok(Void to) {
-					KornellNotification.show("Matrícula excluída com sucesso.", AlertType.SUCCESS, 2000);
+					KornellNotification.show("Matrícula excluída com sucesso.", 2000);
                     getEnrollments(session.getCurrentCourseClass().getCourseClass().getUUID());
                     view.setCanPerformEnrollmentAction(true);
 				}

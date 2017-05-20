@@ -1,7 +1,13 @@
 package kornell.gui.client.util.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.github.gwtbootstrap.client.ui.Alert;
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
+import com.github.gwtbootstrap.client.ui.event.ClosedEvent;
+import com.github.gwtbootstrap.client.ui.event.ClosedHandler;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -9,59 +15,81 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import kornell.core.util.StringUtils;
 
 public class KornellNotification {
+	
+	private static List<PopupPanel> popupList = new ArrayList<>();
+	private static int DEFAULT_CLOSE_DELAY = 3000;
+	private static AlertType DEFAULT_ALERT_TYPE = AlertType.SUCCESS;
 
 	public static void show(String message) {
-		show(message, AlertType.SUCCESS);
-	}
-	
-	/*
-	 * Helper method for JSNI call
-	 */
-	public static void showError(String message) {
-		show(message, AlertType.ERROR, 2500);
+		show(message, DEFAULT_ALERT_TYPE);
 	}
 
 	public static void show(String message, AlertType alertType) {
-		show(message, alertType, 2500);
+		show(message, alertType, DEFAULT_CLOSE_DELAY);
 	}
 
 	public static void show(String message, int timer) {
-		show(message, AlertType.SUCCESS, timer);
+		show(message, DEFAULT_ALERT_TYPE, timer);
 	}
 
-	public static PopupPanel show(String message, AlertType alertType, int timer) {	
+	public static Alert show(String message, AlertType alertType, int timer) {	
 		if(StringUtils.isNone(message)) return null;
 		final PopupPanel popup = new PopupPanel();
+		
 		Alert alert = new Alert();
 		alert.addStyleName("kornellMessage");
 		alert.setType(alertType);
-		alert.setText(message);
-		popup.setWidget(alert);
-		
-		popup.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
-			public void setPosition(int offsetWidth, int offsetHeight) {
-				int left = (Window.getClientWidth() - offsetWidth) / 2;
-				popup.setPopupPosition(left, Positioning.NORTH_BAR_PLUS);
+		alert.setText(message);		
+		alert.addClosedHandler(new ClosedHandler() {
+			@Override
+			public void onClosed(ClosedEvent closedEvent) {
+				closePopup(popup);
 			}
 		});
 		
+		popup.setWidget(alert);
+		popupList.add(popup);
+		repositionPopups();		
+		scheduleCloseTimer(timer, popup);
+		
+		return alert;
+	}
+
+	private static void scheduleCloseTimer(int timer, final PopupPanel popup) {
 		if(timer > 0){
 			new Timer() {
 				@Override
 				public void run() {
-					popup.hide();
-					this.cancel();
+					closePopup(popup);
 				}
-			}.scheduleRepeating(timer);
+			}.schedule(timer);
 		}
-		
-		return popup;
-	}	
+	}
 	
-	private static native boolean hasPlaceBar() /*-{
-		return $wnd.document.getElementsByClassName("placeBar")[0] != null 
-			&& $wnd.document.getElementsByClassName("placeBar")[0].getAttribute("aria-hidden") == null;
-	}-*/;
+	private static void closePopup(PopupPanel popup){
+		popupList.remove(popup);
+		popup.hide();
+		repositionPopups();
+	}
+	
+	public static void repositionPopups(){
+		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+			@Override
+			public void execute() {
+				int top = Positioning.hasPlaceBar() ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR;
+				for(int i = 0; i< popupList.size(); i++){
+					PopupPanel popup = popupList.get(i);
+					popup.setPopupPosition((Window.getClientWidth() - popup.getOffsetWidth()) / 2, top);
+					popup.show();
+					top += popup.getOffsetHeight() + 10;
+				}
+			}
+		});
+	}
+	
+	public static void showError(String message) {
+		show(message, AlertType.ERROR, DEFAULT_CLOSE_DELAY);
+	}
 }
 
 
