@@ -32,10 +32,9 @@ object LibraryFilesRepository {
     val course = CourseRepo(version.getCourseUUID).get
     val filesURL = StringUtils.mkurl(S3Service.CLASSROOM, course.getCode, version.getDistributionPrefix(), "classroom/library")
     try {
-      val structureSrc = repo.source(filesURL, "libraryFiles.knl")
-      val libraryFilesText = structureSrc.get.mkString("")
-      val fullURL = repo.url(S3Service.CLASSROOM, course.getCode, version.getDistributionPrefix(), "classroom", "library")
-      val contents = LibraryFilesParser.parse(fullURL, libraryFilesText)
+      val librarySrc = repo.source(filesURL, "libraryFiles.knl")
+      val libraryFilesText = librarySrc.get.mkString("")
+      val contents = LibraryFilesParser.parse(repo.url(filesURL), libraryFilesText)
       contents
     } catch {
       case e:Exception => TOs.newLibraryFilesTO(List[LibraryFileTO]())

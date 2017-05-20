@@ -17,6 +17,7 @@ import kornell.server.content.ContentManagers
 import kornell.server.jdbc.repository.InstitutionsRepo
 import kornell.server.jdbc.repository.InstitutionRepo
 import kornell.server.jdbc.repository.CourseRepo
+import kornell.server.service.S3Service
 
 @Deprecated
 object ContentRepository {
@@ -34,9 +35,9 @@ object ContentRepository {
     }.get
     val repo = ContentManagers.forRepository(repositoryUUID)
     val course = CourseRepo(version.getCourseUUID).get
-    val structureSrc = repo.source(course.getCode, version.getDistributionPrefix, "structure.knl")
+    val structureSrc = repo.source(S3Service.CLASSROOM, course.getCode, version.getDistributionPrefix, "structure.knl")
     val structureText = structureSrc.get.mkString("")
-    val prefix = repo.url(course.getCode, version.getDistributionPrefix)
+    val prefix = repo.url(S3Service.CLASSROOM, course.getCode, version.getDistributionPrefix)
     val contents = ContentsParser.parse(prefix, structureText, visited)
     contents
   }
@@ -57,7 +58,7 @@ object ContentRepository {
     val version = versionRepo.get
     val repo = ContentManagers.forRepository(repositoryUUID)
     val course = CourseRepo(version.getCourseUUID).get
-    val structureIn = repo.inputStream(mkurl(course.getCode, version.getDistributionPrefix, "imsmanifest.xml")).get
+    val structureIn = repo.inputStream(S3Service.CLASSROOM, mkurl(course.getCode, version.getDistributionPrefix, "imsmanifest.xml")).get
     val document = builder.parse(structureIn)
     val result = ListBuffer[String]()
     val nodes: NodeList = expr.evaluate(document, XPathConstants.NODESET).asInstanceOf[NodeList]
