@@ -30,7 +30,7 @@ object LibraryFilesRepository {
     val versionRepo = classRepo.version
     val version = versionRepo.get
     val course = CourseRepo(version.getCourseUUID).get
-    val filesURL = StringUtils.mkurl(S3Service.CLASSROOM, course.getCode, version.getDistributionPrefix(), "classroom/library")
+    val filesURL = StringUtils.mkurl(S3Service.CLASSROOMS, course.getCode, version.getDistributionPrefix(), "classroom/library")
     try {
       val librarySrc = repo.source(filesURL, "libraryFiles.knl")
       val libraryFilesText = librarySrc.get.mkString("")
