@@ -109,7 +109,7 @@ public abstract class Callback<T> implements RequestCallback {
 			} else
 				ok(Callback.parseJson(responseText));
 
-		} else if (contentType.contains("application/octet-stream")) {
+		} else if (contentType.contains("application/octet-stream") || contentType.contains("text/plain")) {
 			T txt = (T) responseText;
 			ok(txt);
 		} else

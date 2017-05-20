@@ -30,6 +30,7 @@ import kornell.core.to.CourseClassesTO;
 import kornell.core.to.TOFactory;
 import kornell.core.to.UserHelloTO;
 import kornell.core.to.UserInfoTO;
+import kornell.core.util.StringUtils;
 import kornell.gui.client.event.CourseClassesFetchedEvent;
 import kornell.gui.client.mvp.AsyncActivityManager;
 import kornell.gui.client.mvp.AsyncActivityMapper;
@@ -85,11 +86,6 @@ public class GenericClientFactoryImpl implements ClientFactory {
 	}
 
 	private void initHistoryHandler(Place defaultPlace) {
-
-		// AppPlaceHistoryMapper historyMapper =  GWT.create(AppPlaceHistoryMapper.class);
-		// PlaceHistoryHandler historyHandler = new PlaceHistoryHandler(historyMapper);
-		// historyHandler.register(placeController, eventBus, defaultPlace);
-
 		historyHandler.register(placeCtrl, EVENT_BUS, defaultPlace);
 		// sessions that arent authenticated, go to the default place
 		// except if it's a vitrineplace, then let the history take care of it
@@ -101,9 +97,6 @@ public class GenericClientFactoryImpl implements ClientFactory {
 
 	@Override
 	public void startApp() {
-		final String institutionParam = Window.Location.getParameter("institution");
-		// remove token cookie on page load
-		final String windowHostName = Window.Location.getHostName();
 		final Callback<UserHelloTO> userHelloCallback = new Callback<UserHelloTO>() {
 			@Override
 			public void ok(final UserHelloTO userHelloTO) {
@@ -126,10 +119,7 @@ public class GenericClientFactoryImpl implements ClientFactory {
 				Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 					@Override
 					public void execute() {
-						String institution = institutionParam;
-						String hostName = windowHostName;
-						KORNELL_SESSION.user().getUserHello(institution,
-								hostName, userManualAccessCallback);
+						KORNELL_SESSION.user().getUserHello(getInstitutionName(), userManualAccessCallback);
 					}
 				});
 			}
@@ -173,8 +163,22 @@ public class GenericClientFactoryImpl implements ClientFactory {
 				}
 			}
 		};
-		KORNELL_SESSION.user().getUserHello(institutionParam, windowHostName,
-				userHelloCallback);
+		KORNELL_SESSION.user().getUserHello(getInstitutionName(), userHelloCallback);
+	}
+
+	private String getInstitutionName() {
+		String institutionName = Window.Location.getParameter("institution");
+		if(StringUtils.isNone(institutionName)){
+			String[] dots = Window.Location.getHostName().split("\\.");
+			if(dots.length > 0){
+				String id = dots[0];
+				String[] slashes = id.split("-");
+				if (slashes.length > 0){ //@TODO and is followed by only numbers
+					institutionName = slashes[0];
+				}
+			}
+		}
+		return institutionName;
 	}
 
 	private void startAnonymous() {

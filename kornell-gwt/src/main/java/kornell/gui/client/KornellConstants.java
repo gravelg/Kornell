@@ -6,6 +6,12 @@ public interface KornellConstants extends ConstantsWithLookup {
 	
 	@DefaultStringValue("Loading...")
 	String loading();
+	
+	@DefaultStringValue("A new version of the site is available.")
+	String newVersionAvailable();
+	
+	@DefaultStringValue("Redresh")
+	String refresh();
 
 	/**
 	 * GenericClientFactoryImpl

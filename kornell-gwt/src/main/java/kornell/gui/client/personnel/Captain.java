@@ -10,8 +10,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;
 import kornell.core.entity.ContentSpec;
-import kornell.core.entity.EntityState;
 import kornell.core.entity.EnrollmentState;
+import kornell.core.entity.EntityState;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.UserInfoTO;
 import kornell.gui.client.KornellConstants;
@@ -39,8 +39,7 @@ public class Captain implements LogoutEventHandler, LoginEventHandler {
 			public void onPlaceChangeRequest(PlaceChangeRequestEvent event) {
 				// if the user tries to go from one classroom to another, don't show this message
                 if (!(placeCtrl.getWhere() instanceof ClassroomPlace && event.getNewPlace() instanceof ClassroomPlace)) {
-                //if (!(placeCtrl.getWhere() instanceof ClassroomPlace && event.getNewPlace() instanceof ClassroomPlace && !placeCtrl.getWhere().toString().equals(event.getNewPlace().toString()))) {
-					// if the user is inside the classroom and doesn't try to go to
+                	// if the user is inside the classroom and doesn't try to go to
 					// the vitrine (by logging out, for example)
 					if (placeCtrl.getWhere() instanceof ClassroomPlace && !(event.getNewPlace() instanceof VitrinePlace)) {
 						// if the courseClassTO is null, it's a Dashboard institution on a child course (enrollment is attached on the version)

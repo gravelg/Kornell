@@ -183,6 +183,10 @@ public class KornellSession extends KornellClient {
 		setCurrentUser(null);
 	}
 
+	public void checkVersionAPI(Callback<String> cb) {
+		GET("").sendRequest(null, cb);
+	}
+
 	public String getItem(String key) {
 		return ClientProperties.get(prefixed(key));
 	}

@@ -48,5 +48,10 @@ public class Positioning {
 		});
 		placeBetweenBars(pnl);
 	}
+	
+	public static native boolean hasPlaceBar() /*-{
+		return $wnd.document.getElementsByClassName("placeBar")[0] != null 
+			&& $wnd.document.getElementsByClassName("placeBar")[0].getAttribute("aria-hidden") == null;
+	}-*/;
 
 }

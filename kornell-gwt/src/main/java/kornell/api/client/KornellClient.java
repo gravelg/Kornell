@@ -1,9 +1,6 @@
 package kornell.api.client;
 
-import kornell.gui.client.event.LogoutEventHandler;
-import kornell.gui.client.util.ClientProperties;
-
-public class KornellClient extends RESTClient implements LogoutEventHandler {
+public class KornellClient extends RESTClient {
 
 	protected KornellClient() {}
 
@@ -115,21 +112,6 @@ public class KornellClient extends RESTClient implements LogoutEventHandler {
 	static final EventsClient eventsClient = new EventsClient();
 	public EventsClient events() {
 		return eventsClient;
-	}
-
-	@SuppressWarnings("rawtypes")
-	// TODO: Remove raw type
-	public void check(String src, Callback callback) {
-		HEAD(src).go(callback);
-	}
-
-	@Override
-	public void onLogout() {
-		forgetCredentials();
-	}
-
-	private void forgetCredentials() {
-		ClientProperties.remove(ClientProperties.X_KNL_TOKEN);
 	}
 
 }

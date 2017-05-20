@@ -1,6 +1,7 @@
 package kornell.api.client;
 
 import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.Window;
 
 import kornell.core.to.RegistrationRequestTO;
 import kornell.core.to.UserHelloTO;
@@ -14,19 +15,8 @@ public class UserClient extends RESTClient {
 		GET("/user/get/" + userUUID).sendRequest(null, cb);
 	}
 
-	public void getUserHello(String name, String hostName, Callback<UserHelloTO> cb) {
-		//TODO: AUTHDEBUG Move this to server?
-		if(StringUtils.isNone(name)){
-			String[] dots = hostName.split("\\.");
-			if(dots.length > 0){
-				String id = dots[0];
-				String[] slashes = id.split("-");
-				if (slashes.length > 0) //@TODO and is followed by only numbers
-					name = slashes[0];
-				}
-		}
-		String path = "/user/login?" + (StringUtils.isSome(name) ? "name="+name : "hostName="+hostName);
-		GET(path).sendRequest(null, cb);
+	public void getUserHello(String name, Callback<UserHelloTO> cb) {
+		GET("/user/login?" + (StringUtils.isSome(name) ? "name="+name : "hostName="+Window.Location.getHostName())).sendRequest(null, cb);
 	}
 
 	public void checkUser(String institutionUUID, String email, Callback<UserInfoTO> cb) {
