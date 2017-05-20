@@ -210,15 +210,15 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 				}
 			});
 
-		name = new KornellFormFieldWrapper("Nome", formHelper.createTextBoxFormField(courseVersion.getName()), isInstitutionAdmin);
-		fields.add(name);
-		courseVersionFields.add(name);
-
-		distributionPrefix = new KornellFormFieldWrapper("Prefixo de Distribuição", formHelper.createTextBoxFormField(courseVersion.getDistributionPrefix()), isInstitutionAdmin);
+		distributionPrefix = new KornellFormFieldWrapper("Código", formHelper.createTextBoxFormField(courseVersion.getDistributionPrefix()), isInstitutionAdmin);
 		if(isPlatformAdmin || (isInstitutionAdmin && isAdvancedMode)){
 			fields.add(distributionPrefix);
 			courseVersionFields.add(distributionPrefix);
 		}
+
+		name = new KornellFormFieldWrapper("Nome", formHelper.createTextBoxFormField(courseVersion.getName()), isInstitutionAdmin);
+		fields.add(name);
+		courseVersionFields.add(name);
 
 		disabled = new KornellFormFieldWrapper("Desabilitar?", formHelper.createCheckBoxFormField(courseVersion.isDisabled()), isInstitutionAdmin);
 		if(!isCreationMode){
@@ -338,7 +338,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 			course.setError("Escolha o curso");
 		}
 		if (!formHelper.isLengthValid(distributionPrefix.getFieldPersistText(), 2, 200)) {
-			distributionPrefix.setError("Insira o prefixo de distribuição");
+			distributionPrefix.setError("Insira o código");
 		}
 		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
 			if (!formHelper.isValidNumber(instanceCount.getFieldPersistText()) || !formHelper.isNumberRangeValid(Integer.parseInt(instanceCount.getFieldPersistText()), 1, 100)) {

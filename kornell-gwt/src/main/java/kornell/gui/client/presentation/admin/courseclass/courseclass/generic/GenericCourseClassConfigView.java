@@ -423,8 +423,14 @@ public class GenericCourseClassConfigView extends Composite {
             name.setError("Insira o nome da turma.");
         }
 
-        if (requiredScore.getFieldPersistText().length() > 0 && !formHelper.isValidNumber(requiredScore.getFieldPersistText())) {
-            requiredScore.setError("Número inválido.");
+        if (requiredScore.getFieldPersistText().length() > 0) { 
+        	if(formHelper.isValidNumber(requiredScore.getFieldPersistText())) {
+        		if(Integer.parseInt(requiredScore.getFieldPersistText()) > 100){
+        			requiredScore.setError("A nota deve ser de 0 a 100.");
+        		}
+        	} else {
+        		requiredScore.setError("Número inválido.");
+        	}
         }
 
         if (!formHelper.isLengthValid(maxEnrollments.getFieldPersistText(), 1, 10)) {

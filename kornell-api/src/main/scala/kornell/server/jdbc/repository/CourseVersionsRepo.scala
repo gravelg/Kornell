@@ -22,7 +22,8 @@ object CourseVersionsRepo {
   
   def create(courseVersion: CourseVersion, institutionUUID: String): CourseVersion = {  
     val courseVersionExists = sql"""
-	    select count(*) from CourseVersion where courseUUID = ${courseVersion.getCourseUUID} and name = ${courseVersion.getName}
+	    select count(*) from CourseVersion where courseUUID = ${courseVersion.getCourseUUID} and 
+          (name = ${courseVersion.getName} or distributionPrefix = ${courseVersion.getDistributionPrefix})
         and state <> ${EntityState.deleted.toString}
 	    """.first[String].get
     if (courseVersionExists == "0") {  
@@ -90,7 +91,9 @@ object CourseVersionsRepo {
       from CourseVersion cv
   		join Course c on cv.courseUUID = c.uuid
   		where c.institutionUUID = '$institutionUUID'
-  		and cv.name like '${filteredSearchTerm}'
+  		and (c.name like '${filteredSearchTerm}' or 
+           cv.name like  '${filteredSearchTerm}' or 
+           cv.distributionPrefix like  '${filteredSearchTerm}')
       and cv.state <> '${EntityState.deleted.toString}'
       and (cv.uuid = '${courseVersionUUID}'  or ${StringUtils.isNone(courseVersionUUID)})
       and (c.uuid = '${courseUUID}'  or ${StringUtils.isNone(courseUUID)})
@@ -112,7 +115,9 @@ object CourseVersionsRepo {
 		    sql"""select count(cv.uuid) from CourseVersion cv
   	    	join Course c on cv.courseUUID = c.uuid
     			where c.institutionUUID = $institutionUUID
-    			and cv.name like ${filteredSearchTerm}
+    			and (c.name like ${filteredSearchTerm} or 
+               cv.name like  ${filteredSearchTerm} or 
+               cv.distributionPrefix like ${filteredSearchTerm})
           and cv.state <> ${EntityState.deleted.toString}
 	    	""".first[String].get.toInt
 	  })

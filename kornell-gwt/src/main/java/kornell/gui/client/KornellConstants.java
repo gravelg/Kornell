@@ -786,9 +786,9 @@ public interface KornellConstants extends ConstantsWithLookup {
 	/**
 	 * Errors 409
 	 */
-	@DefaultStringValue("A course with this name already exists.")
+	@DefaultStringValue("A course with this name or code already exists.")
 	String courseAlreadyExists();
-	@DefaultStringValue("A course version with this name already exists.")
+	@DefaultStringValue("A course version with this name or code already exists.")
 	String courseVersionAlreadyExists();
 	@DefaultStringValue("A class with this name already exists.")
 	String courseClassAlreadyExists();

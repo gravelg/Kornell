@@ -319,7 +319,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 	    distributionPrefixColumn.setSortable(true);
 	    distributionPrefixColumn.setDataStoreName("cv.distributionPrefix");
 		table.setColumnWidth(distributionPrefixColumn, "20%");
-		table.addColumn(distributionPrefixColumn, "Prefixo de Distribuição");
+		table.addColumn(distributionPrefixColumn, "Código");
 		
 
 		TextColumn<CourseVersionTO> statusColumn = new TextColumn<CourseVersionTO>() {

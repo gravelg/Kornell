@@ -37,6 +37,7 @@ class TransactionManagementFilter extends Filter {
         e.getCause match {
           case sql: SQLException => ConnectionHandler.rollback
           case other: Throwable => { 
+            ConnectionHandler.rollback
             e.printStackTrace() 
           }
         }

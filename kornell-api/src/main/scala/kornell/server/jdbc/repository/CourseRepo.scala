@@ -31,7 +31,8 @@ class CourseRepo(uuid: String) {
     val courseVersionExists = sql"""
       select count(*) from Course
       where institutionUUID = ${course.getInstitutionUUID} 
-      and name = ${course.getName} 
+      and (name = ${course.getName} or
+        distributionPrefix = ${course.getCode}) 
       and uuid <> ${course.getUUID}
       and state <> ${EntityState.deleted.toString}
     """.first[String].get
@@ -63,7 +64,9 @@ class CourseRepo(uuid: String) {
     if(CourseVersionsRepo.countByCourse(uuid) == 0){
       sql"""
         update Course
-        set state = ${EntityState.deleted.toString} 
+        set state = ${EntityState.deleted.toString},
+        name = concat(name, " - ", uuid),
+        code = concat(code, " - ", uuid) 
         where uuid = ${uuid}
   		""".executeUpdate
       course

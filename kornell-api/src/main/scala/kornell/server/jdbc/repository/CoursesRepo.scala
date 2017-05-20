@@ -22,7 +22,8 @@ object CoursesRepo {
 
   def create(course: Course): Course = {
     val courseExists = sql"""
-	    select count(*) from Course where institutionUUID = ${course.getInstitutionUUID} and name = ${course.getName}
+	    select count(*) from Course where institutionUUID = ${course.getInstitutionUUID} and 
+        (name = ${course.getName} or code = ${course.getCode})
         and state <> ${EntityState.deleted.toString}
 	    """.first[String].get
     if (courseExists == "0") {  
@@ -99,11 +100,12 @@ object CoursesRepo {
     	  if (searchTerm == "")
     		  0
 		  else
-		    sql"""select count(c.uuid) from Course c where c.institutionUUID = ${institutionUUID}
-    	  		and (c.name like ${filteredSearchTerm}
-              or c.code like ${filteredSearchTerm})
+		    sql"""select count(c.uuid) from Course c 
+            where c.institutionUUID = ${institutionUUID}
             and c.state <> ${EntityState.deleted.toString}
-    	  		and (childCourse = false or $fetchChildCourses = true)"""
+    	  		and (childCourse = false or $fetchChildCourses = true)
+    	  		and (c.name like ${filteredSearchTerm}
+              or c.code like ${filteredSearchTerm})"""
     	  		.first[String].get.toInt
     	})
 	  
