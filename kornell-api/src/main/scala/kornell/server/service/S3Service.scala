@@ -26,11 +26,12 @@ object S3Service {
   def CERTIFICATES = "certificates"
   def CERTIFICATE_FILENAME = "certificate-bg.jpg"
   def THUMB_FILENAME = "thumb.jpg"
+  def CLASSROOM = "classroom"
   
   def getCourseVersionContentUploadUrl(courseVersionUUID: String) = {
     val courseVersion = CourseVersionRepo(courseVersionUUID).get
     val course = CourseRepo(courseVersion.getCourseUUID).get
-    val fullPath = mkurl(course.getCode, courseVersion.getDistributionPrefix, "upload" + new Date().getTime + ".zip");
+    val fullPath = mkurl(CLASSROOM, course.getCode, courseVersion.getDistributionPrefix, "upload" + new Date().getTime + ".zip");
     getUploadUrl(CourseRepo(courseVersion.getCourseUUID).get.getInstitutionUUID, fullPath, "application/zip")
   }
   
