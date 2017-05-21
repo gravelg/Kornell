@@ -28,18 +28,18 @@ class CourseRepo(uuid: String) {
     //get previous course
     val oldCourse = CourseRepo(course.getUUID).first.get
     
-    val courseVersionExists = sql"""
+    val courseExists = sql"""
       select count(*) from Course
       where institutionUUID = ${course.getInstitutionUUID} 
       and (name = ${course.getName} or
-        distributionPrefix = ${course.getCode}) 
+        code = ${course.getCode}) 
       and uuid <> ${course.getUUID}
       and state <> ${EntityState.deleted.toString}
     """.first[String].get
-    if (courseVersionExists == "0") {
+    if (courseExists == "0") {
       sql"""
-      | update Course c
-      | set c.code = ${course.getCode},
+      | update Course c set 
+      | c.code = ${course.getCode},
       | c.name = ${course.getName}, 
       | c.description = ${course.getDescription},
       | c.infoJson = ${course.getInfoJson},
