@@ -3,6 +3,8 @@ package kornell.api.client;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.gwt.http.client.RequestBuilder;
+
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.Institution;
 import kornell.core.entity.RoleCategory;
@@ -184,7 +186,7 @@ public class KornellSession extends KornellClient {
 	}
 
 	public void checkVersionAPI(Callback<String> cb) {
-		GET("").sendRequest(null, cb);
+		(new ExceptionalRequestBuilder(RequestBuilder.GET, getApiUrl() + "/")).sendRequest(null, cb);
 	}
 
 	public String getItem(String key) {
