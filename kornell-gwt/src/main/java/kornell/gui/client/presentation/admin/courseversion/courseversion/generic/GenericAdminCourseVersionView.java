@@ -270,7 +270,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 		if(to != null){
 			courseVersions.addItem("Nenhuma", "null");
 			for (CourseVersionTO courseVersionTO : to.getCourseVersionTOs()) {
-				courseVersions.addItem(courseVersionTO.getCourseVersion().getName(), courseVersion.getUUID());
+				courseVersions.addItem(courseVersionTO.getCourseVersion().getName(), courseVersionTO.getCourseVersion().getUUID());
 			}
 		} else {
 			courseVersions.addItem(courseVersion.getParentVersionUUID(), courseVersion.getParentVersionUUID());
