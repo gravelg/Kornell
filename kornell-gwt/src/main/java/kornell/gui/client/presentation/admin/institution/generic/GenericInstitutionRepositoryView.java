@@ -245,7 +245,7 @@ public class GenericInstitutionRepositoryView extends Composite {
 			session.repository().updateRepository(institution.getAssetsRepositoryUUID(), contentRepository, new Callback<ContentRepository>() {
 				@Override
 				public void ok(ContentRepository to) {
-					KornellNotification.show("Os domínios da instituição foram atualizados com sucesso.");
+					KornellNotification.show("O repositório da instituição foi atualizado com sucesso.");
 				}
 			});
 		}
