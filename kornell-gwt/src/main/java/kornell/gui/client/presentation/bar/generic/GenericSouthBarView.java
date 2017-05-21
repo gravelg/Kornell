@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import kornell.api.client.KornellSession;
 import kornell.core.entity.EnrollmentState;
+import kornell.core.entity.InstitutionType;
 import kornell.gui.client.ClientFactory;
 import kornell.gui.client.event.HideSouthBarEvent;
 import kornell.gui.client.event.HideSouthBarEventHandler;
@@ -76,7 +77,7 @@ public class GenericSouthBarView extends Composite implements SouthBarView, Hide
 		} else if (newPlace instanceof ClassroomPlace && session.getCurrentCourseClass() != null && 
 				session.getCurrentCourseClass().getEnrollment() != null &&
 				EnrollmentState.enrolled.equals(session.getCurrentCourseClass().getEnrollment().getState()) &&
-				session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null) {
+				!(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()))) {
 			if(currentSouthBar != ACTIVITY_BAR){
 				currentSouthBar = ACTIVITY_BAR;
 				barView = getActivityBarView();

@@ -168,7 +168,7 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
 
 	private static native void setupBtnDetailsEventNative() /*-{
 		var btnClassroomDetails = $wnd.document.getElementById("btnClassroomDetails");
-		btnClassroomDetails.addEventListener("click", courseClassDetailsShown, false);
+		btnClassroomDetails && btnClassroomDetails.addEventListener("click", courseClassDetailsShown, false);
 		
 		function courseClassDetailsShown(e) {
 
