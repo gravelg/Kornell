@@ -54,9 +54,8 @@ class EnrollmentResource(uuid: String) {
   @Consumes(Array(Enrollment.TYPE))
   def update(enrollment: Enrollment) = {
     EnrollmentRepo(enrollment.getUUID).update(enrollment)
-  }
-    .requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(enrollment.getPersonUUID), AccessDeniedErr())
-    .get
+  }.requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(enrollment.getPersonUUID), AccessDeniedErr())
+   .get
 
   @Path("actoms/{actomKey}")
   def actom(@PathParam("actomKey") actomKey: String) = ActomResource(uuid, actomKey)

@@ -89,15 +89,15 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 
 	private void courseClassFetched(CourseClassTO courseClassTO) {
 		
-        ClientProperties.set(PREFIX + ClientProperties.SEPARATOR + session.getCurrentUser().getPerson().getUUID()
-                + ClientProperties.SEPARATOR + ClientProperties.CURRENT_ENROLLMENT,
-        		courseClassTO.getEnrollment().getUUID());
-		
 		Enrollment enrollment = courseClassTO != null ? courseClassTO.getEnrollment() : null;
 		boolean isEnrolled = enrollment != null && EnrollmentState.enrolled.equals(enrollment.getState());
 		if(enrollment == null){
 			session.setCurrentCourseClass((CourseClassTO)null);
-		} else {
+		} else {			
+	        ClientProperties.set(PREFIX + ClientProperties.SEPARATOR + session.getCurrentUser().getPerson().getUUID()
+	                + ClientProperties.SEPARATOR + ClientProperties.CURRENT_ENROLLMENT,
+	        		courseClassTO.getEnrollment().getUUID());
+	        
 			session.setCurrentCourseClass(courseClassTO);
 		}
 		
