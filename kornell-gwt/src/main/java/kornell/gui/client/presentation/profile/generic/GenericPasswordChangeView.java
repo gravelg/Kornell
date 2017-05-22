@@ -103,9 +103,9 @@ public class GenericPasswordChangeView extends Composite implements ProfileView 
 
 		if(validateFields()){
 			bus.fireEvent(new ShowPacifierEvent(true));
-			session.user().changeTargetPassword(user.getPerson().getUUID(), modalNewPassword.getFieldPersistText(), new Callback<Void>() {
+			session.user().changeTargetPassword(user.getPerson().getUUID(), modalNewPassword.getFieldPersistText(), new Callback<String>() {
 				@Override
-				public void ok(Void to) {
+				public void ok(String s) {
 					bus.fireEvent(new ShowPacifierEvent(false));
 					passwordChangeModal.hide();
 					KornellNotification.show(constants.confirmPasswordChange());

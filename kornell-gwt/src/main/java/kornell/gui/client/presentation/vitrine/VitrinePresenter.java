@@ -248,9 +248,9 @@ public class VitrinePresenter implements VitrineView.Presenter {
 		session.user().requestPasswordChange(
 				view.getFpEmail().toLowerCase().trim(),
 				session.getInstitution().getName(),
-				new Callback<Void>() {
+				new Callback<String>() {
 					@Override
-					public void ok(Void to) {
+					public void ok(String to) {
 						view.displayView(VitrineViewType.login);
 						KornellNotification
 								.show(KornellConstantsHelper.getMessage("requestPasswordReset"));

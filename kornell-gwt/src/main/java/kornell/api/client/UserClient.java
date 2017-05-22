@@ -27,7 +27,7 @@ public class UserClient extends RESTClient {
 		PUT("/user/registrationRequest").withContentType(RegistrationRequestTO.TYPE).withEntityBody(registrationRequestTO).go(cb);
 	}
 
-	public void requestPasswordChange(String email, String institutionName, Callback<Void> cb) {
+	public void requestPasswordChange(String email, String institutionName, Callback<String> cb) {
 		GET("/user/requestPasswordChange/" + URL.encodePathSegment(email) + "/" + institutionName).sendRequest(null, cb);
 	}
 
@@ -35,7 +35,7 @@ public class UserClient extends RESTClient {
 		PUT("/user/resetPassword/" + passwordChangeUUID).sendRequest(password, cb);
 	}
 
-	public void changeTargetPassword(String targetPersonUUID, String password, Callback<Void> cb) {
+	public void changeTargetPassword(String targetPersonUUID, String password, Callback<String> cb) {
 		PUT("/user/changePassword/" + targetPersonUUID).sendRequest(password, cb);
 	}
 	

@@ -77,9 +77,9 @@ public class GenericSendMessageView extends Composite implements ProfileView {
 	void doOK(ClickEvent e) { 
 		if(modalMessageTextArea.getText().length() > 0){
 			bus.fireEvent(new ShowPacifierEvent(true));
-			session.chatThreads().postMessageToDirectThread(modalMessageTextArea.getText(), user.getPerson().getUUID(), new Callback<Void>() {
+			session.chatThreads().postMessageToDirectThread(modalMessageTextArea.getText(), user.getPerson().getUUID(), new Callback<String>() {
 				@Override
-				public void ok(Void to) {
+				public void ok(String to) {
 					bus.fireEvent(new ShowPacifierEvent(false));
 					modalMessageTextArea.setText("");
 					sendMessageModal.hide();
