@@ -30,6 +30,7 @@ import kornell.core.to.RoleTO
 import scala.collection.immutable.List
 import kornell.server.util.EmailService
 import kornell.server.api.InstitutionResource
+import kornell.core.entity.EntityState
 
 
 class ChatThreadsRepo {
@@ -216,7 +217,7 @@ object ChatThreadsRepo {
   }
   
   def updateParticipantsInCourseClassSupportThreadsForInstitution(institutionUUID: String, threadType: ChatThreadType) = {
-    sql"""select uuid from CourseClass where institutionUUID = ${institutionUUID}""".map[String](toString)
+    sql"""select uuid from CourseClass where institutionUUID = ${institutionUUID} and state <> ${EntityState.deleted.toString()}""".map[String](toString)
     .foreach(cc => updateParticipantsInThreads(cc, institutionUUID, threadType))
   }
   

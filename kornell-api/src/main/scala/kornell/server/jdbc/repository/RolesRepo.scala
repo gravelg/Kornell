@@ -158,11 +158,11 @@ object RolesRepo {
   }
 
   def create(role: Role) = {
-    if(RoleType.courseClassAdmin.equals(role.getRoleType) || RoleType.tutor.equals(role.getRoleType)
-        || RoleType.observer.equals(role.getRoleType)) {
       if(StringUtils.isNone(role.getUUID)){
         role.setUUID(UUID.random)
       }
+    if(RoleType.courseClassAdmin.equals(role.getRoleType) || RoleType.tutor.equals(role.getRoleType)
+        || RoleType.observer.equals(role.getRoleType)) {
 	    sql"""
 	    	insert into Role (uuid, personUUID, role, courseClassUUID) values (
         ${role.getUUID}, 
