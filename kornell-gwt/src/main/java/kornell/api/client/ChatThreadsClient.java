@@ -23,7 +23,7 @@ public class ChatThreadsClient extends RESTClient {
 		POST("/chatThreads/platformSupport").sendRequest(message, callback);
 	}
 	
-	public void postMessageToDirectThread(String message, String personUUID, Callback<String> callback) {
+	public void postMessageToDirectThread(String message, String personUUID, Callback<Void> callback) {
 		POST("/chatThreads/direct/" + personUUID).sendRequest(message, callback);
 	}
 	

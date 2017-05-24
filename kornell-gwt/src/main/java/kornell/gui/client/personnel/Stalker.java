@@ -93,9 +93,9 @@ public class Stalker implements ActomEnteredEventHandler, LoginEventHandler {
 		if (session.isAnonymous()) return;
 		String institutionUUID = session.getInstitution().getUUID();
 		String personUUID = session.getCurrentUser().getPerson().getUUID();
-		session.events().attendanceSheetSigned(institutionUUID, personUUID).fire(new Callback<String>() {
+		session.events().attendanceSheetSigned(institutionUUID, personUUID).fire(new Callback<Void>() {
 			@Override
-			public void ok(String to) { 
+			public void ok(Void to) { 
 				/* nothing to do */
 			}
 		});

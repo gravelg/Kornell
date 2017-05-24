@@ -181,9 +181,9 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
             bus.fireEvent(new ShowPacifierEvent(true));
             session.events()
             .enrollmentStateChanged(enrollmentTO.getEnrollment().getUUID(), personUUID,
-                    enrollmentTO.getEnrollment().getState(), toState).fire(new Callback<String>() {
+                    enrollmentTO.getEnrollment().getState(), toState).fire(new Callback<Void>() {
                         @Override
-                        public void ok(String to) {
+                        public void ok(Void to) {
                             bus.fireEvent(new ShowPacifierEvent(false));
                             getEnrollments(session.getCurrentCourseClass().getCourseClass().getUUID());
                             view.setCanPerformEnrollmentAction(true);
@@ -204,9 +204,9 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         String personUUID = session.getCurrentUser().getPerson().getUUID();
         session.events()
         .courseClassStateChanged(courseClassTO.getCourseClass().getUUID(), personUUID,
-                courseClassTO.getCourseClass().getState(), toState).fire(new Callback<String>() {
+                courseClassTO.getCourseClass().getState(), toState).fire(new Callback<Void>() {
                     @Override
-                    public void ok(String to) {
+                    public void ok(Void to) {
                         bus.fireEvent(new ShowPacifierEvent(false));
                         if(EntityState.inactive.equals(toState)){
                             KornellNotification.show("Turma desabilitada com sucesso!");
@@ -569,9 +569,9 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     	    	    	} else {
     	    	    		view.showModal(false, "");  
     	    	            session.events().enrollmentTransfered(enrollmentUUID, courseClassUUID, session.getCurrentCourseClass().getCourseClass().getUUID(), session.getCurrentUser().getPerson().getUUID())
-    	    	            .fire(new Callback<String>() {
+    	    	            .fire(new Callback<Void>() {
     	    	                @Override
-    	    	                public void ok(String to) {
+    	    	                public void ok(Void to) {
     	    	                    bus.fireEvent(new ShowPacifierEvent(false));
     	    	                    getEnrollments(session.getCurrentCourseClass()
     	    	                            .getCourseClass().getUUID());
@@ -630,9 +630,9 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         			enrollmentTO.getEnrollment().getUUID(), 
         			session.getCurrentUser().getPerson().getUUID(), 
         			enrollmentTO.getEnrollment().getState(), 
-        			EnrollmentState.deleted).fire(new Callback<String>(){
+        			EnrollmentState.deleted).fire(new Callback<Void>(){
 				@Override
-				public void ok(String to) {
+				public void ok(Void to) {
 					KornellNotification.show("Matrícula excluída com sucesso.", 2000);
                     getEnrollments(session.getCurrentCourseClass().getCourseClass().getUUID());
                     view.setCanPerformEnrollmentAction(true);

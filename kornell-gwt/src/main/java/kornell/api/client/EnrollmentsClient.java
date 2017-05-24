@@ -30,9 +30,9 @@ public class EnrollmentsClient extends RESTClient {
 	
 	public void notesUpdated(String courseClassUUID, String notes) {
 		PUT("/enrollments/" + courseClassUUID + "/notesUpdated").sendRequest(notes,
-				new Callback<String>() {
+				new Callback<Void>() {
 					@Override
-					public void ok(String v) {
+					public void ok(Void v) {
 						logger.info("notes updated");
 					}
 				});
