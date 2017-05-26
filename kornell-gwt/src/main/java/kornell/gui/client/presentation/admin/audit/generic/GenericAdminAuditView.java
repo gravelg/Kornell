@@ -65,7 +65,7 @@ import kornell.gui.client.presentation.admin.institution.AdminInstitutionPlace;
 import kornell.gui.client.presentation.profile.ProfilePlace;
 import kornell.gui.client.util.ClientConstants;
 import kornell.gui.client.util.forms.FormHelper;
-import kornell.gui.client.util.view.KornellPagination;
+import kornell.gui.client.util.view.table.KornellPagination;
 
 public class GenericAdminAuditView extends Composite implements AdminAuditView {
 
@@ -77,7 +77,7 @@ public class GenericAdminAuditView extends Composite implements AdminAuditView {
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 	private PlaceController placeCtrl;
 	final CellTable<EntityChanged> table;
-	private KornellPagination pagination;
+	private KornellPagination<EntityChanged> pagination;
 	private AdminAuditView.Presenter presenter;
 	private FormHelper formHelper = GWT.create(FormHelper.class);
 	private ListBox entityTypesList;
@@ -280,7 +280,7 @@ public class GenericAdminAuditView extends Composite implements AdminAuditView {
 	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
-		pagination = new KornellPagination(table, presenter);
+		pagination = new KornellPagination<EntityChanged>(table, presenter);
 	}
 
 	private Delegate<EntityChanged> getAuditDelegate() {

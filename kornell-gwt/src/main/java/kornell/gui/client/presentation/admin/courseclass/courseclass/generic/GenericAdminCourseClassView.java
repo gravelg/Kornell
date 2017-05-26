@@ -90,7 +90,7 @@ import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.KornellPagination;
+import kornell.gui.client.util.view.table.KornellPagination;
 
 public class GenericAdminCourseClassView extends Composite implements AdminCourseClassView,
 		UnreadMessagesPerThreadFetchedEventHandler, UnreadMessagesCountChangedEventHandler {
@@ -107,7 +107,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	private AdminCourseClassView.Presenter presenter;
 	final CellTable<EnrollmentTO> table;
 	private List<EnrollmentTO> enrollmentsOriginal;
-	private KornellPagination pagination;
+	private KornellPagination<EnrollmentTO> pagination;
 	private TextBox txtSearch;
 	private Button btnSearch;
 	private boolean isEnabled;
@@ -658,7 +658,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
-		pagination = new KornellPagination(table, presenter);
+		pagination = new KornellPagination<EnrollmentTO>(table, presenter);
 	}
 
 	@UiHandler("btnModalOK")

@@ -10,10 +10,10 @@ import kornell.core.entity.EnrollmentState;
 import kornell.core.entity.RegistrationType;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.EnrollmentTO;
-import kornell.gui.client.util.view.PaginationPresenter;
+import kornell.gui.client.util.view.table.PaginationPresenter;
 
 public interface AdminCourseClassView extends IsWidget {
-	public interface Presenter extends PaginationPresenter {
+	public interface Presenter extends PaginationPresenter<EnrollmentTO> {
 		void changeEnrollmentState(EnrollmentTO object, EnrollmentState state);
 		void changeCourseClassState(CourseClassTO courseClassTO, EntityState toState);
 		boolean showActionButton(String actionName, EnrollmentTO enrollmentTO);

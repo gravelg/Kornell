@@ -12,7 +12,7 @@ class RootResource {
   val buildDescription = BUILD_NUM.getOpt.orElse("development_build").get
   val buildDate = BUILT_ON.getOpt.orElse("now").get
   
-  @Produces(Array("text/plain"))
+  @Produces(Array("application/octet-stream"))
   @GET
   def get = 
     s"""|Welcome to Kornell API  

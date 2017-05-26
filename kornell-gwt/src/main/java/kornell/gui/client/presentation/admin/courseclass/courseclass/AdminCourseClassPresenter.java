@@ -50,7 +50,6 @@ import kornell.gui.client.util.view.KornellNotification;
 public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter {
     Logger logger = Logger.getLogger(AdminCourseClassPresenter.class.getName());
     private AdminCourseClassView view;
-    private List<EnrollmentTO> enrollmentTOs;
     private String batchEnrollmentErrors;
     private List<EnrollmentRequestTO> batchEnrollments;
     private FormHelper formHelper;
@@ -68,6 +67,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     private String searchTerm = "";
 	private String asc;
 	private String orderBy;
+	private EnrollmentsTO enrollmentsTO;
 
     public AdminCourseClassPresenter(KornellSession session, EventBus bus, PlaceController placeController,
             Place defaultPlace, TOFactory toFactory, ViewFactory viewFactory) {
@@ -134,7 +134,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     }
 
     private void showEnrollments(EnrollmentsTO e, boolean refreshView) {
-        enrollmentTOs = e.getEnrollmentTOs();
+        enrollmentsTO = e;
         view.setEnrollmentList(e.getEnrollmentTOs(), e.getCount(), e.getCountCancelled(), e.getSearchCount(), refreshView);
         view.showEnrollmentsPanel(true);
     }
@@ -620,7 +620,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 
     @Override
     public List<EnrollmentTO> getEnrollments() {
-        return enrollmentTOs;
+        return enrollmentsTO.getEnrollmentTOs();
     }
 
     @Override
@@ -750,5 +750,20 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
 				session.getCurrentCourseClass().getCourseClass().getUUID() + ClientProperties.SEPARATOR +
 				property;
 		return propertyName;
+	}
+
+	@Override
+	public int getTotalRowCount() {
+		return StringUtils.isSome(getSearchTerm()) ? enrollmentsTO.getCount() : enrollmentsTO.getSearchCount();
+	}
+
+	@Override
+	public int getCount() {
+		return enrollmentsTO.getCount();
+	}
+
+	@Override
+	public List<EnrollmentTO> getRowData() {
+		return enrollmentsTO.getEnrollmentTOs();
 	}
 }

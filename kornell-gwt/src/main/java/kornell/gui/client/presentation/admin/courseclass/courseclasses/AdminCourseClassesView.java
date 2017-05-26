@@ -5,12 +5,14 @@ import java.util.List;
 import com.google.gwt.user.client.ui.IsWidget;
 
 import kornell.core.to.CourseClassTO;
-import kornell.gui.client.util.view.PaginationPresenter;
+import kornell.gui.client.util.view.table.PaginationPresenter;
 
 public interface AdminCourseClassesView extends IsWidget {
-	public interface Presenter extends PaginationPresenter {
+	public interface Presenter extends PaginationPresenter<CourseClassTO> {
 		void updateCourseClass(String courseClassUUID);
+		void deleteCourseClass(CourseClassTO courseClassTO);
+		void duplicateCourseClass(CourseClassTO courseClassTO);
 	}
 	void setPresenter(AdminCourseClassesView.Presenter presenter);
-	void setCourseClasses(List<CourseClassTO> courseClasses, Integer count, Integer searchCount);
+	void setCourseClasses(List<CourseClassTO> courseClasses);
 }

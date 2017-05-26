@@ -1,8 +1,10 @@
-package kornell.gui.client.util.view;
+package kornell.gui.client.util.view.table;
+
+import java.util.List;
 
 import com.google.gwt.user.client.ui.IsWidget;
 
-public interface PaginationPresenter extends IsWidget{
+public interface PaginationPresenter<E> extends IsWidget{
 	String getPageSize();
 	void setPageSize(String pageSize);
 	String getPageNumber();
@@ -15,4 +17,7 @@ public interface PaginationPresenter extends IsWidget{
 	String getAsc();
 	void setAsc(String ascending);
 	String getClientPropertyName(String string);
+	int getTotalRowCount();
+	int getCount();
+	List<E> getRowData();
 }

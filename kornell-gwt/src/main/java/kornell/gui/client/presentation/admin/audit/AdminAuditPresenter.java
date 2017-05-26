@@ -1,5 +1,6 @@
 package kornell.gui.client.presentation.admin.audit;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.gwt.place.shared.Place;
@@ -9,6 +10,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.event.EntityChanged;
 import kornell.core.to.EntityChangedEventsTO;
 import kornell.core.to.TOFactory;
 import kornell.core.util.StringUtils;
@@ -150,6 +152,21 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 		return session.getAdminHomePropertyPrefix() +
 				"audit" + ClientProperties.SEPARATOR +
 				property;
+	}
+
+	@Override
+	public int getTotalRowCount() {
+		return StringUtils.isSome(getSearchTerm()) ? entityChangedEventsTO.getCount() : entityChangedEventsTO.getSearchCount();
+	}
+
+	@Override
+	public int getCount() {
+		return entityChangedEventsTO.getCount();
+	}
+
+	@Override
+	public List<EntityChanged> getRowData() {
+		return entityChangedEventsTO.getEntitiesChanged();
 	}
 	
 }

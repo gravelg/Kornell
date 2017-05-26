@@ -1,4 +1,4 @@
-package kornell.gui.client.util.view;
+package kornell.gui.client.util.view.table;
 
 import java.util.List;
 
@@ -10,8 +10,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class KornellPagination extends Pagination{
-
+public class KornellPagination<T> extends Pagination{
 	
 	private PaginationPresenter presenter;
 	private int maxPaginationTabs = 10;
@@ -82,7 +81,7 @@ public class KornellPagination extends Pagination{
 		return navLink;
 	}
 	
-	public void setRowData(List rowData, int totalRowCount) {
+	public void setRowData(List<T> rowData, int totalRowCount) {
 		this.totalRowCount = totalRowCount;
 		updatePagination(rowData);
 	}
