@@ -46,8 +46,9 @@ import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
+import kornell.gui.client.util.view.table.PaginationPresenterImpl;
 
-public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter {
+public class AdminCourseClassPresenter extends PaginationPresenterImpl<EnrollmentTO> implements AdminCourseClassView.Presenter {
     Logger logger = Logger.getLogger(AdminCourseClassPresenter.class.getName());
     private AdminCourseClassView view;
     private String batchEnrollmentErrors;
@@ -62,11 +63,6 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     private EnrollmentRequestsTO enrollmentRequestsTO;
     private List<SimplePersonTO> enrollmentsToOverride;
     private EventBus bus;
-    private String pageSize = "20";
-    private String pageNumber = "1";
-    private String searchTerm = "";
-	private String asc;
-	private String orderBy;
 	private EnrollmentsTO enrollmentsTO;
 
     public AdminCourseClassPresenter(KornellSession session, EventBus bus, PlaceController placeController,
@@ -79,7 +75,6 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         this.viewFactory = viewFactory;
         formHelper = new FormHelper();
         enrollmentRequestsTO = toFactory.newEnrollmentRequestsTO().as();
-        // TODO refactor permissions per session/activity
         init();
 
         bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
@@ -115,12 +110,8 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         }
     }
 
-    private void getEnrollments(final String courseClassUUID) {           
-		String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
-		String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
-		orderBy = orderByProperty != null ? orderByProperty : "e.state";
-		asc = ascProperty != null ? ascProperty : "false";
-		
+    private void getEnrollments(final String courseClassUUID) {  
+		initializeProperties("e.state");
         bus.fireEvent(new ShowPacifierEvent(true));
         session.enrollments().getEnrollmentsByCourseClass(courseClassUUID, pageSize, pageNumber, searchTerm, orderBy, asc, new Callback<EnrollmentsTO>() {
             @Override
@@ -689,59 +680,9 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
     }
 
     @Override
-    public String getPageSize() {
-        return pageSize;
-    }
-
-    @Override
-    public void setPageSize(String pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    @Override
-    public String getPageNumber() {
-        return pageNumber;
-    }
-
-    @Override
-    public void setPageNumber(String pageNumber) {
-        this.pageNumber = pageNumber;
-    }
-
-    @Override
-    public String getSearchTerm() {
-        return searchTerm;
-    }
-
-    @Override
-    public void setSearchTerm(String searchTerm) {
-        this.searchTerm = searchTerm;	
-    }
-
-    @Override
     public void updateData() {
         updateCourseClassUI(session.getCurrentCourseClass());
     }
-
-	@Override
-	public void setOrderBy(String orderBy) {
-		this.orderBy = orderBy;
-	}
-
-	@Override
-	public void setAsc(String asc) {
-		this.asc = asc;
-	}
-
-	@Override
-	public String getOrderBy() {
-		return orderBy;
-	}
-
-	@Override
-	public String getAsc() {
-		return asc;
-	}
 
 	@Override
 	public String getClientPropertyName(String property){

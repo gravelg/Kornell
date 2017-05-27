@@ -126,7 +126,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 			}
 		});
 
-		table.initColumn("Turma", 20, "cc.name", new Column<CourseClassTO, CourseClassTO>(buildCourseClassCell()) {
+		table.initColumn("Turma", 25, "cc.name", new Column<CourseClassTO, CourseClassTO>(buildCourseClassCell()) {
 			@Override
 			public CourseClassTO getValue(CourseClassTO courseClassTO) {
 				return courseClassTO;

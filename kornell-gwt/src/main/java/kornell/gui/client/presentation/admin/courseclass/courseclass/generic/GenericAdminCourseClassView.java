@@ -372,9 +372,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
     	        	table.setVisible(true);
     	        	pagination.setVisible(to.getCount() > to.getPageSize());	
 					bus.fireEvent(new ShowPacifierEvent(false));
-
-					ClientProperties.set(presenter.getClientPropertyName("orderBy"), orderBy);
-					ClientProperties.set(presenter.getClientPropertyName("asc"), asc);
+					presenter.updateProperties();
                 } 
             });
         }

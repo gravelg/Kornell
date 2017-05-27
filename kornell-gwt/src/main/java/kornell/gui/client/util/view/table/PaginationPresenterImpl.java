@@ -4,7 +4,7 @@ import java.util.List;
 
 import kornell.gui.client.util.ClientProperties;
 
-public abstract class PaginationPresenterImpl<E> {
+public abstract class PaginationPresenterImpl<E> implements PaginationPresenter<E> {
 	private static String ORDER_BY = "orderBy";
 	private static String ASC = "asc";
 	private static String PAGE_SIZE = "pageSize";

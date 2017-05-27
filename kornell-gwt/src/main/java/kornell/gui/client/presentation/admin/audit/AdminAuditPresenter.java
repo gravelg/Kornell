@@ -18,8 +18,9 @@ import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.forms.FormHelper;
+import kornell.gui.client.util.view.table.PaginationPresenterImpl;
 
-public class AdminAuditPresenter implements AdminAuditView.Presenter {
+public class AdminAuditPresenter extends PaginationPresenterImpl<EntityChanged> implements AdminAuditView.Presenter {
 	Logger logger = Logger.getLogger(AdminAuditPresenter.class.getName());
 	private AdminAuditView view;
 	FormHelper formHelper;
@@ -29,11 +30,6 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 	TOFactory toFactory;
 	private ViewFactory viewFactory;
 	private EntityChangedEventsTO entityChangedEventsTO;
-	private String pageSize = "20";
-	private String pageNumber = "1";
-	private String searchTerm = "";
-	private String asc = "true";
-	private String orderBy = "";
 	private EventBus bus;
 
 
@@ -52,6 +48,7 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 
 	private void init() {
 		if (session.isPlatformAdmin()) {
+			initializeProperties("eventFiredAt");
 			view = getView();
 			view.setPresenter(this);
 			entityChangedEventsTO = view.getEntityChangedEventsTO();
@@ -78,6 +75,7 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 	  				entityChangedEventsTO = to;
 	  				view.setEntitiesChangedEvents(entityChangedEventsTO);
 	  				bus.fireEvent(new ShowPacifierEvent(false));
+					updateProperties();
 	  			}
 	  		});
 		}
@@ -93,58 +91,8 @@ public class AdminAuditPresenter implements AdminAuditView.Presenter {
 	}
 
 	@Override
-	public String getPageSize() {
-		return pageSize;
-	}
-
-	@Override
-	public void setPageSize(String pageSize) {
-		this.pageSize = pageSize;
-	}
-
-	@Override
-	public String getPageNumber() {
-		return pageNumber;
-	}
-
-	@Override
-	public void setPageNumber(String pageNumber) {
-		this.pageNumber = pageNumber;
-	}
-
-	@Override
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	@Override
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;	
-	}
-
-	@Override
 	public void updateData() {
 		getEntitiesChanged();
-	}
-
-	@Override
-	public void setOrderBy(String orderBy) {
-		this.orderBy = orderBy;
-	}
-
-	@Override
-	public void setAsc(String asc) {
-		this.asc = asc;
-	}
-
-	@Override
-	public String getOrderBy() {
-		return orderBy;
-	}
-
-	@Override
-	public String getAsc() {
-		return asc;
 	}
 
 	@Override

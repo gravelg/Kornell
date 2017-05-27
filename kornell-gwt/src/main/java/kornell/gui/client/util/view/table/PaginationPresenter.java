@@ -20,6 +20,10 @@ public interface PaginationPresenter<E> extends IsWidget{
 	
 	String getAsc();
 	void setAsc(String ascending);
+
+	void initializeProperties(String defaultOrderBy);
+
+	void updateProperties();
 	
 	String getClientPropertyName(String string);
 	
