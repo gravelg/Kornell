@@ -105,7 +105,7 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 	}
 
 	public void onLMSSetValue(String key, String value) {
-		if ("knl.next".equals(key) || "knl.action.next".equals(key)){ //.action
+		if ("knl.next".equals(key) || "knl.action.next".equals(key)){
 			bus.fireEvent(NavigationRequest.next());
 		} else if ("knl.prev".equals(key) || "knl.action.prev".equals(key)){
 			bus.fireEvent(NavigationRequest.prev());
@@ -121,16 +121,21 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 	}
 	
 	private void initializeDisableButtonsTimer(){
-		bus.fireEvent(NavigationAuthorizationEvent.next(false));
-		bus.fireEvent(NavigationAuthorizationEvent.prev(false));
-		disableButtonsTimer = new Timer() {
-			public void run() {
-				bus.fireEvent(NavigationAuthorizationEvent.next(!disableNextButton));
-				bus.fireEvent(NavigationAuthorizationEvent.prev(!disablePrevButton));
-			}
-		};
-		// Schedule the timer to run after 3s
-		disableButtonsTimer.schedule(3000);
+		if(session.getCurrentCourseClass().getEnrollment().getCertifiedAt() != null){
+			bus.fireEvent(NavigationAuthorizationEvent.next(true));
+			bus.fireEvent(NavigationAuthorizationEvent.prev(true));
+		} else {
+			bus.fireEvent(NavigationAuthorizationEvent.next(false));
+			bus.fireEvent(NavigationAuthorizationEvent.prev(false));
+			disableButtonsTimer = new Timer() {
+				public void run() {
+					bus.fireEvent(NavigationAuthorizationEvent.next(!disableNextButton));
+					bus.fireEvent(NavigationAuthorizationEvent.prev(!disablePrevButton));
+				}
+			};
+			// Schedule the timer to run after 3s
+			disableButtonsTimer.schedule(3000);
+		}
 	}
 
 	@Override

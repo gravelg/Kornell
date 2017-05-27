@@ -8,6 +8,7 @@ import kornell.core.lom.Actom;
 import kornell.core.lom.Contents;
 import kornell.core.lom.ContentsOps;
 import kornell.core.util.StringUtils;
+import kornell.gui.client.event.NavigationAuthorizationEvent;
 import kornell.gui.client.event.ProgressEvent;
 import kornell.gui.client.presentation.classroom.ClassroomPlace;
 import kornell.gui.client.sequence.NavigationRequest;
@@ -30,8 +31,12 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
 	public void onContinue(NavigationRequest event) {
 		if (!isActive)
 			return;
-		currentIndex++;
-		paintCurrent();
+		if(currentIndex < (actoms.size() - 1)){
+			currentIndex++;
+			paintCurrent();
+		} else {
+			bus.fireEvent(NavigationAuthorizationEvent.next(false));
+		}
 	}
 
 	private void makeCurrentVisible() {
@@ -42,8 +47,12 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
 	public void onPrevious(NavigationRequest event) {
 		if (!isActive)
 			return;
-		currentIndex--;
-		paintCurrent();
+		if(currentIndex > 0){
+			currentIndex--;
+			paintCurrent();
+		} else {
+			bus.fireEvent(NavigationAuthorizationEvent.prev(false));
+		}
 	}
 
 	@Override

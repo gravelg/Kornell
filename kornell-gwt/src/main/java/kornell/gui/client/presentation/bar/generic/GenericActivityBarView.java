@@ -17,8 +17,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import kornell.api.client.KornellSession;
-import kornell.core.entity.EntityState;
 import kornell.core.entity.EnrollmentState;
+import kornell.core.entity.EntityState;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.UserInfoTO;
 import kornell.gui.client.ClientFactory;
