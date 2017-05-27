@@ -24,8 +24,9 @@ import kornell.gui.client.presentation.admin.course.course.AdminCoursePlace;
 import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
+import kornell.gui.client.util.view.table.PaginationPresenterImpl;
 
-public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
+public class AdminCoursesPresenter extends PaginationPresenterImpl<CourseTO> implements AdminCoursesView.Presenter {
 	Logger logger = Logger.getLogger(AdminCoursesPresenter.class.getName());
 	private AdminCoursesView view;
 	FormHelper formHelper;
@@ -35,11 +36,6 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
 	TOFactory toFactory;
 	private ViewFactory viewFactory;
 	private CoursesTO coursesTO;
-	private String pageSize;
-	private String pageNumber;
-	private String searchTerm;
-	private String asc;
-	private String orderBy;
 	private EventBus bus;
 	private boolean blockActions;
 	private ConfirmModalView confirmModal;
@@ -60,21 +56,11 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
 
 	private void init() {
 		if (session.isInstitutionAdmin()) {
-			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
-			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
-			String pageSizeProperty = ClientProperties.get(getClientPropertyName("pageSize"));
-			String pageNumberProperty = ClientProperties.get(getClientPropertyName("pageNumber"));
-			this.orderBy = orderByProperty != null ? orderByProperty : "c.name";
-			this.asc = ascProperty != null ? ascProperty : "true";
-			this.pageSize = pageSizeProperty != null ? pageSizeProperty : "20";
-			this.pageNumber = pageNumberProperty != null ? pageNumberProperty : "1";
-			this.searchTerm = "";
-			
+			initializeProperties("c.name");
 			view = getView();
 			view.setPresenter(this);
 			bus.fireEvent(new ShowPacifierEvent(true));
-			getCourses();
-      
+			getCourses();      
 		} else {
 			logger.warning("Hey, only admins are allowed to see this! "
 					+ this.getClass().getName());
@@ -90,11 +76,7 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
   				coursesTO = to;
   				view.setCourses(coursesTO.getCourses());
   				bus.fireEvent(new ShowPacifierEvent(false));
-
-				ClientProperties.set(getClientPropertyName("orderBy"), getOrderBy());
-				ClientProperties.set(getClientPropertyName("asc"), getAsc());
-				ClientProperties.set(getClientPropertyName("pageSize"), getPageSize());
-				ClientProperties.set(getClientPropertyName("pageNumber"), getPageNumber());
+				updateProperties();
   			}
   		});
 	}
@@ -109,60 +91,10 @@ public class AdminCoursesPresenter implements AdminCoursesView.Presenter {
 	}
 
 	@Override
-	public String getPageSize() {
-		return pageSize;
-	}
-
-	@Override
-	public void setPageSize(String pageSize) {
-		this.pageSize = pageSize;
-	}
-
-	@Override
-	public String getPageNumber() {
-		return pageNumber;
-	}
-
-	@Override
-	public void setPageNumber(String pageNumber) {
-		this.pageNumber = pageNumber;
-	}
-
-	@Override
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	@Override
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;	
-	}
-
-	@Override
 	public void updateData() {
 		getCourses();
 	}
-
-	@Override
-	public void setOrderBy(String orderBy) {
-		this.orderBy = orderBy;
-	}
-
-	@Override
-	public void setAsc(String asc) {
-		this.asc = asc;
-	}
-
-	@Override
-	public String getOrderBy() {
-		return orderBy;
-	}
-
-	@Override
-	public String getAsc() {
-		return asc;
-	}
-
+	
 	@Override
 	public String getClientPropertyName(String property){
 		return session.getAdminHomePropertyPrefix() +

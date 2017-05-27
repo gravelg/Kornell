@@ -26,8 +26,9 @@ import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourse
 import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
+import kornell.gui.client.util.view.table.PaginationPresenterImpl;
 
-public class AdminCourseClassesPresenter implements AdminCourseClassesView.Presenter {
+public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseClassTO> implements AdminCourseClassesView.Presenter {
 	Logger logger = Logger.getLogger(AdminCourseClassesPresenter.class.getName());
 	private AdminCourseClassesView view;
 	FormHelper formHelper;
@@ -37,11 +38,6 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	TOFactory toFactory;
 	private ViewFactory viewFactory;
 	private CourseClassesTO courseClassesTO;
-	private String pageSize;
-	private String pageNumber;
-	private String searchTerm;
-	private String asc;
-	private String orderBy;
 	private EventBus bus;
 	private boolean blockActions;
 	private ConfirmModalView confirmModal;
@@ -66,21 +62,11 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 				|| RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
 				|| RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
 				|| session.isInstitutionAdmin()) {
-			String orderByProperty = ClientProperties.get(getClientPropertyName("orderBy"));
-			String ascProperty = ClientProperties.get(getClientPropertyName("asc"));
-			String pageSizeProperty = ClientProperties.get(getClientPropertyName("pageSize"));
-			String pageNumberProperty = ClientProperties.get(getClientPropertyName("pageNumber"));
-			this.orderBy = orderByProperty != null ? orderByProperty : "c.name";
-			this.asc = ascProperty != null ? ascProperty : "true";
-			this.pageSize = pageSizeProperty != null ? pageSizeProperty : "20";
-			this.pageNumber = pageNumberProperty != null ? pageNumberProperty : "1";
-			this.searchTerm = "";
-			
+			initializeProperties("cc.name");
 			view = getView();
 			view.setPresenter(this);			
 			String selectedCourseClass = "";
-			updateCourseClass(selectedCourseClass);
-      
+			updateCourseClass(selectedCourseClass);      
 		} else {
 			logger.warning("Hey, only admins are allowed to see this! "
 					+ this.getClass().getName());
@@ -98,6 +84,7 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 				courseClassesTO = to;
 				view.setCourseClasses(courseClassesTO.getCourseClasses());
 				bus.fireEvent(new ShowPacifierEvent(false));
+				updateProperties();
 				if(courseClassesTO.getCourseClasses().size() != 0){
 					for (CourseClassTO courseClassTO : courseClassesTO.getCourseClasses()) {
 						if (courseClassUUID == null || courseClassTO.getCourseClass().getUUID().equals(courseClassUUID)) {
@@ -105,11 +92,6 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 						}
 					}
 				}
-
-				ClientProperties.set(getClientPropertyName("orderBy"), getOrderBy());
-				ClientProperties.set(getClientPropertyName("asc"), getAsc());
-				ClientProperties.set(getClientPropertyName("pageSize"), getPageSize());
-				ClientProperties.set(getClientPropertyName("pageNumber"), getPageNumber());
 			}
 		});
 	}
@@ -124,58 +106,8 @@ public class AdminCourseClassesPresenter implements AdminCourseClassesView.Prese
 	}
 
 	@Override
-	public String getPageSize() {
-		return pageSize;
-	}
-
-	@Override
-	public void setPageSize(String pageSize) {
-		this.pageSize = pageSize;
-	}
-
-	@Override
-	public String getPageNumber() {
-		return pageNumber;
-	}
-
-	@Override
-	public void setPageNumber(String pageNumber) {
-		this.pageNumber = pageNumber;
-	}
-
-	@Override
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	@Override
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;	
-	}
-
-	@Override
 	public void updateData() {
     	updateCourseClass("");
-	}
-
-	@Override
-	public void setOrderBy(String orderBy) {
-		this.orderBy = orderBy;
-	}
-
-	@Override
-	public void setAsc(String asc) {
-		this.asc = asc;
-	}
-
-	@Override
-	public String getOrderBy() {
-		return orderBy;
-	}
-
-	@Override
-	public String getAsc() {
-		return asc;
 	}
 
 	@Override
