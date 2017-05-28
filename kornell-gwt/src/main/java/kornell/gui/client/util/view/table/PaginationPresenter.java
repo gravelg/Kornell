@@ -29,8 +29,6 @@ public interface PaginationPresenter<E> extends IsWidget{
 	
 	int getTotalRowCount();
 	
-	int getCount();
-	
 	List<E> getRowData();
 
 	void updateData();

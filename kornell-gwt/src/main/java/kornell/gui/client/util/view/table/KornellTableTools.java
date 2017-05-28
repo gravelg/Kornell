@@ -25,6 +25,7 @@ public class KornellTableTools<T> extends FlowPanel{
 	private Timer updateTimer;
 	private TextBox txtSearch;
 	private Button btnSearch;
+	private ListBox pageSizeListBox;
 
 
 	public KornellTableTools(PaginationPresenter<T> presenter) {
@@ -40,10 +41,11 @@ public class KornellTableTools<T> extends FlowPanel{
 		this.addStyleName("marginTop25");
 		initSearch();
 		initPageSizeListBox();
+		refresh();
 	}
 
 	private void initPageSizeListBox() {
-		final ListBox pageSizeListBox = new ListBox();
+		this.pageSizeListBox = new ListBox();
 		pageSizeListBox.addStyleName("pageSizeListBox");
 		pageSizeListBox.addItem("20");
 		pageSizeListBox.addItem("50");
@@ -100,13 +102,6 @@ public class KornellTableTools<T> extends FlowPanel{
 			this.add(txtSearch);
 			this.add(btnSearch);
 		}
-		
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				txtSearch.setFocus(true);
-			}
-		});
 
 		txtSearch.setValue(presenter.getSearchTerm());
 		txtSearch.setTitle("insira o nome ou o código do curso");
@@ -131,5 +126,23 @@ public class KornellTableTools<T> extends FlowPanel{
 		return txtSearch.getText();
 	}
 
+	public void refresh() {		
+		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+			@Override
+			public void execute() {
+				txtSearch.setFocus(true);
+			}
+		});
+		
+		pageSizeListBox.setVisible(presenter.getTotalRowCount() > 20);
+		txtSearch.setText(presenter.getSearchTerm());
+	}
+
+	public void resetSearchTerm() {
+		if(txtSearch != null){
+			txtSearch.setText("");
+			presenter.setSearchTerm("");
+		}
+	}
 	
 }

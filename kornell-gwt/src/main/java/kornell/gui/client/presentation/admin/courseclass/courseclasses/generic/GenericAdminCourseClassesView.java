@@ -34,6 +34,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -64,6 +65,8 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 
 	@UiField
 	FlowPanel adminHomePanel;
+	@UiField
+	Label title;
 	@UiField
 	FlowPanel courseClassesPanel;
 	@UiField
@@ -202,6 +205,9 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
+		if(table != null){
+			table.resetSearchTerm();
+		}
 	}
 
 	@Override
@@ -213,6 +219,7 @@ public class GenericAdminCourseClassesView extends Composite implements AdminCou
 		}
 		table.build(courseClassesWrapper, courseClassTOs);
 	
+		title.setText("Gerenciar Turmas (" + presenter.getTotalRowCount() + ")");
 		adminHomePanel.setVisible(true);
 	}
 

@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.Button;
-import com.github.gwtbootstrap.client.ui.CellTable;
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.Modal;
 import com.github.gwtbootstrap.client.ui.Tab;
@@ -25,18 +24,11 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.HasCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -45,19 +37,11 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent.AsyncHandler;
-import com.google.gwt.user.cellview.client.ColumnSortList;
-import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
-import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.AsyncDataProvider;
-import com.google.gwt.view.client.HasData;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
@@ -72,7 +56,6 @@ import kornell.core.entity.RegistrationType;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.CourseClassesTO;
 import kornell.core.to.EnrollmentTO;
-import kornell.core.to.EnrollmentsTO;
 import kornell.core.to.UnreadChatThreadTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.ViewFactory;
@@ -85,11 +68,10 @@ import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.common.ConfirmModalView;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourseClassView;
 import kornell.gui.client.presentation.message.MessagePresenter;
-import kornell.gui.client.util.AsciiUtils;
 import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
-import kornell.gui.client.util.view.table.KornellPagination;
+import kornell.gui.client.util.view.table.KornellTable;
 
 public class GenericAdminCourseClassView extends Composite implements AdminCourseClassView,
 		UnreadMessagesPerThreadFetchedEventHandler, UnreadMessagesCountChangedEventHandler {
@@ -104,18 +86,14 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	private ViewFactory viewFactory;
 	private AdminAssetsPresenter adminAssetsPresenter;
 	private AdminCourseClassView.Presenter presenter;
-	final CellTable<EnrollmentTO> table;
+	private KornellTable<EnrollmentTO> table;
 	private List<EnrollmentTO> enrollmentsOriginal;
-	private KornellPagination<EnrollmentTO> pagination;
-	private TextBox txtSearch;
-	private Button btnSearch;
 	private boolean isEnabled;
 	private Integer maxEnrollments = 0;
 	private Integer numEnrollments = 0;
 	private GenericCourseClassReportsView reportsView;
 	private GenericCourseClassMessagesView messagesView;
 	private FormHelper formHelper;
-	private Timer updateTimer, refreshTableTimer;
 	private boolean canPerformEnrollmentAction = true;
 	private MessagePresenter messagePresenter;
 	private int totalCount = 0;
@@ -124,6 +102,8 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 
 	@UiField
 	FlowPanel adminHomePanel;
+	@UiField
+	Label title;
 	@UiField
 	FlowPanel enrollPanel;
 	@UiField
@@ -235,7 +215,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		this.confirmModal = viewFactory.getConfirmModalView();
 		initWidget(uiBinder.createAndBindUi(this));
 		tabsPanel.setVisible(false);
-		table = new CellTable<EnrollmentTO>();
 		formHelper = new FormHelper();
 		bus.addHandler(UnreadMessagesPerThreadFetchedEvent.TYPE, this);
 		bus.addHandler(UnreadMessagesCountChangedEvent.TYPE, this);
@@ -254,7 +233,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		enrollmentsTab.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				presenter.updateCourseClass(session.getCurrentCourseClass().getCourseClass().getUUID());
+				presenter.updateCourseClassUI(session.getCurrentCourseClass());
 				messagePresenter.enableMessagesUpdate(false);
 			}
 		});
@@ -316,65 +295,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 			FormHelper.hideTab(assetsTab);
 		}
 
-		updateTimer = new Timer() {
-			@Override
-			public void run() {
-				filterEnrollments();
-			}
-		};
-
-		refreshTableTimer = new Timer() {
-			@Override
-			public void run() {
-				refreshTable();
-			}
-		};
-		
-		
-		// Create a data provider.
-	    AsyncDataProvider<EnrollmentTO> dataProvider = new AsyncDataProvider<EnrollmentTO>() {
-	      @Override
-	      protected void onRangeChanged(HasData<EnrollmentTO> display) {
-	    	  scheduleRefreshTable();
-	      }
-	    };
-
-	    // Connect the list to the data provider.
-	    dataProvider.addDataDisplay(table);
-
-	}
-
-	private void scheduleRefreshTable() {   
-        if(table.getColumnSortList().size() > 0){
-	    	table.setVisible(false);
-	    	pagination.setVisible(false);
-			bus.fireEvent(new ShowPacifierEvent(true));
-        }
-		
-		refreshTableTimer.cancel();
-		refreshTableTimer.schedule(200);
-	}
-
-	private void refreshTable() {      
-	    final ColumnSortList sortList = table.getColumnSortList();	   
-        if(sortList.size() > 0){
-			final String orderBy = sortList.get(0).getColumn().getDataStoreName();
-			final String asc = ""+sortList.get(0).isAscending();
-			presenter.setOrderBy(orderBy);
-			presenter.setAsc(asc);
-            session.enrollments().getEnrollmentsByCourseClass(session.getCurrentCourseClass().getCourseClass().getUUID(), presenter.getPageSize(), presenter.getPageNumber(), presenter.getSearchTerm(), 
-            		presenter.getOrderBy(), presenter.getAsc(), new Callback<EnrollmentsTO>() {
-                @Override 
-                public void ok(EnrollmentsTO to) {
-      				enrollmentsOriginal = to.getEnrollmentTOs();
-      				pagination.setRowData(enrollmentsOriginal, StringUtils.isSome(presenter.getSearchTerm()) ? to.getSearchCount() : to.getCount());
-    	        	table.setVisible(true);
-    	        	pagination.setVisible(to.getCount() > to.getPageSize());	
-					bus.fireEvent(new ShowPacifierEvent(false));
-					presenter.updateProperties();
-                } 
-            });
-        }
 	}
 
 	public void setTabsVisibility() {
@@ -456,57 +376,9 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		adminsPanel.add(new GenericCourseClassAdminsView(session, bus, presenter, session.getCurrentCourseClass()));
 	}
 
-	private void initSearch() {
-		if (txtSearch == null) {
-			txtSearch = new TextBox();
-			txtSearch.addStyleName("txtSearch");
-			txtSearch.addChangeHandler(new ChangeHandler() {
-				@Override
-				public void onChange(ChangeEvent event) {
-					scheduleEnrollmentFilter();
-				}
-			});
-			txtSearch.addKeyUpHandler(new KeyUpHandler() {
-				@Override
-				public void onKeyUp(KeyUpEvent event) {
-					scheduleEnrollmentFilter();
-				}
-			});
-			txtSearch.addValueChangeHandler(new ValueChangeHandler<String>() {
-
-				@Override
-				public void onValueChange(ValueChangeEvent<String> event) {
-					scheduleEnrollmentFilter();
-
-				}
-			});
-			btnSearch = new Button("Pesquisar");
-			btnSearch.setSize(ButtonSize.MINI);
-			btnSearch.setIcon(IconType.SEARCH);
-			btnSearch.addStyleName("btnNotSelected btnSearch");
-			btnSearch.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					scheduleEnrollmentFilter();
-				}
-			});
-		}
-		txtSearch.setValue(presenter.getSearchTerm());
-		txtSearch.setTitle("nome, "
-				+ EnumTranslator.translateEnum(session.getCurrentCourseClass().getCourseClass().getRegistrationType())
-				+ ", matrícula ou progresso");
-	}
-
 	private void initTable() {
 
-		table.addStyleName("adminCellTable");
-		table.addStyleName("lineWithoutLink");
-		table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
-		table.setWidth("100%", true);
-		
-		for (int i = 0; table.getColumnCount() > 0;) {
-			table.removeColumn(i);
-		}
+		table = new KornellTable<EnrollmentTO>(presenter, "");
 		
 		TextColumn<EnrollmentTO> nameColumn = new TextColumn<EnrollmentTO>() {
 			@Override
@@ -627,35 +499,16 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};
 		table.setColumnWidth(actionsColumn, "15%");
 		table.addColumn(actionsColumn, "Ações");
-		
-		
-	    table.addColumnSortHandler(new AsyncHandler(table));
 
-		Column<EnrollmentTO, ?> column;
-		int width = 0;
-		boolean showWarning = false;
-		for (int i = 0; i < table.getColumnCount(); i++) {
-			column = table.getColumn(i);
-			if(presenter.getOrderBy().equals(column.getDataStoreName())){
-			    table.getColumnSortList().push(new ColumnSortInfo(column, presenter.getAsc() == "true"));
-			}
-			if(table.getColumnWidth(column) == null){
-				showWarning = true;;
-			} else {
-				String widthStr = table.getColumnWidth(column).split("%")[0];
-				width += (Integer.parseInt(widthStr));
-			}
-		}
-		if(showWarning || width != 100){
-			GWT.log("Error with columns config: " + width);
-		}
-		
+		table.onColumnSetupFinished();
 	}
 
 	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
-		pagination = new KornellPagination<EnrollmentTO>(table, presenter);
+		if(table != null){
+			table.resetSearchTerm();
+		}
 	}
 
 	@UiHandler("btnModalOK")
@@ -738,66 +591,15 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		if (!refresh)
 			return;
 
-		final ListBox pageSizeListBox = new ListBox();
-
 		enrollmentsWrapper.clear();
-
-		VerticalPanel panel = new VerticalPanel();
-		panel.setWidth("400");
-		panel.add(table);
-
-		// pageSizeListBox.addItem("1");
-		// pageSizeListBox.addItem("10");
-		pageSizeListBox.addItem("20");
-		pageSizeListBox.addItem("50");
-		pageSizeListBox.addItem("100");
-		pageSizeListBox.setSelectedValue(presenter.getPageSize());
-		pageSizeListBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				if (pageSizeListBox.getValue().matches("[0-9]*")) {
-					presenter.setPageNumber("1");
-					presenter.setPageSize(pageSizeListBox.getValue());
-					presenter.updateCourseClassUI(session.getCurrentCourseClass());
-				}
-			}
-		});
-		pageSizeListBox.addStyleName("pageSizeListBox");
-		FlowPanel tableTools = new FlowPanel();
-		tableTools.addStyleName("marginTop25");
-		tableTools.add(txtSearch);
-		tableTools.add(btnSearch);
-		tableTools.add(pageSizeListBox);
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				txtSearch.setFocus(true);
-			}
-		});
-		enrollmentsWrapper.add(tableTools);
-		enrollmentsWrapper.add(panel);
-		enrollmentsWrapper.add(pagination);
-
-		pagination.setRowData(enrollmentsOriginal, StringUtils.isSome(presenter.getSearchTerm()) ? searchCount : count);
-		pageSizeListBox.setVisible(pagination.isVisible());
-
-	}
-
-	private void scheduleEnrollmentFilter() {
-		updateTimer.cancel();
-		updateTimer.schedule(500);
-	}
-
-	private void filterEnrollments() {
-		String newSearchTerm = AsciiUtils.convertNonAscii(txtSearch.getText().trim()).toLowerCase();
-		if (RegistrationType.cpf.equals(session.getCurrentCourseClass().getCourseClass().getRegistrationType())) {
-			newSearchTerm = newSearchTerm.replaceAll("-", "").replaceAll("\\.", "");
+		
+		if(table == null){
+			initTable();		
 		}
-		if (!presenter.getSearchTerm().equals(newSearchTerm)) {
-			presenter.setPageNumber("1");
-			presenter.setSearchTerm(newSearchTerm);
-			presenter.updateData();
-		}
+		table.build(enrollmentsWrapper, enrollmentsOriginal);
+		
+		title.setText("Participantes (" + presenter.getTotalRowCount() + ")");
+
 	}
 
 	@Override
@@ -1067,8 +869,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 				.getRegistrationType())
 				+ ":");
 		btnCancelEnrollmentBatch.setVisible(courseClassTO.getCourseClass().isAllowBatchCancellation());
-		initTable();
-		initSearch();
 	}
 
 	private Label getLabel(String labelTxt, boolean isHighlight) {
@@ -1081,11 +881,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 	public void setHomeTabActive() {
 		enrollmentsTab.setActive(true);
 		configTab.setActive(false);
-	}
-
-	@Override
-	public void showEnrollmentsPanel(boolean visible) {
-		enrollmentsPanel.setVisible(visible);
 	}
 
 	@Override
@@ -1137,9 +932,6 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		presenter.setPageNumber("1");
 		presenter.setPageSize("20");
 		presenter.setSearchTerm("");
-		if (txtSearch != null) {
-			txtSearch.setText("");
-		}
 	}
 
 }

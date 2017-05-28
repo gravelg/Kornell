@@ -104,12 +104,7 @@ public class AdminCoursesPresenter extends PaginationPresenterImpl<CourseTO> imp
 
 	@Override
 	public int getTotalRowCount() {
-		return StringUtils.isSome(getSearchTerm()) ? coursesTO.getCount() : coursesTO.getSearchCount();
-	}
-
-	@Override
-	public int getCount() {
-		return coursesTO.getCount();
+		return StringUtils.isNone(getSearchTerm()) ? coursesTO.getCount() : coursesTO.getSearchCount();
 	}
 	
 	@Override

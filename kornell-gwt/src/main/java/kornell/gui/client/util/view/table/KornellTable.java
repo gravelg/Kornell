@@ -47,7 +47,9 @@ public class KornellTable<T> extends CellTable<T>{
 	    dataProvider.addDataDisplay(this);
 		
 		this.addStyleName("adminCellTable");
-		this.addStyleName(cssClassName);
+		if(StringUtils.isSome(cssClassName)){
+			this.addStyleName(cssClassName);
+		}
 		this.addStyleName("lineWithoutLink");
 		this.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 		this.setWidth("100%", true);
@@ -67,7 +69,7 @@ public class KornellTable<T> extends CellTable<T>{
 		refreshTableTimer.schedule(200);
 	}
 
-	private void refreshTable() {      
+	private void refreshTable() {
         final ColumnSortList sortList = this.getColumnSortList();	        
         if(sortList.size() > 0){
 			presenter.setOrderBy(sortList.get(0).getColumn().getDataStoreName());
@@ -76,6 +78,12 @@ public class KornellTable<T> extends CellTable<T>{
 			presenter.updateData();
         }
 	}
+	
+	public void resetSearchTerm(){
+		if(tableTools != null){
+			tableTools.resetSearchTerm();
+		}
+	}
 
 	public void build(FlowPanel wrapper, List<T> rowData) {
 		wrapper.add(tableTools);
@@ -83,7 +91,9 @@ public class KornellTable<T> extends CellTable<T>{
 		wrapper.add(pagination);
 		
 		pagination.setRowData(rowData, presenter.getTotalRowCount());
-    	pagination.setVisible(presenter.getCount() > Integer.parseInt(presenter.getPageSize()));
+    	pagination.setVisible(presenter.getTotalRowCount() > Integer.parseInt(presenter.getPageSize()));
+    	
+    	tableTools.refresh();
     	
     	this.setVisible(true);
 	}

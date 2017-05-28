@@ -104,12 +104,7 @@ public class AdminAuditPresenter extends PaginationPresenterImpl<EntityChanged> 
 
 	@Override
 	public int getTotalRowCount() {
-		return StringUtils.isSome(getSearchTerm()) ? entityChangedEventsTO.getCount() : entityChangedEventsTO.getSearchCount();
-	}
-
-	@Override
-	public int getCount() {
-		return entityChangedEventsTO.getCount();
+		return StringUtils.isNone(getSearchTerm()) ? entityChangedEventsTO.getCount() : entityChangedEventsTO.getSearchCount();
 	}
 
 	@Override

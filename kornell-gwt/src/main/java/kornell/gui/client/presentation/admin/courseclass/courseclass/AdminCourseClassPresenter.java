@@ -92,7 +92,6 @@ public class AdminCourseClassPresenter extends PaginationPresenterImpl<Enrollmen
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
                 || session.isInstitutionAdmin()) {			
             view = getView();
-            view.showEnrollmentsPanel(false);
             view.setPresenter(this);
             view.clearPagination();
             String selectedCourseClass;
@@ -127,14 +126,12 @@ public class AdminCourseClassPresenter extends PaginationPresenterImpl<Enrollmen
     private void showEnrollments(EnrollmentsTO e, boolean refreshView) {
         enrollmentsTO = e;
         view.setEnrollmentList(e.getEnrollmentTOs(), e.getCount(), e.getCountCancelled(), e.getSearchCount(), refreshView);
-        view.showEnrollmentsPanel(true);
     }
 
     @Override
     public void updateCourseClass(final String courseClassUUID) {
         if(placeController.getWhere() instanceof AdminCourseClassPlace){
             bus.fireEvent(new ShowPacifierEvent(true));
-            view.showEnrollmentsPanel(false);
             session.courseClass(courseClassUUID).getTO(new Callback<CourseClassTO>() {
                 @Override            
                 public void ok(CourseClassTO courseClassTO) {
@@ -151,7 +148,6 @@ public class AdminCourseClassPresenter extends PaginationPresenterImpl<Enrollmen
     public void updateCourseClassUI(CourseClassTO courseClassTO) {
         view.showTabsPanel(courseClassTO != null);
         view.prepareAddNewCourseClass(false);
-        view.showEnrollmentsPanel(false);
         view.setHomeTabActive();
         if (courseClassTO == null)
             return;
@@ -159,7 +155,7 @@ public class AdminCourseClassPresenter extends PaginationPresenterImpl<Enrollmen
         view.setCourseClassTO(courseClassTO);
         view.setUserEnrollmentIdentificationType(courseClassTO.getCourseClass().getRegistrationType());
         view.setCanPerformEnrollmentAction(true);
-        
+
         getEnrollments(courseClassTO.getCourseClass().getUUID());
     }
 
@@ -695,12 +691,7 @@ public class AdminCourseClassPresenter extends PaginationPresenterImpl<Enrollmen
 
 	@Override
 	public int getTotalRowCount() {
-		return StringUtils.isSome(getSearchTerm()) ? enrollmentsTO.getCount() : enrollmentsTO.getSearchCount();
-	}
-
-	@Override
-	public int getCount() {
-		return enrollmentsTO.getCount();
+		return StringUtils.isNone(getSearchTerm()) ? enrollmentsTO.getCount() : enrollmentsTO.getSearchCount();
 	}
 
 	@Override

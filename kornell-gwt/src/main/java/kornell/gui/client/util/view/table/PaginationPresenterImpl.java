@@ -20,6 +20,8 @@ public abstract class PaginationPresenterImpl<E> implements PaginationPresenter<
 	protected String searchTerm;
 	protected String asc;
 	protected String orderBy;
+	
+	private boolean isInitialized = false;
 
 	public String getPageSize() {
 		return pageSize;
@@ -62,16 +64,20 @@ public abstract class PaginationPresenterImpl<E> implements PaginationPresenter<
 	}
 
 	public void initializeProperties(String defaultOrderBy) {
-		String orderByProperty = ClientProperties.get(getClientPropertyName(ORDER_BY));
-		String ascProperty = ClientProperties.get(getClientPropertyName(ASC));
-		String pageSizeProperty = ClientProperties.get(getClientPropertyName(PAGE_SIZE));
-		String pageNumberProperty = ClientProperties.get(getClientPropertyName(PAGE_NUMBER));
-		
-		this.orderBy = orderByProperty != null ? orderByProperty : defaultOrderBy;
-		this.asc = ascProperty != null ? ascProperty : DEFAULT_ASC;
-		this.pageSize = pageSizeProperty != null ? pageSizeProperty : DEFAULT_PAGE_SIZE;
-		this.pageNumber = pageNumberProperty != null ? pageNumberProperty : DEFAULT_PAGE_NUMBER;
-		this.searchTerm = DEFAULT_SEARCH_TERM;
+		if(!isInitialized){
+			String orderByProperty = ClientProperties.get(getClientPropertyName(ORDER_BY));
+			String ascProperty = ClientProperties.get(getClientPropertyName(ASC));
+			String pageSizeProperty = ClientProperties.get(getClientPropertyName(PAGE_SIZE));
+			String pageNumberProperty = ClientProperties.get(getClientPropertyName(PAGE_NUMBER));
+			
+			this.orderBy = orderByProperty != null ? orderByProperty : defaultOrderBy;
+			this.asc = ascProperty != null ? ascProperty : DEFAULT_ASC;
+			this.pageSize = pageSizeProperty != null ? pageSizeProperty : DEFAULT_PAGE_SIZE;
+			this.pageNumber = pageNumberProperty != null ? pageNumberProperty : DEFAULT_PAGE_NUMBER;
+			this.searchTerm = DEFAULT_SEARCH_TERM;
+			
+			this.isInitialized = true;
+		}
 	}
 
 	public void updateProperties() {
@@ -82,8 +88,6 @@ public abstract class PaginationPresenterImpl<E> implements PaginationPresenter<
 	}
 
 	public abstract int getTotalRowCount();
-
-	public abstract int getCount();
 
 	public abstract String getClientPropertyName(String string);
 

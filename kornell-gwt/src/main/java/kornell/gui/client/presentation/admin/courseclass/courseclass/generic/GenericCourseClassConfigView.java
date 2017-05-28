@@ -425,7 +425,7 @@ public class GenericCourseClassConfigView extends Composite {
 
         if (requiredScore.getFieldPersistText().length() > 0) { 
         	if(formHelper.isValidNumber(requiredScore.getFieldPersistText())) {
-        		if(Integer.parseInt(requiredScore.getFieldPersistText()) > 100){
+        		if(Double.parseDouble(requiredScore.getFieldPersistText()) > 100){
         			requiredScore.setError("A nota deve ser de 0 a 100.");
         		}
         	} else {

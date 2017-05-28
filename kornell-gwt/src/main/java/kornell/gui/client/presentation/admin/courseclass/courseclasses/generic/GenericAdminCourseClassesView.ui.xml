@@ -5,7 +5,7 @@
 	<g:FlowPanel ui:field="adminHomePanel" addStyleNames="deanHome">
 	    <g:FlowPanel ui:field="courseClassesPanel" addStyleNames="courseClassesHeaderWrapper">
 		    <g:FlowPanel addStyleNames="left">
-		      <g:HTMLPanel addStyleNames="title">Gerenciar Turmas</g:HTMLPanel>
+		      <g:Label ui:field="title" addStyleNames="title"></g:Label>
 		      <g:HTMLPanel addStyleNames="subTitle">Escolha abaixo a turma que deseja gerenciar</g:HTMLPanel>
 		    </g:FlowPanel>
 			<b:Button ui:field="btnAddCourseClass" addStyleNames="btnAction btnIcon right" size="MINI" icon="PLUS_SIGN"/>

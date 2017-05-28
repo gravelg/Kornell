@@ -34,6 +34,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -63,6 +64,8 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 
 	@UiField
 	FlowPanel adminHomePanel;
+	@UiField
+	Label title;
 	@UiField
 	FlowPanel courseVersionsPanel;
 	@UiField
@@ -197,6 +200,9 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
+		if(table != null){
+			table.resetSearchTerm();
+		}
 	}
 
 	@Override
@@ -207,6 +213,8 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 			initTable();		
 		}
 		table.build(courseVersionsWrapper, courseVersionTOs);
+		
+		title.setText("Gerenciar Versões de Curso (" + presenter.getTotalRowCount() + ")");
 	
 		adminHomePanel.setVisible(true);
 	}

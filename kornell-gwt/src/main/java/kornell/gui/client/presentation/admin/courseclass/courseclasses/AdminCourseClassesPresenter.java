@@ -85,13 +85,6 @@ public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseC
 				view.setCourseClasses(courseClassesTO.getCourseClasses());
 				bus.fireEvent(new ShowPacifierEvent(false));
 				updateProperties();
-				if(courseClassesTO.getCourseClasses().size() != 0){
-					for (CourseClassTO courseClassTO : courseClassesTO.getCourseClasses()) {
-						if (courseClassUUID == null || courseClassTO.getCourseClass().getUUID().equals(courseClassUUID)) {
-							return;
-						}
-					}
-				}
 			}
 		});
 	}
@@ -119,12 +112,7 @@ public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseC
 
 	@Override
 	public int getTotalRowCount() {
-		return StringUtils.isSome(getSearchTerm()) ? courseClassesTO.getCount() : courseClassesTO.getSearchCount();
-	}
-
-	@Override
-	public int getCount() {
-		return courseClassesTO.getCount();
+		return StringUtils.isNone(getSearchTerm()) ? courseClassesTO.getCount() : courseClassesTO.getSearchCount();
 	}
 
 	@Override

@@ -38,7 +38,6 @@ public interface AdminCourseClassView extends IsWidget {
 	void setModalErrors(String title, String lbl1, String errors, String lbl2);
     void setCourseClassTO(CourseClassTO courseClassTO);
 	void setHomeTabActive();
-	void showEnrollmentsPanel(boolean visible);
 	void showTabsPanel(boolean visible);
 	void buildAdminsView();
 	void buildConfigView(boolean isCreationMode);
