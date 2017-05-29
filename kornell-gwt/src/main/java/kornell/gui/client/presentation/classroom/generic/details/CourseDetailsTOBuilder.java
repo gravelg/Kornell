@@ -13,6 +13,7 @@ import com.google.gwt.json.client.JSONValue;
 import kornell.core.to.coursedetails.CourseDetailsTO;
 import kornell.core.to.coursedetails.HintTO;
 import kornell.core.to.coursedetails.InfoTO;
+import kornell.core.util.StringUtils;
 import kornell.gui.client.presentation.admin.institution.AdminInstitutionPresenter;
 
 public class CourseDetailsTOBuilder {
@@ -43,7 +44,7 @@ public class CourseDetailsTOBuilder {
 		JSONValue jsonValue;
 	    JSONObject jsonObject;
 	    
-	    if(jsonString == null){
+	    if(StringUtils.isNone(jsonString) || "".equals(jsonString.trim())){
 	    	return false;
 	    }
 	    

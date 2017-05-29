@@ -1,6 +1,7 @@
 package kornell.gui.client;
 
 import com.google.gwt.i18n.client.ConstantsWithLookup;
+import com.google.gwt.user.client.ui.Widget;
 
 public interface KornellConstants extends ConstantsWithLookup {
 	
@@ -176,6 +177,11 @@ public interface KornellConstants extends ConstantsWithLookup {
 	
 	@DefaultStringValue("You will receive an email at the time of approval.")
 	String enrollmentConfirmationEmail();
+	
+	@DefaultStringValue("Description")
+	String description();
+	
+
 	
 	
 	/**
@@ -812,6 +818,7 @@ public interface KornellConstants extends ConstantsWithLookup {
 	
 	@DefaultStringValue("Error checking for certificates.")
 	String errorCheckingCerts();
+
 
 	
 }

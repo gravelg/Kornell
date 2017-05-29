@@ -414,6 +414,10 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 			}
 		}
 		
+		if(infoPanel.getWidgetCount() == 0){
+			infoPanel.add(getInfoPanel(constants.description(), courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getDescription()));
+		}
+		
 		return infoPanel;
 	}
 
@@ -519,7 +523,10 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		} else {
 			detailsPanel.removeStyleName("shy");
 		}
-		sidePanel.add(getHintsPanel());
+		FlowPanel hintsPanel = getHintsPanel();
+		if(hintsPanel.getWidgetCount() != 0){
+			sidePanel.add(hintsPanel);
+		}		
 
 		return sidePanel;
 	}

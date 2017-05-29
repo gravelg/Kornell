@@ -22,7 +22,8 @@ object CoursesRepo {
 
   def create(course: Course): Course = {
     val courseExists = sql"""
-	    select count(*) from Course where institutionUUID = ${course.getInstitutionUUID} and 
+	    select count(*) from Course where 
+        institutionUUID = ${course.getInstitutionUUID} and 
         (name = ${course.getName} or code = ${course.getCode})
         and state <> ${EntityState.deleted.toString}
 	    """.first[String].get
