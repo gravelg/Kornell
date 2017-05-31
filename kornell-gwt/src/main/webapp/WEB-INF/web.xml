@@ -39,6 +39,7 @@
 		<servlet-name>proxy</servlet-name>
 		<url-pattern>/api/*</url-pattern>
 		<url-pattern>/repository/*</url-pattern>
+		<url-pattern>/upload/*</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

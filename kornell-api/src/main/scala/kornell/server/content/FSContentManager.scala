@@ -30,7 +30,7 @@ class FSContentManager(fsRepo:ContentRepository) extends SyncContentManager {
 	 }
   
   def delete(keys: String*) = {
-	   val fullFilePath = (if (fsRepo.getPath.endsWith("/")) fsRepo.getPath else fsRepo.getPath + "/") + url(keys:_*)
+	   val fullFilePath = (if (fsRepo.getPath.endsWith("/")) fsRepo.getPath else fsRepo.getPath + "/") + StringUtils.mkurl("", keys:_*)
 	   val file = Paths.get(fullFilePath).toFile
 	   if(file.exists) Files.delete(Paths.get(fullFilePath))
   }

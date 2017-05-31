@@ -62,15 +62,34 @@
 		<multipart-config />
 	</servlet>
 
+	<servlet>
+		<servlet-name>UploaderProxy</servlet-name>
+		<servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+		<init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>kornell.server.content.UploaderApp</param-value>
+		</init-param>
+		<init-param>
+			<param-name>resteasy.servlet.mapping.prefix</param-name>
+			<param-value>/upload</param-value>
+		</init-param>
+		<multipart-config />
+	</servlet>
+
 
 	<servlet-mapping>
 		<servlet-name>KornellAPI</servlet-name>
 		<url-pattern>/api/*</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet-mapping>
 		<servlet-name>RepositoryProxy</servlet-name>
 		<url-pattern>/repository/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>UploaderProxy</servlet-name>
+		<url-pattern>/upload/*</url-pattern>
 	</servlet-mapping>
 
 	<filter-mapping>
