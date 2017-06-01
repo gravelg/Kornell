@@ -15,6 +15,8 @@ import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.entity.EntityState
 import kornell.core.error.exception.EntityConflictException
 import java.util.Date
+import kornell.server.content.ContentManagers
+import kornell.server.service.S3Service
 
 class CourseVersionRepo(uuid: String) {
 
@@ -70,6 +72,13 @@ class CourseVersionRepo(uuid: String) {
         distributionPrefix = concat(distributionPrefix, " - ", uuid) 
         where uuid = ${uuid}
   		""".executeUpdate
+
+      val course = CourseRepo(courseVersion.getCourseUUID).get
+      val repo = ContentRepositoriesRepo.firstRepositoryByInstitution(course.getInstitutionUUID).get
+      val cm = ContentManagers.forRepository(repo.getUUID)
+
+      cm.deleteFolder(S3Service.CLASSROOMS, course.getCode, courseVersion.getDistributionPrefix)
+
       courseVersion
     }
   }

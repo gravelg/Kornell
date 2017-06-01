@@ -8,13 +8,14 @@ import java.io.FileInputStream
 import java.io.InputStream
 import kornell.core.util.StringUtils
 import java.nio.file.Files
+import org.apache.commons.io.FileUtils
 
 class FSContentManager(fsRepo:ContentRepository) extends SyncContentManager {
 	 def source(keys: String*): Try[Source] = Try {
 	   val path = Paths.get(fsRepo.getPath,url(keys:_*))
 	   Source.fromFile(path.toFile(), "UTF-8")
 	 }
-	 
+
 	 def inputStream(keys: String*): Try[InputStream] = Try {
 	   val path = Paths.get(fsRepo.getPath, url(keys:_*))
 	   val file = path.toFile()
@@ -28,12 +29,18 @@ class FSContentManager(fsRepo:ContentRepository) extends SyncContentManager {
 	   if (!directory.exists) directory.mkdirs
 		 Files.copy(input, Paths.get(fullFilePath))
 	 }
-  
+
   def delete(keys: String*) = {
 	   val fullFilePath = (if (fsRepo.getPath.endsWith("/")) fsRepo.getPath else fsRepo.getPath + "/") + StringUtils.mkurl("", keys:_*)
 	   val file = Paths.get(fullFilePath).toFile
 	   if(file.exists) Files.delete(Paths.get(fullFilePath))
   }
-	 
+
+  def deleteFolder(keys: String*) = {
+	   val fullFilePath = (if (fsRepo.getPath.endsWith("/")) fsRepo.getPath else fsRepo.getPath + "/") + StringUtils.mkurl("", keys:_*)
+	   val file = Paths.get(fullFilePath).toFile
+	   if(file.exists && file.isDirectory()) FileUtils.deleteDirectory(file)
+  }
+
 	 def getPrefix = fsRepo.getPrefix
 }
