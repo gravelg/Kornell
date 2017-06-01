@@ -4,7 +4,9 @@ import java.sql.ResultSet
 import kornell.server.jdbc.SQL._ 
 import scala.collection.JavaConverters._
 import kornell.core.entity.CourseDetailsLibrary
-
+import kornell.server.content.ContentManagers
+import kornell.server.authentication.ThreadLocalAuthenticator
+import kornell.core.util.StringUtils
 
 class CourseDetailsLibraryRepo(uuid: String) {
 
@@ -42,7 +44,14 @@ class CourseDetailsLibraryRepo(uuid: String) {
       courseDetailsLibrary.setIndex(index)
       CourseDetailsLibraryRepo(courseDetailsLibrary.getUUID).update(courseDetailsLibrary)
     }
-      
+
+    val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
+    val repo = ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID).get
+    val cm = ContentManagers.forRepository(repo.getUUID)
+
+    val url = StringUtils.mkurl(courseDetailsLibrary.getPath, courseDetailsLibrary.getTitle)
+    cm.delete(url)
+
     courseDetailsLibrary
   }
 
