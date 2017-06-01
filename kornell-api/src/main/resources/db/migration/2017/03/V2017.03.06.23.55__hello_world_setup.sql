@@ -18,8 +18,9 @@ insert ignore into InstitutionHostName (uuid, hostName, institutionUUID) values 
 insert ignore into InstitutionHostName (uuid, hostName, institutionUUID) values ('auce8615-b36c-11e6-bd35-768f6b6cd8f9','helloworlduni.com',@iUUID);
 
 insert ignore into Person values (@pUUID,'Hello World Admin',NULL,'admin@helloworlduni.com',NULL,NULL,NULL,NULL,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,@iUUID,null,'email',NULL,1,1);
+-- password is 'admin1', change required on first login
 insert ignore into Password values ('admin@helloworlduni.com','$2a$10$ovZmMwCwvsvvEidNhVWUpeaIBrrIZWfeIRJnCV6CGirQWHC8fs36K',@pUUID,NULL,'b5697q30-c77c-18e5-9857-10bf4818bdd1',@iUUID);
-insert ignore into Role values ('7f54er69-c77c-11e5-9q57-10bf4818bdd1','platformAdmin',@iUUID,NULL,@pUUID);
+insert ignore into Role values ('hwprf852-91d1-4373-b9f7-979ce0e907c3','platformAdmin',@iUUID,NULL,@pUUID);
 
 insert ignore into Course values (@cUUID,'helloworld','Hello World!','Learn about Kornell and how it works!','{"topics":[{"index":"1","title":"Welcome!"}],"hints":[{"type":"fa fa-clock-o","text":"Estimated time: 30 minutes."},{"type":"fa fa-certificate","text":"Course with certificate"},{"type":"fa fa-question-circle","text":"If you need to contact us, click help in the menu above."},{"type":"fa fa-warning","text":"This course contains video and audio, make sure your device can play them."}],"infos":[{"type":"About the course","text":"Kornell is a complicated platform. This easy course is an example of all the features it has to offer."}]}', @iUUID,0);
 insert ignore into CourseVersion values (@cvUUID,'HelloWorld - Version 0.1',@cUUID,now(),'helloWorld/v0.1','KNL',0,null,1,null);
