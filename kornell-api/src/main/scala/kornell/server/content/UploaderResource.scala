@@ -1,29 +1,17 @@
 package kornell.server.content
 
 import javax.ws.rs.Path
-import javax.ws.rs.GET
 import javax.ws.rs.core.Response
 import javax.ws.rs.PathParam
 import kornell.core.util.StringUtils
 import java.nio.file.Files
 import javax.ws.rs.core.Context
 import javax.servlet.http.HttpServletResponse
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import org.apache.commons.io.IOUtils
-import javax.ws.rs.core.Response
-import scala.util.Success
-import javax.ws.rs.NotFoundException
-import scala.util.Success
-import scala.util.Failure
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.OPTIONS
 import javax.ws.rs.PUT
-import javax.ws.rs.POST
 import java.nio.file.Paths
 import kornell.server.jdbc.repository.ContentRepositoriesRepo
-import java.nio.file.CopyOption
 import java.nio.file.StandardCopyOption
 
 @Path("/")
