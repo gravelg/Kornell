@@ -73,7 +73,7 @@ object S3Service {
   }
   
   def getInstitutionUploadUrl(institutionUUID: String, fileName: String) = {
-    val path = mkurl(PREFIX, INSTITUTION, fileName)
+    val path = mkurl(getRepositoryUrl(institutionUUID), PREFIX, INSTITUTION, fileName)
     getUploadUrl(institutionUUID, path, getContentType(fileName))
   }
   
