@@ -10,6 +10,7 @@ import java.io.InputStream
 import com.amazonaws.services.s3.model.ObjectMetadata
 import scala.collection.JavaConverters._
 import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.services.s3.model.DeleteObjectsRequest
 
 class S3ContentManager(repo: ContentRepository)
   extends SyncContentManager {
@@ -53,8 +54,12 @@ class S3ContentManager(repo: ContentRepository)
   }
 
   def deleteFolder(keys: String*) = {
-    logger.info("Trying to delete folder object [ " + url(keys:_*) + " ]")
-    s3.deleteObject(repo.getBucketName, url(keys:_*))
+    val path = url(keys:_*)
+    logger.info("Trying to delete folder object [ " + path + " ]")
+    val objects = s3.listObjects(repo.getBucketName, path)
+    val keyPaths = objects.getObjectSummaries.asScala.map(f => f.getKey)
+    val deleteRequest = new DeleteObjectsRequest(repo.getBucketName).withKeys(keyPaths:_*)
+    s3.deleteObjects(deleteRequest)
   }
 
   def getPrefix = repo.getPrefix
