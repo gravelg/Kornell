@@ -34,7 +34,7 @@ object S3Service {
   def getCourseVersionContentUploadUrl(courseVersionUUID: String) = {
     val courseVersion = CourseVersionRepo(courseVersionUUID).get
     val course = CourseRepo(courseVersion.getCourseUUID).get
-    val fullPath = mkurl(CLASSROOMS, course.getCode, courseVersion.getDistributionPrefix, "upload" + new Date().getTime + ".zip");
+    val fullPath = mkurl(getRepositoryUrl(course.getInstitutionUUID), CLASSROOMS, course.getCode, courseVersion.getDistributionPrefix, "upload" + new Date().getTime + ".zip");
     getUploadUrl(CourseRepo(courseVersion.getCourseUUID).get.getInstitutionUUID, fullPath, "application/zip")
   }
 
