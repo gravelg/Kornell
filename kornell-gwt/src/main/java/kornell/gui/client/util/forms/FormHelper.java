@@ -35,7 +35,7 @@ public class FormHelper {
 	private KornellConstants constants = GWT.create(KornellConstants.class);
 	private KornellMessages messages = GWT.create(KornellMessages.class);
 
-	private static final String EMAIL_PATTERN = "^[-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\\.[a-zA-Z]{2,4}$";
+	private static final String EMAIL_PATTERN = "^[-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\\.[a-zA-Z]{2,10}$";
 	private static final String USERNAME_PATTERN = "^[A-z0-9._]{3,}$";
 	private static final String PASSWORD_PATTERN = "^[0-9a-zA-Z!@#$%¨&*()]{6,}$";
 	
