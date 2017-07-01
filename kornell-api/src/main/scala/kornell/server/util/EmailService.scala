@@ -41,7 +41,7 @@ object EmailService {
     		getSignature(institution))
 			
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(subject, from, to, body, imgFile)
+      EmailSender.sendEmail(subject, from, to, from, body, imgFile)
     }
   }
   
@@ -62,7 +62,7 @@ object EmailService {
     		getSignature(institution))
 			
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(subject, from, to, body, imgFile)
+      EmailSender.sendEmail(subject, from, to, from, body, imgFile)
     }
   }
   
@@ -83,7 +83,7 @@ object EmailService {
     		getSignature(institution))
 			
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(subject, from, to, body, imgFile)
+      EmailSender.sendEmail(subject, from, to, from, body, imgFile)
     }
   }
   
@@ -120,7 +120,7 @@ object EmailService {
     		getSignature(institution))
 			
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(subject, from, to, body, imgFile)
+      EmailSender.sendEmail(subject, from, to, from, body, imgFile)
     }
   }
   
@@ -156,7 +156,7 @@ object EmailService {
 	    		"""<img alt="" src="cid:logo" style="width: 300px;height: 80px;margin: 0 auto;display: block;">""")
 	            
 	      val imgFile = getInstitutionLogoImage(institution)
-	      EmailSender.sendEmail(subject, from, to, body, imgFile)
+	      EmailSender.sendEmail(subject, from, to, from, body, imgFile)
       }
     }
   }
@@ -173,7 +173,7 @@ object EmailService {
     		getSignature(institution))
 			
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(subject, from, to, body, imgFile)
+      EmailSender.sendEmail(subject, from, to, from, body, imgFile)
     }
   }
   
