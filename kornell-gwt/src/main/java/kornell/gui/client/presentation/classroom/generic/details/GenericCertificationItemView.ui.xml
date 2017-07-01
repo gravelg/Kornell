@@ -5,7 +5,6 @@
 		<g:FlowPanel addStyleNames="itemPanel">
 			<g:Image ui:field="certificationIcon" addStyleNames="certificationIcon"></g:Image>
 			<g:Label ui:field="lblName" addStyleNames="lblName"></g:Label>
-			<g:Label ui:field="lblDescription" addStyleNames="lblDescription"></g:Label>
 		</g:FlowPanel>
 		<g:Label ui:field="lblStatus" addStyleNames="lblStatus"></g:Label>
 		<g:Label ui:field="lblGrade" addStyleNames="lblGrade"></g:Label>

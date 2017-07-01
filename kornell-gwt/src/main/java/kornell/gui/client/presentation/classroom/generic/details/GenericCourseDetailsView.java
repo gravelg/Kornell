@@ -324,8 +324,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		// certificationContentPanel.add(new GenericCertificationItemView(bus,
 		// session, session.getCourseClassTO(),
 		// GenericCertificationItemView.TEST));
-		certificationContentPanel.add(new GenericCertificationItemView(bus, session, session.getCurrentCourseClass(),
-				GenericCertificationItemView.CERTIFICATION));
+		certificationContentPanel.add(new GenericCertificationItemView(bus, session, session.getCurrentCourseClass()));
 
 		return certificationContentPanel;
 	}

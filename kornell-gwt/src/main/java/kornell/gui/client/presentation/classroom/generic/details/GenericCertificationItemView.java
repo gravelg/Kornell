@@ -48,16 +48,11 @@ public class GenericCertificationItemView extends Composite implements ProgressE
 	private EventBus bus;
 	private KornellSession session;
 	private CourseClassTO currentCourseClass;
-	private String type;
 	private String name;
-	private String description;
 	private String status;
 	private String grade;
 	
 	private HandlerRegistration actionHandler;
-	
-	public static final String TEST = "test";
-	public static final String CERTIFICATION = "certification";
 	
 	@UiField
 	Image certificationIcon;
@@ -76,12 +71,10 @@ public class GenericCertificationItemView extends Composite implements ProgressE
 	private boolean allowCertificateGeneration;
 
 
-	public GenericCertificationItemView(EventBus eventBus, KornellSession session, CourseClassTO currentCourseClass,
-			String type) {
+	public GenericCertificationItemView(EventBus eventBus, KornellSession session, CourseClassTO currentCourseClass) {
 		this.bus = eventBus;
 		this.session = session;
 		this.currentCourseClass = currentCourseClass;
-		this.type = type;
 		bus.addHandler(ProgressEvent.TYPE,this);
 		bus.addHandler(ShowDetailsEvent.TYPE,this);
 		initWidget(uiBinder.createAndBindUi(this));
@@ -90,24 +83,15 @@ public class GenericCertificationItemView extends Composite implements ProgressE
 	}
 
 	private void initData() {
-		if(TEST.equals(type)){
-			this.name = constants.testName();
-			this.description = constants.testDescription();
-			this.status = constants.testStatus();
-			this.grade = "-";
-		} else if(CERTIFICATION.equals(type)){
-			this.name = constants.certificateName();
-			this.description = constants.certificateDescription();
-			this.grade = "-";
-			updateCertificationLinkAndLabel();
-		}
+		this.name = constants.certificateName();
+		this.grade = "-";
+		updateCertificationLinkAndLabel();
 	}
 
 	private void displayGenericCertificationItemView() {
-		String url = mkurl(ClientConstants.IMAGES_PATH, "courseDetails", type + ".png");
+		String url = mkurl(ClientConstants.IMAGES_PATH, "courseDetails", "certification.png");
 		certificationIcon.setUrl(url);
 		lblName.setText(name);
-		lblDescription.setText(description);
 		lblStatus.setText(status);
 		lblGrade.setText(grade);
 	}
@@ -141,14 +125,12 @@ public class GenericCertificationItemView extends Composite implements ProgressE
 
 	@Override
 	public void onProgress(ProgressEvent event) {
-		if(CERTIFICATION.equals(type)){
-			if(event.getProgressPercent() >= 100){
-				courseClassComplete = true;
-				checkCertificateAvailability();
-			}
-			if(currentCourseClass != null){
-				currentCourseClass.getEnrollment().setProgress(event.getProgressPercent());
-			}
+		if(event.getProgressPercent() >= 100){
+			courseClassComplete = true;
+			checkCertificateAvailability();
+		}
+		if(currentCourseClass != null){
+			currentCourseClass.getEnrollment().setProgress(event.getProgressPercent());
 		}
 	}
 
@@ -190,7 +172,7 @@ public class GenericCertificationItemView extends Composite implements ProgressE
 	
 	@Override
 	public void onShowDetails(ShowDetailsEvent event) {
-		if(CERTIFICATION.equals(type) && event.isShowDetails())
+		if(event.isShowDetails())
 			checkCertificateAvailability();
 	}
 	
