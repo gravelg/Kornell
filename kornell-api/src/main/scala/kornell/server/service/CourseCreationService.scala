@@ -77,7 +77,7 @@ object CourseCreationService {
         to.getName,
         versionUUID,
         institutionUUID,
-        new BigDecimal(60.00),
+        new BigDecimal(0.00),
         false,
         false,
         false,
