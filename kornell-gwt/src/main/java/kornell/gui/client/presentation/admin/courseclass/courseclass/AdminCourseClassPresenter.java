@@ -242,7 +242,7 @@ public class AdminCourseClassPresenter implements AdminCourseClassView.Presenter
         } else if ("Matricular".equals(actionName)) {
             return isEnabled && (EnrollmentState.denied.equals(state) || EnrollmentState.cancelled.equals(state)) && session.isCourseClassAdmin();
         } else if ("Excluir".equals(actionName)) {
-            return isEnabled && EnrollmentProgressDescription.notStarted.equals(progressDescription) && session.isCourseClassAdmin();
+            return isEnabled && (EnrollmentState.cancelled.equals(state) || EnrollmentState.denied.equals(state)) && session.isCourseClassAdmin();
         } else if ("Perfil".equals(actionName)) {
             return session.isCourseClassAdmin() || session.isCourseClassTutor();
         } else if ("Certificado".equals(actionName)) {
