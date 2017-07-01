@@ -519,7 +519,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 		};		
 	    nameColumn.setSortable(true);
 	    nameColumn.setDataStoreName("p.fullName");
-		table.setColumnWidth(nameColumn, "25%");
+		table.setColumnWidth(nameColumn, "22%");
 		table.addColumn(nameColumn, "Nome");
 		
 		TextColumn<EnrollmentTO> usernameColumn = new TextColumn<EnrollmentTO>() {
@@ -628,7 +628,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 				return enrollmentTO;
 			}
 		};
-		table.setColumnWidth(actionsColumn, "15%");
+		table.setColumnWidth(actionsColumn, "18%");
 		table.addColumn(actionsColumn, "Ações");
 		
 		
@@ -967,6 +967,7 @@ public class GenericAdminCourseClassView extends Composite implements AdminCours
 				private String buildButtonHTML(String actionName) {
 					Button btn = new Button();
 					btn.setSize(ButtonSize.SMALL);
+					btn.setTitle(actionName);
 					if ("Excluir".equals(actionName)) {
 						btn.setIcon(IconType.TRASH);
 						btn.addStyleName("btnNotSelected");

@@ -135,7 +135,7 @@ public interface KornellConstants extends ConstantsWithLookup {
 	@DefaultStringValue("Certification")
 	String certification();
 	
-	@DefaultStringValue("Certification")
+	@DefaultStringValue("You can generate the certificate when you finish the course.")
 	String certificationInfoText();
 	
 	@DefaultStringValue("Info")
@@ -248,21 +248,9 @@ public interface KornellConstants extends ConstantsWithLookup {
 	
 	/**
 	* GenericCertificationItemVIew
-	*/
-	@DefaultStringValue("Evaluation")
-	String testName();
-	
-	@DefaultStringValue("Evaluation")
-	String testDescription();
-	
-	@DefaultStringValue("To complete")
-	String testStatus();
-	
+	*/	
 	@DefaultStringValue("Certificate")
 	String certificateName();
-	
-	@DefaultStringValue("Certificate generation. Once the course is finished, you'll be able to generate the certificate here.")
-	String certificateDescription();
 	
 	@DefaultStringValue("Generate")
 	String generate();
