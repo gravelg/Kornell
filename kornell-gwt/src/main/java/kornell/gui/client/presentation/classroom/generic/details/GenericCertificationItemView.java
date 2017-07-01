@@ -59,8 +59,6 @@ public class GenericCertificationItemView extends Composite implements ProgressE
 	@UiField
 	Label lblName;
 	@UiField
-	Label lblDescription;
-	@UiField
 	Label lblStatus;
 	@UiField
 	Label lblGrade;

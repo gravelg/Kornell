@@ -25,11 +25,11 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.EntityState;
 import kornell.core.entity.CourseDetailsHint;
 import kornell.core.entity.CourseDetailsLibrary;
 import kornell.core.entity.CourseDetailsSection;
 import kornell.core.entity.EnrollmentState;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.InstitutionType;
 import kornell.core.lom.Actom;
 import kornell.core.lom.Content;
@@ -39,9 +39,6 @@ import kornell.core.lom.ContentsOps;
 import kornell.core.lom.ExternalPage;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.LibraryFilesTO;
-import kornell.core.to.coursedetails.CourseDetailsTO;
-import kornell.core.to.coursedetails.HintTO;
-import kornell.core.to.coursedetails.InfoTO;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.ViewFactory;
@@ -89,7 +86,6 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 
 	private Button btnCurrent;
 	private CourseClassTO courseClassTO;
-	private CourseDetailsTO courseDetails;
 	private FlowPanel aboutPanel;
 	private FlowPanel topicsPanel;
 	private FlowPanel certificationPanel;
@@ -156,10 +152,6 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		isInactiveCourseClass = EntityState.inactive.equals(courseClassTO.getCourseClass().getState());
 		displayButtons();
 
-		CourseDetailsTOBuilder builder = new CourseDetailsTOBuilder(courseClassTO.getCourseVersionTO().getCourseTO().getCourse()
-				.getInfoJson());
-		builder.buildCourseDetails();
-		courseDetails = builder.getCourseDetailsTO();
 
 		topicsPanel = new FlowPanel();
 
@@ -407,12 +399,6 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 			}
 		}
 		
-		if(infoPanel.getWidgetCount() == 0){
-			for (InfoTO infoTO : courseDetails.getInfos()) {
-				infoPanel.add(getInfoPanel(infoTO.getType(), infoTO.getText()));
-			}
-		}
-		
 		return infoPanel;
 	}
 
@@ -530,12 +516,6 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		if(courseClassTO.getCourseDetailsHints() != null){
 			for (CourseDetailsHint courseDetailsHint : courseClassTO.getCourseDetailsHints()) {
 				hintsPanel.add(getHintPanel(courseDetailsHint.getFontAwesomeClassName(), courseDetailsHint.getText()));
-			}
-		}
-		
-		if(hintsPanel.getWidgetCount() == 0){
-			for (HintTO hintTO : courseDetails.getHints()) {
-				hintsPanel.add(getHintPanel(hintTO.getType(), hintTO.getName()));
 			}
 		}
 
