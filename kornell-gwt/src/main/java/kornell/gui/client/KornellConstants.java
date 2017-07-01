@@ -1,7 +1,6 @@
 package kornell.gui.client;
 
 import com.google.gwt.i18n.client.ConstantsWithLookup;
-import com.google.gwt.user.client.ui.Widget;
 
 public interface KornellConstants extends ConstantsWithLookup {
 	
@@ -19,11 +18,11 @@ public interface KornellConstants extends ConstantsWithLookup {
 	 */
 	
 	@DefaultStringValue("Institution not found.")
-	String institutionNotFound();//"Instituição não encontrada."
+	String institutionNotFound();
 	
 	@DefaultStringValue("We are currently under maintenance. Please check again later. If the problem persists, contact us at suporte@craftware.com.br. Thanks for your patience.")
-	String maintenanceMessage();//"Estamos em manutenção. Tente novamente mais tarde. Se o problema persistir, entre em contato pelo email suporte@craftware.com.br. Agradecemos por sua paciência."
-
+	String maintenanceMessage();
+	
 	/**
 	 * VitrinePlace
 	 */

@@ -17,7 +17,6 @@ import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.EnrollmentCategory;
-import kornell.core.entity.EnrollmentProgressDescription;
 import kornell.core.entity.EnrollmentState;
 import kornell.core.entity.Enrollments;
 import kornell.core.entity.EntityState;
@@ -220,8 +219,6 @@ public class AdminCourseClassPresenter extends PaginationPresenterImpl<Enrollmen
         boolean isEnabled = EntityState.active.equals(session.getCurrentCourseClass().getCourseClass()
                 .getState());
         EnrollmentState state = enrollmentTO.getEnrollment().getState();
-        EnrollmentProgressDescription progressDescription = EnrollmentCategory
-                .getEnrollmentProgressDescription(enrollmentTO.getEnrollment());
         if ("Aceitar".equals(actionName) || "Negar".equals(actionName)) {
             return isEnabled && EnrollmentState.requested.equals(state) && session.isCourseClassAdmin();
         } else if ("Cancelar".equals(actionName)) {
