@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
 import kornell.core.entity.Course;
 import kornell.core.entity.EntityState;
 import kornell.core.entity.Enrollment;
@@ -176,10 +177,13 @@ public class GenericCourseSummaryView extends Composite {
 		if(progress >= 100){
 			pStatus.setText(constants.pendingGradeLabel());
 		} else {
-			pStatus.setText(EnumTranslator.translateEnum(EnrollmentProgressDescription.inProgress)+": ");
-			progressBar.removeStyleName("shy");
-			progressBar.setPercent(progress);
-			pStatusInfo.setText(progress + "% ");
+			pStatus.setText(EnumTranslator.translateEnum(EnrollmentProgressDescription.inProgress));
+			if(ContentSpec.KNL.equals(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getContentSpec())){
+				progressBar.removeStyleName("shy");
+				progressBar.setPercent(progress);
+				pStatusInfo.setText(progress + "% ");
+				pStatus.setText(pStatus.getText() + ": ");
+			}
 		}
 		iconCourseURL = mkurl(ICON_COURSE_URL, "iconInProgress.png");
 		

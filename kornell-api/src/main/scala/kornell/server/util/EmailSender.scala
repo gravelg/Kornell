@@ -27,27 +27,12 @@ object EmailSender {
 
   val executor = Executors.newSingleThreadExecutor
 
-  def sendmail(subject: String, to: String, body: String) =
-    sendEmail(subject, SMTP_FROM, to, body)
-
-  def sendEmail(subject: String,
-    from: String,
-    to: String,
-    body: String,
-    imgFile: File = null): Unit =
-    sendEmail(subject,
-      from,
-      to,
-      REPLY_TO.getOpt.getOrElse(from),
-      body,
-      imgFile)
-
   def sendEmailSync(subject: String,
     from: String,
     to: String,
     replyTo: String,
     body: String,
-    imgFile: File): Unit = try {
+    imgFile: File = null): Unit = try {
     	getEmailSession match {
       	case Some(session) => {
       		val message = new MimeMessage(session);
@@ -97,7 +82,7 @@ object EmailSender {
     to: String,
     replyTo: String,
     body: String,
-    imgFile: File): Unit = executor.submit(new Runnable() {
+    imgFile: File = null): Unit = executor.submit(new Runnable() {
     override def run: Unit = sendEmailSync(subject, from, to, replyTo, body, imgFile)
   })
 
