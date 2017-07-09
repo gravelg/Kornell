@@ -364,7 +364,8 @@ object CourseClassesRepo {
     enrollments.foreach { e => {
        val clazz = classes.filter(_.getCourseClass.getUUID.equals(e.getCourseClassUUID)).asJava
        if(clazz.size() > 0) clazz.get(0).setEnrollment(e)
-    } }
+      } 
+    }
     //only return the valid classes for the user (for example, hide private classes)
     courseClassesTO.setCourseClasses(classes.filter(isValidClass _).asJava)
     courseClassesTO

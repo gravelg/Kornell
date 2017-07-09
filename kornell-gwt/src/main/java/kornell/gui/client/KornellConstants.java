@@ -99,6 +99,9 @@ public interface KornellConstants extends ConstantsWithLookup {
 	@DefaultStringValue("Class: ")
 	String detailsSubHeader();
 	
+	@DefaultStringValue("About")
+	String about();
+	
 	@DefaultStringValue("About the course")
 	String btnAbout();
 	

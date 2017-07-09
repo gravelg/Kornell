@@ -393,10 +393,12 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		FlowPanel infoPanel = new FlowPanel();
 		infoPanel.addStyleName("infoPanel");
 
-		if(courseClassTO.getCourseDetailsSections() != null){
+		if(courseClassTO.getCourseDetailsSections() != null && courseClassTO.getCourseDetailsSections().size() > 0){
 			for (CourseDetailsSection courseDetailsSection : courseClassTO.getCourseDetailsSections()) {
 				infoPanel.add(getInfoPanel(courseDetailsSection.getTitle(), courseDetailsSection.getText()));
 			}
+		} else {
+			infoPanel.add(getInfoPanel(constants.about(), courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getDescription()));
 		}
 		
 		return infoPanel;
@@ -504,22 +506,18 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
 		} else {
 			detailsPanel.removeStyleName("shy");
 		}
-		sidePanel.add(getHintsPanel());
 
-		return sidePanel;
-	}
-
-	private FlowPanel getHintsPanel() {
-		FlowPanel hintsPanel = new FlowPanel();
-		hintsPanel.addStyleName("hintsPanel");
-
-		if(courseClassTO.getCourseDetailsHints() != null){
+		if(courseClassTO.getCourseDetailsHints() != null && courseClassTO.getCourseDetailsHints().size() > 0){
+			FlowPanel hintsPanel = new FlowPanel();
+			hintsPanel.addStyleName("hintsPanel");
 			for (CourseDetailsHint courseDetailsHint : courseClassTO.getCourseDetailsHints()) {
 				hintsPanel.add(getHintPanel(courseDetailsHint.getFontAwesomeClassName(), courseDetailsHint.getText()));
 			}
+			sidePanel.add(hintsPanel);
 		}
+		sidePanel.setVisible(sidePanel.getWidgetCount() != 0);
 
-		return hintsPanel;
+		return sidePanel;
 	}
 
 	private FlowPanel getHintPanel(String fontAwesomeClass, String hintText) {
