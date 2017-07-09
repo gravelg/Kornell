@@ -172,17 +172,10 @@ object Entities {
     e.setPreAssessmentScore(preAssessment)
     e.setPostAssessmentScore(postAssessment)
     e.setEnrollmentSource(enrollmentSource)
-    if (courseClassUUID != null){
-      e.setEnrolledOn(DateConverter.convertDate(enrolledOn))
-      e.setLastProgressUpdate(DateConverter.convertDate(lastProgressUpdate))
-      e.setLastAssessmentUpdate(DateConverter.convertDate(lastAssessmentUpdate))
-      e.setCertifiedAt(DateConverter.convertDate(certifiedAt))
-    } else {
-      e.setEnrolledOn(DateConverter.convertDate(enrolledOn))
-      e.setLastProgressUpdate(DateConverter.convertDate(lastProgressUpdate))
-      e.setLastAssessmentUpdate(DateConverter.convertDate(lastAssessmentUpdate))
-      e.setCertifiedAt(DateConverter.convertDate(certifiedAt))
-    }
+    e.setEnrolledOn(DateConverter.convertDate(enrolledOn))
+    e.setLastProgressUpdate(DateConverter.convertDate(lastProgressUpdate))
+    e.setLastAssessmentUpdate(DateConverter.convertDate(lastAssessmentUpdate))
+    e.setCertifiedAt(DateConverter.convertDate(certifiedAt))
     e
   }
 

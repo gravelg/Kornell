@@ -23,6 +23,7 @@ import scala.util.Try
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.LocalDateTime
+import kornell.server.util.EmailService
 
 //TODO: Specific column names and proper sql
 class EnrollmentRepo(uuid: String) {
@@ -191,11 +192,10 @@ class EnrollmentRepo(uuid: String) {
     val isPassed = Assessment.PASSED == e.getAssessment
     val isCompleted = e.getProgress() == 100
     val isUncertified = e.getCertifiedAt() == null
-    if (isPassed
-      && isCompleted
-      && isUncertified) {
+    if (isPassed && isCompleted && isUncertified) {
       e.setCertifiedAt(DateTime.now.toDate)
       update(e)
+      EmailService.sendEmailClassCompletion(EnrollmentRepo(e.getUUID).get)
     }
   }  
   
