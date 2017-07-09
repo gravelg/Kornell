@@ -85,7 +85,7 @@ public class KornellFormFieldWrapper extends Composite {
 			Icon icon = new Icon();
 			icon.addStyleName("fa fa-question-circle");
 			Tooltip tooltip = new Tooltip(tooltipText);
-			tooltip.setPlacement(Placement.RIGHT);
+			tooltip.setPlacement(Placement.TOP);
 			tooltip.add(icon);
 			labelPanel.add(tooltip);
 		}

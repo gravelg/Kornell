@@ -361,6 +361,18 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 					}
 				}
 			});
+			
+			notifyInstitutionAdmins = new KornellFormFieldWrapper("Notificar certificações", formHelper.createCheckBoxFormField(institution.isNotifyInstitutionAdmins()), isPlatformAdmin, null, "Enviar um email para todos os administradores da institução toda vez que um aluno concluir o curso.");
+			
+			fields.add(notifyInstitutionAdmins);
+			institutionFields.add(notifyInstitutionAdmins);
+			((CheckBox)notifyInstitutionAdmins.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
+					if(event.getValue()){
+					}
+				}
+			});
 		}
 		
 		terms = new KornellFormFieldWrapper("Termos de Uso", formHelper.createTextAreaFormField(institution.getTerms(), 20), isInstitutionAdmin);
@@ -410,19 +422,6 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 		institutionSupportEmail = new KornellFormFieldWrapper("E-mail de suporte", formHelper.createTextBoxFormField(institution.getInstitutionSupportEmail()), isPlatformAdmin);
 		fields.add(institutionSupportEmail);
 		institutionFields.add(institutionSupportEmail);
-		
-		if(isPlatformAdmin){
-			notifyInstitutionAdmins = new KornellFormFieldWrapper("Notificar os administradores da instituição da conclusão da turma", formHelper.createCheckBoxFormField(institution.isNotifyInstitutionAdmins()), isPlatformAdmin);
-			fields.add(notifyInstitutionAdmins);
-			institutionFields.add(notifyInstitutionAdmins);
-			((CheckBox)notifyInstitutionAdmins.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-				@Override
-				public void onValueChange(ValueChangeEvent<Boolean> event) {
-					if(event.getValue()){
-					}
-				}
-			});
-		}
 
 		institutionFields.add(formHelper.getImageSeparator());
 
