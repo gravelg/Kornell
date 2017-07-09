@@ -213,7 +213,7 @@ object CourseClassesRepo {
     
     if(courseClassUUID != null && courseClassesTO.getCourseClasses.size == 1){
       bindClassroomDetails(courseClassesTO.getCourseClasses.get(0));
-    } else {
+    } else if(StringUtils.isSome(adminUUID)) {
       bindEnrollmentCounts(courseClassesTO)
     }
     
@@ -360,7 +360,11 @@ object CourseClassesRepo {
   private def bindEnrollments(personUUID: String, courseClassesTO: CourseClassesTO) = {
     val classes = courseClassesTO.getCourseClasses().asScala
     //bind enrollment if it exists
-    classes.foreach(cc => bindEnrollment(personUUID, cc))
+    val enrollments = EnrollmentsRepo.byPerson(personUUID)
+    enrollments.foreach { e => {
+       val clazz = classes.filter(_.getCourseClass.getUUID.equals(e.getCourseClassUUID)).asJava
+       if(clazz.size() > 0) clazz.get(0).setEnrollment(e)
+    } }
     //only return the valid classes for the user (for example, hide private classes)
     courseClassesTO.setCourseClasses(classes.filter(isValidClass _).asJava)
     courseClassesTO
