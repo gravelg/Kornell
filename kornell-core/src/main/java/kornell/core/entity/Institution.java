@@ -59,4 +59,7 @@ public interface Institution extends Named {
 	
 	boolean isAdvancedMode();
 	void setAdvancedMode(boolean advancedMode);
+
+	boolean isNotifyInstitutionAdmins();
+	void setNotifyInstitutionAdmins(boolean notifyInstitutionAdmins);
 }

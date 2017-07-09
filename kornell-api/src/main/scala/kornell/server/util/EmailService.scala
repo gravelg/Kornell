@@ -21,6 +21,14 @@ import java.util.logging.Logger
 import java.util.logging.Level
 import kornell.core.util.StringUtils
 import kornell.server.service.S3Service
+import kornell.server.jdbc.repository.InstitutionRepo
+import kornell.server.jdbc.repository.InstitutionsRepo
+import kornell.server.jdbc.repository.CourseClassRepo
+import kornell.server.jdbc.repository.CourseVersionRepo
+import kornell.server.jdbc.repository.CourseRepo
+import java.text.SimpleDateFormat
+import kornell.server.jdbc.repository.RolesRepo
+import collection.JavaConverters._
 
 
 object EmailService {
@@ -177,6 +185,32 @@ object EmailService {
     }
   }
   
+  def sendEmailClassCompletion(enrollment: Enrollment) = {
+    val person = PersonRepo(enrollment.getPersonUUID).get
+    val institution = InstitutionsRepo.getByUUID(person.getInstitutionUUID).get
+    if (enrollment.getCourseVersionUUID == null && institution.isNotifyInstitutionAdmins()) {
+      val df = new SimpleDateFormat("yyyy-MM-dd hh:mm")
+      val enrolledClass = CourseClassRepo(enrollment.getCourseClassUUID).get
+      val course = CourseRepo(CourseVersionRepo(enrolledClass.getCourseVersionUUID).get.getCourseUUID).get
+
+      val from = getFromEmail(institution)
+      val to = person.getEmail
+      val subject = "[" + institution.getName + "] Alerta de curso concluído (" + person.getFullName + ")"
+      val imgFile = getInstitutionLogoImage(institution)
+      val body = wrapBody("""
+        <p>O Participante '""" + person.getFullName + """' (""" + person.getEmail + """) matriculado no curso '""" + course.getName + """'
+           na turma '""" + enrolledClass.getName + """' em """ + df.format(enrollment.getEnrolledOn) + """ concluiu o curso em """ + df.format(enrollment.getLastProgressUpdate) + """
+        </p>
+        <p>Cordialmente,</p>
+        <p><b>Administrador do sistema</b></p>
+        <img alt="" src="cid:logo" style="width: 300px;height: 80px;margin: 0 auto;display: block;">
+      """)
+      for (admin <- RolesRepo.getInstitutionAdmins(institution.getUUID, "PERSON").getRoleTOs.asScala) {
+        EmailSender.sendEmail(subject, from, admin.getPerson.getEmail, body, imgFile)
+      }
+    }
+  }
+
   private def getFromEmail(institution: kornell.core.entity.Institution):String = {
     if (StringUtils.isSome(institution.getInstitutionSupportEmail))
       institution.getInstitutionSupportEmail

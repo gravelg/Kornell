@@ -172,17 +172,10 @@ object Entities {
     e.setPreAssessmentScore(preAssessment)
     e.setPostAssessmentScore(postAssessment)
     e.setEnrollmentSource(enrollmentSource)
-    if (courseClassUUID != null){
-      e.setEnrolledOn(DateConverter.convertDate(enrolledOn))
-      e.setLastProgressUpdate(DateConverter.convertDate(lastProgressUpdate))
-      e.setLastAssessmentUpdate(DateConverter.convertDate(lastAssessmentUpdate))
-      e.setCertifiedAt(DateConverter.convertDate(certifiedAt))
-    } else {
-      e.setEnrolledOn(DateConverter.convertDate(enrolledOn))
-      e.setLastProgressUpdate(DateConverter.convertDate(lastProgressUpdate))
-      e.setLastAssessmentUpdate(DateConverter.convertDate(lastAssessmentUpdate))
-      e.setCertifiedAt(DateConverter.convertDate(certifiedAt))
-    }
+    e.setEnrolledOn(DateConverter.convertDate(enrolledOn))
+    e.setLastProgressUpdate(DateConverter.convertDate(lastProgressUpdate))
+    e.setLastAssessmentUpdate(DateConverter.convertDate(lastAssessmentUpdate))
+    e.setCertifiedAt(DateConverter.convertDate(certifiedAt))
     e
   }
 
@@ -196,7 +189,8 @@ object Entities {
   def newInstitution(uuid: String = randUUID, name: String, fullName: String, terms: String, baseURL: String, 
       demandsPersonContactDetails: Boolean, validatePersonContactDetails: Boolean, allowRegistration: Boolean, allowRegistrationByUsername: Boolean, 
       activatedAt: Date, skin: String, billingType: BillingType, institutionType: InstitutionType, dashboardVersionUUID: String, internationalized: Boolean, 
-      useEmailWhitelist: Boolean = false,assetsRepositoryUUID:String=null, timeZone: String, institutionSupportEmail: String, advancedMode: Boolean) = {
+      useEmailWhitelist: Boolean = false,assetsRepositoryUUID:String=null, timeZone: String, institutionSupportEmail: String, advancedMode: Boolean,
+      notifyInstitutionAdmins: Boolean) = {
     val i = factory.newInstitution.as
     i.setName(name)
     i.setFullName(fullName)
@@ -219,6 +213,7 @@ object Entities {
     i.setTimeZone(timeZone)
     i.setInstitutionSupportEmail(institutionSupportEmail)
     i.setAdvancedMode(advancedMode)
+    i.setNotifyInstitutionAdmins(notifyInstitutionAdmins)
     i
   }
 
