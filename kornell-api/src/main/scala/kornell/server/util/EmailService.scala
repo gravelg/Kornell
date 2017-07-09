@@ -206,7 +206,7 @@ object EmailService {
         <img alt="" src="cid:logo" style="width: 300px;height: 80px;margin: 0 auto;display: block;">
       """)
       for (admin <- RolesRepo.getInstitutionAdmins(institution.getUUID, "PERSON").getRoleTOs.asScala) {
-        EmailSender.sendEmail(subject, from, admin.getPerson.getEmail, body, imgFile)
+        EmailSender.sendEmail(subject, from, admin.getPerson.getEmail, from, body, imgFile)
       }
     }
   }

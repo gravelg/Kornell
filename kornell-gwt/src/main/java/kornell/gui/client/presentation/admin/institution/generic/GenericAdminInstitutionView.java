@@ -113,7 +113,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	private Institution institution;
 	private ContentRepository repo;
 
-	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, advancedMode, useEmailWhitelist, timeZone, skin, institutionSupportEmail;
+	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, advancedMode, useEmailWhitelist, timeZone, skin, institutionSupportEmail, notifyInstitutionAdmins;
 	
 	private List<KornellFormFieldWrapper> fields;
 	private GenericInstitutionReportsView reportsView;
@@ -411,6 +411,19 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 		fields.add(institutionSupportEmail);
 		institutionFields.add(institutionSupportEmail);
 		
+		if(isPlatformAdmin){
+			notifyInstitutionAdmins = new KornellFormFieldWrapper("Notificar os administradores da instituição da conclusão da turma", formHelper.createCheckBoxFormField(institution.isNotifyInstitutionAdmins()), isPlatformAdmin);
+			fields.add(notifyInstitutionAdmins);
+			institutionFields.add(notifyInstitutionAdmins);
+			((CheckBox)notifyInstitutionAdmins.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
+					if(event.getValue()){
+					}
+				}
+			});
+		}
+
 		institutionFields.add(formHelper.getImageSeparator());
 
 		institutionFields.setVisible(true);
@@ -467,6 +480,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			institution.setUseEmailWhitelist(useEmailWhitelist.getFieldPersistText().equals("true"));
 			institution.setSkin(skin.getFieldPersistText());
 			institution.setInstitutionSupportEmail(institutionSupportEmail.getFieldPersistText());
+			institution.setNotifyInstitutionAdmins(notifyInstitutionAdmins.getFieldPersistText().equals("true"));
 		}
 		return institution;
 	}
