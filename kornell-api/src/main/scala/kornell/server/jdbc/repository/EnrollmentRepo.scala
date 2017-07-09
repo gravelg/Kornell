@@ -52,7 +52,7 @@ class EnrollmentRepo(uuid: String) {
       end_date = ${e.getEndDate}
     where uuid = ${e.getUUID} """.executeUpdate
     
-    EnrollmentsRepo.updateCache(e)
+    EnrollmentsRepo.updateCache(sql" SELECT * FROM Enrollment e WHERE uuid = ${uuid}".first[Enrollment].get)
 	ChatThreadsRepo.addParticipantsToCourseClassThread(CourseClassesRepo(e.getCourseClassUUID).get)
     e
   }
