@@ -34,7 +34,8 @@ class InstitutionRepo(uuid: String) {
     | i.assetsRepositoryUUID = ${institution.getAssetsRepositoryUUID},
     | i.timeZone = ${institution.getTimeZone},
     | i.institutionSupportEmail = ${institution.getInstitutionSupportEmail},
-    | i.advancedMode = ${institution.isAdvancedMode}
+    | i.advancedMode = ${institution.isAdvancedMode},
+    | i.notifyInstitutionAdmins = ${institution.isNotifyInstitutionAdmins}
     | where i.uuid = ${institution.getUUID}""".executeUpdate
 	    
     //log entity change
