@@ -59,7 +59,13 @@ class S3ContentManager(repo: ContentRepository)
     val objects = s3.listObjects(repo.getBucketName, path)
     val keyPaths = objects.getObjectSummaries.asScala.map(f => f.getKey)
     val deleteRequest = new DeleteObjectsRequest(repo.getBucketName).withKeys(keyPaths:_*)
-    s3.deleteObjects(deleteRequest)
+    try {
+      s3.deleteObjects(deleteRequest)
+    } catch {
+      case e: Throwable => {
+        logger.info("Could not delete folder object. [ " + path + " ]")
+      }
+    }
   }
 
   def getPrefix = repo.getPrefix
