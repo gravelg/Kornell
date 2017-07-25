@@ -31,7 +31,7 @@ import kornell.gui.client.util.view.KornellNotification;
 
 public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 	public static final String CERTIFICATE_FILENAME = "certificate-bg.jpg";
-	public static final String CERTIFICATE_DESCRIPTION = "Certificado (PNG, 2000x1428 px)";
+	public static final String CERTIFICATE_DESCRIPTION = "Certificado (JPG, 2000x1428 px)";
 	public static final String THUMB_DESCRIPTION = "Ícone (JPG, 150x150 px)";
 	public static final String IMAGE_JPG = "image/jpg";
 	public static final String THUMB_FILENAME = "thumb.jpg";
