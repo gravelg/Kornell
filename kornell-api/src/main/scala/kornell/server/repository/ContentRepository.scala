@@ -22,7 +22,12 @@ import kornell.core.error.exception.ServerErrorException
 object ContentRepository {
 
   def findVisitedContent(enrollment: Enrollment, person: Person) = {
-    val contentSpec = CoursesRepo.byCourseClassUUID(enrollment.getCourseClassUUID).get.getContentSpec
+    val contentSpec = {
+      if (enrollment.getCourseVersionUUID != null)
+        CoursesRepo.byCourseVersionUUID(enrollment.getCourseVersionUUID).get.getContentSpec
+      else
+        CoursesRepo.byCourseClassUUID(enrollment.getCourseClassUUID).get.getContentSpec
+    }
     contentSpec match {
       case ContentSpec.KNL => findKNLVisitedContent(enrollment, person)
       case ContentSpec.SCORM12 => findSCORM12VisitedContent(enrollment, person)
@@ -31,7 +36,7 @@ object ContentRepository {
   }
 
   def findSCORM12Actoms(courseClassUUID: String) = {
-    val structureIn = getManifestContent(courseClassUUID, "imsmanifest.xml")
+    val structureIn = getClassManifestContent(courseClassUUID, "imsmanifest.xml")
     val contents = XML.load(structureIn)
 
     val nodes = (contents \\ "resource")
@@ -43,7 +48,13 @@ object ContentRepository {
   def findKNLVisitedContent(enrollment: Enrollment, person: Person) = {
     val prefix = getPrefix(enrollment, person)
     val visited = getVisited(enrollment)
-    val structureSrc = getManifestContent(enrollment.getCourseClassUUID, "structure.knl")
+    val structureSrc = {
+      if (enrollment.getCourseClassUUID != null) {
+        getClassManifestContent(enrollment.getCourseClassUUID, "structure.knl")
+      } else {
+        getVersionManifestContent(enrollment.getCourseVersionUUID, "structure.knl")
+      }
+    }
     val content = ContentsParser.parse(prefix, structureSrc, visited)
     content
   }
@@ -51,7 +62,13 @@ object ContentRepository {
   def findSCORM12VisitedContent(enrollment: Enrollment, person: Person) = {
     val prefix = getPrefix(enrollment, person)
     val visited = getVisited(enrollment)
-    val structureSrc = getManifestContent(enrollment.getCourseClassUUID, "imsmanifest.xml")
+    val structureSrc = {
+      if (enrollment.getCourseClassUUID != null) {
+        getClassManifestContent(enrollment.getCourseClassUUID, "imsmanifest.xml")
+      } else {
+        getVersionManifestContent(enrollment.getCourseVersionUUID, "imsmanifest.xml")
+      }
+    }
     val contents = ManifestParser.parse(prefix, structureSrc, visited)
     contents
   }
@@ -78,10 +95,21 @@ object ContentRepository {
     visited
   }
 
-  private def getManifestContent(courseClassUUID: String, filename: String) = {
+  private def getVersionManifestContent(courseVersionUUID: String, filename: String) = {
+    val version = CourseVersionRepo(courseVersionUUID).get
+    val course = CourseRepo(version.getCourseUUID).get
+    val institution = InstitutionRepo(course.getInstitutionUUID).get
+    val repositoryUUID = institution.getAssetsRepositoryUUID
+    val repo = ContentManagers.forRepository(repositoryUUID)
+    val url = mkurl(course.getCode, version.getDistributionPrefix, filename)
+    val structureIn = repo.inputStream(S3Service.CLASSROOMS, url).get
+    structureIn
+  }
+
+  private def getClassManifestContent(courseClassUUID: String, filename: String) = {
     val classRepo = CourseClassesRepo(courseClassUUID)
-    val institutionRepo = classRepo.institution
-    val repositoryUUID = institutionRepo.get.getAssetsRepositoryUUID
+    val institution = classRepo.institution.get
+    val repositoryUUID = institution.getAssetsRepositoryUUID
     val versionRepo = classRepo.version
     val version = versionRepo.get
     val repo = ContentManagers.forRepository(repositoryUUID)
