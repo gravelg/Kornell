@@ -51,6 +51,8 @@ import kornell.server.repository.Entities._
 import kornell.server.repository.Entities
 import kornell.server.repository.TOs._
 import kornell.server.repository.TOs
+import kornell.core.entity.EmailTemplateType
+import kornell.core.entity.EmailTemplate
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -439,4 +441,12 @@ package object repository {
       rs.getString("institutionUUID"),
       PostbackType.valueOf(rs.getString("postbackType")),
       rs.getString("contents"))
+
+  implicit def toEmailTemplate(rs: ResultSet): EmailTemplate = newEmailTemplate(
+      rs.getString("uuid"),
+      EmailTemplateType.valueOf(rs.getString("templateType")),
+      rs.getString("locale"),
+      rs.getString("title"),
+      rs.getString("template"),
+      rs.getString("buttonText"))
 }

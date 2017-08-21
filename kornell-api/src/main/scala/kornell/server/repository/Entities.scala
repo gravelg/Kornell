@@ -37,6 +37,7 @@ import kornell.core.entity.Role
 import kornell.core.entity.RoleType
 import kornell.core.util.UUID
 import kornell.server.util.DateConverter
+import kornell.core.entity.EmailTemplateType
 
 
 //TODO: Remove this class without spreading dependency on AutoBeanFactorySource
@@ -477,6 +478,17 @@ object Entities {
     config.setPostbackType(postbackType)
     config.setContents(contents)
     config
+  }
+
+  def newEmailTemplate(uuid: String, templateType: EmailTemplateType, locale: String, title: String, template: String, buttonText: String) = {
+    val emailTemplate = factory.newEmailTemplate.as
+    emailTemplate.setUUID(uuid)
+    emailTemplate.setTemplateType(templateType)
+    emailTemplate.setLocale(locale)
+    emailTemplate.setTitle(title)
+    emailTemplate.setTemplate(template)
+    emailTemplate.setButtonText(buttonText)
+    emailTemplate
   }
 }
 
