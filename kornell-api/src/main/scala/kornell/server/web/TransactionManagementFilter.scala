@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.util.logging.Logger
 import kornell.server.jdbc.repository.InstitutionsRepo
-import kornell.server.util.DateConverter
 import kornell.core.entity.Institution
 import java.net.URL
 import java.net.URI
@@ -49,6 +48,4 @@ class TransactionManagementFilter extends Filter {
   override def init(cfg: FilterConfig) {}
 
   override def destroy() {}
-  
-  def clearTimeZone = DateConverter.clearTimeZone
 }

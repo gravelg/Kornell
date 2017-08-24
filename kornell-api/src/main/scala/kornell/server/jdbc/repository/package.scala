@@ -447,6 +447,5 @@ package object repository {
       EmailTemplateType.valueOf(rs.getString("templateType")),
       rs.getString("locale"),
       rs.getString("title"),
-      rs.getString("template"),
-      rs.getString("buttonText"))
+      rs.getString("template"))
 }
