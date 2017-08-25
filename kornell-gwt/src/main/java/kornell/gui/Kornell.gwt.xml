@@ -33,13 +33,13 @@
 	<inherits name="com.google.gwt.i18n.I18N" />
 
 	<extend-property name="locale" values="pt_BR"/>
-	<!--extend-property name="locale" values="en"/>
-	<extend-property name="locale" values="fr"/>
+	<extend-property name="locale" values="en"/>
+	<!--extend-property name="locale" values="fr"/>
 	<extend-property name="locale" values="es"/> -->
 
 	<set-property-fallback name='locale' value='pt_BR' />
 	<set-configuration-property name="locale.cookie" value="knlLocale" />
-	<!-- set-property name='locale' value='pt_BR' / -->
+	<set-property name='locale' value='pt_BR' />
 
 	<!-- We need the JUnit module in the main module, -->
 	<!-- otherwise eclipse complains (Google plugin bug?) -->
@@ -54,6 +54,7 @@
 
 	<!-- 3rd party libs -->
 	<inherits name="com.github.gwtbootstrap.Bootstrap" />
+	<set-property name="bootstrap.responsiveDesign" value="true" />
 	
 	<inherits name="com.google.gwt.logging.Logging" />
 	<set-property name="gwt.logging.enabled" value="FALSE" />
@@ -70,6 +71,6 @@
 
 	<!-- Specify the paths for translatable code -->
 	<source path='client' />
-	<set-property name="bootstrap.responsiveDesign" value="true" />
+	
 	<add-linker name="xsiframe" />
 </module>

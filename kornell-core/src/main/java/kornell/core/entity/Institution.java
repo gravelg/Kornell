@@ -62,4 +62,7 @@ public interface Institution extends Named {
 
 	boolean isNotifyInstitutionAdmins();
 	void setNotifyInstitutionAdmins(boolean notifyInstitutionAdmins);
+	
+	String getAllowedLanguages();
+	void setAllowedLanguages(String allowedLanguages);
 }
