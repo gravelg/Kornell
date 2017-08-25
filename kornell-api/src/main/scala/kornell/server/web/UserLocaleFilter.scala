@@ -10,7 +10,7 @@ import kornell.server.util.UserLocale
 import javax.servlet.FilterConfig
 
 class UserLocaleFilter extends Filter {
-  
+
   override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) = 
     (sreq, sres) match {
       case (hreq: HttpServletRequest, hres: HttpServletResponse) => {
@@ -21,15 +21,24 @@ class UserLocaleFilter extends Filter {
         }
       }
     }
-  
+
   def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
-//    debugLogRequest(req)
-    
-      UserLocale.setLocale("")
+      getLocale(req)
       chain.doFilter(req, resp)
       UserLocale.clearLocale
   }
-  
+
+
+  def getLocale(req: HttpServletRequest) = {
+    val cookie = req.getCookies.find(p => p.getName == "knlLocale")
+    if (cookie.isEmpty) {
+      //No cookie, set default locale
+      UserLocale.setLocale("pt_BR")
+    } else {
+      UserLocale.setLocale(cookie.get.getValue)
+    }
+  }
+
   override def init(cfg: FilterConfig) {}
 
   override def destroy() {}
