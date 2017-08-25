@@ -481,14 +481,13 @@ object Entities {
     config
   }
 
-  def newEmailTemplate(uuid: String, templateType: EmailTemplateType, locale: String, title: String, template: String, buttonText: String) = {
+  def newEmailTemplate(uuid: String, templateType: EmailTemplateType, locale: String, title: String, template: String) = {
     val emailTemplate = factory.newEmailTemplate.as
     emailTemplate.setUUID(uuid)
     emailTemplate.setTemplateType(templateType)
     emailTemplate.setLocale(locale)
     emailTemplate.setTitle(title)
     emailTemplate.setTemplate(template)
-    emailTemplate.setButtonText(buttonText)
     emailTemplate
   }
 }

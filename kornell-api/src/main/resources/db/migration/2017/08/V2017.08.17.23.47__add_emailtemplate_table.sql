@@ -4,6 +4,5 @@ CREATE TABLE IF NOT EXISTS EmailTemplate (
 	locale varchar(5) NOT NULL,
 	title varchar(255) NOT NULL,
 	template text NOT NULL,
-	buttonText varchar(255),
 	PRIMARY KEY (`uuid`)
 );

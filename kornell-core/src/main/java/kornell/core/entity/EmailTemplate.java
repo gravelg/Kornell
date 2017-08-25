@@ -14,7 +14,4 @@ public interface EmailTemplate extends Entity {
 
 	String getTemplate();
 	void setTemplate(String template);
-
-	String getButtonText();
-	void setButtonText(String buttonText);
 }
