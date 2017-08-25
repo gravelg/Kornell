@@ -90,7 +90,8 @@ package object repository {
         rs.getString("timeZone"),
         rs.getString("institutionSupportEmail"),
         rs.getBoolean("advancedMode"),
-        rs.getBoolean("notifyInstitutionAdmins"))
+        rs.getBoolean("notifyInstitutionAdmins"),
+        rs.getString("allowedLanguages"))
         
   implicit def toContentRepository(rs:ResultSet):ContentRepository = 
     newContentRepository(rs.getString("uuid"),

@@ -1,7 +1,10 @@
 package kornell.gui.client.presentation.admin.institution.generic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.github.gwtbootstrap.client.ui.CheckBox;
 import com.github.gwtbootstrap.client.ui.Form;
@@ -29,6 +32,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.autobean.shared.AutoBean;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.shared.AutoBeanFactory;
+import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;
@@ -37,12 +44,15 @@ import kornell.core.entity.ContentRepository;
 import kornell.core.entity.EntityFactory;
 import kornell.core.entity.Institution;
 import kornell.core.entity.InstitutionType;
+import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.personnel.Dean;
 import kornell.gui.client.presentation.admin.institution.AdminInstitutionPlace;
 import kornell.gui.client.presentation.admin.institution.AdminInstitutionView;
 import kornell.gui.client.util.CSSInjector;
+import kornell.gui.client.util.entity.TermsLanguageItem;
+import kornell.gui.client.util.entity.TermsLanguageItems;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 import kornell.gui.client.util.forms.formfield.ListBoxFormField;
@@ -113,9 +123,10 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	private Institution institution;
 	private ContentRepository repo;
 
-	private KornellFormFieldWrapper name, fullName, institutionType, terms, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, advancedMode, useEmailWhitelist, timeZone, skin, institutionSupportEmail, notifyInstitutionAdmins;
-	
+	private KornellFormFieldWrapper name, fullName, institutionType, assetsRepositoryUUID, baseURL, billingType, demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername, advancedMode, useEmailWhitelist, timeZone, skin, institutionSupportEmail, notifyInstitutionAdmins, allowedLanguages;
+
 	private List<KornellFormFieldWrapper> fields;
+	private Map<String, KornellFormFieldWrapper> termsFieldsMap;
 	private GenericInstitutionReportsView reportsView;
 	private GenericInstitutionAdminsView adminsView;
 	private GenericInstitutionAssetsView assetsView;
@@ -251,6 +262,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	public void initData() {
 		institutionFields.setVisible(false);
 		this.fields = new ArrayList<KornellFormFieldWrapper>();
+		this.termsFieldsMap = new HashMap<>();
 
 		institutionFields.clear();
 		
@@ -328,6 +340,47 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			}
 		});
 
+		final ListBox timeZones = formHelper.getTimeZonesList();
+		if(institution.getTimeZone() != null){
+			timeZones.setSelectedValue(institution.getTimeZone());
+		}
+		timeZone = new KornellFormFieldWrapper("Fuso horário", new ListBoxFormField(timeZones), isInstitutionAdmin);
+		fields.add(timeZone);
+		institutionFields.add(timeZone);
+
+
+		final ListBox skins = formHelper.getSkinsList();
+		if(institution.getSkin() != null){
+			skins.setSelectedValue(institution.getSkin());
+		} else {
+			skins.setSelectedValue("");
+		}
+		skin = new KornellFormFieldWrapper("Tema visual", new ListBoxFormField(skins), isPlatformAdmin);
+		fields.add(skin);
+		institutionFields.add(skin);
+		((ListBox)skin.getFieldWidget()).addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				Dean.showContentNative(false);
+
+				Callback<Void, Exception> callback = new Callback<Void, Exception>() {
+					public void onFailure(Exception reason) {
+						Window.Location.reload();
+					}
+
+					public void onSuccess(Void result) {
+						Dean.showContentNative(true);
+					}
+				};
+				
+				CSSInjector.updateSkin(skin.getFieldPersistText(), callback);
+			}
+		});
+		
+		institutionSupportEmail = new KornellFormFieldWrapper("E-mail de suporte", formHelper.createTextBoxFormField(institution.getInstitutionSupportEmail()), isPlatformAdmin);
+		fields.add(institutionSupportEmail);
+		institutionFields.add(institutionSupportEmail);
+
 		if(isPlatformAdmin){
 			useEmailWhitelist = new KornellFormFieldWrapper("Configurar domínios para emails", formHelper.createCheckBoxFormField(institution.isUseEmailWhitelist()), isInstitutionAdmin);
 			fields.add(useEmailWhitelist);
@@ -375,59 +428,35 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			});
 		}
 		
-		terms = new KornellFormFieldWrapper("Termos de Uso", formHelper.createTextAreaFormField(institution.getTerms(), 20), isInstitutionAdmin);
-		terms.addStyleName("heightAuto");
-		terms.addStyleName("marginBottom25");
-		fields.add(terms);
-		institutionFields.add(terms);
-
-
-		final ListBox timeZones = formHelper.getTimeZonesList();
-		if(institution.getTimeZone() != null){
-			timeZones.setSelectedValue(institution.getTimeZone());
-		}
-		timeZone = new KornellFormFieldWrapper("Fuso horário", new ListBoxFormField(timeZones), isInstitutionAdmin);
-		fields.add(timeZone);
-		institutionFields.add(timeZone);
-
-
-		final ListBox skins = formHelper.getSkinsList();
-		if(institution.getSkin() != null){
-			skins.setSelectedValue(institution.getSkin());
-		} else {
-			skins.setSelectedValue("");
-		}
-		skin = new KornellFormFieldWrapper("Tema visual", new ListBoxFormField(skins), isPlatformAdmin);
-		fields.add(skin);
-		institutionFields.add(skin);
-		((ListBox)skin.getFieldWidget()).addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				Dean.showContentNative(false);
-
-				Callback<Void, Exception> callback = new Callback<Void, Exception>() {
-					public void onFailure(Exception reason) {
-						Window.Location.reload();
-					}
-
-					public void onSuccess(Void result) {
-						Dean.showContentNative(true);
-					}
-				};
-				
-				CSSInjector.updateSkin(skin.getFieldPersistText(), callback);
-			}
-		});
+		allowedLanguages = new KornellFormFieldWrapper("Línguas Disponíveis", formHelper.createTextBoxFormField(institution.getAllowedLanguages()), isInstitutionAdmin, null, "Línguas disponíveis: \"pt_BR\" e \"en\". Use vírgulas se deseja usar mais de uma língua.");
+		fields.add(allowedLanguages);
+		institutionFields.add(allowedLanguages);
 		
-		institutionSupportEmail = new KornellFormFieldWrapper("E-mail de suporte", formHelper.createTextBoxFormField(institution.getInstitutionSupportEmail()), isPlatformAdmin);
-		fields.add(institutionSupportEmail);
-		institutionFields.add(institutionSupportEmail);
+		String[] allowedLanguagesArr = institution.getAllowedLanguages().split(",");
+		for(int i = 0; i < allowedLanguagesArr.length; i++){
+			KornellFormFieldWrapper terms = new KornellFormFieldWrapper("Termos de Uso - " + allowedLanguagesArr[i], formHelper.createTextAreaFormField(getTermsForLanguage(allowedLanguagesArr[i]), 20), isInstitutionAdmin);
+			terms.addStyleName("heightAuto");
+			terms.addStyleName("marginBottom25");
+			fields.add(terms);
+			termsFieldsMap.put(allowedLanguagesArr[i], terms);
+			institutionFields.add(terms);
+		}
 
 		institutionFields.add(formHelper.getImageSeparator());
-
 		institutionFields.setVisible(true);
 	}
 	
+	private String getTermsForLanguage(String language) {		
+		AutoBeanFactory factory = GenericClientFactoryImpl.GUI_ENTITY_FACTORY;
+		AutoBean<TermsLanguageItems> bean = AutoBeanCodex.decode(factory, TermsLanguageItems.class, institution.getTerms());
+		TermsLanguageItems list = bean.as();
+		for (TermsLanguageItem termsLanguageItem : list.getTermsLanguageItems()) {
+			if(termsLanguageItem.getLanguage().equals(language))
+				return termsLanguageItem.getTerms();
+		}
+		return "";
+	}
+
 	private boolean validateFields() {		
 		if (!formHelper.isLengthValid(name.getFieldPersistText(), 2, 20)) {
 			name.setError("Insira o sub-domínio da instituição.");
@@ -447,6 +476,15 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			timeZone.setError("Escolha o fuso horário.");
 		}
 		
+		for (Entry<String, KornellFormFieldWrapper> entry : termsFieldsMap.entrySet()) {
+			String language = entry.getKey();
+			String terms = entry.getValue().getFieldPersistText().replace("\"", "\\\"");
+			if(!formHelper.isLengthValid(terms, 10)){
+				entry.getValue().setError("Coloque os termos para " + 
+						("pt_BR".equals(language) ? "Português" : "Inglês") + ".");
+			}
+		}
+		
 		return !formHelper.checkErrors(fields);
 	}
 
@@ -464,7 +502,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 	private Institution getInstitutionInfoFromForm() {
 		institution.setName(name.getFieldPersistText());
 		institution.setFullName(fullName.getFieldPersistText());
-		institution.setTerms(terms.getFieldPersistText());
+		institution.setTerms(getTermsJson());
 		institution.setBaseURL(baseURL.getFieldPersistText());
 		institution.setDemandsPersonContactDetails(demandsPersonContactDetails.getFieldPersistText().equals("true"));
 		institution.setValidatePersonContactDetails(validatePersonContactDetails.getFieldPersistText().equals("true"));
@@ -480,8 +518,23 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 			institution.setSkin(skin.getFieldPersistText());
 			institution.setInstitutionSupportEmail(institutionSupportEmail.getFieldPersistText());
 			institution.setNotifyInstitutionAdmins(notifyInstitutionAdmins.getFieldPersistText().equals("true"));
+			institution.setAllowedLanguages(allowedLanguages.getFieldPersistText());
 		}
 		return institution;
+	}
+
+	private String getTermsJson() {
+		TermsLanguageItems termsLanguageItems = GenericClientFactoryImpl.GUI_ENTITY_FACTORY.newTermsLanguageItems().as();
+		List<TermsLanguageItem> termsLanguageItemsList = new ArrayList<>();
+		TermsLanguageItem termsLanguageItem;
+		for (Entry<String, KornellFormFieldWrapper> entry : termsFieldsMap.entrySet()) {
+			termsLanguageItem = GenericClientFactoryImpl.GUI_ENTITY_FACTORY.newTermsLanguageItem().as();
+			termsLanguageItem.setLanguage(entry.getKey());
+			termsLanguageItem.setTerms(entry.getValue().getFieldPersistText().replace("\"", "\\\""));
+			termsLanguageItemsList.add(termsLanguageItem);
+		}
+		termsLanguageItems.setTermsLanguageItems(termsLanguageItemsList);
+		return AutoBeanCodex.encode(AutoBeanUtils.getAutoBean(termsLanguageItems)).getPayload();
 	}
 
 	@UiHandler("btnCancel")

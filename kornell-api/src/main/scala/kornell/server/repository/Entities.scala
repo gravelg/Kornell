@@ -191,7 +191,7 @@ object Entities {
       demandsPersonContactDetails: Boolean, validatePersonContactDetails: Boolean, allowRegistration: Boolean, allowRegistrationByUsername: Boolean, 
       activatedAt: Date, skin: String, billingType: BillingType, institutionType: InstitutionType, dashboardVersionUUID: String, internationalized: Boolean, 
       useEmailWhitelist: Boolean = false,assetsRepositoryUUID:String=null, timeZone: String, institutionSupportEmail: String, advancedMode: Boolean,
-      notifyInstitutionAdmins: Boolean) = {
+      notifyInstitutionAdmins: Boolean, allowedLanguages: String) = {
     val i = factory.newInstitution.as
     i.setName(name)
     i.setFullName(fullName)
@@ -215,6 +215,7 @@ object Entities {
     i.setInstitutionSupportEmail(institutionSupportEmail)
     i.setAdvancedMode(advancedMode)
     i.setNotifyInstitutionAdmins(notifyInstitutionAdmins)
+    i.setAllowedLanguages(allowedLanguages)
     i
   }
 

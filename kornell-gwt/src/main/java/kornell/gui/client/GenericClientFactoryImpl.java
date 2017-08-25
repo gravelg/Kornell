@@ -45,6 +45,7 @@ import kornell.gui.client.presentation.classroom.ClassroomPlace;
 import kornell.gui.client.presentation.vitrine.VitrinePlace;
 import kornell.gui.client.presentation.welcome.WelcomePlace;
 import kornell.gui.client.util.ClientProperties;
+import kornell.gui.client.util.entity.GUIEntityFactory;
 import kornell.gui.client.util.view.KornellMaintenance;
 import kornell.gui.client.util.view.KornellNotification;
 
@@ -56,7 +57,9 @@ public class GenericClientFactoryImpl implements ClientFactory {
 	public static final EntityFactory ENTITY_FACTORY = GWT.create(EntityFactory.class);
 	public static final TOFactory TO_FACTORY = GWT.create(TOFactory.class);
 	public static final LOMFactory LOM_FACTORY = GWT.create(LOMFactory.class);
-	public static final EventFactory EVENT_FACTORY = GWT.create(EventFactory.class);	
+	public static final EventFactory EVENT_FACTORY = GWT.create(EventFactory.class);
+	public static final GUIEntityFactory GUI_ENTITY_FACTORY = GWT.create(GUIEntityFactory.class);
+	
 
 	public static final EventBus EVENT_BUS = GWT.create(SimpleEventBus.class);
 	public static final KornellSession KORNELL_SESSION = GWT.create(KornellSession.class);
