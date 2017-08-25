@@ -189,11 +189,14 @@ public class GenericVitrineView extends Composite implements VitrineView {
 	}
 
 	private void buildFlagsPanel() {
-		if(GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().isInternationalized()){
-			String locale = ClientProperties.getLocaleCookie();
-			if(locale == null){
-				locale = "pt_BR";
-			}
+		String allowedLanguages = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getAllowedLanguages();
+		String locale = ClientProperties.getLocaleCookie();
+		if(locale == null){
+			locale = "pt_BR";
+			ClientProperties.setLocaleCookie(locale);
+		}
+		
+		if(StringUtils.isSome(allowedLanguages) && allowedLanguages.contains(",")) {
 			Map<String, String> localeToFlagsImage = new HashMap<String, String>();
 			String blank = mkurl(ClientConstants.IMAGES_PATH, "blank.gif");
 			localeToFlagsImage.put("pt_BR", "<img src=\""+blank+"\" class=\"flag flag-br\" alt=\"BR\" title=\"Português\"/>");
