@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletRequest
 import kornell.server.util.UserLocale
 import javax.servlet.FilterConfig
+import kornell.server.util.Settings
 
 class UserLocaleFilter extends Filter {
 
@@ -33,7 +34,7 @@ class UserLocaleFilter extends Filter {
     val cookie = req.getCookies.find(p => p.getName == "knlLocale")
     if (cookie.isEmpty) {
       //No cookie, set default locale
-      UserLocale.setLocale("pt_BR")
+      UserLocale.setLocale(Settings.DEFAULT_LOCALE)
     } else {
       UserLocale.setLocale(cookie.get.getValue)
     }

@@ -123,7 +123,7 @@ na turma \'$$CLASS_NAME$$\' em $$ENROLLMENT_DATE$$ concluiu o curso em $$COMPLET
 <p><b>Administrador do sistema</b></p>
 <img alt="" src="cid:logo" style="width: 300px;height: 80px;margin: 0 auto;display: block;">'),
 
-('e95e8c46-02cd-49b8-a1a9-02a1ba9ab591', 'ENROLLMENT_CONFIRMATION', 'pt_BR', 'Você foi matriculado no curso $$COURSE_NAME$$', '<p>Ol&aacute;, <b>$$$PERSON_FULLNAME$$</b></p>
+('e95e8c46-02cd-49b8-a1a9-02a1ba9ab591', 'ENROLLMENT_CONFIRMATION', 'pt_BR', 'Você foi matriculado no curso $$COURSE_NAME$$', '<p>Ol&aacute;, <b>$$PERSON_FULLNAME$$</b></p>
 <p>&nbsp;</p>
 <p>Voc&ecirc; foi matriculad $$GENDER_MODIFIER$$ na turma <b>$$CLASS_NAME$$</b> do curso <b>$$COURSE_NAME$$</b> oferecido pela <b>$$INSTITUTION_NAME$$</b>.</p>
 <p>Clique no bot&atilde;o abaixo para ir ao curso.</p>

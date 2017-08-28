@@ -98,6 +98,7 @@ object EmailService {
       values("INSTITUTION_NAME") = institution.getFullName
       values("COURSE_NAME") = course.getName
       values("CLASS_NAME") = courseClass.getName
+      values("PERSON_EMAIL") = person.getEmail
 
       val from = getFromEmail(institution)
       val to = person.getEmail
@@ -193,19 +194,19 @@ object EmailService {
     val template = EmailTemplatesRepo.getTemplate(templateType, UserLocale.getLocale.get).get
     var output = template.getTemplate
     var title = template.getTitle
-    values foreach (x => {
-      output = output.replaceAll("$$" + x._1 + "$$", x._2)
-      title = title.replaceAll("$$" + x._1 + "$$", x._2)
-    })
+    values.foreach { x =>
+      output = output.replaceAll("\\$\\$" + x._1 + "\\$\\$", x._2)
+      title = title.replaceAll("\\$\\$" + x._1 + "\\$\\$", x._2)
+    }
     (title, output)
   }
 
   private def processTitle(templateType: EmailTemplateType, values: scala.collection.mutable.Map[String, String]) = {
     val template = EmailTemplatesRepo.getTemplate(templateType, UserLocale.getLocale.get).get
     var title = template.getTitle
-    values foreach (x => {
-      title = title.replaceAll("$$" + x._1 + "$$", x._2)
-    })
+    values.foreach { x =>
+      title = title.replaceAll("\\$\\$" + x._1 + "\\$\\$", x._2)
+    }
     title
   }
 
