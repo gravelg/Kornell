@@ -23,7 +23,7 @@
 		<buildNumber>Development Build</buildNumber>
 		<scala.version>2.11.8</scala.version>
 		<aws.sdk.version>1.10.77</aws.sdk.version>
-		<version.swarm>2016.10.0</version.swarm>
+		<version.swarm>2017.8.1</version.swarm>
 		<jasper.version>5.0.4</jasper.version>
 	</properties>
 
@@ -37,25 +37,11 @@
 			<url>http://jasperreports.sourceforge.net/maven2/</url>
 		</repository>
 		<repository>
-			<id>scala-tools.org</id>
-			<name>Scala-tools Maven2 Repository</name>
-			<url>http://scala-tools.org/repo-releases</url>
-		</repository>
-		<repository>
 			<id>sonatype</id>
 			<name>Sonatype OSS Maven repository</name>
 			<url>http://oss.sonatype.org/content/groups/public/</url>
 		</repository>
 	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>scala-tools.org</id>
-			<name>Scala-tools Maven2 Repository</name>
-			<url>http://scala-tools.org/repo-releases</url>
-		</pluginRepository>
-
-	</pluginRepositories>
 
 	<dependencyManagement>
 		<dependencies>
@@ -171,7 +157,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>17.0</version>
+			<version>18.0</version>
 		</dependency>
 
 		<dependency>
@@ -183,7 +169,11 @@
 
 		<dependency>
 			<groupId>org.wildfly.swarm</groupId>
-			<artifactId>jaxrs-cdi</artifactId>
+			<artifactId>jaxrs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.wildfly.swarm</groupId>
+			<artifactId>cdi</artifactId>
 		</dependency>
 
 		<dependency>
@@ -294,7 +284,9 @@
 			<plugin>
 				<groupId>org.wildfly.swarm</groupId>
 				<artifactId>wildfly-swarm-plugin</artifactId>
-				<version>${version.swarm}</version>
+				<!-- later versions of the plugin remove packaging of transitive dependencies -->
+				<!-- See https://github.com/wildfly-swarm/wildfly-swarm/commit/59fead67993910ef18c88e71fc637555cc612526 for more info -->
+				<version>2016.10.0</version>
 				<configuration>
 				</configuration>
 				<executions>
