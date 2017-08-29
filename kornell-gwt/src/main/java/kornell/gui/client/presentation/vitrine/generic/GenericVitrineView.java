@@ -189,17 +189,20 @@ public class GenericVitrineView extends Composite implements VitrineView {
 	}
 
 	private void buildFlagsPanel() {
-		if(GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().isInternationalized()){
-			String locale = ClientProperties.getLocaleCookie();
-			if(locale == null){
-				locale = "pt_BR";
-			}
+		String allowedLanguages = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getAllowedLanguages();
+		String locale = ClientProperties.getLocaleCookie();
+		if(locale == null){
+			locale = "pt_BR";
+			ClientProperties.setLocaleCookie(locale);
+		}
+		
+		if(StringUtils.isSome(allowedLanguages) && allowedLanguages.contains(",")) {
 			Map<String, String> localeToFlagsImage = new HashMap<String, String>();
 			String blank = mkurl(ClientConstants.IMAGES_PATH, "blank.gif");
 			localeToFlagsImage.put("pt_BR", "<img src=\""+blank+"\" class=\"flag flag-br\" alt=\"BR\" title=\"Português\"/>");
 			localeToFlagsImage.put("en",    "<img src=\""+blank+"\" class=\"flag flag-gb\" alt=\"EN\" title=\"English\" />");
-			localeToFlagsImage.put("fr",    "<img src=\""+blank+"\" class=\"flag flag-fr\" alt=\"FR\" title=\"Français\" />");
-			localeToFlagsImage.put("es",    "<img src=\""+blank+"\" class=\"flag flag-es\" alt=\"ES\" title=\"Español\" />");
+			//localeToFlagsImage.put("fr",    "<img src=\""+blank+"\" class=\"flag flag-fr\" alt=\"FR\" title=\"Français\" />");
+			//localeToFlagsImage.put("es",    "<img src=\""+blank+"\" class=\"flag flag-es\" alt=\"ES\" title=\"Español\" />");
 	
 			Map<String, Command> localeToCommand = new HashMap<String, Command>();
 			localeToCommand.put("pt_BR", new Command() {

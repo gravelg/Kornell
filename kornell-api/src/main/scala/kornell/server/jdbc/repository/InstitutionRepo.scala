@@ -35,7 +35,8 @@ class InstitutionRepo(uuid: String) {
     | i.timeZone = ${institution.getTimeZone},
     | i.institutionSupportEmail = ${institution.getInstitutionSupportEmail},
     | i.advancedMode = ${institution.isAdvancedMode},
-    | i.notifyInstitutionAdmins = ${institution.isNotifyInstitutionAdmins}
+    | i.notifyInstitutionAdmins = ${institution.isNotifyInstitutionAdmins},
+    | i.allowedLanguages = ${institution.getAllowedLanguages}
     | where i.uuid = ${institution.getUUID}""".executeUpdate
 	    
     //log entity change

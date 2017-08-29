@@ -38,4 +38,5 @@ public interface EntityFactory extends AutoBeanFactory {
 	AutoBean<CourseDetailsLibrary> newCourseDetailsLibrary();	
 	AutoBean<CertificateDetails> newCertificateDetails();
 	AutoBean<PostbackConfig> newPostbackConfig();
+	AutoBean<EmailTemplate> newEmailTemplate();
 }

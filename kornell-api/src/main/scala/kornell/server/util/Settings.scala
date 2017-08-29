@@ -92,7 +92,7 @@ object Settings extends Enum {
   val SMTP_FROM = settting("SMTP_FROM","suporte@craftware.com.br")
   val BUILD_NUM = settting("build.number")
   val BUILT_ON = settting("built.on")
-  
+  val DEFAULT_LOCALE = "pt_BR"
   
   //??  
   def tmpDir =

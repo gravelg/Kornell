@@ -70,6 +70,7 @@ public class FormHelper {
 	public boolean isLengthValid(String field, int minLength){
 		return isLengthValid(field, minLength, Integer.MAX_VALUE);
 	}
+	
 	public ListBox getSexList(){
 		ListBox sex = new ListBox();
 		
