@@ -1,7 +1,7 @@
 INSERT IGNORE INTO EmailTemplate (uuid, templateType, locale, title, template) VALUES
-	('bd34bd67-6a90-4976-b604-e6de55d362f6', 'SIGNUP_CONFIRMATION', 'pt_BR', 'Bem-vind $$GENDER_MODIFIER$$ à $$INSTITUTION_NAME$$!', '<p>Ol&aacute;, <b>$$PERSON_FULLNAME$$</b></p>
+	('bd34bd67-6a90-4976-b604-e6de55d362f6', 'SIGNUP_CONFIRMATION', 'pt_BR', 'Bem-vind$$GENDER_MODIFIER$$ à $$INSTITUTION_NAME$$!', '<p>Ol&aacute;, <b>$$PERSON_FULLNAME$$</b></p>
 <p>&nbsp;</p>
-<p>Bem-vind $$GENDER_MODIFIER$$ &agrave; $$INSTITUTION_NAME$$.</p>
+<p>Bem-vind$$GENDER_MODIFIER$$ &agrave; $$INSTITUTION_NAME$$.</p>
 <p>Por favor, confirme seu cadastro para ativarmos a sua conta.</p>
 <div style="width: 300px;margin: 0 auto;margin-bottom: 50px;margin-top: 50px;text-align: center;display: block;height: auto;">
 	<a href="$$BUTTON_LINK$$" target="_blank" style="text-decoration: none;">
@@ -125,7 +125,7 @@ na turma \'$$CLASS_NAME$$\' em $$ENROLLMENT_DATE$$ concluiu o curso em $$COMPLET
 
 ('e95e8c46-02cd-49b8-a1a9-02a1ba9ab591', 'ENROLLMENT_CONFIRMATION', 'pt_BR', 'Você foi matriculado no curso $$COURSE_NAME$$', '<p>Ol&aacute;, <b>$$PERSON_FULLNAME$$</b></p>
 <p>&nbsp;</p>
-<p>Voc&ecirc; foi matriculad $$GENDER_MODIFIER$$ na turma <b>$$CLASS_NAME$$</b> do curso <b>$$COURSE_NAME$$</b> oferecido pela <b>$$INSTITUTION_NAME$$</b>.</p>
+<p>Voc&ecirc; foi matriculad$$GENDER_MODIFIER$$ na turma <b>$$CLASS_NAME$$</b> do curso <b>$$COURSE_NAME$$</b> oferecido pela <b>$$INSTITUTION_NAME$$</b>.</p>
 <p>Clique no bot&atilde;o abaixo para ir ao curso.</p>
 <div style="width: 300px;margin: 0 auto;margin-bottom: 50px;margin-top: 50px;text-align: center;display: block;height: auto;">
 	<a href="$$BUTTON_LINK$$" target="_blank" style="text-decoration: none;">

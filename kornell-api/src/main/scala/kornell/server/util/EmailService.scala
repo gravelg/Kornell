@@ -55,7 +55,7 @@ object EmailService {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
       val values = scala.collection.mutable.Map[String, String]()
       values("PERSON_FULLNAME") =  person.getFullName
-      values("GENDER_MODIFIER") = PersonCategory.getSexSuffix(person)
+      values("GENDER_MODIFIER") = PersonCategory.getSexSuffix(person, UserLocale.getLocale.get)
       values("BUTTON_LINK") = institution.getBaseURL + "#vitrine:"
       values("INSTITUTION_NAME") = institution.getFullName
 
@@ -93,7 +93,7 @@ object EmailService {
 
       val values = scala.collection.mutable.Map[String, String]()
       values("PERSON_FULLNAME") =  person.getFullName
-      values("GENDER_MODIFIER") = PersonCategory.getSexSuffix(person)
+      values("GENDER_MODIFIER") = PersonCategory.getSexSuffix(person, UserLocale.getLocale.get)
       values("BUTTON_LINK") = actionLink
       values("INSTITUTION_NAME") = institution.getFullName
       values("COURSE_NAME") = course.getName
