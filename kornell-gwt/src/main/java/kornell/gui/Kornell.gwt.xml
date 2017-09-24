@@ -11,12 +11,9 @@
 	<inherits name="com.google.gwt.xml.XML" />
 
 	<!-- Full Stack Traces IN DEVELOPMENT -->
-	<!--  	--> 
 	<set-property name="compiler.stackMode" value="emulated" />
-	<set-configuration-property name="compiler.emulatedStack.recordFileNames"
-		value="true" />
-	<set-configuration-property name="compiler.emulatedStack.recordLineNumbers"
-		value="true" />
+	<set-configuration-property name="compiler.emulatedStack.recordFileNames" value="true" />
+	<set-configuration-property name="compiler.emulatedStack.recordLineNumbers" value="true" />
  	
 	<!-- Logging -->
 	<inherits name="com.google.gwt.logging.Logging" />
@@ -31,15 +28,12 @@
 	
 	<!-- Internationalization -->
 	<inherits name="com.google.gwt.i18n.I18N" />
-
 	<extend-property name="locale" values="pt_BR"/>
 	<extend-property name="locale" values="en"/>
 	<!--extend-property name="locale" values="fr"/>
 	<extend-property name="locale" values="es"/> -->
-
 	<set-property-fallback name='locale' value='pt_BR' />
 	<set-configuration-property name="locale.cookie" value="knlLocale" />
-	<set-property name='locale' value='pt_BR' />
 
 	<!-- We need the JUnit module in the main module, -->
 	<!-- otherwise eclipse complains (Google plugin bug?) -->

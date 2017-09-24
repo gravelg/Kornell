@@ -189,7 +189,7 @@ object Entities {
   //FTW: Default parameter values
   def newInstitution(uuid: String = randUUID, name: String, fullName: String, terms: String, baseURL: String, 
       demandsPersonContactDetails: Boolean, validatePersonContactDetails: Boolean, allowRegistration: Boolean, allowRegistrationByUsername: Boolean, 
-      activatedAt: Date, skin: String, billingType: BillingType, institutionType: InstitutionType, dashboardVersionUUID: String, internationalized: Boolean, 
+      activatedAt: Date, skin: String, billingType: BillingType, institutionType: InstitutionType, dashboardVersionUUID: String, 
       useEmailWhitelist: Boolean = false,assetsRepositoryUUID:String=null, timeZone: String, institutionSupportEmail: String, advancedMode: Boolean,
       notifyInstitutionAdmins: Boolean, allowedLanguages: String) = {
     val i = factory.newInstitution.as
@@ -209,7 +209,6 @@ object Entities {
     i.setBillingType(billingType)
     i.setInstitutionType(institutionType)
     i.setDashboardVersionUUID(dashboardVersionUUID)
-    i.setInternationalized(internationalized)
     i.setUseEmailWhitelist(useEmailWhitelist)
     i.setTimeZone(timeZone)
     i.setInstitutionSupportEmail(institutionSupportEmail)

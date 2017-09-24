@@ -159,7 +159,7 @@ public interface KornellConstants extends ConstantsWithLookup {
 	@DefaultStringValue("With all the participants of this class")
 	String classChatButton();
 	
-	@DefaultStringValue("With a tutor")
+	@DefaultStringValue("With a specialist")
 	String tutorChatButton();
 	
 	@DefaultStringValue("Supplementary material")
@@ -438,7 +438,7 @@ public interface KornellConstants extends ConstantsWithLookup {
 	String missingTelephoneMessage();
 	
 	@DefaultStringValue("Enter a country.")
-	String missingCountryMessage();
+	String missingCountryMessage(); 
 	
 	@DefaultStringValue("Select a state.")
 	String selectStateMessage();
@@ -740,6 +740,752 @@ public interface KornellConstants extends ConstantsWithLookup {
 	@DefaultStringValue("Observer")
 	String RoleType_observer();
 	
+	
+	/**
+	 * Country
+	 */
+	@DefaultStringValue("Andorra")
+	String Country_AD();
+
+	@DefaultStringValue("United Arab Emirates")
+	String Country_AE();
+
+	@DefaultStringValue("Afghanistan")
+	String Country_AF();
+
+	@DefaultStringValue("Antigua and Barbuda")
+	String Country_AG();
+
+	@DefaultStringValue("Anguilla")
+	String Country_AI();
+
+	@DefaultStringValue("Albania")
+	String Country_AL();
+
+	@DefaultStringValue("Armenia")
+	String Country_AM();
+
+	@DefaultStringValue("Netherlands Antilles")
+	String Country_AN();
+
+	@DefaultStringValue("Angola")
+	String Country_AO();
+
+	@DefaultStringValue("Antarctica")
+	String Country_AQ();
+
+	@DefaultStringValue("Argentina")
+	String Country_AR();
+
+	@DefaultStringValue("American Samoa")
+	String Country_AS();
+
+	@DefaultStringValue("Austria")
+	String Country_AT();
+
+	@DefaultStringValue("Australia")
+	String Country_AU();
+
+	@DefaultStringValue("Aruba")
+	String Country_AW();
+
+	@DefaultStringValue("Aland Islands")
+	String Country_AX();
+
+	@DefaultStringValue("Azerbaijan")
+	String Country_AZ();
+
+	@DefaultStringValue("Bosnia and Herzegovina")
+	String Country_BA();
+
+	@DefaultStringValue("Barbados")
+	String Country_BB();
+
+	@DefaultStringValue("Bangladesh")
+	String Country_BD();
+
+	@DefaultStringValue("Belgium")
+	String Country_BE();
+
+	@DefaultStringValue("Burkina Faso")
+	String Country_BF();
+
+	@DefaultStringValue("Bulgaria")
+	String Country_BG();
+
+	@DefaultStringValue("Bahrain")
+	String Country_BH();
+
+	@DefaultStringValue("Burundi")
+	String Country_BI();
+
+	@DefaultStringValue("Benin")
+	String Country_BJ();
+
+	@DefaultStringValue("Saint-Barthélemy")
+	String Country_BL();
+
+	@DefaultStringValue("Bermuda")
+	String Country_BM();
+
+	@DefaultStringValue("Brunei Darussalam")
+	String Country_BN();
+
+	@DefaultStringValue("Bolivia")
+	String Country_BO();
+
+	@DefaultStringValue("Brazil")
+	String Country_BR();
+
+	@DefaultStringValue("Bahamas")
+	String Country_BS();
+
+	@DefaultStringValue("Bhutan")
+	String Country_BT();
+
+	@DefaultStringValue("Bouvet Island")
+	String Country_BV();
+
+	@DefaultStringValue("Botswana")
+	String Country_BW();
+
+	@DefaultStringValue("Belarus")
+	String Country_BY();
+
+	@DefaultStringValue("Belize")
+	String Country_BZ();
+
+	@DefaultStringValue("Canada")
+	String Country_CA();
+
+	@DefaultStringValue("Cocos Keeling Islands")
+	String Country_CC();
+
+	@DefaultStringValue("Congo Kinshasa")
+	String Country_CD();
+
+	@DefaultStringValue("Central African Republic")
+	String Country_CF();
+
+	@DefaultStringValue("Congo Brazzaville")
+	String Country_CG();
+
+	@DefaultStringValue("Switzerland")
+	String Country_CH();
+
+	@DefaultStringValue("Côte d'Ivoire")
+	String Country_CI();
+
+	@DefaultStringValue("Cook Islands")
+	String Country_CK();
+
+	@DefaultStringValue("Chile")
+	String Country_CL();
+
+	@DefaultStringValue("Cameroon")
+	String Country_CM();
+
+	@DefaultStringValue("China")
+	String Country_CN();
+
+	@DefaultStringValue("Colombia")
+	String Country_CO();
+
+	@DefaultStringValue("Costa Rica")
+	String Country_CR();
+
+	@DefaultStringValue("Cuba")
+	String Country_CU();
+
+	@DefaultStringValue("Cape Verde")
+	String Country_CV();
+
+	@DefaultStringValue("Christmas Island")
+	String Country_CX();
+
+	@DefaultStringValue("Cyprus")
+	String Country_CY();
+
+	@DefaultStringValue("Czech Republic")
+	String Country_CZ();
+
+	@DefaultStringValue("Germany")
+	String Country_DE();
+
+	@DefaultStringValue("Djibouti")
+	String Country_DJ();
+
+	@DefaultStringValue("Denmark")
+	String Country_DK();
+
+	@DefaultStringValue("Dominica")
+	String Country_DM();
+
+	@DefaultStringValue("Dominican Republic")
+	String Country_DO();
+
+	@DefaultStringValue("Algeria")
+	String Country_DZ();
+
+	@DefaultStringValue("Ecuador")
+	String Country_EC();
+
+	@DefaultStringValue("Estonia")
+	String Country_EE();
+
+	@DefaultStringValue("Egypt")
+	String Country_EG();
+
+	@DefaultStringValue("Western Sahara")
+	String Country_EH();
+
+	@DefaultStringValue("Eritrea")
+	String Country_ER();
+
+	@DefaultStringValue("Spain")
+	String Country_ES();
+
+	@DefaultStringValue("Ethiopia")
+	String Country_ET();
+
+	@DefaultStringValue("Finland")
+	String Country_FI();
+
+	@DefaultStringValue("Fiji")
+	String Country_FJ();
+
+	@DefaultStringValue("Falkland Islands Malvinas")
+	String Country_FK();
+
+	@DefaultStringValue("Micronesia Federated States of")
+	String Country_FM();
+
+	@DefaultStringValue("Faroe Islands")
+	String Country_FO();
+
+	@DefaultStringValue("France")
+	String Country_FR();
+
+	@DefaultStringValue("Gabon")
+	String Country_GA();
+
+	@DefaultStringValue("United Kingdom")
+	String Country_GB();
+
+	@DefaultStringValue("Grenada")
+	String Country_GD();
+
+	@DefaultStringValue("Georgia")
+	String Country_GE();
+
+	@DefaultStringValue("French Guiana")
+	String Country_GF();
+
+	@DefaultStringValue("Guernsey")
+	String Country_GG();
+
+	@DefaultStringValue("Ghana")
+	String Country_GH();
+
+	@DefaultStringValue("Gibraltar")
+	String Country_GI();
+
+	@DefaultStringValue("Greenland")
+	String Country_GL();
+
+	@DefaultStringValue("Gambia")
+	String Country_GM();
+
+	@DefaultStringValue("Guinea")
+	String Country_GN();
+
+	@DefaultStringValue("Guadeloupe")
+	String Country_GP();
+
+	@DefaultStringValue("Equatorial Guinea")
+	String Country_GQ();
+
+	@DefaultStringValue("Greece")
+	String Country_GR();
+
+	@DefaultStringValue("South Georgia and the South Sandwich Islands")
+	String Country_GS();
+
+	@DefaultStringValue("Guatemala")
+	String Country_GT();
+
+	@DefaultStringValue("Guam")
+	String Country_GU();
+
+	@DefaultStringValue("Guinea-Bissau")
+	String Country_GW();
+
+	@DefaultStringValue("Guyana")
+	String Country_GY();
+
+	@DefaultStringValue("Hong Kong SAR China")
+	String Country_HK();
+
+	@DefaultStringValue("Heard and Mcdonald Islands")
+	String Country_HM();
+
+	@DefaultStringValue("Honduras")
+	String Country_HN();
+
+	@DefaultStringValue("Croatia")
+	String Country_HR();
+
+	@DefaultStringValue("Haiti")
+	String Country_HT();
+
+	@DefaultStringValue("Hungary")
+	String Country_HU();
+
+	@DefaultStringValue("Indonesia")
+	String Country_ID();
+
+	@DefaultStringValue("Ireland")
+	String Country_IE();
+
+	@DefaultStringValue("Israel")
+	String Country_IL();
+
+	@DefaultStringValue("Isle of Man")
+	String Country_IM();
+
+	@DefaultStringValue("India")
+	String Country_IN();
+
+	@DefaultStringValue("British Indian Ocean Territory")
+	String Country_IO();
+
+	@DefaultStringValue("Iraq")
+	String Country_IQ();
+
+	@DefaultStringValue("Iran Islamic Republic of")
+	String Country_IR();
+
+	@DefaultStringValue("Iceland")
+	String Country_IS();
+
+	@DefaultStringValue("Italy")
+	String Country_IT();
+
+	@DefaultStringValue("Jersey")
+	String Country_JE();
+
+	@DefaultStringValue("Jamaica")
+	String Country_JM();
+
+	@DefaultStringValue("Jordan")
+	String Country_JO();
+
+	@DefaultStringValue("Japan")
+	String Country_JP();
+
+	@DefaultStringValue("Kenya")
+	String Country_KE();
+
+	@DefaultStringValue("Kyrgyzstan")
+	String Country_KG();
+
+	@DefaultStringValue("Cambodia")
+	String Country_KH();
+
+	@DefaultStringValue("Kiribati")
+	String Country_KI();
+
+	@DefaultStringValue("Comoros")
+	String Country_KM();
+
+	@DefaultStringValue("Saint Kitts and Nevis")
+	String Country_KN();
+
+	@DefaultStringValue("Korea North")
+	String Country_KP();
+
+	@DefaultStringValue("Korea South")
+	String Country_KR();
+
+	@DefaultStringValue("Kuwait")
+	String Country_KW();
+
+	@DefaultStringValue("Cayman Islands")
+	String Country_KY();
+
+	@DefaultStringValue("Kazakhstan")
+	String Country_KZ();
+
+	@DefaultStringValue("Lao PDR")
+	String Country_LA();
+
+	@DefaultStringValue("Lebanon")
+	String Country_LB();
+
+	@DefaultStringValue("Saint Lucia")
+	String Country_LC();
+
+	@DefaultStringValue("Liechtenstein")
+	String Country_LI();
+
+	@DefaultStringValue("Sri Lanka")
+	String Country_LK();
+
+	@DefaultStringValue("Liberia")
+	String Country_LR();
+
+	@DefaultStringValue("Lesotho")
+	String Country_LS();
+
+	@DefaultStringValue("Lithuania")
+	String Country_LT();
+
+	@DefaultStringValue("Luxembourg")
+	String Country_LU();
+
+	@DefaultStringValue("Latvia")
+	String Country_LV();
+
+	@DefaultStringValue("Libya")
+	String Country_LY();
+
+	@DefaultStringValue("Morocco")
+	String Country_MA();
+
+	@DefaultStringValue("Monaco")
+	String Country_MC();
+
+	@DefaultStringValue("Moldova")
+	String Country_MD();
+
+	@DefaultStringValue("Montenegro")
+	String Country_ME();
+
+	@DefaultStringValue("Saint-Martin French part")
+	String Country_MF();
+
+	@DefaultStringValue("Madagascar")
+	String Country_MG();
+
+	@DefaultStringValue("Marshall Islands")
+	String Country_MH();
+
+	@DefaultStringValue("Macedonia Republic of")
+	String Country_MK();
+
+	@DefaultStringValue("Mali")
+	String Country_ML();
+
+	@DefaultStringValue("Myanmar")
+	String Country_MM();
+
+	@DefaultStringValue("Mongolia")
+	String Country_MN();
+
+	@DefaultStringValue("Macao SAR China")
+	String Country_MO();
+
+	@DefaultStringValue("Northern Mariana Islands")
+	String Country_MP();
+
+	@DefaultStringValue("Martinique")
+	String Country_MQ();
+
+	@DefaultStringValue("Mauritania")
+	String Country_MR();
+
+	@DefaultStringValue("Montserrat")
+	String Country_MS();
+
+	@DefaultStringValue("Malta")
+	String Country_MT();
+
+	@DefaultStringValue("Mauritius")
+	String Country_MU();
+
+	@DefaultStringValue("Maldives")
+	String Country_MV();
+
+	@DefaultStringValue("Malawi")
+	String Country_MW();
+
+	@DefaultStringValue("Mexico")
+	String Country_MX();
+
+	@DefaultStringValue("Malaysia")
+	String Country_MY();
+
+	@DefaultStringValue("Mozambique")
+	String Country_MZ();
+
+	@DefaultStringValue("Namibia")
+	String Country_NA();
+
+	@DefaultStringValue("New Caledonia")
+	String Country_NC();
+
+	@DefaultStringValue("Niger")
+	String Country_NE();
+
+	@DefaultStringValue("Norfolk Island")
+	String Country_NF();
+
+	@DefaultStringValue("Nigeria")
+	String Country_NG();
+
+	@DefaultStringValue("Nicaragua")
+	String Country_NI();
+
+	@DefaultStringValue("Netherlands")
+	String Country_NL();
+
+	@DefaultStringValue("Norway")
+	String Country_NO();
+
+	@DefaultStringValue("Nepal")
+	String Country_NP();
+
+	@DefaultStringValue("Nauru")
+	String Country_NR();
+
+	@DefaultStringValue("Niue")
+	String Country_NU();
+
+	@DefaultStringValue("New Zealand")
+	String Country_NZ();
+
+	@DefaultStringValue("Oman")
+	String Country_OM();
+
+	@DefaultStringValue("Panama")
+	String Country_PA();
+
+	@DefaultStringValue("Peru")
+	String Country_PE();
+
+	@DefaultStringValue("French Polynesia")
+	String Country_PF();
+
+	@DefaultStringValue("Papua New Guinea")
+	String Country_PG();
+
+	@DefaultStringValue("Philippines")
+	String Country_PH();
+
+	@DefaultStringValue("Pakistan")
+	String Country_PK();
+
+	@DefaultStringValue("Poland")
+	String Country_PL();
+
+	@DefaultStringValue("Saint Pierre and Miquelon")
+	String Country_PM();
+
+	@DefaultStringValue("Pitcairn")
+	String Country_PN();
+
+	@DefaultStringValue("Puerto Rico")
+	String Country_PR();
+
+	@DefaultStringValue("Palestinian Territory")
+	String Country_PS();
+
+	@DefaultStringValue("Portugal")
+	String Country_PT();
+
+	@DefaultStringValue("Palau")
+	String Country_PW();
+
+	@DefaultStringValue("Paraguay")
+	String Country_PY();
+
+	@DefaultStringValue("Qatar")
+	String Country_QA();
+
+	@DefaultStringValue("Réunion")
+	String Country_RE();
+
+	@DefaultStringValue("Romania")
+	String Country_RO();
+
+	@DefaultStringValue("Serbia")
+	String Country_RS();
+
+	@DefaultStringValue("Russian Federation")
+	String Country_RU();
+
+	@DefaultStringValue("Rwanda")
+	String Country_RW();
+
+	@DefaultStringValue("Saudi Arabia")
+	String Country_SA();
+
+	@DefaultStringValue("Solomon Islands")
+	String Country_SB();
+
+	@DefaultStringValue("Seychelles")
+	String Country_SC();
+
+	@DefaultStringValue("Sudan")
+	String Country_SD();
+
+	@DefaultStringValue("Sweden")
+	String Country_SE();
+
+	@DefaultStringValue("Singapore")
+	String Country_SG();
+
+	@DefaultStringValue("Saint Helena")
+	String Country_SH();
+
+	@DefaultStringValue("Slovenia")
+	String Country_SI();
+
+	@DefaultStringValue("Svalbard and Jan Mayen Islands")
+	String Country_SJ();
+
+	@DefaultStringValue("Slovakia")
+	String Country_SK();
+
+	@DefaultStringValue("Sierra Leone")
+	String Country_SL();
+
+	@DefaultStringValue("San Marino")
+	String Country_SM();
+
+	@DefaultStringValue("Senegal")
+	String Country_SN();
+
+	@DefaultStringValue("Somalia")
+	String Country_SO();
+
+	@DefaultStringValue("Suriname")
+	String Country_SR();
+
+	@DefaultStringValue("South Sudan")
+	String Country_SS();
+
+	@DefaultStringValue("Sao Tome and Principe")
+	String Country_ST();
+
+	@DefaultStringValue("El Salvador")
+	String Country_SV();
+
+	@DefaultStringValue("Syrian Arab Republic Syria")
+	String Country_SY();
+
+	@DefaultStringValue("Swaziland")
+	String Country_SZ();
+
+	@DefaultStringValue("Turks and Caicos Islands")
+	String Country_TC();
+
+	@DefaultStringValue("Chad")
+	String Country_TD();
+
+	@DefaultStringValue("French Southern Territories")
+	String Country_TF();
+
+	@DefaultStringValue("Togo")
+	String Country_TG();
+
+	@DefaultStringValue("Thailand")
+	String Country_TH();
+
+	@DefaultStringValue("Tajikistan")
+	String Country_TJ();
+
+	@DefaultStringValue("Tokelau")
+	String Country_TK();
+
+	@DefaultStringValue("Timor-Leste")
+	String Country_TL();
+
+	@DefaultStringValue("Turkmenistan")
+	String Country_TM();
+
+	@DefaultStringValue("Tunisia")
+	String Country_TN();
+
+	@DefaultStringValue("Tonga")
+	String Country_TO();
+
+	@DefaultStringValue("Turkey")
+	String Country_TR();
+
+	@DefaultStringValue("Trinidad and Tobago")
+	String Country_TT();
+
+	@DefaultStringValue("Tuvalu")
+	String Country_TV();
+
+	@DefaultStringValue("Taiwan Republic of China")
+	String Country_TW();
+
+	@DefaultStringValue("Tanzania United Republic of")
+	String Country_TZ();
+
+	@DefaultStringValue("Ukraine")
+	String Country_UA();
+
+	@DefaultStringValue("Uganda")
+	String Country_UG();
+
+	@DefaultStringValue("US Minor Outlying Islands")
+	String Country_UM();
+
+	@DefaultStringValue("United States of America")
+	String Country_US();
+
+	@DefaultStringValue("Uruguay")
+	String Country_UY();
+
+	@DefaultStringValue("Uzbekistan")
+	String Country_UZ();
+
+	@DefaultStringValue("Holy See Vatican City State")
+	String Country_VA();
+
+	@DefaultStringValue("Saint Vincent and Grenadines")
+	String Country_VC();
+
+	@DefaultStringValue("Venezuela Bolivarian Republic")
+	String Country_VE();
+
+	@DefaultStringValue("British Virgin Islands")
+	String Country_VG();
+
+	@DefaultStringValue("Virgin Islands US")
+	String Country_VI();
+
+	@DefaultStringValue("Viet Nam")
+	String Country_VN();
+
+	@DefaultStringValue("Vanuatu")
+	String Country_VU();
+
+	@DefaultStringValue("Wallis and Futuna Islands")
+	String Country_WF();
+
+	@DefaultStringValue("Samoa")
+	String Country_WS();
+
+	@DefaultStringValue("Yemen")
+	String Country_YE();
+
+	@DefaultStringValue("Mayotte")
+	String Country_YT();
+
+	@DefaultStringValue("South Africa")
+	String Country_ZA();
+
+	@DefaultStringValue("Zambia")
+	String Country_ZM();
+
+	@DefaultStringValue("Zimbabwe")
+	String Country_ZW();
+
+
 	
 	/**
 	 * Errors 404

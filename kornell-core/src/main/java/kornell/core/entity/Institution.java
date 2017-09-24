@@ -44,9 +44,6 @@ public interface Institution extends Named {
 	
 	String getDashboardVersionUUID();
 	void setDashboardVersionUUID(String dashboardVersionUUID);
-
-	boolean isInternationalized();
-	void setInternationalized(boolean internationalized);
 	
 	boolean isUseEmailWhitelist();
 	void setUseEmailWhitelist(boolean useEmailWhitelist);

@@ -13,17 +13,24 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.autobean.shared.AutoBean;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.to.UserInfoTO;
 import kornell.gui.client.ClientFactory;
+import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.event.LogoutEvent;
 import kornell.gui.client.presentation.profile.ProfilePlace;
 import kornell.gui.client.presentation.terms.TermsPlace;
 import kornell.gui.client.presentation.terms.TermsView;
+import kornell.gui.client.util.ClientProperties;
+import kornell.gui.client.util.entity.TermsLanguageItem;
+import kornell.gui.client.util.entity.TermsLanguageItems;
 
 public class GenericTermsView extends Composite implements TermsView {
 	interface MyUiBinder extends UiBinder<Widget, GenericTermsView> {
@@ -80,12 +87,27 @@ public class GenericTermsView extends Composite implements TermsView {
 		clientFactory.getViewFactory().getMenuBarView().initPlaceBar(IconType.LEGAL, constants.termsTitle(), constants.termsDescription());
 		titleUser.setText(session.getCurrentUser().getPerson().getFullName());
 		if (session.getInstitution() != null) {
-			txtTerms.getElement().setInnerHTML(session.getInstitution().getTerms());
+			String locale = ClientProperties.getLocaleCookie();
+			if(locale == null){
+				locale = "pt_BR";
+			}
+			txtTerms.getElement().setInnerHTML(getTermsForLanguage(locale));
 			String skin = session.getInstitution().getSkin();
 			boolean isLightSkin = skin == null || !skin.contains("_light");
 			String barLogoFileName = "/logo300x80" + (isLightSkin ? "_light" : "") + ".png?1";
 			institutionLogo.setUrl(session.getInstitutionAssetsURL() + barLogoFileName);
 		}
+	}
+	
+	private String getTermsForLanguage(String language) {		
+		AutoBeanFactory factory = GenericClientFactoryImpl.GUI_ENTITY_FACTORY;
+		AutoBean<TermsLanguageItems> bean = AutoBeanCodex.decode(factory, TermsLanguageItems.class, session.getInstitution().getTerms());
+		TermsLanguageItems list = bean.as();
+		for (TermsLanguageItem termsLanguageItem : list.getTermsLanguageItems()) {
+			if(termsLanguageItem.getLanguage().equals(language))
+				return termsLanguageItem.getTerms();
+		}
+		return "";
 	}
 
 	@UiHandler("btnAgree")

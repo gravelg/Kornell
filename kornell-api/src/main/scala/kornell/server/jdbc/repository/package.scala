@@ -84,7 +84,6 @@ package object repository {
         BillingType.valueOf(rs.getString("billingType")),
         InstitutionType.valueOf(rs.getString("institutionType")),
         rs.getString("dashboardVersionUUID"),
-        rs.getBoolean("internationalized"),
         rs.getBoolean("useEmailWhitelist"),
         rs.getString("assetsRepositoryUUID"),
         rs.getString("timeZone"),

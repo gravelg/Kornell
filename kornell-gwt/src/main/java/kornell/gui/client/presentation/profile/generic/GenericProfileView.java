@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Logger;
 
+import com.github.gwtbootstrap.client.ui.Alert;
 import com.github.gwtbootstrap.client.ui.CheckBox;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.ListBox;
@@ -38,6 +39,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.Country;
 import kornell.core.entity.InstitutionRegistrationPrefix;
 import kornell.core.entity.InstitutionType;
 import kornell.core.entity.Person;
@@ -56,6 +58,7 @@ import kornell.gui.client.event.LogoutEvent;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.profile.ProfilePlace;
 import kornell.gui.client.presentation.profile.ProfileView;
+import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 import kornell.gui.client.util.forms.formfield.ListBoxFormField;
@@ -155,14 +158,14 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 
 		initData();
 		
-		bus.addHandler(PlaceChangeEvent.TYPE,
-				new PlaceChangeEvent.Handler() {
+		bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
 			@Override
 			public void onPlaceChange(PlaceChangeEvent event) {
-				if(event.getNewPlace() instanceof ProfilePlace){							
+				if (event.getNewPlace() instanceof ProfilePlace) {
 					initData();
 				}
-			}});
+			}
+		});
 	}
 
 	private Button createButton(String text, String className, boolean visible, ClickHandler clickHandler) {
@@ -239,6 +242,10 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 	}
 
 	private boolean validateFields() {
+		if(showEmail && !FormHelper.isEmailValid(email.getFieldPersistText())){
+			email.setError(constants.invalidEmail());
+		}
+
 		if(!formHelper.isLengthValid(fullName.getFieldPersistText(), 5, 50)){
 			fullName.setError(constants.missingNameMessage());
 		} 
@@ -384,7 +391,9 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 	private boolean checkErrors() {
 		for (KornellFormFieldWrapper field : fields) 
 			if(!"".equals(field.getError())){
-				KornellNotification.show(constants.formContainsErrors(), AlertType.WARNING);
+				if(errorAlert == null || !errorAlert.isVisible()){
+					errorAlert = KornellNotification.show(constants.formContainsErrors(), AlertType.WARNING, 3000);
+				}
 				if(field.getFieldWidget() instanceof FocusWidget)
 					((FocusWidget)field.getFieldWidget()).setFocus(true);
 				return true;		
@@ -507,6 +516,7 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 	}
 
 	List<KornellFormFieldWrapper> requiredFields = new ArrayList<KornellFormFieldWrapper>();
+	private Alert errorAlert;
 	
 	private void requireValid(KornellFormFieldWrapper field) {
 		requiredFields.add(field);
@@ -545,8 +555,10 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 			btnOK2.addStyleName(DISABLED_CLASS);
 			btnOK2.removeStyleName(ENABLED_CLASS);
 			btnOK2.removeStyleName(CURSOR_POINTER_CLASS);
-			btnOK2.addStyleName(CURSOR_DEFAULT_CLASS);		
-			KornellNotification.show(constants.formContainsErrors(), AlertType.WARNING);
+			btnOK2.addStyleName(CURSOR_DEFAULT_CLASS);	
+			if(errorAlert == null || !errorAlert.isVisible()){
+				errorAlert = KornellNotification.show(constants.formContainsErrors(), AlertType.WARNING, 3000);
+			}
 		}
 	}
 	
@@ -558,7 +570,16 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 		fields.add(telephone);
 		profileFields.add(telephone);
 
-		final ListBox countries = formHelper.getCountriesList();
+		ListBox countries = new ListBox();
+		countries.addItem(constants.selectboxDefault(), "-");
+		
+		Country[] countryList = Country.values();
+		Country countryEnum;
+		for(int i = 0; i < countryList.length; i++){
+			countryEnum = countryList[i];
+			countries.addItem(EnumTranslator.translateEnum(countryEnum), countryEnum.toString());
+		}
+		
 		if(isEditMode && user.getPerson().getCountry() == null){
 			countries.setSelectedValue("BR");
 		} else {

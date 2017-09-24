@@ -29,7 +29,6 @@ class InstitutionRepo(uuid: String) {
     | i.billingType = ${institution.getBillingType.toString},
     | i.institutionType = ${institution.getInstitutionType.toString},
     | i.dashboardVersionUUID = ${institution.getDashboardVersionUUID},
-    | i.internationalized = ${institution.isInternationalized},
     | i.useEmailWhitelist = ${institution.isUseEmailWhitelist},
     | i.assetsRepositoryUUID = ${institution.getAssetsRepositoryUUID},
     | i.timeZone = ${institution.getTimeZone},

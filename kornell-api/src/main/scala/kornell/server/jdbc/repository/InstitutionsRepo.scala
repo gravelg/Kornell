@@ -74,7 +74,7 @@ object InstitutionsRepo {
       institution.setActivatedAt(new Date)
     }
     sql"""
-    | insert into Institution (uuid,name,terms,baseURL,demandsPersonContactDetails,validatePersonContactDetails,fullName,allowRegistration,allowRegistrationByUsername,activatedAt,skin,billingType,institutionType,dashboardVersionUUID,internationalized,useEmailWhitelist,assetsRepositoryUUID,timeZone,institutionSupportEmail,advancedMode, notifyInstitutionAdmins, allowedLanguages)
+    | insert into Institution (uuid,name,terms,baseURL,demandsPersonContactDetails,validatePersonContactDetails,fullName,allowRegistration,allowRegistrationByUsername,activatedAt,skin,billingType,institutionType,dashboardVersionUUID,useEmailWhitelist,assetsRepositoryUUID,timeZone,institutionSupportEmail,advancedMode, notifyInstitutionAdmins, allowedLanguages)
     | values(
     | ${institution.getUUID},
     | ${institution.getName},
@@ -90,7 +90,6 @@ object InstitutionsRepo {
     | ${institution.getBillingType.toString},
     | ${institution.getInstitutionType.toString},
     | ${institution.getDashboardVersionUUID},
-    | ${institution.isInternationalized},
     | ${institution.isUseEmailWhitelist},
     | ${institution.getAssetsRepositoryUUID},
     | ${institution.getTimeZone},
