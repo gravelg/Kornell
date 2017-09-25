@@ -31,12 +31,17 @@ class UserLocaleFilter extends Filter {
 
 
   def getLocale(req: HttpServletRequest) = {
+    if (req.getCookies != null) {
     val cookie = req.getCookies.find(p => p.getName == "knlLocale")
-    if (cookie.isEmpty) {
-      //No cookie, set default locale
-      UserLocale.setLocale(Settings.DEFAULT_LOCALE)
+      if (cookie.isEmpty) {
+        //No cookie, set default locale
+        UserLocale.setLocale(Settings.DEFAULT_LOCALE)
+      } else {
+        UserLocale.setLocale(cookie.get.getValue)
+      }
     } else {
-      UserLocale.setLocale(cookie.get.getValue)
+      //No cookies at all, set default locale
+      UserLocale.setLocale(Settings.DEFAULT_LOCALE)
     }
   }
 
