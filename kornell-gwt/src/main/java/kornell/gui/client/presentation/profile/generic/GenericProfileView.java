@@ -1,9 +1,16 @@
 package kornell.gui.client.presentation.profile.generic;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.github.gwtbootstrap.client.ui.Alert;
@@ -58,6 +65,7 @@ import kornell.gui.client.event.LogoutEvent;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.profile.ProfilePlace;
 import kornell.gui.client.presentation.profile.ProfileView;
+import kornell.gui.client.util.AsciiUtils;
 import kornell.gui.client.util.EnumTranslator;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
@@ -570,15 +578,7 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 		fields.add(telephone);
 		profileFields.add(telephone);
 
-		ListBox countries = new ListBox();
-		countries.addItem(constants.selectboxDefault(), "-");
-		
-		Country[] countryList = Country.values();
-		Country countryEnum;
-		for(int i = 0; i < countryList.length; i++){
-			countryEnum = countryList[i];
-			countries.addItem(EnumTranslator.translateEnum(countryEnum), countryEnum.toString());
-		}
+		ListBox countries = getCountries();
 		
 		if(isEditMode && user.getPerson().getCountry() == null){
 			countries.setSelectedValue("BR");
@@ -628,6 +628,42 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 		postalCode = new KornellFormFieldWrapper(constants.postalCodeLabel(), formHelper.createTextBoxFormField(user.getPerson().getPostalCode()), isEditMode);
 		fields.add(postalCode);
 		profileFields.add(postalCode);
+	}
+
+	private ListBox getCountries() {
+		ListBox countries = new ListBox();
+		countries.addItem(constants.selectboxDefault(), "-");
+		
+		Country[] countryList = Country.values();
+		Country countryEnum;
+		Map<String, String> countriesMap = new HashMap<>();
+		for(int i = 0; i < countryList.length; i++){
+			countryEnum = countryList[i];
+			countriesMap.put(countryEnum.toString(), EnumTranslator.translateEnum(countryEnum));			
+		}
+		countriesMap = sortByValue(countriesMap);
+		
+		for(String key : countriesMap.keySet()){
+			countries.addItem(countriesMap.get(key), key);
+		}
+		return countries;
+	}
+	
+	private <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
+		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+		        String o1V = AsciiUtils.convertNonAscii((String) o1.getValue()).toLowerCase();
+		        String o2V = AsciiUtils.convertNonAscii((String) o2.getValue()).toLowerCase();
+				return (o1V).compareTo(o2V);
+			}
+		});
+
+		Map<K, V> result = new LinkedHashMap<K, V>();
+		for (Map.Entry<K, V> entry : list) {
+			result.put(entry.getKey(), entry.getValue());
+		}
+		return result;
 	}
 
 	@Override
