@@ -1,9 +1,14 @@
 package kornell.gui.client.util.forms.formfield;
 
 import com.github.gwtbootstrap.client.ui.CheckBox;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
 
+import kornell.gui.client.KornellConstants;
+
 public class CheckBoxFormField implements KornellFormField<CheckBox> {
+	
+	private static KornellConstants constants = GWT.create(KornellConstants.class);
 
 	CheckBox field;
 	
@@ -19,8 +24,7 @@ public class CheckBoxFormField implements KornellFormField<CheckBox> {
 
 	@Override
 	public String getDisplayText() {
-		//TODO i18n
-		return field.getValue() ? "Sim" : "Não";
+		return field.getValue() ? constants.yes() : constants.no();
 	}
 
 	@Override
