@@ -41,6 +41,7 @@ import kornell.gui.client.presentation.vitrine.VitrineView;
 import kornell.gui.client.presentation.vitrine.VitrineViewType;
 import kornell.gui.client.util.ClientConstants;
 import kornell.gui.client.util.ClientProperties;
+import kornell.gui.client.util.view.FlagsPanel;
 
 public class GenericVitrineView extends Composite implements VitrineView {
 	interface MyUiBinder extends UiBinder<Widget, GenericVitrineView> {
@@ -58,9 +59,6 @@ public class GenericVitrineView extends Composite implements VitrineView {
 	
 	@UiField
 	FlowPanel boxLogin;
-	
-	@UiField
-	FlowPanel flagWrapper;
 	
 	@UiField
 	Image imgLogo;
@@ -129,7 +127,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
 	public GenericVitrineView() {
 		initWidget(uiBinder.createAndBindUi(this));
 		buildSupportIcon();
-		buildFlagsPanel();
+		boxLogin.insert(new FlagsPanel(), 0);
 		displayView(VitrineViewType.login);
 		
 		KeyPressHandler kpHandler = new KeyPressHandler() {
@@ -186,67 +184,6 @@ public class GenericVitrineView extends Composite implements VitrineView {
 			supportEmail = supportEmail.substring(supportEmail.indexOf('<') + 1, supportEmail.indexOf('>'));
 		}
 		return supportEmail;
-	}
-
-	private void buildFlagsPanel() {
-		String allowedLanguages = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getAllowedLanguages();
-		String locale = ClientProperties.getLocaleCookie();
-		if(locale == null){
-			locale = "pt_BR";
-			ClientProperties.setLocaleCookie(locale);
-		}
-		
-		if(StringUtils.isSome(allowedLanguages) && allowedLanguages.contains(",")) {
-			Map<String, String> localeToFlagsImage = new HashMap<String, String>();
-			String blank = mkurl(ClientConstants.IMAGES_PATH, "blank.gif");
-			localeToFlagsImage.put("pt_BR", "<img src=\""+blank+"\" class=\"flag flag-br\" alt=\"BR\" title=\"Português\"/>");
-			localeToFlagsImage.put("en",    "<img src=\""+blank+"\" class=\"flag flag-gb\" alt=\"EN\" title=\"English\" />");
-			//localeToFlagsImage.put("fr",    "<img src=\""+blank+"\" class=\"flag flag-fr\" alt=\"FR\" title=\"Français\" />");
-			//localeToFlagsImage.put("es",    "<img src=\""+blank+"\" class=\"flag flag-es\" alt=\"ES\" title=\"Español\" />");
-	
-			Map<String, Command> localeToCommand = new HashMap<String, Command>();
-			localeToCommand.put("pt_BR", new Command() {
-			      public void execute() {
-			    	  	ClientProperties.setLocaleCookie("pt_BR");
-				      }
-				    });
-			localeToCommand.put("en", new Command() {
-			      public void execute() {
-			    	  	ClientProperties.setLocaleCookie("en");
-				      }
-				    });
-			localeToCommand.put("fr", new Command() {
-			      public void execute() {
-			    	  	ClientProperties.setLocaleCookie("fr");
-				      }
-				    });
-			localeToCommand.put("es", new Command() {
-			      public void execute() {
-			    	  	ClientProperties.setLocaleCookie("es");
-				      }
-				    });
-	
-		    MenuBar flagBar = new MenuBar(false);
-		    
-		    Iterator<Map.Entry<String, String>> entries = localeToFlagsImage.entrySet().iterator();
-		    while (entries.hasNext()) {
-		        Map.Entry<String, String> entry = entries.next();
-		        if(!entry.getKey().equals(locale)){
-		        	flagBar.addItem(entry.getValue(), true, localeToCommand.get(entry.getKey()));
-		        }
-		    }
-	    	flagBar.addItem("<span class=\"flagPopupText\">"+constants.selectLanguage()+"</span>", true, new Command() {
-			      public void execute() {
-				      }
-				    });
-		    
-		    
-		    MenuBar topBar = new MenuBar(true);
-		    topBar.setAutoOpen(true);
-		    topBar.setAnimationEnabled(true);
-		    topBar.addItem(localeToFlagsImage.get(locale), true, flagBar);
-		    flagWrapper.add(topBar);
-		}
 	}
 
 	@Override

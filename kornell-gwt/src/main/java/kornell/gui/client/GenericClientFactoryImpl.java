@@ -100,6 +100,13 @@ public class GenericClientFactoryImpl implements ClientFactory {
 
 	@Override
 	public void startApp() {
+		
+		String locale = ClientProperties.getLocaleCookie();
+		if(locale == null){
+			locale = "pt_BR";
+			ClientProperties.setLocaleCookie(locale);
+		}
+		
 		final Callback<UserHelloTO> userHelloCallback = new Callback<UserHelloTO>() {
 			@Override
 			public void ok(final UserHelloTO userHelloTO) {

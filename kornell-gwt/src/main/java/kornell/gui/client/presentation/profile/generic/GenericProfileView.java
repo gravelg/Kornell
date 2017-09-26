@@ -76,6 +76,7 @@ import kornell.gui.client.util.forms.formfield.TextBoxFormField;
 import kornell.gui.client.util.validation.CPFValidator;
 import kornell.gui.client.util.validation.EmailValidator;
 import kornell.gui.client.util.validation.ValidationChangedHandler;
+import kornell.gui.client.util.view.FlagsPanel;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class GenericProfileView extends Composite implements ProfileView,ValidationChangedHandler {
@@ -115,6 +116,7 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 	private ClientFactory clientFactory;
 
 	private String profileUserUUID;
+	private FlagsPanel flagsPanel;
 
 	public GenericProfileView(ClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
@@ -197,6 +199,19 @@ public class GenericProfileView extends Composite implements ProfileView,Validat
 		form.addStyleName("shy");
 		
 		profileUserUUID = ((ProfilePlace) placeCtrl.getWhere()).getPersonUUID();
+		
+		if(isCurrentUser){
+			if(flagsPanel == null){
+				flagsPanel = new FlagsPanel();
+				form.insert(flagsPanel, 0);
+			}
+			flagsPanel.setVisible(true);
+		} else {
+			if(flagsPanel != null){
+				flagsPanel.setVisible(false);
+			}
+		}
+		
 
 		session.user().hasPowerOver(profileUserUUID, new Callback<Boolean>() {
 			@Override
