@@ -2,10 +2,7 @@ package kornell.gui.client.presentation.vitrine.generic;
 
 import static kornell.core.util.StringUtils.mkurl;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.github.gwtbootstrap.client.ui.Alert;
 import com.github.gwtbootstrap.client.ui.Form;
@@ -26,12 +23,10 @@ import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.Widget;
 
 import kornell.core.util.StringUtils;
@@ -39,8 +34,6 @@ import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.presentation.vitrine.VitrineView;
 import kornell.gui.client.presentation.vitrine.VitrineViewType;
-import kornell.gui.client.util.ClientConstants;
-import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.view.FlagsPanel;
 
 public class GenericVitrineView extends Composite implements VitrineView {

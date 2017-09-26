@@ -1,6 +1,5 @@
 package kornell.gui.client.presentation.profile.generic;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

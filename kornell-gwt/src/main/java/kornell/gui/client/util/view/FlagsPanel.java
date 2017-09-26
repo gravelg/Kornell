@@ -7,7 +7,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ScrollEvent;
+import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 
@@ -20,6 +23,7 @@ import kornell.gui.client.util.ClientProperties;
 public class FlagsPanel extends FlowPanel {
 	
 	private static KornellConstants constants = GWT.create(KornellConstants.class);
+	private int oldPosition;
 
 	public FlagsPanel() {
 		
@@ -75,6 +79,20 @@ public class FlagsPanel extends FlowPanel {
 		    topBar.setAutoOpen(true);
 		    topBar.setAnimationEnabled(true);
 		    topBar.addItem(localeToFlagsImage.get(locale), true, flagBar);
+			
+		    //when the user scrolls down, the language bar should be closed
+			oldPosition = topBar.getAbsoluteTop();			
+			Timer unreadMessagesCountPerThreadTimer = new Timer() {
+				public void run() {					
+					if(oldPosition != topBar.getAbsoluteTop() && flagBar.isVisible()){
+						oldPosition = topBar.getAbsoluteTop();
+						topBar.closeAllChildren(true);
+					}
+				}
+			};
+			// Schedule the timer to run every 1/4 second
+			unreadMessagesCountPerThreadTimer.scheduleRepeating(250);
+		    
 		    this.add(topBar);
 		}
 		this.addStyleName("flagWrapper");
