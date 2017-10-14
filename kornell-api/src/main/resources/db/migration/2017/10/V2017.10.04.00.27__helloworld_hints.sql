@@ -1,0 +1,5 @@
+INSERT IGNORE INTO CourseDetailsHint (uuid, title, text, entityType, entityUUID, `index`, fontAwesomeClassName) VALUES
+('afc17ad4-c9cc-4f4a-945c-33957bb65c49', 'estimatedTime', 'Estimated time: 30 minutes.', 'COURSE', 'hwcbf852-91d1-4373-b9f7-979ce0e907c3', 0, 'fa fa-clock-o'),
+('bfc17ad4-c9cc-4f4a-945c-33957bb65c49', 'certificated', 'Course with certificate', 'COURSE', 'hwcbf852-91d1-4373-b9f7-979ce0e907c3', 1, 'fa fa-certificate'),
+('cfc17ad4-c9cc-4f4a-945c-33957bb65c49', 'helpMenu', 'If you need to contact us, click help in the menu above.', 'COURSE', 'hwcbf852-91d1-4373-b9f7-979ce0e907c3', 2, 'fa fa-question-circle'),
+('dfc17ad4-c9cc-4f4a-945c-33957bb65c49', 'audioWarning', 'This course contains video and audio, make sure your device can play them.', 'COURSE', 'hwcbf852-91d1-4373-b9f7-979ce0e907c3', 3, 'fa fa-warning');
