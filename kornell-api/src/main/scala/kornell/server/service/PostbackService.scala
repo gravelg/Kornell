@@ -112,13 +112,13 @@ object PostbackService {
           response.close()
           client.close()
           if (paypal_confirmation == "VERIFIED") {
-            logger.info("Verified request " + payload)
+            logger.info("POSTBACKLOG: Verified request " + payload)
             createEnrollment(payload, postbackType)
           } else {
-            logger.warning("Invalid request " + payload)
+            logger.warning("POSTBACKLOG: Invalid request " + payload)
           }
         } catch {
-          case e: Throwable=>logger.log(Level.SEVERE, "Exception while processing postback " + payload, e)
+          case e: Throwable=>logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + payload, e)
         } finally {
           DateConverter.clearTimeZone
           try {
@@ -127,7 +127,7 @@ object PostbackService {
           } catch {
             case e: Throwable => {
               ConnectionHandler.rollback
-              logger.log(Level.SEVERE, "Exception while processing postback " + payload, e)
+              logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + payload, e)
             }
           }
         }
@@ -142,8 +142,11 @@ object PostbackService {
     val current_url = if (env != "live") pag_sandbox_get_trans_url else pag_get_trans_url
     val postbackConfig = PostbackConfigRepo.getConfig(institutionUUID, postbackType).getOrElse(null)
     if (postbackConfig == null) {
-      logger.log(Level.SEVERE, "Missing postback config for Pagseguro transaction ID  " + transactionId + ", could not process")
+      logger.log(Level.SEVERE, "POSTBACKLOG: Missing postback config for Pagseguro transaction ID [" + transactionId + "] and " +
+          " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
     } else {
+      logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback for Pagseguro => transaction ID [" + transactionId + "] and " +
+          " institution: [" + institutionUUID + "] and env [" + env + "].")
       val creds_email = postbackConfig.getContents.split("##")(0)
       val creds_token = postbackConfig.getContents.split("##")(1)
       val get_url = current_url + transactionId + "?email=" + creds_email + "&token=" + creds_token      
@@ -156,7 +159,7 @@ object PostbackService {
       try {
         processPagseguroResponse(institutionUUID, response_contents)
       } catch {
-        case e: Throwable=>logger.log(Level.SEVERE, "Exception while processing postback " + response_contents, e)
+        case e: Throwable=>logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + response_contents, e)
       }
     }  
   }
@@ -166,20 +169,27 @@ object PostbackService {
 
     val user_email = (response_xml \\ "sender" \\ "email").text
     val name = (response_xml \\ "sender" \\ "name").text
-    val pagseguroId = ((response_xml \\ "items" \\ "item")(0) \\ "id").text
-
-    val courseClass = CourseClassesRepo.byPagseguroId(pagseguroId)
-    if (courseClass.isDefined) {
-      val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
-      enrollmentRequest.setFullName(name)
-      enrollmentRequest.setUsername(user_email)
-      enrollmentRequest.setCourseClassUUID(courseClass.get.getUUID)
-      enrollmentRequest.setInstitutionUUID(institutionUUID)
-      enrollmentRequest.setRegistrationType(RegistrationType.email)
-      enrollmentRequest.setCancelEnrollment(false)
-      RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, response_xml.text)
-    } else {
-      logger.log(Level.SEVERE, "No courseClass found for pagseguroId " + pagseguroId + ", could not process XML " + xmlResponse)
+    val pagseguroIds = ((response_xml \\ "items" \\ "item")(0) \\ "id").text
+    val pagseguroIdsArray = pagseguroIds.split("/")
+    
+    for ( pagseguroId <- pagseguroIdsArray ) {
+      val courseClass = CourseClassesRepo.byPagseguroId(pagseguroId)
+      if (!courseClass.isDefined || courseClass.get.getInstitutionUUID != institutionUUID) {
+        logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for pagseguroId [" + pagseguroId + "] and " + 
+            "institution [" + institutionUUID + "], could not process XML " + xmlResponse)
+      } else {
+        logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Pagseguro => " + 
+            "pagseguroId [" + pagseguroId + "] and xmlResponse [" + xmlResponse + "] and " +
+            "institution: [" + institutionUUID + "].")
+        val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
+        enrollmentRequest.setFullName(name)
+        enrollmentRequest.setUsername(user_email)
+        enrollmentRequest.setCourseClassUUID(courseClass.get.getUUID)
+        enrollmentRequest.setInstitutionUUID(institutionUUID)
+        enrollmentRequest.setRegistrationType(RegistrationType.email)
+        enrollmentRequest.setCancelEnrollment(false)
+        RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, response_xml.text)
+      }
     }
   }
 
@@ -210,7 +220,7 @@ object PostbackService {
       enrollmentRequest.setCancelEnrollment(false)
       RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, payload)
     } else {
-      logger.severe("Mismatched token for institution " + payload)
+      logger.severe("POSTBACKLOG: Mismatched token for institution " + payload)
     }
   }
   
