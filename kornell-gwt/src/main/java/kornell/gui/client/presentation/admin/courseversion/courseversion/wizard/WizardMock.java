@@ -52,7 +52,7 @@ public class WizardMock {
 		wizardTopic.setUUID(order + "");
 		wizardTopic.setOrder(order);		
 		wizardTopic.setTitle("I am topic " + (order+1));
-		wizardTopic.setBackgroundURL("https://unsplash.it/g/5615/2907?image=974");
+		wizardTopic.setBackgroundURL("https://picsum.photos/g/5615/2907?image=974");
 
 		List<WizardSlide> wizardSlides = new ArrayList<>();
 		if(mockData){
@@ -81,7 +81,7 @@ public class WizardMock {
 		wizardSlide.setOrder(order);		
 		wizardSlide.setParentOrder(WizardUtils.buildParentOrderFromParent(wizardTopic));
 		wizardSlide.setTitle("I am slide " + wizardSlide.getParentOrder() + "." + (order+1));
-		wizardSlide.setBackgroundURL("https://unsplash.it/g/5615/2907?image=974");
+		wizardSlide.setBackgroundURL("https://picsum.photos/g/5615/2907?image=974");
 		wizardSlide.setWizardSlideType(WizardSlideType.CONTENT);
 		
 		List<WizardSlideItem> wizardSlideItems = new ArrayList<>();
