@@ -237,7 +237,7 @@ public class GenericCourseLibraryView extends Composite {
 		FlowPanel pnlFileName = new FlowPanel();
 		pnlFileName.addStyleName("pnlFileName");
 		
-		Label fileName = new Label(fileTO.getTitle());
+		Label fileName = new Label(fileTO.getDescription());
 		fileName.addStyleName("fileName");
 		fileName.addStyleName("cursorPointer");
 		pnlFileName.add(fileName);
@@ -249,7 +249,7 @@ public class GenericCourseLibraryView extends Composite {
 			}
 		});
 
-		Label fileDescription = new Label(fileTO.getDescription());
+		Label fileDescription = new Label(fileTO.getTitle());
 		fileDescription.addStyleName("fileDescription");
 		pnlFileName.add(fileDescription);
 		

@@ -473,7 +473,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 			Anchor anchor = new Anchor();
 			anchor.setHTML("<icon class=\"fa fa-eye\"></i>");
 			anchor.setTitle("Visualizar");
-			anchor.setHref(presenter.getFileURL(fileName));
+			anchor.setHref(presenter.getFileURL(fileName) + "?" + System.currentTimeMillis());
 			anchor.setTarget("_blank");
 			Tooltip tooltipView = new Tooltip("Visualizar");
 			tooltipView.setPlacement(Placement.TOP);

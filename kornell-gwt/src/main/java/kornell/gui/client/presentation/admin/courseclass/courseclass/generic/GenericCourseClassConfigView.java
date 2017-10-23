@@ -389,7 +389,12 @@ public class GenericCourseClassConfigView extends Composite {
         final ListBox courseVersions = new ListBox();
         if(to != null){
             for (CourseVersionTO courseVersionTO : to.getCourseVersionTOs()) {
-                courseVersions.addItem(courseVersionTO.getCourseVersion().getName(), courseVersionTO.getCourseVersion().getUUID());
+            	//only show disabled version if it's on edit mode and the class already had that version selected
+            	if(!courseVersionTO.getCourseVersion().isDisabled() ||
+            			(!isCreationMode && 
+            					courseVersionTO.getCourseVersion().getUUID().equals(courseClassTO.getCourseVersionTO().getCourseVersion().getUUID()))){
+            		courseVersions.addItem(courseVersionTO.getCourseVersion().getName(), courseVersionTO.getCourseVersion().getUUID());
+            	}
             }
         } else {
             courseVersions.addItem(courseClassTO.getCourseVersionTO().getCourseVersion().getName(), courseClassTO.getCourseVersionTO().getCourseVersion().getUUID());
