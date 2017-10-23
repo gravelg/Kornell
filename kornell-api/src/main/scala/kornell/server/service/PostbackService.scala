@@ -20,6 +20,10 @@ import kornell.server.jdbc.repository.CourseClassesRepo
 import kornell.server.jdbc.ConnectionHandler
 import kornell.server.util.DateConverter
 import kornell.server.jdbc.repository.InstitutionRepo
+import javax.ws.rs.core.UriInfo
+import javax.ws.rs.core.MultivaluedMap
+import java.net.URLEncoder
+import java.net.URLDecoder
 
 
 object PostbackService {
@@ -96,7 +100,10 @@ object PostbackService {
   //One for sandbox, one for live
   val pag_sandbox_get_trans_url = "https://ws.pagseguro.uol.com.br/v3/transactions/notifications/"
   val pag_get_trans_url = "https://ws.pagseguro.uol.com.br/v3/transactions/notifications/"
-  
+
+  val pag_sandbox_validation = "https://pagseguro.uol.com.br/Security/NPI/Default.aspx?Comando=validar"
+  val pag_validation = "https://pagseguro.uol.com.br/Security/NPI/Default.aspx?Comando=validar"
+
   def paypalPostback(env: String, payload: String) = {
     //Need to prepend a string to message we send back to validate authenticity
     val validation_message = "?cmd=_notify-validate&" + payload
@@ -136,34 +143,94 @@ object PostbackService {
     hello.start
   }
   
-            
-  def pagseguroPostback(env: String, institutionUUID: String, transactionId: String) = {
-    val postbackType = if (env != "live") PostbackType.PAGSEGURO_SANDBOX else PostbackType.PAGSEGURO
-    val current_url = if (env != "live") pag_sandbox_get_trans_url else pag_get_trans_url
+
+  def getPostbackTypeAndUrl(env: String, notificationCode: String) = {
+    if (env == "live") {
+      if (notificationCode != null) {
+        (PostbackType.PAGSEGURO, pag_get_trans_url)
+      } else {
+        (PostbackType.PAGSEGURO_VALIDATION, pag_validation)
+      }
+    } else {
+      if (notificationCode != null) {
+        (PostbackType.PAGSEGURO_SANDBOX, pag_sandbox_get_trans_url)
+      } else {
+        (PostbackType.PAGSEGURO_VALIDATION_SANDBOX, pag_sandbox_validation)
+      }
+    }
+  }
+
+  def pagseguroPostback(env: String, institutionUUID: String, urlParams: MultivaluedMap[String, String]) = {
+    val (postbackType, current_url) = getPostbackTypeAndUrl(env, urlParams.getFirst("notificationCode"))
     val postbackConfig = PostbackConfigRepo.getConfig(institutionUUID, postbackType).getOrElse(null)
     if (postbackConfig == null) {
-      logger.log(Level.SEVERE, "POSTBACKLOG: Missing postback config for Pagseguro transaction ID [" + transactionId + "] and " +
+      logger.log(Level.SEVERE, "POSTBACKLOG: Missing postback config for Pagseguro transaction ID [" + urlParams.asScala.mkString(" ") + "] and " +
           " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
     } else {
-      logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback for Pagseguro => transaction ID [" + transactionId + "] and " +
+      logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback for Pagseguro => transaction ID [" + urlParams.asScala.mkString(" ") + "] and " +
           " institution: [" + institutionUUID + "] and env [" + env + "].")
-      val creds_email = postbackConfig.getContents.split("##")(0)
-      val creds_token = postbackConfig.getContents.split("##")(1)
-      val get_url = current_url + transactionId + "?email=" + creds_email + "&token=" + creds_token      
-      
-      //do GET to pagseguro API
+
       val client = HttpClients.createDefault
-      val request = new HttpGet(get_url)
-      val response = client.execute(request)
-      val response_contents = EntityUtils.toString(response.getEntity)
-      try {
-        processPagseguroResponse(institutionUUID, response_contents)
-      } catch {
-        case e: Throwable=>logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + response_contents, e)
+      if (urlParams.getFirst("notificationCode") != null) {
+        //pagseguro direct post
+        val creds_email = postbackConfig.getContents.split("##")(0)
+        val creds_token = postbackConfig.getContents.split("##")(1)
+        val notificationCode = urlParams.getFirst("notificationCode")
+        val get_url = current_url + notificationCode + "?email=" + creds_email + "&token=" + creds_token
+
+        //do GET to pagseguro API
+        val request = new HttpGet(get_url)
+        val response = client.execute(request)
+        val response_contents = EntityUtils.toString(response.getEntity)
+        try {
+          processPagseguroResponse(institutionUUID, response_contents)
+        } catch {
+          case e: Throwable=>logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + response_contents, e)
+        }
+      } else {
+        //woocommerce form-style POST
+        var params = ""
+        urlParams.asScala foreach (x => params += "&" + x._1 + "=" + x._2.get(0))
+        val post_url = current_url + "&Token=" + postbackConfig.getContents + params
+        val request = new HttpPost(post_url)
+        val response = client.execute(request)
+        val response_contents = EntityUtils.toString(response.getEntity)
+        if (response_contents == "VERIFICADO") {
+          processPagseguroResponseWooCommerce(institutionUUID, urlParams)
+        } else {
+          logger.log(Level.SEVERE, "POSTBACKLOG: Cannot validate transaction [" + urlParams.asScala.mkString(" ") + "] and " +
+          " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
+        }
       }
-    }  
+    }
   }
-  
+
+  def processPagseguroResponseWooCommerce(institutionUUID: String, urlParams: MultivaluedMap[String, String]) = {
+    //Have to do this since we get iso-8859-1 encoded url params and we save utf-8
+    val user_email = new String(URLDecoder.decode(urlParams.getFirst("CliEmail"), "iso-8859-1").getBytes("iso-8859-1"), "utf-8")
+    val name = new String(URLDecoder.decode(urlParams.getFirst("CliNome"), "iso-8859-1").getBytes("iso-8859-1"), "utf-8")
+    val pagseguroIds = URLDecoder.decode(urlParams.getFirst("Referencia"), "iso-8859-1").split("/")
+    for (pagseguroId <- pagseguroIds) {
+      val courseClass = CourseClassesRepo.byPagseguroId(pagseguroId)
+      if (!courseClass.isDefined || courseClass.get.getInstitutionUUID != institutionUUID) {
+        logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for pagseguroId [" + pagseguroId + "] and " +
+            "institution [" + institutionUUID + "]")
+      } else {
+        logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Pagseguro => " +
+            "pagseguroId [" + pagseguroId + "] and request [" + urlParams.asScala.mkString(" ") + "] and " +
+            "institution: [" + institutionUUID + "].")
+        val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
+        enrollmentRequest.setFullName(name)
+        enrollmentRequest.setUsername(user_email)
+        enrollmentRequest.setCourseClassUUID(courseClass.get.getUUID)
+        enrollmentRequest.setInstitutionUUID(institutionUUID)
+        enrollmentRequest.setRegistrationType(RegistrationType.email)
+        enrollmentRequest.setCancelEnrollment(false)
+        RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, urlParams.asScala.mkString(" "))
+      }
+    }
+  }
+
   def processPagseguroResponse(institutionUUID: String, xmlResponse: String) = {
     val response_xml = XML.loadString(xmlResponse)
 
