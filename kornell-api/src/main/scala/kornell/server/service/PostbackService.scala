@@ -25,7 +25,7 @@ import kornell.server.jdbc.repository.InstitutionRepo
 object PostbackService {
   
   /**
-   * Example transaction XML
+   * Example pagseguro transaction XML
   <transaction>
     <date>2011-02-10T16:13:41.000-03:00</date>  
     <code>9E884542-81B3-4419-9A75-BCC6FB495EF1</code>  
@@ -169,17 +169,17 @@ object PostbackService {
 
     val user_email = (response_xml \\ "sender" \\ "email").text
     val name = (response_xml \\ "sender" \\ "name").text
-    val pagseguroIds = ((response_xml \\ "items" \\ "item")(0) \\ "id").text
-    val pagseguroIdsArray = pagseguroIds.split("/")
+    val pagseguroIds = (response_xml \\ "items" \\ "item" \\ "id")
     
-    for ( pagseguroId <- pagseguroIdsArray ) {
-      val courseClass = CourseClassesRepo.byPagseguroId(pagseguroId)
+    for ( pagseguroId <- pagseguroIds ) {
+      val textId = (pagseguroId \\ "id").text
+      val courseClass = CourseClassesRepo.byPagseguroId(textId)
       if (!courseClass.isDefined || courseClass.get.getInstitutionUUID != institutionUUID) {
-        logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for pagseguroId [" + pagseguroId + "] and " + 
+        logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for pagseguroId [" + textId + "] and " +
             "institution [" + institutionUUID + "], could not process XML " + xmlResponse)
       } else {
         logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Pagseguro => " + 
-            "pagseguroId [" + pagseguroId + "] and xmlResponse [" + xmlResponse + "] and " +
+            "pagseguroId [" + textId + "] and xmlResponse [" + xmlResponse + "] and " +
             "institution: [" + institutionUUID + "].")
         val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
         enrollmentRequest.setFullName(name)
