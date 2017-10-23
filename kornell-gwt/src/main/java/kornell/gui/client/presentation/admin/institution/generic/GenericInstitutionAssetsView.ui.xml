@@ -3,7 +3,7 @@
 
   <g:FlowPanel addStyleNames="deanWrapper">
 		<g:HTMLPanel addStyleNames="title">Editar Imagens da Instituição</g:HTMLPanel>
-		<g:Label addStyleNames="subTitle">Configure logos da sua instituição</g:Label>
+		<g:Label addStyleNames="subTitle">Configure logos da sua instituição. Observação: a propagação da imagem para todos os participantes pode levar alguns minutos.</g:Label>
 		<b:Form ui:field="form" addStyleNames="profileForm">
 			<g:FlowPanel ui:field="assetsFields" addStyleNames="fieldsWrapper marginTop25">		
 			</g:FlowPanel>		

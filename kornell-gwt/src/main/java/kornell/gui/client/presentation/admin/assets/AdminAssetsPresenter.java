@@ -112,7 +112,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		case COURSE:
 			AdminAssetsPresenter.entityName = "courses";
 			AdminAssetsPresenter.entityType = Course.TYPE;
-			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante.";
+			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Observação: a propagação do ícone para todos os participantes pode levar alguns minutos.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para este curso.";
 			sectionsSubTitle = "Edite os detalhes da tela de detalhes para este curso." + sectionsSubTitle;
 			hintsSubTitle = "Edite as dicas da tela de detalhes para este curso." + hintsSubTitle;
@@ -121,7 +121,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		case COURSE_VERSION:
 			AdminAssetsPresenter.entityName = "courseVersions";
 			AdminAssetsPresenter.entityType = CourseVersion.TYPE;
-			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Este ícone será aplicado a todas as turmas desta versão do curso.";
+			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Este ícone será aplicado a todas as turmas desta versão do curso. Observação: a propagação do ícone para todos os participantes pode levar alguns minutos.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para todas as turmas desta versão do curso.";
 			sectionsSubTitle = "Edite os detalhes da tela de detalhes para esta versão do curso. Detalhes de uma seção da versão que tenham o título igual a um título de uma seção do curso terão precedência." + sectionsSubTitle;
 			hintsSubTitle = "Edite as dicas da tela de detalhes para esta versão do curso. As dicas da versão serão apresentadas após as dicas do curso." + hintsSubTitle;
@@ -130,7 +130,7 @@ public class AdminAssetsPresenter implements AdminAssetsView.Presenter {
 		case COURSE_CLASS:
 			AdminAssetsPresenter.entityName = "courseClasses";
 			AdminAssetsPresenter.entityType = CourseClass.TYPE;
-			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Este ícone será aplicado somente a esta turma.";
+			thumbSubTitle = "Edite o ícone que aparecerá na listagem dos cursos na tela inicial do participante. Este ícone será aplicado somente a esta turma. Observação: a propagação do ícone para todos os participantes pode levar alguns minutos.";
 			certificateDetailsSubTitle = "Edite o plano de fundo do certificado para esta turma.";
 			sectionsSubTitle = "Edite os detalhes da tela de detalhes para esta turma. Detalhes de uma seção da turma que tenham o título igual a um título de uma seção do curso ou da versão terão precedência." + sectionsSubTitle;
 			hintsSubTitle = "Edite as dicas da tela de detalhes para esta turma. As dicas da versão serão apresentadas após as dicas do curso e da versão do curso." + hintsSubTitle;
