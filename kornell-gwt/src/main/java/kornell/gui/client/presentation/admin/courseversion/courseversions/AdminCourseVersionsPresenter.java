@@ -99,7 +99,7 @@ public class AdminCourseVersionsPresenter extends PaginationPresenterImpl<Course
 	@Override
 	public String getClientPropertyName(String property){
 		return session.getAdminHomePropertyPrefix() +
-				placeCtrl.getWhere().toString() + ClientProperties.SEPARATOR +
+				"courseVersions" + ClientProperties.SEPARATOR +
 				property;
 	}
 
