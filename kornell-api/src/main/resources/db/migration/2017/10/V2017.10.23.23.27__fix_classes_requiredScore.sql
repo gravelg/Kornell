@@ -1,0 +1,1 @@
+update CourseClass set requiredScore = 0 where requiredScore is null;
