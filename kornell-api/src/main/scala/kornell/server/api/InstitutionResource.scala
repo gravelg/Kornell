@@ -117,7 +117,7 @@ class InstitutionResource(uuid: String) {
    
    @GET
    @Path("uploadUrl/{filename}")
-   @Produces(Array("application/octet-stream"))
+   @Produces(Array("text/plain"))
    def getUploadUrl(@PathParam("filename") filename: String) : String = {
     S3Service.getInstitutionUploadUrl(uuid, filename)
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())

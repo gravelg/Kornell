@@ -174,7 +174,7 @@ class CourseClassResource(uuid: String) {
    
    @GET
    @Path("uploadUrl/{filename}")
-   @Produces(Array("application/octet-stream"))
+   @Produces(Array("text/plain"))
    def getUploadUrl(@PathParam("filename") filename: String, @QueryParam("path") path:String) : String = {
     S3Service.getCourseClassUploadUrl(uuid, filename, path)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
