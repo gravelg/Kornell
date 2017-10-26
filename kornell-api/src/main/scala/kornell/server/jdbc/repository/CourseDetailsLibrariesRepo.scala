@@ -7,18 +7,20 @@ import kornell.core.util.UUID
 import kornell.core.entity.CourseDetailsLibrary
 import kornell.core.entity.CourseDetailsEntityType
 import kornell.server.repository.TOs
+import java.text.Normalizer
 
 object CourseDetailsLibrariesRepo {
 
   def create(courseDetailsLibrary: CourseDetailsLibrary): CourseDetailsLibrary = {
     if (courseDetailsLibrary.getUUID == null){
       courseDetailsLibrary.setUUID(UUID.random)
-    }    
+    }
+    val normalizedTitle = Normalizer.normalize(courseDetailsLibrary.getTitle, Normalizer.Form.NFC)
     sql"""
     | insert into CourseDetailsLibrary (uuid,title,entityType,entityUUID,`index`,description,size,path,uploadDate,fontAwesomeClassName) 
     | values(
     | ${courseDetailsLibrary.getUUID},
-    | ${courseDetailsLibrary.getTitle},
+    | ${normalizedTitle},
     | ${courseDetailsLibrary.getEntityType.toString}, 
     | ${courseDetailsLibrary.getEntityUUID},
     | ${courseDetailsLibrary.getIndex},
