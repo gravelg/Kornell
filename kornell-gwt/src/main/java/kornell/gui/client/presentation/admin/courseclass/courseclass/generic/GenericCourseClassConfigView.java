@@ -8,6 +8,7 @@ import com.github.gwtbootstrap.client.ui.CheckBox;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.Modal;
+import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -100,7 +101,7 @@ public class GenericCourseClassConfigView extends Composite {
     private CourseClass courseClass;
     private KornellFormFieldWrapper course, courseVersion, name, publicClass, approveEnrollmentsAutomatically,
     requiredScore, registrationType, institutionRegistrationPrefix, maxEnrollments, overrideEnrollments, invisible, 
-    allowBatchCancellation, courseClassChatEnabled, chatDockEnabled, tutorChatEnabled, pagseguroId;
+    allowBatchCancellation, courseClassChatEnabled, chatDockEnabled, allowCertification, tutorChatEnabled, pagseguroId;
     private List<KornellFormFieldWrapper> fields;
     private String modalMode;
     private ListBox institutionRegistrationPrefixes;
@@ -134,6 +135,7 @@ public class GenericCourseClassConfigView extends Composite {
         profileFields.setVisible(false);
         this.fields = new ArrayList<KornellFormFieldWrapper>();
         courseClass = isCreationMode ? entityFactory.newCourseClass().as() : courseClassTO.getCourseClass();
+        Boolean isAllowCertification = (courseClass.getRequiredScore() != null);
 
         profileFields.clear();
 
@@ -159,15 +161,70 @@ public class GenericCourseClassConfigView extends Composite {
         fields.add(name);
         profileFields.add(name);
 
-        String requiredScoreStr = courseClass.getRequiredScore() == null ? "" : courseClass.getRequiredScore().toString();
-        requiredScore = new KornellFormFieldWrapper("Nota para Aprovação", formHelper.createTextBoxFormField(requiredScoreStr), isInstitutionAdmin, null, "Se a nota for deixada em branco ou for zero, a avaliação não será exigida para que os alunos matriculados finalizem o curso.");
-        fields.add(requiredScore);
-        profileFields.add(requiredScore);
-
         String maxEnrollmentsStr = courseClass.getMaxEnrollments() == null ? "" : courseClass.getMaxEnrollments().toString();
         maxEnrollments = new KornellFormFieldWrapper("Quantidade de Matrículas", formHelper.createTextBoxFormField(maxEnrollmentsStr), isInstitutionAdmin);
         fields.add(maxEnrollments);
         profileFields.add(maxEnrollments);
+
+        if(session.isPlatformAdmin()){            
+            pagseguroId = new KornellFormFieldWrapper("PagSeguro ID", formHelper.createTextBoxFormField(courseClass.getPagseguroId()), isInstitutionAdmin);
+            fields.add(pagseguroId);
+            profileFields.add(pagseguroId);
+        }
+        
+        final ListBox registrationTypes = new ListBox();
+        registrationTypes.addItem("Email", RegistrationType.email.toString());
+        registrationTypes.addItem("CPF", RegistrationType.cpf.toString());
+        if(session.getInstitution().isAllowRegistrationByUsername())
+            registrationTypes.addItem("Usuário", RegistrationType.username.toString());
+        if (!isCreationMode) {
+            registrationTypes.setSelectedValue(courseClassTO.getCourseClass().getRegistrationType().toString());
+        }
+        registrationType = new KornellFormFieldWrapper("Tipo de Matrícula", new ListBoxFormField(registrationTypes), isInstitutionAdmin);
+        fields.add(registrationType);
+        profileFields.add(registrationType);
+
+        if(session.getInstitution().isAllowRegistrationByUsername()){
+            institutionRegistrationPrefixes = new ListBox();		
+            if(!isCreationMode)
+                institutionRegistrationPrefixes.setSelectedValue(courseClassTO.getCourseClass().getInstitutionRegistrationPrefixUUID());
+            if(allowPrefixEdit){
+                loadInstitutionPrefixes();
+            } else if (!isCreationMode) {
+                institutionRegistrationPrefixes.addItem(courseClassTO.getRegistrationPrefix());
+            }
+            institutionRegistrationPrefix = new KornellFormFieldWrapper("Prefixo", new ListBoxFormField(institutionRegistrationPrefixes), allowPrefixEdit);
+            fields.add(institutionRegistrationPrefix);
+            profileFields.add(institutionRegistrationPrefix);
+            institutionRegistrationPrefix.setVisible(registrationType.getFieldPersistText().equals(RegistrationType.username.toString()));
+            registrationTypes.addChangeHandler(new ChangeHandler() {
+                @Override
+                public void onChange(ChangeEvent event) {
+                    institutionRegistrationPrefix.setVisible(registrationType.getFieldPersistText().equals(RegistrationType.username.toString()));
+                }
+            });
+        }
+
+        String requiredScoreStr = courseClass.getRequiredScore() == null ? "" : courseClass.getRequiredScore().toString();
+        requiredScore = new KornellFormFieldWrapper("Nota para Aprovação", formHelper.createTextBoxFormField(requiredScoreStr), isInstitutionAdmin, null, "Se a nota for deixada em branco ou for zero, a avaliação não será exigida para que os alunos matriculados finalizem o curso.");
+        fields.add(requiredScore);
+        profileFields.add(requiredScore);
+        ((TextBox)requiredScore.getFieldWidget()).setEnabled(isAllowCertification);
+        
+        allowCertification = new KornellFormFieldWrapper("Certificado disponível?", formHelper.createCheckBoxFormField(isAllowCertification), isInstitutionAdmin);
+        fields.add(allowCertification);
+        profileFields.add(allowCertification);
+        ((CheckBox)allowCertification.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                ((TextBox)requiredScore.getFieldWidget()).setEnabled(event.getValue());
+                if(!event.getValue()){
+                	((TextBox)requiredScore.getFieldWidget()).setValue("");
+                } else {
+                	((TextBox)requiredScore.getFieldWidget()).setValue("0.00");
+                }
+            }
+        });
 
         Boolean isPublicClass = courseClass.isPublicClass() == null ? false : courseClass.isPublicClass();
         publicClass = new KornellFormFieldWrapper("Turma pública?", formHelper.createCheckBoxFormField(isPublicClass), isInstitutionAdmin);
@@ -292,43 +349,6 @@ public class GenericCourseClassConfigView extends Composite {
 	            }
 	        });
             ((CheckBox)chatDockEnabled.getFieldWidget()).setEnabled(isCourseClassChatEnabled);
-            
-            pagseguroId = new KornellFormFieldWrapper("PagSeguro ID", formHelper.createTextBoxFormField(courseClass.getPagseguroId()), isInstitutionAdmin);
-            fields.add(pagseguroId);
-            profileFields.add(pagseguroId);
-        }
-        
-        final ListBox registrationTypes = new ListBox();
-        registrationTypes.addItem("Email", RegistrationType.email.toString());
-        registrationTypes.addItem("CPF", RegistrationType.cpf.toString());
-        if(session.getInstitution().isAllowRegistrationByUsername())
-            registrationTypes.addItem("Usuário", RegistrationType.username.toString());
-        if (!isCreationMode) {
-            registrationTypes.setSelectedValue(courseClassTO.getCourseClass().getRegistrationType().toString());
-        }
-        registrationType = new KornellFormFieldWrapper("Tipo de Matrícula", new ListBoxFormField(registrationTypes), isInstitutionAdmin);
-        fields.add(registrationType);
-        profileFields.add(registrationType);
-
-        if(session.getInstitution().isAllowRegistrationByUsername()){
-            institutionRegistrationPrefixes = new ListBox();		
-            if(!isCreationMode)
-                institutionRegistrationPrefixes.setSelectedValue(courseClassTO.getCourseClass().getInstitutionRegistrationPrefixUUID());
-            if(allowPrefixEdit){
-                loadInstitutionPrefixes();
-            } else if (!isCreationMode) {
-                institutionRegistrationPrefixes.addItem(courseClassTO.getRegistrationPrefix());
-            }
-            institutionRegistrationPrefix = new KornellFormFieldWrapper("Prefixo", new ListBoxFormField(institutionRegistrationPrefixes), allowPrefixEdit);
-            fields.add(institutionRegistrationPrefix);
-            profileFields.add(institutionRegistrationPrefix);
-            institutionRegistrationPrefix.setVisible(registrationType.getFieldPersistText().equals(RegistrationType.username.toString()));
-            registrationTypes.addChangeHandler(new ChangeHandler() {
-                @Override
-                public void onChange(ChangeEvent event) {
-                    institutionRegistrationPrefix.setVisible(registrationType.getFieldPersistText().equals(RegistrationType.username.toString()));
-                }
-            });
         }
 
         profileFields.add(formHelper.getImageSeparator());
@@ -436,6 +456,8 @@ public class GenericCourseClassConfigView extends Composite {
         	} else {
         		requiredScore.setError("Número inválido.");
         	}
+        } else if(allowCertification.getFieldPersistText() == "true"){
+    		requiredScore.setError("Insira a nota necessária para aprovação.");
         }
 
         if (!formHelper.isLengthValid(maxEnrollments.getFieldPersistText(), 1, 10)) {

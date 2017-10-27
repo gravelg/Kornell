@@ -44,6 +44,8 @@ import kornell.core.entity.RoleCategory
 import kornell.server.jdbc.repository.EventsRepo
 import kornell.core.entity.AuditedEntityType
 import kornell.server.jdbc.repository.CourseClassesRepo
+import javax.ws.rs.core.Response
+
 //TODO Person/People Resource
 @Path("user")
 class UserResource(private val authRepo: AuthRepo) {
@@ -130,7 +132,6 @@ class UserResource(private val authRepo: AuthRepo) {
 
   @GET
   @Path("requestPasswordChange/{email}/{institutionName}")
-  @Produces(Array("text/plain"))
   def requestPasswordChange(@PathParam("email") email: String,
     @PathParam("institutionName") institutionName: String) = {
     val institution = InstitutionsRepo.getByName(institutionName)
@@ -147,6 +148,7 @@ class UserResource(private val authRepo: AuthRepo) {
     } else {
       throw new EntityNotFoundException("personOrInstitutionNotFound")
     }
+    Response.noContent.build
   }
 
   @PUT
@@ -170,7 +172,6 @@ class UserResource(private val authRepo: AuthRepo) {
 
   @PUT
   @Path("changePassword/{targetPersonUUID}/")
-  @Produces(Array("text/plain"))
   def changePassword(implicit @Context sc: SecurityContext,
     @PathParam("targetPersonUUID") targetPersonUUID: String, password: String) = {
     authRepo.withPerson { p =>
@@ -182,9 +183,9 @@ class UserResource(private val authRepo: AuthRepo) {
 
         //log entity change
         EventsRepo.logEntityChange(targetPersonRepo.get.getInstitutionUUID, AuditedEntityType.password, targetPersonUUID, null, null)
-
       }
     }
+    Response.noContent.build
   }
 
   //Used when user has the forcePasswordUpdate flag on his account

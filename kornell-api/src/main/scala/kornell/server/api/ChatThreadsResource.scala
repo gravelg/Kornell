@@ -25,6 +25,7 @@ import java.util.Date
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
 import kornell.core.error.exception.UnauthorizedAccessException
+import javax.ws.rs.core.Response
 
 @Path("chatThreads")
 @Produces(Array(ChatThread.TYPE))
@@ -34,7 +35,7 @@ class ChatThreadsResource {
   
   @POST
   @Path("courseClass/{courseClassUUID}/support")
-  @Produces(Array("application/octet-stream"))
+  @Produces(Array("text/plain"))
   def postMessageToCourseClassSupportThread(implicit @Context sc: SecurityContext, 
     @PathParam("courseClassUUID") courseClassUUID: String,
     message: String) = AuthRepo().withPerson { person => 
@@ -44,7 +45,7 @@ class ChatThreadsResource {
   
   @POST
   @Path("courseClass/{courseClassUUID}/tutoring")
-  @Produces(Array("application/octet-stream"))
+  @Produces(Array("text/plain"))
   def postMessageToCourseClassTutoringThread(implicit @Context sc: SecurityContext, 
     @PathParam("courseClassUUID") courseClassUUID: String,
     message: String) = AuthRepo().withPerson { person => 
@@ -54,7 +55,7 @@ class ChatThreadsResource {
   
   @POST
   @Path("institutionSupport")
-  @Produces(Array("application/octet-stream"))
+  @Produces(Array("text/plain"))
   def postMessageToInstitutionSupportThread(implicit @Context sc: SecurityContext, 
     message: String) = AuthRepo().withPerson { person => 
         ChatThreadsRepo.postMessageToInstitutionThread(person.getUUID, person.getInstitutionUUID, message, ChatThreadType.INSTITUTION_SUPPORT)
@@ -63,7 +64,7 @@ class ChatThreadsResource {
   
   @POST
   @Path("platformSupport")
-  @Produces(Array("application/octet-stream"))
+  @Produces(Array("text/plain"))
   def postMessageToPlatformSupportThread(implicit @Context sc: SecurityContext,
     message: String) = AuthRepo().withPerson { person => 
         ChatThreadsRepo.postMessageToInstitutionThread(person.getUUID, person.getInstitutionUUID, message, ChatThreadType.PLATFORM_SUPPORT)
@@ -90,13 +91,13 @@ class ChatThreadsResource {
   
   @POST
   @Path("direct/{personUUID}")
-  @Produces(Array("text/plain"))
   def postMessageToDirectThread(@PathParam("personUUID") targetPersonUUID: String, message: String) = {
-        ChatThreadsRepo.postMessageToDirectThread(getAuthenticatedPersonUUID, targetPersonUUID, message)
+    ChatThreadsRepo.postMessageToDirectThread(getAuthenticatedPersonUUID, targetPersonUUID, message)
+    Response.noContent.build
   }
   
   @Path("unreadCount")
-  @Produces(Array("application/octet-stream"))
+  @Produces(Array("text/plain"))
   @GET
   def getTotalUnreadCountByPerson(implicit @Context sc: SecurityContext) = AuthRepo().withPerson { person => 
   		ChatThreadsRepo.getTotalUnreadCountByPerson(person.getUUID, person.getInstitutionUUID)

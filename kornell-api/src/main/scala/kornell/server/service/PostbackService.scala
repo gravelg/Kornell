@@ -20,10 +20,8 @@ import kornell.server.jdbc.repository.CourseClassesRepo
 import kornell.server.jdbc.ConnectionHandler
 import kornell.server.util.DateConverter
 import kornell.server.jdbc.repository.InstitutionRepo
-import javax.ws.rs.core.UriInfo
-import javax.ws.rs.core.MultivaluedMap
 import java.net.URLEncoder
-import java.net.URLDecoder
+import javax.servlet.http.HttpServletRequest
 
 
 object PostbackService {
@@ -160,22 +158,30 @@ object PostbackService {
     }
   }
 
-  def pagseguroPostback(env: String, institutionUUID: String, urlParams: MultivaluedMap[String, String]) = {
-    val (postbackType, current_url) = getPostbackTypeAndUrl(env, urlParams.getFirst("notificationCode"))
+  def prettyParams(request: HttpServletRequest) = {
+    var paramsString = ""
+    for (param <- request.getParameterNames.asScala) {
+      paramsString += param + "->" + request.getParameter(param) + ","
+    }
+    paramsString
+  }
+
+  def pagseguroPostback(env: String, institutionUUID: String, pagseguroRequest: HttpServletRequest) = {
+    val (postbackType, current_url) = getPostbackTypeAndUrl(env, pagseguroRequest.getParameter("notificationCode"))
     val postbackConfig = PostbackConfigRepo.getConfig(institutionUUID, postbackType).getOrElse(null)
     if (postbackConfig == null) {
-      logger.log(Level.SEVERE, "POSTBACKLOG: Missing postback config for Pagseguro transaction ID [" + urlParams.asScala.mkString(" ") + "] and " +
+      logger.log(Level.SEVERE, "POSTBACKLOG: Missing postback config for Pagseguro transaction ID [" + prettyParams(pagseguroRequest) + "] and " +
           " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
     } else {
-      logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback for Pagseguro => transaction ID [" + urlParams.asScala.mkString(" ") + "] and " +
+      logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback for Pagseguro => transaction ID [" + prettyParams(pagseguroRequest) + "] and " +
           " institution: [" + institutionUUID + "] and env [" + env + "].")
 
       val client = HttpClients.createDefault
-      if (urlParams.getFirst("notificationCode") != null) {
+      if (pagseguroRequest.getParameter("notificationCode") != null) {
         //pagseguro direct post
         val creds_email = postbackConfig.getContents.split("##")(0)
         val creds_token = postbackConfig.getContents.split("##")(1)
-        val notificationCode = urlParams.getFirst("notificationCode")
+        val notificationCode = pagseguroRequest.getParameter("notificationCode")
         val get_url = current_url + notificationCode + "?email=" + creds_email + "&token=" + creds_token
 
         //do GET to pagseguro API
@@ -190,26 +196,28 @@ object PostbackService {
       } else {
         //woocommerce form-style POST
         var params = ""
-        urlParams.asScala foreach (x => params += "&" + x._1 + "=" + x._2.get(0))
+        for (name <- pagseguroRequest.getParameterNames.asScala) {
+          // we need to send params exactly as we received them
+         params += "&" + name + "=" + URLEncoder.encode(pagseguroRequest.getParameter(name), "windows-1252")
+        }
         val post_url = current_url + "&Token=" + postbackConfig.getContents + params
         val request = new HttpPost(post_url)
         val response = client.execute(request)
         val response_contents = EntityUtils.toString(response.getEntity)
         if (response_contents == "VERIFICADO") {
-          processPagseguroResponseWooCommerce(institutionUUID, urlParams)
+          processPagseguroResponseWooCommerce(institutionUUID, pagseguroRequest)
         } else {
-          logger.log(Level.SEVERE, "POSTBACKLOG: Cannot validate transaction [" + urlParams.asScala.mkString(" ") + "] and " +
+          logger.log(Level.SEVERE, "POSTBACKLOG: Cannot validate transaction [" + prettyParams(pagseguroRequest) + "] and " +
           " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
         }
       }
     }
   }
 
-  def processPagseguroResponseWooCommerce(institutionUUID: String, urlParams: MultivaluedMap[String, String]) = {
-    //Have to do this since we get iso-8859-1 encoded url params and we save utf-8
-    val user_email = new String(URLDecoder.decode(urlParams.getFirst("CliEmail"), "iso-8859-1").getBytes("iso-8859-1"), "utf-8")
-    val name = new String(URLDecoder.decode(urlParams.getFirst("CliNome"), "iso-8859-1").getBytes("iso-8859-1"), "utf-8")
-    val pagseguroIds = URLDecoder.decode(urlParams.getFirst("Referencia"), "iso-8859-1").split("/")
+  def processPagseguroResponseWooCommerce(institutionUUID: String, pagseguroRequest: HttpServletRequest) = {
+    val user_email = pagseguroRequest.getParameter("CliEmail")
+    val name = pagseguroRequest.getParameter("CliNome")
+    val pagseguroIds = pagseguroRequest.getParameter("Referencia").split("/")
     for (pagseguroId <- pagseguroIds) {
       val courseClass = CourseClassesRepo.byPagseguroId(pagseguroId)
       if (!courseClass.isDefined || courseClass.get.getInstitutionUUID != institutionUUID) {
@@ -217,7 +225,7 @@ object PostbackService {
             "institution [" + institutionUUID + "]")
       } else {
         logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Pagseguro => " +
-            "pagseguroId [" + pagseguroId + "] and request [" + urlParams.asScala.mkString(" ") + "] and " +
+            "pagseguroId [" + pagseguroId + "] and request [" + prettyParams(pagseguroRequest) + "] and " +
             "institution: [" + institutionUUID + "].")
         val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
         enrollmentRequest.setFullName(name)
@@ -226,7 +234,7 @@ object PostbackService {
         enrollmentRequest.setInstitutionUUID(institutionUUID)
         enrollmentRequest.setRegistrationType(RegistrationType.email)
         enrollmentRequest.setCancelEnrollment(false)
-        RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, urlParams.asScala.mkString(" "))
+        RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, prettyParams(pagseguroRequest))
       }
     }
   }

@@ -50,8 +50,8 @@ class EnrollmentResource(uuid: String) {
   def first = enrollmentRepo.first
 
   @PUT
-  @Produces(Array("text/plain"))
   @Consumes(Array(Enrollment.TYPE))
+  @Produces(Array(Enrollment.TYPE))
   def update(enrollment: Enrollment) = {
     EnrollmentRepo(enrollment.getUUID).update(enrollment)
   }.requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(enrollment.getPersonUUID), AccessDeniedErr())
@@ -212,7 +212,7 @@ class EnrollmentResource(uuid: String) {
 
   @GET
   @Path("approved")
-  @Produces(Array("application/octet-stream"))
+  @Produces(Array("text/plain"))
   def approved = {
     val e = first.get
     if (Assessment.PASSED == e.getAssessment) {

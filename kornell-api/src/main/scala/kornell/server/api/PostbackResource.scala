@@ -4,11 +4,10 @@ import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 import javax.ws.rs.POST
 import kornell.server.service.PostbackService
-import javax.ws.rs.FormParam
 import kornell.server.util.Conditional.toConditional
 import kornell.server.util.AccessDeniedErr
 import javax.ws.rs.core.Context
-import javax.ws.rs.core.UriInfo
+import javax.servlet.http.HttpServletRequest
 
 
 @Path("/postback")
@@ -26,9 +25,10 @@ class PostbackResource {
   @Path("/pagseguro/{institutionUUID}/{env}")
   @POST
   def pagseguro(@PathParam("env") env: String, @PathParam("institutionUUID") institutionUUID: String,
-      @Context context: UriInfo) = {
-    //can't auto-decode url params because they are sending iso-8859-1
-    PostbackService.pagseguroPostback(env, institutionUUID, context.getQueryParameters(false))
+      @Context request: HttpServletRequest) = {
+    //can't auto-decode url params because they are sending windows-1252
+    request.setCharacterEncoding("windows-1252")
+    PostbackService.pagseguroPostback(env, institutionUUID, request)
     ""
   }
   

@@ -8,7 +8,7 @@ public class AssetsClient extends RESTClient {
 	}
 	
 	public void getUploadURL(String entityName, String entityUUID, String filename, String path, Callback<String> callback) {
-		GET(entityName, entityUUID, "uploadUrl", filename, "?path=" + path).go(callback);
+		GET(entityName, entityUUID, "uploadUrl", "?filename=" + filename + "&path=" + path).go(callback);
 	}
 	
 	public void updateThumbnail(String entityName, String entityUUID, LearningEntity entity, String entityType, Callback<LearningEntity> callback) {

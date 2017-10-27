@@ -28,6 +28,7 @@ import java.math.BigDecimal
 import kornell.server.util.EnrollmentUtil._
 import scala.collection.JavaConverters._
 import java.util.Date
+import javax.ws.rs.core.Response
 
 class ActomResource(enrollmentUUID: String, actomURL: String) {
   implicit def toString(rs: ResultSet): String = rs.getString("entryValue")
@@ -41,17 +42,18 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
     actomURL
 
   @Path("entries/{entryKey}")
-  @Produces(Array("text/plain"))
   @GET
-  def getValue(@PathParam("entryKey") entryKey: String) =
+  def getValue(@PathParam("entryKey") entryKey: String) = {
     ActomEntriesRepo.getValue(enrollmentUUID, actomKey, entryKey)
+    Response.noContent.build
+  }
 
   @Path("entries/{entryKey}")
-  @Produces(Array("text/plain"))
   @Consumes(Array("text/plain"))
   @PUT
   def putValue(@PathParam("entryKey") entryKey: String, entryValue: String) = {
     updateQueryModel(entryKey, entryValue)
+    Response.noContent.build
   }
 
   def updateQueryModel(entryKey: String, entryValue: String) = sql"""

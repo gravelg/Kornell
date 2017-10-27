@@ -53,6 +53,6 @@ public class InstitutionClient extends RESTClient {
 	}
 	
 	public void getUploadURL(String filename, Callback<String> callback) {
-		GET("institutions", institutionUUID, "uploadUrl", filename).go(callback);
+		GET("institutions", institutionUUID, "uploadUrl", "?filename=" + filename).go(callback);
 	}
 }

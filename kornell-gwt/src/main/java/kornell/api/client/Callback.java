@@ -109,13 +109,12 @@ public abstract class Callback<T> implements RequestCallback {
 			} else
 				ok(Callback.parseJson(responseText));
 
-		} else if (contentType.contains("application/octet-stream")) {
+		} else if (contentType.contains("text/plain")) {
 			T txt = (T) responseText;
 			ok(txt);
-		} else
-			ok((T) null); // TODO: Consider throwing exception
-							// "unknow response type" instead, but map "text/*"
-							// and "application/*" first
+		} else {
+			throw new RuntimeException("Unsupported content type " + contentType);
+		}
 	}
 
 	private KornellErrorTO unwrapError(Response response) {

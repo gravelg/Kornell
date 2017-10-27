@@ -116,7 +116,7 @@ class EnrollmentsResource {
   
   @GET
   @Path("leaderboardPosition/{dashboardEnrollmentUUID}")
-  @Produces(Array("application/octet-stream"))
+  @Produces(Array("text/plain"))
   def leaderboardPosition(@PathParam("dashboardEnrollmentUUID") dashboardEnrollmentUUID: String) = 
     EnrollmentsRepo.getLeaderboardPosition(dashboardEnrollmentUUID)
 
