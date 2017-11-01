@@ -14,9 +14,11 @@ object ConnectionHandler {
   
   def rollback() = {
     val trans = threadLocal.get
-    trans.rollback
-    trans.close
-    threadLocal.remove
+    if (trans != null) {
+      trans.rollback
+      trans.close
+      threadLocal.remove
+    }
   }
   
   def commit() = {

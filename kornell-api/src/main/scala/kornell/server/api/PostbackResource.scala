@@ -21,14 +21,18 @@ class PostbackResource {
     PostbackService.paypalPostback(env, payload)
     ""
   }
-  
-  @Path("/pagseguro/{institutionUUID}/{env}")
+
+  @Path("/{platform}/{institutionUUID}/{env}")
   @POST
   def pagseguro(@PathParam("env") env: String, @PathParam("institutionUUID") institutionUUID: String,
-      @Context request: HttpServletRequest) = {
+      @PathParam("platform") platform: String, @Context request: HttpServletRequest) = {
     //can't auto-decode url params because they are sending windows-1252
     request.setCharacterEncoding("windows-1252")
-    PostbackService.pagseguroPostback(env, institutionUUID, request)
+    if (platform == "pagseguro") {
+      PostbackService.pagseguroPostback(env, institutionUUID, request)
+    } else if (platform == "paypal") {
+      PostbackService.paypalWCPostback(env, institutionUUID, request)
+    }
     ""
   }
   

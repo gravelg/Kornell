@@ -140,7 +140,33 @@ object PostbackService {
     })
     hello.start
   }
-  
+
+  def paypalWCPostback(env: String, institutionUUID: String, request: HttpServletRequest) = {
+    if (env == "live") {
+      val postbackType = PostbackType.PAYPAL
+    } else {
+      val postbackType = PostbackType.PAYPAL_SANDBOX
+    }
+    //validation maybe...
+    val name = request.getParameter("first_name") + " " + request.getParameter("last_name")
+    val email = request.getParameter("payer_email")
+    val itemCount = request.getParameter("num_cart_items").toInt
+    for (item <- 1 to itemCount) {
+      val productCode = request.getParameter("item_number" + item)
+      val courseClass = CourseClassesRepo.byPagseguroId(productCode)
+      logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Pagseguro => " +
+            "pagseguroId [" + productCode + "] and request [" + prettyParams(request) + "] and " +
+            "institution: [" + institutionUUID + "].")
+      val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
+      enrollmentRequest.setFullName(name)
+      enrollmentRequest.setUsername(email)
+      enrollmentRequest.setCourseClassUUID(courseClass.get.getUUID)
+      enrollmentRequest.setInstitutionUUID(institutionUUID)
+      enrollmentRequest.setRegistrationType(RegistrationType.email)
+      enrollmentRequest.setCancelEnrollment(false)
+      RegistrationEnrollmentService.postbackRequestEnrollment(enrollmentRequest, prettyParams(request))
+    }
+  }
 
   def getPostbackTypeAndUrl(env: String, notificationCode: String) = {
     if (env == "live") {
