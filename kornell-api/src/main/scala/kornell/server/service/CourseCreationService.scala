@@ -18,6 +18,7 @@ import kornell.core.entity.RegistrationType
 import kornell.core.entity.EntityState
 import kornell.server.authentication.ThreadLocalAuthenticator
 import java.math.BigDecimal
+import java.text.SimpleDateFormat
 
 object CourseCreationService {
   
@@ -37,7 +38,8 @@ object CourseCreationService {
   def createCourse(institutionUUID: String, to: Course) = {
     val courseUUID = UUID.random
     if (StringUtils.isNone(to.getCode)) {
-      to.setCode(courseUUID)
+      val formattedDate = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date)
+      to.setCode(to.getName.toLowerCase.replaceAll(" ", "-") + "-" + formattedDate)
     }
     
     val course = CoursesRepo.create(Entities.newCourse(
@@ -57,12 +59,14 @@ object CourseCreationService {
   
   def createCourseVersion(institutionUUID: String, courseUUID: String, to: Course) = {
     val versionUUID = UUID.random
+    val formattedDate = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date)
+    val distributionPrefix = to.getName.toLowerCase.replaceAll(" ", "-") + "-" + formattedDate
     val version = CourseVersionsRepo.create(Entities.newCourseVersion(
         versionUUID,
         "v1",
         courseUUID,
         new Date(),
-        versionUUID,
+        distributionPrefix,
         EntityState.active,
         false,
         null,
