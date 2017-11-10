@@ -3,12 +3,14 @@ package kornell.gui.client.presentation.message.compose;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.gwtbootstrap.client.ui.Icon;
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -40,6 +42,8 @@ public class GenericMessageComposeView extends Composite implements MessageCompo
 	private KornellSession session;
 
 	@UiField
+	Anchor helpFilePanel;
+	@UiField
 	Label lblTitle;
 	@UiField
 	Label lblSubTitle;
@@ -64,6 +68,7 @@ public class GenericMessageComposeView extends Composite implements MessageCompo
 		lblSubTitle.setText(constants.composeSubTitle());
 		separatorBar.setUrl(FormHelper.SEPARATOR_BAR_IMG_PATH);
 		separatorBar.addStyleName(FormHelper.SEPARATOR_BAR_CLASS);
+		buildHelpFilePanel();
 
 		this.fields = new ArrayList<KornellFormFieldWrapper>();
 		fieldsPanel.clear();
@@ -104,6 +109,22 @@ public class GenericMessageComposeView extends Composite implements MessageCompo
 		messageText = new KornellFormFieldWrapper(constants.message(), formHelper.createTextAreaFormField(""), true);
 		fields.add(messageText);
 		fieldsPanel.add(messageText);
+	}
+
+	private void buildHelpFilePanel() {
+		FlowPanel panel = new FlowPanel();
+		
+		Icon iconFile = new Icon();
+		iconFile.setStyleName("fa fa-file-pdf-o fileIcon");
+		panel.add(iconFile);
+		
+		Label helpFileLabel = new Label(constants.helpFileCaption());
+		helpFileLabel.addStyleName("fileCaption");
+		panel.add(helpFileLabel);
+		
+		helpFilePanel.setHTML(panel.getElement().getInnerHTML());
+		helpFilePanel.setHref("http://eduvem.com/help/" + constants.helpFileName());
+		helpFilePanel.setTarget("_blank");
 	}
 
 	@Override
