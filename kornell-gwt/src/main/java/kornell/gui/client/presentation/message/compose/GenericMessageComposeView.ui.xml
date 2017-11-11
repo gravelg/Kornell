@@ -1,23 +1,27 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-	xmlns:g='urn:import:com.google.gwt.user.client.ui' 
-	xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
+	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
 	xmlns:knl="urn:import:kornell.gui.client.util.forms.formfield"
 	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
-    ui:generateKeys='com.google.gwt.i18n.server.keygen.MD5KeyGenerator'
-    ui:generateLocales='default'>
-  <g:FlowPanel ui:field="composeMessagePopup">
-    <b:Form ui:field="form" addStyleNames="messagesPanel">
-      <g:FlowPanel ui:field="titlePanel" addStyleNames="titlePanel">
-        <g:Label ui:field="lblTitle" addStyleNames="lblTitle"></g:Label>
-        <g:Label ui:field="lblSubTitle" addStyleNames="lblSubTitle"></g:Label>
-        <g:Image ui:field="separatorBar"></g:Image>
-      </g:FlowPanel>
-      <g:FlowPanel ui:field="fieldsPanel" addStyleNames="fieldsWrapper">
-      </g:FlowPanel>
-      <g:FlowPanel addStyleNames="standardButtonBar">
-        <g:Button ui:field="btnOK" addStyleNames="btnAction btnStandard"><ui:msg description="Message send button">Enviar</ui:msg></g:Button>
-        <g:Button ui:field="btnCancel" addStyleNames="btnNotSelected btnStandard"><ui:msg description="Message cancel button">Cancelar</ui:msg></g:Button>
-      </g:FlowPanel>
-    </b:Form>
-  </g:FlowPanel>
+	ui:generateKeys='com.google.gwt.i18n.server.keygen.MD5KeyGenerator'
+	ui:generateLocales='default'>
+	<g:FlowPanel ui:field="composeMessagePopup">
+		<b:Form ui:field="form" addStyleNames="messagesPanel">
+			<g:FlowPanel ui:field="titlePanel" addStyleNames="titlePanel">
+				<g:Label ui:field="lblTitle" addStyleNames="lblTitle"></g:Label>
+				<g:Anchor ui:field="helpFilePanel" addStyleNames="helpFilePanel"/>
+				<g:Label ui:field="lblSubTitle" addStyleNames="lblSubTitle"></g:Label>
+				<g:Image ui:field="separatorBar"></g:Image>
+			</g:FlowPanel>
+			<g:FlowPanel ui:field="fieldsPanel" addStyleNames="fieldsWrapper">
+			</g:FlowPanel>
+			<g:FlowPanel addStyleNames="standardButtonBar">
+				<g:Button ui:field="btnOK" addStyleNames="btnAction btnStandard">
+					<ui:msg description="Message send button">Enviar</ui:msg>
+				</g:Button>
+				<g:Button ui:field="btnCancel" addStyleNames="btnNotSelected btnStandard">
+					<ui:msg description="Message cancel button">Cancelar</ui:msg>
+				</g:Button>
+			</g:FlowPanel>
+		</b:Form>
+	</g:FlowPanel>
 </ui:UiBinder>

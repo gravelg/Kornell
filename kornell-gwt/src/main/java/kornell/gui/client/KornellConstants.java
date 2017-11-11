@@ -629,6 +629,10 @@ public interface KornellConstants extends ConstantsWithLookup {
 	String composeTitle();
 	@DefaultStringValue("Leave your questions or suggestions here.")
 	String composeSubTitle();
+	@DefaultStringValue("en/user-guide.pdf")
+	String helpFileName();
+	@DefaultStringValue("User Guide")
+	String helpFileCaption();
 	@DefaultStringValue("Class")
 	String courseClassAdmin();
 	@DefaultStringValue("Institution")

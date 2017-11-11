@@ -164,13 +164,14 @@ object RegistrationEnrollmentService {
   }
 
   private def deanUpdateExistingEnrollment(person: Person, enrollment: Enrollment, institutionUUID: String, dean: Person, cancelEnrollment: Boolean) = {
+    val enrollerUUID = if (dean == null) null else dean.getUUID
     if (cancelEnrollment && !EnrollmentState.cancelled.equals(enrollment.getState))
-      EventsRepo.logEnrollmentStateChanged(UUID.random, dean.getUUID, enrollment.getUUID, enrollment.getState, EnrollmentState.cancelled, enrollment.getCourseVersionUUID == null, null)
+      EventsRepo.logEnrollmentStateChanged(UUID.random, enrollerUUID, enrollment.getUUID, enrollment.getState, EnrollmentState.cancelled, enrollment.getCourseVersionUUID == null, null)
     else if (!cancelEnrollment && (EnrollmentState.cancelled.equals(enrollment.getState)
       || EnrollmentState.deleted.equals(enrollment.getState())
       || EnrollmentState.requested.equals(enrollment.getState())
       || EnrollmentState.denied.equals(enrollment.getState()))) {
-      EventsRepo.logEnrollmentStateChanged(UUID.random, dean.getUUID, enrollment.getUUID, enrollment.getState, EnrollmentState.enrolled, enrollment.getCourseVersionUUID == null, null)
+      EventsRepo.logEnrollmentStateChanged(UUID.random, enrollerUUID, enrollment.getUUID, enrollment.getState, EnrollmentState.enrolled, enrollment.getCourseVersionUUID == null, null)
     }
   }
 
