@@ -490,4 +490,31 @@ object Entities {
     emailTemplate.setTemplate(template)
     emailTemplate
   }
+
+  def newTrack(uuid: String, institutionUUID: String, name: String) = {
+    val track = factory.newTrack.as
+    track.setUUID(uuid)
+    track.setInstitutionUUID(institutionUUID)
+    track.setName(name)
+    track
+  }
+
+  def newTrackEnrollment(uuid: String, personUUID: String, trackUUID: String) = {
+    val trackEnrollment = factory.newTrackEnrollment.as
+    trackEnrollment.setUUID(uuid)
+    trackEnrollment.setPersonUUID(personUUID)
+    trackEnrollment.setTrackUUID(trackUUID)
+    trackEnrollment
+  }
+
+  def newTrackItem(uuid: String, courseVersionUUID: String, parentUUID: String, order: Integer, havingPreRequirements: Boolean, startDate: Date) = {
+    val trackItem = factory.newTrackItem.as
+    trackItem.setUUID(uuid)
+    trackItem.setCourseVersionUUID(courseVersionUUID)
+    trackItem.setParentUUID(parentUUID)
+    trackItem.setOrder(order)
+    trackItem.setHavingPreRequirements(havingPreRequirements)
+    trackItem.setStartDate(startDate)
+    trackItem
+  }
 }

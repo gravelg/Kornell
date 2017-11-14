@@ -53,6 +53,9 @@ import kornell.server.repository.TOs._
 import kornell.server.repository.TOs
 import kornell.core.entity.EmailTemplateType
 import kornell.core.entity.EmailTemplate
+import kornell.core.entity.Track
+import kornell.core.entity.TrackEnrollment
+import kornell.core.entity.TrackItem
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -444,4 +447,22 @@ package object repository {
     rs.getString("locale"),
     rs.getString("title"),
     rs.getString("template"))
+
+  implicit def toTrack(rs: ResultSet): Track = newTrack(
+    rs.getString("uuid"),
+    rs.getString("institutionUUID"),
+    rs.getString("name"))
+
+  implicit def toTrackEnrollment(rs: ResultSet): TrackEnrollment = newTrackEnrollment(
+    rs.getString("uuid"),
+    rs.getString("personUUID"),
+    rs.getString("trackUUID"))
+
+  implicit def toTrackItem(rs: ResultSet): TrackItem = newTrackItem(
+    rs.getString("uuid"),
+    rs.getString("courseVersionUUID"),
+    rs.getString("parentUUID"),
+    rs.getInt("order"),
+    rs.getBoolean("hasPreRequirements"),
+    rs.getTimestamp("startDate"))
 }
