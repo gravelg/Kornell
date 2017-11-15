@@ -332,9 +332,11 @@ public class GenericAdminAuditView extends Composite implements AdminAuditView {
 			final String actionName = text;
 			cell = new AuditActionsActionCell<EntityChanged>(text, delegate) {
 				@Override
-				public void render(com.google.gwt.cell.client.Cell.Context context, EntityChanged object, SafeHtmlBuilder sb) {
+				public void render(com.google.gwt.cell.client.Cell.Context context, EntityChanged entityChanged, SafeHtmlBuilder sb) {
+					if(!("Gerenciar".equals(actionName) && "DELETED_ENTITY".equals(entityChanged.getEntityName()))){
 						SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(actionName));
 						sb.append(html);
+					}
 				}
 				
 				private String buildButtonHTML(String actionName){

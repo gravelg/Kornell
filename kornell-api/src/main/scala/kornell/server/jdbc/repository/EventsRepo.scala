@@ -213,17 +213,37 @@ object EventsRepo {
    def getEntityName(entityChanged: EntityChanged): String = {
       entityChanged.getEntityType match {
 	      case AuditedEntityType.person | 
-	      	AuditedEntityType.password => PersonRepo(entityChanged.getEntityUUID).first.get.getFullName
+	      	AuditedEntityType.password => {
+	      	  val person = PersonRepo(entityChanged.getEntityUUID).first
+	      	  if(person.isDefined){
+	      	    person.get.getFullName
+	      	  } else "DELETED_ENTITY"
+	      	}
 	      case AuditedEntityType.institution | 
 	      	AuditedEntityType.institutionAdmin | 
 	      	AuditedEntityType.institutionHostName | 
 	      	AuditedEntityType.institutionEmailWhitelist => InstitutionsRepo.getByUUID(entityChanged.getEntityUUID).get.getName
-	      case AuditedEntityType.course => CourseRepo(entityChanged.getEntityUUID).first.get.getName
-	      case AuditedEntityType.courseVersion => CourseVersionRepo(entityChanged.getEntityUUID).first.get.getName
+	      case AuditedEntityType.course => {
+	      	  val course = CourseRepo(entityChanged.getEntityUUID).first
+	      	  if(course.isDefined){
+	      	    course.get.getName
+	      	  } else "DELETED_ENTITY"
+	      	}
+	      case AuditedEntityType.courseVersion => {
+	      	  val courseVersion = CourseVersionRepo(entityChanged.getEntityUUID).first
+	      	  if(courseVersion.isDefined){
+	      	    courseVersion.get.getName
+	      	  } else "DELETED_ENTITY"
+	      	}
 	      case AuditedEntityType.courseClass | 
 	      	AuditedEntityType.courseClassAdmin | 
 	      	AuditedEntityType.courseClassObserver |
-	      	AuditedEntityType.courseClassTutor =>  CourseClassRepo(entityChanged.getEntityUUID).first.get.getName
+	      	AuditedEntityType.courseClassTutor =>  {
+	      	  val courseClass = CourseClassRepo(entityChanged.getEntityUUID).first
+	      	  if(courseClass.isDefined){
+	      	    courseClass.get.getName
+	      	  } else "DELETED_ENTITY"
+	      	}
 	      case _ => "FIX-ME"
       }
    } 
