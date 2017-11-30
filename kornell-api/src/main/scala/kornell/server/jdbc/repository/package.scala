@@ -64,58 +64,57 @@ import kornell.core.entity.EmailTemplate
  * find() => Return Collection[T], as the result of a query
  */
 package object repository {
-  
+
   val logger = Logger.getLogger("kornell.server.jdbc.repository")
 
-
   //TODO: Move converters to their repos
-  implicit def toInstitution(rs:ResultSet):Institution = 
-    newInstitution(rs.getString("uuid"), 
-        rs.getString("name"),  
-        rs.getString("fullName"), 
-        rs.getString("terms"),
-        rs.getString("baseURL"),
-        rs.getBoolean("demandsPersonContactDetails"),
-        rs.getBoolean("validatePersonContactDetails"),
-        rs.getBoolean("allowRegistration"),
-        rs.getBoolean("allowRegistrationByUsername"),
-        rs.getDate("activatedAt"),
-        rs.getString("skin"),
-        BillingType.valueOf(rs.getString("billingType")),
-        InstitutionType.valueOf(rs.getString("institutionType")),
-        rs.getString("dashboardVersionUUID"),
-        rs.getBoolean("useEmailWhitelist"),
-        rs.getString("assetsRepositoryUUID"),
-        rs.getString("timeZone"),
-        rs.getString("institutionSupportEmail"),
-        rs.getBoolean("advancedMode"),
-        rs.getBoolean("notifyInstitutionAdmins"),
-        rs.getString("allowedLanguages"))
-        
-  implicit def toContentRepository(rs:ResultSet):ContentRepository = 
+  implicit def toInstitution(rs: ResultSet): Institution =
+    newInstitution(rs.getString("uuid"),
+      rs.getString("name"),
+      rs.getString("fullName"),
+      rs.getString("terms"),
+      rs.getString("baseURL"),
+      rs.getBoolean("demandsPersonContactDetails"),
+      rs.getBoolean("validatePersonContactDetails"),
+      rs.getBoolean("allowRegistration"),
+      rs.getBoolean("allowRegistrationByUsername"),
+      rs.getDate("activatedAt"),
+      rs.getString("skin"),
+      BillingType.valueOf(rs.getString("billingType")),
+      InstitutionType.valueOf(rs.getString("institutionType")),
+      rs.getString("dashboardVersionUUID"),
+      rs.getBoolean("useEmailWhitelist"),
+      rs.getString("assetsRepositoryUUID"),
+      rs.getString("timeZone"),
+      rs.getString("institutionSupportEmail"),
+      rs.getBoolean("advancedMode"),
+      rs.getBoolean("notifyInstitutionAdmins"),
+      rs.getString("allowedLanguages"))
+
+  implicit def toContentRepository(rs: ResultSet): ContentRepository =
     newContentRepository(rs.getString("uuid"),
-        RepositoryType.valueOf(rs.getString("repositoryType")),
-        rs.getString("accessKeyId"),
-        rs.getString("secretAccessKey"),
-        rs.getString("bucketName"),
-        rs.getString("prefix"),
-        rs.getString("region"),
-        rs.getString("institutionUUID"),
-        rs.getString("path"))
-  
-  implicit def toCourseClass(r: ResultSet): CourseClass = 
-    newCourseClass(r.getString("uuid"), r.getString("name"), 
-        r.getString("courseVersionUUID"), r.getString("institutionUUID"),
-        r.getBigDecimal("requiredScore"), r.getBoolean("publicClass"), 
-        r.getBoolean("overrideEnrollments"),
-        r.getBoolean("invisible"), r.getInt("maxEnrollments"), 
-        r.getDate("createdAt"), r.getString("createdBy"), 
-        EntityState.valueOf(r.getString("state")), 
-        RegistrationType.valueOf(r.getString("registrationType")),
-        r.getString("institutionRegistrationPrefixUUID"), r.getBoolean("courseClassChatEnabled"), 
-        r.getBoolean("chatDockEnabled"), r.getBoolean("allowBatchCancellation"),  
-        r.getBoolean("tutorChatEnabled"), r.getBoolean("approveEnrollmentsAutomatically"),
-        r.getDate("startDate"), r.getString("pagseguroId"), r.getString("thumbUrl")) 
+      RepositoryType.valueOf(rs.getString("repositoryType")),
+      rs.getString("accessKeyId"),
+      rs.getString("secretAccessKey"),
+      rs.getString("bucketName"),
+      rs.getString("prefix"),
+      rs.getString("region"),
+      rs.getString("institutionUUID"),
+      rs.getString("path"))
+
+  implicit def toCourseClass(r: ResultSet): CourseClass =
+    newCourseClass(r.getString("uuid"), r.getString("name"),
+      r.getString("courseVersionUUID"), r.getString("institutionUUID"),
+      r.getBigDecimal("requiredScore"), r.getBoolean("publicClass"),
+      r.getBoolean("overrideEnrollments"),
+      r.getBoolean("invisible"), r.getInt("maxEnrollments"),
+      r.getDate("createdAt"), r.getString("createdBy"),
+      EntityState.valueOf(r.getString("state")),
+      RegistrationType.valueOf(r.getString("registrationType")),
+      r.getString("institutionRegistrationPrefixUUID"), r.getBoolean("courseClassChatEnabled"),
+      r.getBoolean("chatDockEnabled"), r.getBoolean("allowBatchCancellation"),
+      r.getBoolean("tutorChatEnabled"), r.getBoolean("approveEnrollmentsAutomatically"),
+      r.getDate("startDate"), r.getString("ecommerceIdentifier"), r.getString("thumbUrl"))
 
   implicit def toCourse(rs: ResultSet): Course = newCourse(
     rs.getString("uuid"),
@@ -128,14 +127,14 @@ package object repository {
     rs.getBoolean("childCourse"),
     rs.getString("thumbUrl"),
     ContentSpec.valueOf(rs.getString("contentSpec")))
-    
+
   implicit def toCourseTO(rs: ResultSet): CourseTO = newCourseTO(
-      toCourse(rs))
+    toCourse(rs))
 
   implicit def toCourseVersion(rs: ResultSet): CourseVersion = newCourseVersion(
-    rs.getString("uuid"), 
-    rs.getString("name"), 
-    rs.getString("courseUUID"), 
+    rs.getString("uuid"),
+    rs.getString("name"),
+    rs.getString("courseUUID"),
     rs.getDate("versionCreatedAt"),
     rs.getString("distributionPrefix"),
     EntityState.valueOf(rs.getString("state")),
@@ -143,90 +142,90 @@ package object repository {
     rs.getString("parentVersionUUID"),
     rs.getInt("instanceCount"),
     rs.getString("label"),
-    rs.getString("thumbUrl"))    
-  
+    rs.getString("thumbUrl"))
+
   implicit def toCourseClassTO(rs: ResultSet): CourseClassTO = {
     val course = newCourse(
-    		rs.getString("courseUUID"), 
-		    rs.getString("code"), 
-		    rs.getString("name"),
-		    rs.getString("description"), 
-		    rs.getString("infoJson"),
-        EntityState.valueOf(rs.getString("state")),
-		    rs.getString("institutionUUID"),
-		    rs.getBoolean("childCourse"),
-		    rs.getString("courseThumbUrl"),
-		    ContentSpec.valueOf(rs.getString("contentSpec")));
+      rs.getString("courseUUID"),
+      rs.getString("code"),
+      rs.getString("name"),
+      rs.getString("description"),
+      rs.getString("infoJson"),
+      EntityState.valueOf(rs.getString("state")),
+      rs.getString("institutionUUID"),
+      rs.getBoolean("childCourse"),
+      rs.getString("courseThumbUrl"),
+      ContentSpec.valueOf(rs.getString("contentSpec")));
 
     val version = newCourseVersion(
-        rs.getString("courseVersionUUID"), 
-		    rs.getString("courseVersionName"), 
-		    rs.getString("courseUUID"), 
-		    rs.getDate("versionCreatedAt"),
-		    rs.getString("distributionPrefix"),
-        EntityState.valueOf(rs.getString("courseVersionState")),
-		    rs.getBoolean("disabled"),
-        rs.getString("parentVersionUUID"),
-        rs.getInt("instanceCount"),
-        rs.getString("label"),
-        rs.getString("courseVersionThumbUrl"));
+      rs.getString("courseVersionUUID"),
+      rs.getString("courseVersionName"),
+      rs.getString("courseUUID"),
+      rs.getDate("versionCreatedAt"),
+      rs.getString("distributionPrefix"),
+      EntityState.valueOf(rs.getString("courseVersionState")),
+      rs.getBoolean("disabled"),
+      rs.getString("parentVersionUUID"),
+      rs.getInt("instanceCount"),
+      rs.getString("label"),
+      rs.getString("courseVersionThumbUrl"));
 
     val clazz = newCourseClass(
-			rs.getString("courseClassUUID"),
-			rs.getString("courseClassName"), 
-			rs.getString("courseVersionUUID"), 
-			rs.getString("institutionUUID"),
-			rs.getBigDecimal("requiredScore"),
-			rs.getBoolean("publicClass"),
-			rs.getBoolean("overrideEnrollments"),
-			rs.getBoolean("invisible"),
-			rs.getInt("maxEnrollments"),
-			rs.getDate("createdAt"),
-			rs.getString("createdBy"), 
-			EntityState.valueOf(rs.getString("courseClassState")), 
-			RegistrationType.valueOf(rs.getString("registrationType")),
-			rs.getString("institutionRegistrationPrefixUUID"),
-			rs.getBoolean("courseClassChatEnabled"),
-			rs.getBoolean("chatDockEnabled"),
-			rs.getBoolean("allowBatchCancellation"),  
-			rs.getBoolean("tutorChatEnabled"),
-			rs.getBoolean("approveEnrollmentsAutomatically"),
-			null,
-			rs.getString("pagseguroId"),
-			rs.getString("courseClassThumbUrl"))
-    		
+      rs.getString("courseClassUUID"),
+      rs.getString("courseClassName"),
+      rs.getString("courseVersionUUID"),
+      rs.getString("institutionUUID"),
+      rs.getBigDecimal("requiredScore"),
+      rs.getBoolean("publicClass"),
+      rs.getBoolean("overrideEnrollments"),
+      rs.getBoolean("invisible"),
+      rs.getInt("maxEnrollments"),
+      rs.getDate("createdAt"),
+      rs.getString("createdBy"),
+      EntityState.valueOf(rs.getString("courseClassState")),
+      RegistrationType.valueOf(rs.getString("registrationType")),
+      rs.getString("institutionRegistrationPrefixUUID"),
+      rs.getBoolean("courseClassChatEnabled"),
+      rs.getBoolean("chatDockEnabled"),
+      rs.getBoolean("allowBatchCancellation"),
+      rs.getBoolean("tutorChatEnabled"),
+      rs.getBoolean("approveEnrollmentsAutomatically"),
+      null,
+      rs.getString("ecommerceIdentifier"),
+      rs.getString("courseClassThumbUrl"))
+
     TOs.newCourseClassTO(course, version, clazz, rs.getString("institutionRegistrationPrefixName"))
   }
-  
+
   implicit def toCourseVersionTO(rs: ResultSet): CourseVersionTO = {
     val courseVersion = newCourseVersion(
-        rs.getString("courseVersionUUID"), 
-        rs.getString("courseVersionName"), 
-        rs.getString("courseUUID"), 
-        rs.getDate("versionCreatedAt"), 
-        rs.getString("distributionPrefix"), 
-        EntityState.valueOf(rs.getString("courseVersionState")),
-        rs.getBoolean("courseVersionDisabled"),
-        rs.getString("parentVersionUUID"),
-        rs.getInt("instanceCount"),
-        rs.getString("label"),
-        rs.getString("courseVersionThumbUrl"))
-        
+      rs.getString("courseVersionUUID"),
+      rs.getString("courseVersionName"),
+      rs.getString("courseUUID"),
+      rs.getDate("versionCreatedAt"),
+      rs.getString("distributionPrefix"),
+      EntityState.valueOf(rs.getString("courseVersionState")),
+      rs.getBoolean("courseVersionDisabled"),
+      rs.getString("parentVersionUUID"),
+      rs.getInt("instanceCount"),
+      rs.getString("label"),
+      rs.getString("courseVersionThumbUrl"))
+
     val course = newCourse(
-        rs.getString("courseUUID"), 
-        rs.getString("courseCode"), 
-        rs.getString("courseName"), 
-        rs.getString("courseDescription"), 
-        rs.getString("infoJson"),
-        EntityState.valueOf(rs.getString("courseState")),
-        rs.getString("institutionUUID"),
-        rs.getBoolean("childCourse"),
-        rs.getString("courseThumbUrl"),
-        ContentSpec.valueOf(rs.getString("contentSpec")))
-        
+      rs.getString("courseUUID"),
+      rs.getString("courseCode"),
+      rs.getString("courseName"),
+      rs.getString("courseDescription"),
+      rs.getString("infoJson"),
+      EntityState.valueOf(rs.getString("courseState")),
+      rs.getString("institutionUUID"),
+      rs.getBoolean("childCourse"),
+      rs.getString("courseThumbUrl"),
+      ContentSpec.valueOf(rs.getString("contentSpec")))
+
     TOs.newCourseVersionTO(course, courseVersion)
   }
-  
+
   implicit def toEnrollment(rs: ResultSet): Enrollment = {
     newEnrollment(
       rs.getString("uuid"),
@@ -234,12 +233,12 @@ package object repository {
       rs.getString("courseClassUUID"),
       rs.getString("personUUID"),
       rs.getInt("progress"),
-      rs.getString("notes"),      
+      rs.getString("notes"),
       EnrollmentState.valueOf(rs.getString("state")),
       rs.getTimestamp("lastProgressUpdate"),
       Option(rs.getString("assessment"))
-      	.map(Assessment.valueOf)
-      	.getOrElse(null),
+        .map(Assessment.valueOf)
+        .getOrElse(null),
       rs.getTimestamp("lastAssessmentUpdate"),
       rs.getBigDecimal("assessmentScore"),
       rs.getTimestamp("certifiedAt"),
@@ -249,10 +248,8 @@ package object repository {
       rs.getDate("end_date"),
       rs.getBigDecimal("preAssessmentScore"),
       rs.getBigDecimal("postAssessmentScore"),
-      EnrollmentSource.valueOf(rs.getString("enrollmentSource"))
-    )
+      EnrollmentSource.valueOf(rs.getString("enrollmentSource")))
   }
-    
 
   implicit def toEnrollmentTO(rs: ResultSet): EnrollmentTO = {
     val enrollment = newEnrollment(
@@ -261,47 +258,46 @@ package object repository {
       rs.getString("courseClassUUID"),
       rs.getString("personUUID"),
       rs.getInt("progress"),
-      rs.getString("notes"),      
+      rs.getString("notes"),
       EnrollmentState.valueOf(rs.getString("state")),
       rs.getTimestamp("lastProgressUpdate"),
       Option(rs.getString("assessment"))
-      	.map(Assessment.valueOf)
-      	.getOrElse(null),
+        .map(Assessment.valueOf)
+        .getOrElse(null),
       rs.getTimestamp("lastAssessmentUpdate"),
       rs.getBigDecimal("assessmentScore"),
-      rs.getTimestamp("certifiedAt")
-    )
-    
+      rs.getTimestamp("certifiedAt"))
+
     TOs.newEnrollmentTO(enrollment, rs.getString("personUUID"), rs.getString("fullName"), rs.getString("username"))
   }
-	
-	implicit def toPerson(rs:ResultSet):Person = newPerson(
-	    rs.getString("uuid"),
-	    rs.getString("fullName"), 
-	    rs.getString("lastPlaceVisited"),
-	    rs.getString("email"),
-	    rs.getString("company"),
-	    rs.getString("title"),
-	    rs.getString("sex"),
-	    rs.getDate("birthDate"),
-	    rs.getString("confirmation"),
-	    rs.getString("telephone"),
-	    rs.getString("country"),
-	    rs.getString("state"),
-	    rs.getString("city"),
-	    rs.getString("addressLine1"),
-	    rs.getString("addressLine2"),
-	    rs.getString("postalCode"),
-	    rs.getString("cpf"),
-	    rs.getString("institutionUUID"),
-	    rs.getTimestamp("termsAcceptedOn"),
-	    RegistrationType.valueOf(rs.getString("registrationType")),
-	    rs.getString("institutionRegistrationPrefixUUID"),
-	    rs.getBoolean("receiveEmailCommunication"),
-	    rs.getBoolean("forcePasswordUpdate"))
-	
-	implicit def toPersonTO(rs:ResultSet):PersonTO = newPersonTO(toPerson(rs),
-	    rs.getString("username"))
+
+  implicit def toPerson(rs: ResultSet): Person = newPerson(
+    rs.getString("uuid"),
+    rs.getString("fullName"),
+    rs.getString("lastPlaceVisited"),
+    rs.getString("email"),
+    rs.getString("company"),
+    rs.getString("title"),
+    rs.getString("sex"),
+    rs.getDate("birthDate"),
+    rs.getString("confirmation"),
+    rs.getString("telephone"),
+    rs.getString("country"),
+    rs.getString("state"),
+    rs.getString("city"),
+    rs.getString("addressLine1"),
+    rs.getString("addressLine2"),
+    rs.getString("postalCode"),
+    rs.getString("cpf"),
+    rs.getString("institutionUUID"),
+    rs.getTimestamp("termsAcceptedOn"),
+    RegistrationType.valueOf(rs.getString("registrationType")),
+    rs.getString("institutionRegistrationPrefixUUID"),
+    rs.getBoolean("receiveEmailCommunication"),
+    rs.getBoolean("forcePasswordUpdate"))
+
+  implicit def toPersonTO(rs: ResultSet): PersonTO = newPersonTO(toPerson(rs),
+    rs.getString("username"))
 
   implicit def toRole(rs: java.sql.ResultSet): kornell.core.entity.Role = {
     val roleType = RoleType.valueOf(rs.getString("role"))
@@ -320,75 +316,74 @@ package object repository {
   implicit def toRoleTO(rs: java.sql.ResultSet, bindMode: String): RoleTO = {
     val role = toRole(rs)
     TOs.newRoleTO(role, {
-      if(role != null && RoleCategory.BIND_WITH_PERSON.equals(bindMode))
+      if (role != null && RoleCategory.BIND_WITH_PERSON.equals(bindMode))
         PeopleRepo.getByUUID(role.getPersonUUID).get
       else
         null
     }, rs.getString("username"))
   }
-	
-  implicit def toInstitutionRegistrationPrefix(rs:ResultSet):InstitutionRegistrationPrefix = 
-    newInstitutionRegistrationPrefix(rs.getString("uuid"), 
-        rs.getString("name"),  
-        rs.getString("institutionUUID"), 
-        rs.getBoolean("showEmailOnProfile"),
-        rs.getBoolean("showCPFOnProfile"),
-        rs.getBoolean("showContactInformationOnProfile"))
-	
-	implicit def toUnreadChatThreadTO(rs:ResultSet):UnreadChatThreadTO = newUnreadChatThreadTO(
-	    rs.getString("unreadMessages"),
-	    rs.getString("chatThreadUUID"), 
-	    rs.getString("threadType"),
-	    rs.getString("creatorName"),
-	    rs.getString("entityUUID"),
-	    rs.getString("entityName"))
-	
-	implicit def toChatThreadMessageTO(rs:ResultSet):ChatThreadMessageTO = newChatThreadMessageTO(
-	    rs.getString("senderFullName"),
-	    if(rs.getString("senderRole") == null)
-	      RoleType.user
-	    else
-	      RoleType.valueOf(rs.getString("senderRole")),
-	    rs.getTimestamp("sentAt"), 
-	    rs.getString("message"))
-  
-	implicit def toChatThreadParticipant(rs: ResultSet): ChatThreadParticipant = newChatThreadParticipant(
-	    rs.getString("uuid"),
-	    rs.getString("chatThreadUUID"),
-	    rs.getString("personUUID"),
-	    rs.getString("chatThreadName"),
-	    rs.getTimestamp("lastReadAt"),
-	    rs.getBoolean("active"),
-	    rs.getTimestamp("lastJoinDate"))
-	    
-	implicit def toChatThread(rs: ResultSet): ChatThread = newChatThread(
-	    rs.getString("uuid"), 
-	    rs.getTimestamp("createdAt"), 
-	    rs.getString("institutionUUID"), 
-	    rs.getString("courseClassUUID"), 
-	    rs.getString("personUUID"), 
-	    rs.getString("threadType"), 
-	    rs.getBoolean("active"))
-	    
-	implicit def toTokenTO(rs: ResultSet): TokenTO = newTokenTO(
-	    rs.getString("token"),
-	    rs.getTimestamp("expiry"),
-	    rs.getString("personUUID"),
-	    AuthClientType.valueOf(rs.getString("clientType")))
-	    
+
+  implicit def toInstitutionRegistrationPrefix(rs: ResultSet): InstitutionRegistrationPrefix =
+    newInstitutionRegistrationPrefix(rs.getString("uuid"),
+      rs.getString("name"),
+      rs.getString("institutionUUID"),
+      rs.getBoolean("showEmailOnProfile"),
+      rs.getBoolean("showCPFOnProfile"),
+      rs.getBoolean("showContactInformationOnProfile"))
+
+  implicit def toUnreadChatThreadTO(rs: ResultSet): UnreadChatThreadTO = newUnreadChatThreadTO(
+    rs.getString("unreadMessages"),
+    rs.getString("chatThreadUUID"),
+    rs.getString("threadType"),
+    rs.getString("creatorName"),
+    rs.getString("entityUUID"),
+    rs.getString("entityName"))
+
+  implicit def toChatThreadMessageTO(rs: ResultSet): ChatThreadMessageTO = newChatThreadMessageTO(
+    rs.getString("senderFullName"),
+    if (rs.getString("senderRole") == null)
+      RoleType.user
+    else
+      RoleType.valueOf(rs.getString("senderRole")),
+    rs.getTimestamp("sentAt"),
+    rs.getString("message"))
+
+  implicit def toChatThreadParticipant(rs: ResultSet): ChatThreadParticipant = newChatThreadParticipant(
+    rs.getString("uuid"),
+    rs.getString("chatThreadUUID"),
+    rs.getString("personUUID"),
+    rs.getString("chatThreadName"),
+    rs.getTimestamp("lastReadAt"),
+    rs.getBoolean("active"),
+    rs.getTimestamp("lastJoinDate"))
+
+  implicit def toChatThread(rs: ResultSet): ChatThread = newChatThread(
+    rs.getString("uuid"),
+    rs.getTimestamp("createdAt"),
+    rs.getString("institutionUUID"),
+    rs.getString("courseClassUUID"),
+    rs.getString("personUUID"),
+    rs.getString("threadType"),
+    rs.getBoolean("active"))
+
+  implicit def toTokenTO(rs: ResultSet): TokenTO = newTokenTO(
+    rs.getString("token"),
+    rs.getTimestamp("expiry"),
+    rs.getString("personUUID"),
+    AuthClientType.valueOf(rs.getString("clientType")))
+
   implicit def toSimplePersonTO(rs: ResultSet): SimplePersonTO = newSimplePersonTO(
-      rs.getString("uuid"),
-      rs.getString("fullName"),
-      rs.getString("username"))
-    
+    rs.getString("uuid"),
+    rs.getString("fullName"),
+    rs.getString("username"))
+
   implicit def toDashboardLeaderboardItemTO(rs: ResultSet): DashboardLeaderboardItemTO = newDashboardLeaderboardItemTO(
-      rs.getString("uuid"),
-      rs.getString("fullName"),
-      rs.getString("attribute"))
-        
-   
+    rs.getString("uuid"),
+    rs.getString("fullName"),
+    rs.getString("attribute"))
+
   implicit def toEntityChanged(rs: ResultSet): EntityChanged = newEntityChanged(
-    rs.getString("uuid"), 
+    rs.getString("uuid"),
     rs.getTimestamp("eventFiredAt"),
     rs.getString("institutionUUID"),
     rs.getString("personUUID"),
@@ -398,54 +393,54 @@ package object repository {
     rs.getString("toValue"),
     rs.getString("entityName"),
     rs.getString("fromPersonName"),
-    rs.getString("fromUsername")) 
-    
+    rs.getString("fromUsername"))
+
   implicit def toCourseDetailsHint(rs: ResultSet): CourseDetailsHint = newCourseDetailsHint(
-      rs.getString("uuid"), 
-      rs.getString("title"),
-      rs.getString("text"), 
-      CourseDetailsEntityType.valueOf(rs.getString("entityType")), 
-      rs.getString("entityUUID"), 
-      rs.getInt("index"), 
-      rs.getString("fontAwesomeClassName"))
-      
+    rs.getString("uuid"),
+    rs.getString("title"),
+    rs.getString("text"),
+    CourseDetailsEntityType.valueOf(rs.getString("entityType")),
+    rs.getString("entityUUID"),
+    rs.getInt("index"),
+    rs.getString("fontAwesomeClassName"))
+
   implicit def toCourseDetailsLibrary(rs: ResultSet): CourseDetailsLibrary = newCourseDetailsLibrary(
-      rs.getString("uuid"), 
-      rs.getString("title"), 
-      rs.getString("description"), 
-      CourseDetailsEntityType.valueOf(rs.getString("entityType")), 
-      rs.getString("entityUUID"), 
-      rs.getInt("index"), 
-      rs.getInt("size"), 
-      rs.getString("path"), 
-      rs.getTimestamp("uploadDate"), 
-      rs.getString("fontAwesomeClassName"))
-      
+    rs.getString("uuid"),
+    rs.getString("title"),
+    rs.getString("description"),
+    CourseDetailsEntityType.valueOf(rs.getString("entityType")),
+    rs.getString("entityUUID"),
+    rs.getInt("index"),
+    rs.getInt("size"),
+    rs.getString("path"),
+    rs.getTimestamp("uploadDate"),
+    rs.getString("fontAwesomeClassName"))
+
   implicit def toCourseDetailsSection(rs: ResultSet): CourseDetailsSection = newCourseDetailsSection(
-      rs.getString("uuid"), 
-      rs.getString("title"), 
-      rs.getString("text"), 
-      CourseDetailsEntityType.valueOf(rs.getString("entityType")), 
-      rs.getString("entityUUID"), 
-      rs.getInt("index"))
-      
+    rs.getString("uuid"),
+    rs.getString("title"),
+    rs.getString("text"),
+    CourseDetailsEntityType.valueOf(rs.getString("entityType")),
+    rs.getString("entityUUID"),
+    rs.getInt("index"))
+
   implicit def toCertificateDetails(rs: ResultSet): CertificateDetails = newCertificateDetails(
-      rs.getString("uuid"), 
-      rs.getString("bgImage"),
-      CertificateType.valueOf(rs.getString("certificateType")),
-      CourseDetailsEntityType.valueOf(rs.getString("entityType")), 
-      rs.getString("entityUUID"))
-    
+    rs.getString("uuid"),
+    rs.getString("bgImage"),
+    CertificateType.valueOf(rs.getString("certificateType")),
+    CourseDetailsEntityType.valueOf(rs.getString("entityType")),
+    rs.getString("entityUUID"))
+
   implicit def toPostbackConfig(rs: ResultSet): PostbackConfig = newPostbackConfig(
-      rs.getString("uuid"),
-      rs.getString("institutionUUID"),
-      PostbackType.valueOf(rs.getString("postbackType")),
-      rs.getString("contents"))
+    rs.getString("uuid"),
+    rs.getString("institutionUUID"),
+    PostbackType.valueOf(rs.getString("postbackType")),
+    rs.getString("contents"))
 
   implicit def toEmailTemplate(rs: ResultSet): EmailTemplate = newEmailTemplate(
-      rs.getString("uuid"),
-      EmailTemplateType.valueOf(rs.getString("templateType")),
-      rs.getString("locale"),
-      rs.getString("title"),
-      rs.getString("template"))
+    rs.getString("uuid"),
+    EmailTemplateType.valueOf(rs.getString("templateType")),
+    rs.getString("locale"),
+    rs.getString("title"),
+    rs.getString("template"))
 }

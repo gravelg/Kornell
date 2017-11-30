@@ -31,8 +31,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClass;
-import kornell.core.entity.EntityState;
 import kornell.core.entity.EntityFactory;
+import kornell.core.entity.EntityState;
 import kornell.core.entity.InstitutionRegistrationPrefix;
 import kornell.core.entity.RegistrationType;
 import kornell.core.entity.RoleCategory;
@@ -101,7 +101,7 @@ public class GenericCourseClassConfigView extends Composite {
     private CourseClass courseClass;
     private KornellFormFieldWrapper course, courseVersion, name, publicClass, approveEnrollmentsAutomatically,
     requiredScore, registrationType, institutionRegistrationPrefix, maxEnrollments, overrideEnrollments, invisible, 
-    allowBatchCancellation, courseClassChatEnabled, chatDockEnabled, allowCertification, tutorChatEnabled, pagseguroId;
+    allowBatchCancellation, courseClassChatEnabled, chatDockEnabled, allowCertification, tutorChatEnabled, ecommerceIdentifier;
     private List<KornellFormFieldWrapper> fields;
     private String modalMode;
     private ListBox institutionRegistrationPrefixes;
@@ -166,10 +166,10 @@ public class GenericCourseClassConfigView extends Composite {
         fields.add(maxEnrollments);
         profileFields.add(maxEnrollments);
 
-        if(session.isPlatformAdmin()){            
-            pagseguroId = new KornellFormFieldWrapper("PagSeguro ID", formHelper.createTextBoxFormField(courseClass.getPagseguroId()), isInstitutionAdmin);
-            fields.add(pagseguroId);
-            profileFields.add(pagseguroId);
+        if (session.isPlatformAdmin() && !isCreationMode) {
+            ecommerceIdentifier = new KornellFormFieldWrapper("E-commerce ID", formHelper.createTextBoxFormField(courseClass.getEcommerceIdentifier()), false);
+            fields.add(ecommerceIdentifier);
+            profileFields.add(ecommerceIdentifier);
         }
         
         final ListBox registrationTypes = new ListBox();
@@ -501,9 +501,6 @@ public class GenericCourseClassConfigView extends Composite {
         if(allowPrefixEdit) {
             courseClass.setInstitutionRegistrationPrefixUUID(institutionRegistrationPrefix.getFieldPersistText());
         }
-		if(session.isPlatformAdmin()){
-	        courseClass.setPagseguroId(pagseguroId.getFieldPersistText());
-		}
         return courseClass;
     }
 

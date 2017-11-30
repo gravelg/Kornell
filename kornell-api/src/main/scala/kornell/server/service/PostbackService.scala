@@ -23,72 +23,71 @@ import kornell.server.jdbc.repository.InstitutionRepo
 import java.net.URLEncoder
 import javax.servlet.http.HttpServletRequest
 
-
 object PostbackService {
-  
+
   /**
    * Example pagseguro transaction XML
-  <transaction>
-    <date>2011-02-10T16:13:41.000-03:00</date>  
-    <code>9E884542-81B3-4419-9A75-BCC6FB495EF1</code>  
-    <reference>REF1234</reference>
-    <type>1</type>  
-    <status>3</status>  
-    <paymentMethod>  
-        <type>1</type>  
-        <code>101</code>  
-    </paymentMethod>  
-    <grossAmount>49900.00</grossAmount>  
-    <discountAmount>0.00</discountAmount>
-    <creditorFees>
-        <intermediationRateAmount>0.40</intermediationRateAmount>
-        <intermediationFeeAmount>1644.80</intermediationFeeAmount>
-    </creditorFees> 
-    <netAmount>49900.00</netAmount>  
-    <extraAmount>0.00</extraAmount>  
-    <installmentCount>1</installmentCount>  
-    <itemCount>2</itemCount>  
-    <items>  
-        <item>  
-            <id>aucb1f1e-b36b-11e6-bd35-768f6b6cd8f9</id>  
-            <description>Produto PagSeguroI</description>  
-            <quantity>1</quantity>  
-            <amount>99999.99</amount>  
-        </item>  
-        <item>  
-            <id>0002</id>  
-            <description>Produto PagSeguroII</description>  
-            <quantity>1</quantity>  
-            <amount>99999.98</amount>  
-        </item>  
-    </items>  
-    <sender>  
-        <name>José Comprador</name>  
-        <email>comprador@uol.com.br</email>  
-        <phone>  
-            <areaCode>99</areaCode>  
-            <number>99999999</number>  
-        </phone>  
-    </sender>  
-    <shipping>  
-        <address>  
-            <street>Av. PagSeguro</street>  
-            <number>9999</number>  
-            <complement>99o andar</complement>  
-            <district>Jardim Internet</district>  
-            <postalCode>99999999</postalCode>  
-            <city>Cidade Exemplo</city>  
-            <state>SP</state>  
-            <country>ATA</country>  
-        </address>  
-        <type>1</type>  
-        <cost>21.50</cost>  
-    </shipping>
-	</transaction>
-*/
-  
+   * <transaction>
+   * <date>2011-02-10T16:13:41.000-03:00</date>
+   * <code>9E884542-81B3-4419-9A75-BCC6FB495EF1</code>
+   * <reference>REF1234</reference>
+   * <type>1</type>
+   * <status>3</status>
+   * <paymentMethod>
+   * <type>1</type>
+   * <code>101</code>
+   * </paymentMethod>
+   * <grossAmount>49900.00</grossAmount>
+   * <discountAmount>0.00</discountAmount>
+   * <creditorFees>
+   * <intermediationRateAmount>0.40</intermediationRateAmount>
+   * <intermediationFeeAmount>1644.80</intermediationFeeAmount>
+   * </creditorFees>
+   * <netAmount>49900.00</netAmount>
+   * <extraAmount>0.00</extraAmount>
+   * <installmentCount>1</installmentCount>
+   * <itemCount>2</itemCount>
+   * <items>
+   * <item>
+   * <id>aucb1f1e-b36b-11e6-bd35-768f6b6cd8f9</id>
+   * <description>Produto PagSeguroI</description>
+   * <quantity>1</quantity>
+   * <amount>99999.99</amount>
+   * </item>
+   * <item>
+   * <id>0002</id>
+   * <description>Produto PagSeguroII</description>
+   * <quantity>1</quantity>
+   * <amount>99999.98</amount>
+   * </item>
+   * </items>
+   * <sender>
+   * <name>José Comprador</name>
+   * <email>comprador@uol.com.br</email>
+   * <phone>
+   * <areaCode>99</areaCode>
+   * <number>99999999</number>
+   * </phone>
+   * </sender>
+   * <shipping>
+   * <address>
+   * <street>Av. PagSeguro</street>
+   * <number>9999</number>
+   * <complement>99o andar</complement>
+   * <district>Jardim Internet</district>
+   * <postalCode>99999999</postalCode>
+   * <city>Cidade Exemplo</city>
+   * <state>SP</state>
+   * <country>ATA</country>
+   * </address>
+   * <type>1</type>
+   * <cost>21.50</cost>
+   * </shipping>
+   * </transaction>
+   */
+
   val logger = Logger.getLogger("kornell.server.repository.service.PostbackService")
-  
+
   //Paypal URLs
   //One URL for sandbox transactions, one for live
   val paypal_sandbox_validation_url = "https://www.sandbox.paypal.com/cgi-bin/webscr"
@@ -123,7 +122,7 @@ object PostbackService {
             logger.warning("POSTBACKLOG: Invalid request " + payload)
           }
         } catch {
-          case e: Throwable=>logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + payload, e)
+          case e: Throwable => logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + payload, e)
         } finally {
           DateConverter.clearTimeZone
           try {
@@ -155,10 +154,10 @@ object PostbackService {
       val itemCount = request.getParameter("num_cart_items").toInt
       for (item <- 1 to itemCount) {
         val productCode = request.getParameter("item_number" + item)
-        val courseClass = CourseClassesRepo.byPagseguroId(productCode)
+        val courseClass = CourseClassesRepo.byEcommerceIdentifier(productCode)
         logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Paypal => " +
-              "productId [" + productCode + "] and request [" + prettyParams(request) + "] and " +
-              "institution: [" + institutionUUID + "].")
+          "productId [" + productCode + "] and request [" + prettyParams(request) + "] and " +
+          "institution: [" + institutionUUID + "].")
         val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
         enrollmentRequest.setFullName(name)
         enrollmentRequest.setUsername(email)
@@ -170,8 +169,8 @@ object PostbackService {
       }
     } else {
       logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Paypal => " +
-              "mismatched token [" + request.getParameter("token") + "] and request [" + prettyParams(request) + "] and " +
-              "institution: [" + institutionUUID + "].")
+        "mismatched token [" + request.getParameter("token") + "] and request [" + prettyParams(request) + "] and " +
+        "institution: [" + institutionUUID + "].")
     }
   }
 
@@ -204,10 +203,10 @@ object PostbackService {
     val postbackConfig = PostbackConfigRepo.getConfig(institutionUUID, postbackType).getOrElse(null)
     if (postbackConfig == null) {
       logger.log(Level.SEVERE, "POSTBACKLOG: Missing postback config for Pagseguro transaction ID [" + prettyParams(pagseguroRequest) + "] and " +
-          " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
+        " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
     } else {
       logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback for Pagseguro => transaction ID [" + prettyParams(pagseguroRequest) + "] and " +
-          " institution: [" + institutionUUID + "] and env [" + env + "].")
+        " institution: [" + institutionUUID + "] and env [" + env + "].")
 
       val client = HttpClients.createDefault
       if (pagseguroRequest.getParameter("notificationCode") != null) {
@@ -224,14 +223,14 @@ object PostbackService {
         try {
           processPagseguroResponse(institutionUUID, response_contents)
         } catch {
-          case e: Throwable=>logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + response_contents, e)
+          case e: Throwable => logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + response_contents, e)
         }
       } else {
         //woocommerce form-style POST
         var params = ""
         for (name <- pagseguroRequest.getParameterNames.asScala) {
           // we need to send params exactly as we received them
-         params += "&" + name + "=" + URLEncoder.encode(pagseguroRequest.getParameter(name), "windows-1252")
+          params += "&" + name + "=" + URLEncoder.encode(pagseguroRequest.getParameter(name), "windows-1252")
         }
         val post_url = current_url + "&Token=" + postbackConfig.getContents + params
         val request = new HttpPost(post_url)
@@ -241,7 +240,7 @@ object PostbackService {
           processPagseguroResponseWooCommerce(institutionUUID, pagseguroRequest)
         } else {
           logger.log(Level.SEVERE, "POSTBACKLOG: Cannot validate transaction [" + prettyParams(pagseguroRequest) + "] and " +
-          " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
+            " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
         }
       }
     }
@@ -252,14 +251,14 @@ object PostbackService {
     val name = pagseguroRequest.getParameter("CliNome")
     val pagseguroIds = pagseguroRequest.getParameter("Referencia").split("/")
     for (pagseguroId <- pagseguroIds) {
-      val courseClass = CourseClassesRepo.byPagseguroId(pagseguroId)
+      val courseClass = CourseClassesRepo.byEcommerceIdentifier(pagseguroId)
       if (!courseClass.isDefined || courseClass.get.getInstitutionUUID != institutionUUID) {
-        logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for pagseguroId [" + pagseguroId + "] and " +
-            "institution [" + institutionUUID + "]")
+        logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for ecommerceIdentifier [" + pagseguroId + "] and " +
+          "institution [" + institutionUUID + "]")
       } else {
         logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Pagseguro => " +
-            "pagseguroId [" + pagseguroId + "] and request [" + prettyParams(pagseguroRequest) + "] and " +
-            "institution: [" + institutionUUID + "].")
+          "ecommerceIdentifier [" + pagseguroId + "] and request [" + prettyParams(pagseguroRequest) + "] and " +
+          "institution: [" + institutionUUID + "].")
         val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
         enrollmentRequest.setFullName(name)
         enrollmentRequest.setUsername(user_email)
@@ -278,17 +277,17 @@ object PostbackService {
     val user_email = (response_xml \\ "sender" \\ "email").text
     val name = (response_xml \\ "sender" \\ "name").text
     val pagseguroIds = (response_xml \\ "items" \\ "item" \\ "id")
-    
-    for ( pagseguroId <- pagseguroIds ) {
+
+    for (pagseguroId <- pagseguroIds) {
       val textId = (pagseguroId \\ "id").text
-      val courseClass = CourseClassesRepo.byPagseguroId(textId)
+      val courseClass = CourseClassesRepo.byEcommerceIdentifier(textId)
       if (!courseClass.isDefined || courseClass.get.getInstitutionUUID != institutionUUID) {
-        logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for pagseguroId [" + textId + "] and " +
-            "institution [" + institutionUUID + "], could not process XML " + xmlResponse)
+        logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for ecommerceIdentifier [" + textId + "] and " +
+          "institution [" + institutionUUID + "], could not process XML " + xmlResponse)
       } else {
-        logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Pagseguro => " + 
-            "pagseguroId [" + textId + "] and xmlResponse [" + xmlResponse + "] and " +
-            "institution: [" + institutionUUID + "].")
+        logger.log(Level.INFO, "POSTBACKLOG: Trying to process postback response for Pagseguro => " +
+          "ecommerceIdentifier [" + textId + "] and xmlResponse [" + xmlResponse + "] and " +
+          "institution: [" + institutionUUID + "].")
         val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
         enrollmentRequest.setFullName(name)
         enrollmentRequest.setUsername(user_email)
@@ -303,26 +302,27 @@ object PostbackService {
 
   def createEnrollment(payload: String, postbackType: PostbackType) = {
     val payloadMap = URLEncodedUtils.parse(payload, Charset.forName("utf-8")).asScala.map(t => t.getName -> t.getValue).toMap
-            
+
     val token = getValueFromPayloadMap(payloadMap, "custom").get
-    val courseClassUUID = getValueFromPayloadMap(payloadMap, "item_number").get
-    val institutionUUID = new CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+    val ecommerceIdentifier = getValueFromPayloadMap(payloadMap, "item_number").get
+    val courseClass = CourseClassesRepo.byEcommerceIdentifier(ecommerceIdentifier).get
+    val institutionUUID = courseClass.getInstitutionUUID
     DateConverter.setTimeZone(new InstitutionRepo(institutionUUID).get.getTimeZone)
     val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).getOrElse(null)
-    
+
     if (postbackConfig != null) {
       val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
       val firstName = getValueFromPayloadMap(payloadMap, "first_name")
       val lastName = getValueFromPayloadMap(payloadMap, "last_name")
-      if(firstName.isDefined){
-        if (lastName.isDefined){
+      if (firstName.isDefined) {
+        if (lastName.isDefined) {
           enrollmentRequest.setFullName(firstName.get + " " + lastName.get)
         } else {
           enrollmentRequest.setFullName(firstName.get)
         }
       }
       enrollmentRequest.setUsername(getValueFromPayloadMap(payloadMap, "payer_email").get)
-      enrollmentRequest.setCourseClassUUID(courseClassUUID)
+      enrollmentRequest.setCourseClassUUID(courseClass.getUUID)
       enrollmentRequest.setInstitutionUUID(institutionUUID)
       enrollmentRequest.setRegistrationType(RegistrationType.email)
       enrollmentRequest.setCancelEnrollment(false)
@@ -331,13 +331,13 @@ object PostbackService {
       logger.severe("POSTBACKLOG: Mismatched token for institution " + payload)
     }
   }
-  
+
   def getValueFromPayloadMap(payloadMap: Map[String, String], key: String): Option[String] = {
     try {
-        Some(payloadMap(key))
+      Some(payloadMap(key))
     } catch {
       case e: Throwable => { None }
     }
   }
-  
+
 }

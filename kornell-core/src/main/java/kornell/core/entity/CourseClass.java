@@ -63,7 +63,7 @@ public interface CourseClass extends LearningEntity {
 	Date getStartDate();
 	void setStartDate(Date startDate);
 	
-	String getPagseguroId();
-	void setPagseguroId(String pagseguroId);
+	String getEcommerceIdentifier();
+	void setEcommerceIdentifier(String ecommerceIdentifier);
 	
 }
