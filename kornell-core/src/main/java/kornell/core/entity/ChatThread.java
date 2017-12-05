@@ -22,4 +22,7 @@ public interface ChatThread extends Entity {
 	
 	Boolean isActive();
 	void setActive(Boolean active);
+	
+	Date getLastSentAt();
+	void setLastSentAt(Date lastSentAt);
 }

@@ -352,10 +352,10 @@ package object repository {
     rs.getString("uuid"),
     rs.getString("chatThreadUUID"),
     rs.getString("personUUID"),
-    rs.getString("chatThreadName"),
     rs.getTimestamp("lastReadAt"),
     rs.getBoolean("active"),
-    rs.getTimestamp("lastJoinDate"))
+    rs.getTimestamp("lastJoinDate"),
+    rs.getInt("unreadCount"))
 
   implicit def toChatThread(rs: ResultSet): ChatThread = newChatThread(
     rs.getString("uuid"),
@@ -364,7 +364,8 @@ package object repository {
     rs.getString("courseClassUUID"),
     rs.getString("personUUID"),
     rs.getString("threadType"),
-    rs.getBoolean("active"))
+    rs.getBoolean("active"),
+    rs.getTimestamp("lastSentAt"))
 
   implicit def toTokenTO(rs: ResultSet): TokenTO = newTokenTO(
     rs.getString("token"),
