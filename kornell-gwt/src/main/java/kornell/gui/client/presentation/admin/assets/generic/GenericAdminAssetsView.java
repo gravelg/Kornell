@@ -43,7 +43,7 @@ import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsPresenter;
 import kornell.gui.client.presentation.admin.assets.AdminAssetsView;
 import kornell.gui.client.presentation.admin.common.ConfirmModalView;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
+import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class GenericAdminAssetsView extends Composite implements AdminAssetsView {
@@ -105,9 +105,9 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		this.confirmModal = viewFactory.getConfirmModalView();
 		sectionsCount = 5;
 		initWidget(uiBinder.createAndBindUi(this));
-		WizardUtils.createIcon(sectionsAddButton, "fa-plus-circle");
-		WizardUtils.createIcon(hintsAddButton, "fa-plus-circle");
-		WizardUtils.createIcon(librariesAddButton, "fa-plus-circle");
+		FormHelper.createIcon(sectionsAddButton, "fa-plus-circle");
+		FormHelper.createIcon(hintsAddButton, "fa-plus-circle");
+		FormHelper.createIcon(librariesAddButton, "fa-plus-circle");
 	}
 
 	@Override
@@ -349,7 +349,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 			tooltipMoveUp.setPlacement(Placement.TOP);
 			Button btnMoveUp = new Button();
 			btnMoveUp.addStyleName("btnSelected");
-			WizardUtils.createIcon(btnMoveUp, "fa-download");
+			FormHelper.createIcon(btnMoveUp, "fa-download");
 			tooltipMoveUp.add(btnMoveUp);
 			buttonsBar.add(tooltipMoveUp);
 			btnMoveUp.addClickHandler(new ClickHandler() {
@@ -367,7 +367,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		Button btnDelete = new Button();
 		btnDelete.addClickHandler(deleteClickHandler);
 		btnDelete.addStyleName("btnSelected");
-		WizardUtils.createIcon(btnDelete, "fa-trash");
+		FormHelper.createIcon(btnDelete, "fa-trash");
 		tooltipDelete.add(btnDelete);
 		buttonsBar.add(tooltipDelete);
 		
@@ -376,7 +376,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		Button btnEdit = new Button();
 		btnEdit.addClickHandler(editClickHandler);
 		btnEdit.addStyleName("btnAction");
-		WizardUtils.createIcon(btnEdit, "fa-pencil-square-o");
+		FormHelper.createIcon(btnEdit, "fa-pencil-square-o");
 		tooltipEdit.add(btnEdit);
 		buttonsBar.add(tooltipEdit);
 		
@@ -385,7 +385,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 			tooltipMoveDown.setPlacement(Placement.TOP);
 			Button btnMoveDown = new Button();
 			btnMoveDown.addStyleName("btnSelected");
-			WizardUtils.createIcon(btnMoveDown, "fa-arrow-down");
+			FormHelper.createIcon(btnMoveDown, "fa-arrow-down");
 			tooltipMoveDown.add(btnMoveDown);
 			buttonsBar.add(tooltipMoveDown);
 			btnMoveDown.addClickHandler(buildMoveClickHandler(assetType, assetEntity, "Down"));
@@ -396,7 +396,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 			tooltipMoveUp.setPlacement(Placement.TOP);
 			Button btnMoveUp = new Button();
 			btnMoveUp.addStyleName("btnSelected");
-			WizardUtils.createIcon(btnMoveUp, "fa-arrow-up");
+			FormHelper.createIcon(btnMoveUp, "fa-arrow-up");
 			tooltipMoveUp.add(btnMoveUp);
 			buttonsBar.add(tooltipMoveUp);
 			btnMoveUp.addClickHandler(buildMoveClickHandler(assetType, assetEntity, "Up"));
@@ -433,7 +433,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		
 	    // Add an ok button to the form
 		Button btnOK = new Button();
-		WizardUtils.createIcon(btnOK, "fa-floppy-o");
+		FormHelper.createIcon(btnOK, "fa-floppy-o");
 		btnOK.addStyleName("btnAction");
 		btnOK.addClickHandler(new ClickHandler() {
 			@Override
@@ -449,7 +449,7 @@ public class GenericAdminAssetsView extends Composite implements AdminAssetsView
 		if(exists) {
 		    // Add an delete button to the form
 			Button btnDelete = new Button();
-			WizardUtils.createIcon(btnDelete, "fa-trash");
+			FormHelper.createIcon(btnDelete, "fa-trash");
 			btnDelete.addStyleName("btnSelected");
 			btnDelete.addClickHandler(new ClickHandler() {
 				@Override

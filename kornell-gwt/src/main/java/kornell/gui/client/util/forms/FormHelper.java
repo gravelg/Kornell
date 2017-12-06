@@ -5,7 +5,9 @@ import static kornell.core.util.StringUtils.mkurl;
 import java.util.Date;
 import java.util.List;
 
+import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.CheckBox;
+import com.github.gwtbootstrap.client.ui.Icon;
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.PasswordTextBox;
 import com.github.gwtbootstrap.client.ui.Tab;
@@ -225,6 +227,13 @@ public class FormHelper {
 
 	public static void hideTab(Tab tab) {
 		tab.setHideOn(Device.PHONE);
+	}
+	
+	public static void createIcon(Button btn, String iconClass){
+		Icon icon = new Icon();
+		icon.addStyleName("fa " + iconClass);
+		btn.clear();
+		btn.add(icon);
 	}
 
 	public String getElapsedTimeSince(Date date, Date now) {

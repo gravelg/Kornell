@@ -21,10 +21,6 @@ import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseVersion;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.Wizard;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardElement;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.WizardView;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 
@@ -50,9 +46,6 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 	@UiField
 	FlowPanel wizardContainer;
 
-
-	private Wizard wizard;
-	private WizardElement selectedWizardElement;
 	private CourseVersion courseVersion;
 	private Presenter presenter;
 	
@@ -86,7 +79,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 		
 	    // Add a submit button to the form
 		com.github.gwtbootstrap.client.ui.Button btnOK = new com.github.gwtbootstrap.client.ui.Button();
-		WizardUtils.createIcon(btnOK, "fa-floppy-o");
+		FormHelper.createIcon(btnOK, "fa-floppy-o");
 		btnOK.addStyleName("btnAction");
 		btnOK.addClickHandler(new ClickHandler() {
 			@Override
@@ -103,15 +96,13 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 	}
 
 	@Override
-	public void init(CourseVersion courseVersion, Wizard wizard) {
+	public void init(CourseVersion courseVersion, boolean isWizard) {
 		this.courseVersion = courseVersion;
-		isWizardVersion = (wizard != null);
+		this.isWizardVersion = isWizard;
 		wizardContainer.clear();
 		if(isWizardVersion){
-			this.wizard = wizard;
-			this.selectedWizardElement = presenter.getSelectedWizardElement();
 			wizardView = new WizardView(session, bus);
-			wizardView.init(courseVersion, wizard, presenter);
+			wizardView.init(courseVersion, presenter);
 			wizardContainer.add(wizardView);
 		}
 		courseVersionUpload.setVisible(!isWizardVersion);
