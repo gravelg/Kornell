@@ -1,0 +1,323 @@
+body {
+    background-color: #313131 !important;
+    margin-top: 0;
+}
+
+.panel-default {
+    margin-top: 6px;
+}
+
+.slimScrollDiv, .scroll-body {
+    height: calc(100vh - 0px) !important;
+}
+
+.noPadding {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.text-angular .btn-group {
+    margin-bottom: 5px;
+}
+
+.text-angular .btn-group button,
+.text-angular .btn-group div {
+    height: auto;
+    font-size: 12px;
+    line-height: 12px;
+    padding: 7px;
+    margin-right: 3px;
+}
+
+.text-angular h1, 
+.text-angular h2, 
+.text-angular h3, 
+.text-angular h4, 
+.text-angular h5, 
+.text-angular h6, 
+.text-angular .h1, 
+.text-angular .h2, 
+.text-angular .h3, 
+.text-angular .h4, 
+.text-angular .h5, 
+.text-angular .h6 {
+    color: inherit;
+}
+
+.text-angular .ta-scroll-window > .ta-bind,
+.text-angular .ta-editor.ta-html, 
+.text-angular .ta-scroll-window.form-control {
+    min-height: 120px;
+}
+
+.text-angular-sm .ta-scroll-window > .ta-bind,
+.text-angular-sm .ta-editor.ta-html, 
+.text-angular-sm .ta-scroll-window.form-control {
+    min-height: 70px;
+}
+
+.text-angular-xs .ta-scroll-window > .ta-bind,
+.text-angular-xs .ta-editor.ta-html, 
+.text-angular-xs .ta-scroll-window.form-control {
+    min-height: 40px;
+}
+
+.text-angular-xs .btn-group button, 
+.text-angular-xs .btn-group div {
+    font-size: 10px;
+    line-height: 10px;
+    padding: 5px;
+    margin-right: 3px;
+}
+
+.pagination > li > a, 
+.pagination > li > span {
+    border: 1px solid rgba(43, 159, 214, 0.4);
+}
+
+.noPadding .slimScrollDiv {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.optionDraggableArea {
+    margin: 5px;
+    border: 1px solid rgba(43, 159, 214, 0.4);
+    padding: 10px 10px 0px 10px;
+}
+
+.questionPicker a{
+    width: 30px;
+    border-radius: 0;
+}
+
+.questionPickerButton:first-child {
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.questionPickerButton:last-child {
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.changedFlagIcon {
+    margin-right: 5px;
+    color: #2a9fd6;
+}
+
+.nav-tabs > li {
+    cursor: pointer;
+}
+
+.btn-sm {
+    line-height: 18px;
+}
+
+.btn-sm i {
+    font-size: 20px;
+}
+
+.btn-sm.confirming {
+    line-height: 20px;
+}
+
+.form-control {
+    color: #444444;
+}
+
+.margin-right-5 {
+    margin-right: 5px;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+label {
+    font-size: 16px;
+}
+
+.form-group, .form-title{
+    border-bottom: 1px solid #2b9fd6;  
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+.form-group:last-of-type {
+    border-bottom: none;  
+    margin-bottom: 0px;
+}
+
+.help-block {
+    font-size: 12px;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #444444;
+}
+
+.optionTextArea{
+    width: 90%;
+    float: left;
+    margin-bottom: 5px;
+}
+
+.optionCheckBox{
+    float: left;
+    margin-top: 30px;
+    margin-bottom: 25px;
+}
+
+.checkbox-primary input[type="checkbox"]:checked + label::before, .checkbox-primary input[type="radio"]:checked + label::before {
+    background-color: #2fb0ec;
+    border-color: #2fb0ec;
+}
+
+.checkbox-primary label small {
+    margin-top: 0px;
+    display: block;
+}
+
+.formGroupModal{
+    border: 0;
+    margin: 0;
+}
+
+.btn.disabled, .btn[disabled], fieldset[disabled] .btn {
+    pointer-events: initial;
+}
+
+.nav-tabs > li > a, 
+.nav-tabs > li > a:hover, 
+.nav-tabs > li.active > a, 
+.nav-tabs > li.active > a:hover, 
+.nav-tabs > li.active > a:focus {
+    border: 1px solid #444444;
+}
+
+.tree-control-panel {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    padding-bottom: 8px;
+    padding-left: 4px;
+    border-bottom: 1px solid #2c9fd6;
+}
+
+.angular-ui-tree-handle {
+    background: #f8faff;
+    border: 1px solid #dae2ea;
+    color: #7c9eb2;
+    padding: 5px 10px;
+}
+
+.angular-ui-tree-handle:hover,
+.angular-ui-tree-handle.selected {
+    color: #ffffff;
+    background: #195c7b;
+    border-color: #8e8e8e;
+}
+
+.angular-ui-tree-placeholder {
+    background: #f0f9ff;
+    border: 2px dashed #bed2db;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+tr.angular-ui-tree-empty {
+    height:100px
+}
+
+.angular-ui-tree ol {
+    list-style-type: none;
+    -webkit-margin-before: 0em;
+    -webkit-margin-after: 0em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 15px;
+}
+
+.tree-node-title {
+    width: 95%;
+}
+
+#tree-root {
+    margin-left: -15px; 
+}
+
+.group-title {
+    background-color: #687074 !important;
+    color: #FFF !important;
+}
+
+/* --- Tree --- */
+.tree-node {
+    border: 1px solid #8e8e8e;
+    background: rgba(0, 0, 0, 0.1);
+    color: #b3b8bd;
+}
+
+
+.nodrop {
+    background-color: #f2dede;
+}
+
+.tree-node-content {
+    margin: 4px 0px;
+}
+.tree-handle {
+    padding: 10px;
+    background: #428bca;
+    color: #FFF;
+    margin-right: 10px;
+}
+
+.angular-ui-tree-handle:hover {
+}
+
+.angular-ui-tree-placeholder {
+    background: #41505a;
+    border: 2px dashed #bed2db;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.btn-xxs, .btn-group-xxs > .btn {
+    padding: 1px 3px;
+    font-size: 11px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+@media only screen and (max-width: 1550px)  {
+    .optionTextArea{
+        width: 87%;
+    }
+}
+
+@media only screen and (max-width: 1200px)  {
+    .optionTextArea{
+        width: 84%;
+    }
+}
+
+@media only screen and (max-width: 750px)  {
+    .optionTextArea{
+        width: 77%;
+    }
+}
+
+@media only screen and (max-width: 550px)  {
+    .optionTextArea{
+        width: 68%;
+    }
+}
+
+@media (min-width: 768px) {
+    #page-wrapper {
+        padding: 0px 15px;
+    }
+}

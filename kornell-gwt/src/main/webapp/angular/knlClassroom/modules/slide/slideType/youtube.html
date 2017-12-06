@@ -1,0 +1,32 @@
+<style>
+    .iframe-wrapper {
+        position: relative;
+        /* 
+         Play with this value until you get the right aspect ratio.
+         Note: Percentage based padding is calculated by the width of the containing element.
+         Note 2: This value will be different for every website and/or media query...
+        */
+        padding-top: {{classroomInfo.paddingTopIframe}}%;
+    }
+    .iframe-wrapper iframe {
+        position: absolute;
+        top: 18px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .contentText {
+        text-align: left;
+        font-size: 1em;
+        margin: 18px 0% 0px 0%;
+        color: #{{classroomInfo.colorFont}};
+    }
+</style>
+<div class="innerDiv container" ng-controller="YoutubeSlideController">
+	<div class="iframe-wrapper">
+       <iframe ng-if="slide" ng-src="{{videoLink}}"  frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+	</div>
+    <p class="contentText" ng-bind-html="sce.trustAsHtml(slide.text)"></p>
+</div>

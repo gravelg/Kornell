@@ -1,0 +1,21 @@
+<div id="bg" style="{{bgStyle}}"></div>
+<div ng-show="!slide.hideHeader" class="header" style="background-color: #{{classroomInfo.colorTheme}};">
+	<div class="container">
+		<icon class="fa fa-align-left" style="color: #{{classroomInfo.colorTitle}};"></icon>
+		<span class="title" style="color: #{{classroomInfo.colorTitle}};">&nbsp;{{topic.title}}&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;</span>
+		<span class="subtitle" style="color: #{{classroomInfo.colorTitle}};"><b>{{slide.title}}</b></span>
+	</div>
+</div>
+
+<div class="outerDiv" ng-if="slide">
+	<div class="middleDiv">
+		<div ng-include="'modules/slide/slideType/' + slide.type + '.html'" class="wrapper"></div>
+	</div>
+</div>
+
+<div ng-if="isToggleStructureDebug === true" class="structure-debug">
+	<textarea>{{structureDebug}}</textarea>
+	<i class="fa fa-close" ng-click="toggleStructureDebug()"></i>
+</div>
+
+<i class="fa fa-info-circle toggleStructureDebug" ng-if="isToggleStructureDebug === false" ng-click="toggleStructureDebug()"></i>

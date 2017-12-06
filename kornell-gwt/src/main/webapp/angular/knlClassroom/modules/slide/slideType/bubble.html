@@ -1,0 +1,21 @@
+<style>
+	.speech-bubble {
+	    background: #{{classroomInfo.colorTheme}} !important;
+        color: #{{classroomInfo.colorTitle}} !important;
+	}
+	.speech-bubble:after {
+	    border-color: #{{classroomInfo.colorTheme}} transparent !important;
+	}
+	.speech-bubble.top-right {
+	    background: #{{slide.color2 || classroomInfo.colorTheme}} !important;
+	}
+	.speech-bubble.top-right:after {
+	    border-color: #{{slide.color2 || classroomInfo.colorTheme}} transparent !important;
+	}
+</style>
+<div class="innerDiv container" ng-controller="BubbleSlideController">
+    <p class="speech-bubble" ng-bind-html="sce.trustAsHtml(slide.text)"></p>
+    <img ng-src="{{slide.id.indexOf('//') >= 0 ? slide.id : classroomPath+'images/'+slide.id}}" class="speech-actor"/>
+    <img ng-if="slide.text2 && slide.id2" ng-src="{{slide.id2.indexOf('//') >= 0 ? slide.id2 : classroomPath+'images/'+slide.id2}}" class="speech-actor right"/>
+    <p ng-if="slide.text2" class="speech-bubble top-right" ng-bind-html="sce.trustAsHtml(slide.text2)"></p>
+</div>

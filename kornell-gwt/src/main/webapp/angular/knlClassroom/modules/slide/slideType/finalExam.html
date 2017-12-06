@@ -1,0 +1,121 @@
+<style type="text/css">
+	.bs-callout-info {
+	    border-left-color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.checkbox-primary input[type="checkbox"]:checked + label::before, 
+	.checkbox-primary input[type="radio"]:checked + label::before {
+	    background-color: #{{classroomInfo.colorTheme}} !important;
+	    border-color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.btn-primary {
+	    color: #{{classroomInfo.colorTitle}} !important;
+	    background-color: #{{classroomInfo.colorTheme}} !important;
+	    border-color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.btn-default {
+	    color: #{{classroomInfo.colorFont}} !important;
+	    background-color: #{{classroomInfo.colorBackground}} !important;
+	    border-color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.pagination>li>a, 
+	.pagination>li>span {
+	    color: #{{classroomInfo.colorFont}} !important;
+	    background-color: #{{classroomInfo.colorBackground}} !important;
+	    border-color: #{{classroomInfo.colorTheme}} !important;
+        cursor: pointer;
+	}
+	.pagination>.active>a, 
+	.pagination>.active>a:focus, 
+	.pagination>.active>a:hover, 
+	.pagination>.active>span, 
+	.pagination>.active>span:focus, 
+	.pagination>.active>span:hover {
+	    color: #{{classroomInfo.colorTitle}} !important;
+	    background-color: #{{classroomInfo.colorTheme}} !important;
+	    border-color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.pagination>li>a.disabled {
+	    opacity: .65;
+	}
+	.resultBox {
+    	color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.code {
+    	color: #{{classroomInfo.colorTheme}} !important;
+    	font-weight: bold;
+	}
+	.question-header,
+	.question-option {
+		color: #{{classroomInfo.colorFont}} !important;
+	}
+</style>
+<div class="innerDiv container" ng-controller="FinalExamSlideController">
+	<div id="intro" class="col-md-9" ng-show="!showPanel || showPanel == 'intro'">
+		<div id="content">
+			<h1></h1>
+		</div>
+		<div class="resultBox">
+		    <div class="bs-callout bs-callout-info">
+		        <h3>Avaliação do curso</h3>
+		        <h4>{{classroomInfo.title}}</h4>
+		        <p ng-show="classroomInfo.expectedGrade">A aprovação nesta avaliação é necessária para retirada do certificado.</p>
+		        <ul class="margin-bottom-30">
+		        	<li>Serão <span class="code">{{slide.questions.length}}</span> questões.</li>
+		        	<li ng-show="slide.isMultiple">Existem questões com mais de uma resposta correta.
+					<li ng-show="classroomInfo.expectedGrade">Valor total da avaliação: <span class="code">100</span> pontos.</li>
+					<li ng-show="classroomInfo.expectedGrade">Para ser aprovado é necessário obter <span class="code">{{classroomInfo.expectedGrade}}</span> pontos.</li>
+		        	<li ng-show="classroomInfo.expectedGrade">Caso não seja aprovado você poderá refazer a prova.</li>
+		        </ul>
+		        <p ng-show="classroomInfo.expectedGrade && currentScore && !isApproved" class="margin-bottom-30">É necessário fazer o teste novamente.</p>
+		        <p ng-show="currentScore && isApproved"><br>Você foi aprovado nesta avaliação. Você pode refazê-la se desejar, mas a sua nota continuará a mesma.</p>
+		    	<p ng-show="currentScore" class="">Nota atual: <span class="code">{{currentScore}}</span></p>
+		        <button ng-click="startTest()" class="btn btn-primary btn-sm margin-top-30">{{currentScore ? 'REFAZER' : 'INICIAR'}} A AVALIAÇÃO</button>
+		        <button ng-if="isApproved" ng-click="knlUtils.next()" class="btn btn-primary btn-sm margin-top-30 margin-left-30">AVANÇAR</button>
+		    </div>
+		</div>
+	</div>
+	<div id="main" ng-show="showPanel == 'main'">
+		<div class="row">
+			<div class="text-center">
+				<ul class="pagination pagination-sm">
+					<li ng-repeat="question in slide.questions" class="{{currentQuestionIndex == ($index) ? 'active' : ''}}" >
+						<a ng-click="loadQuestion(($index))" a-disabled="!hasAccessToQuestion($index)">{{($index + 1)}}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<br>
+    	<span class="question-header" ng-bind-html="currentQuestion.text"></span>
+		<form class="option-form" action="#" ng-hide="loading">
+			<fieldset>
+				<div class="checkbox checkbox-primary" ng-repeat="option in currentQuestion.options" >
+					<input ng-model="option.selected" ng-click="clear(this.option)" id="checkbox{{$index}}" type="checkbox">
+					<label for="checkbox{{$index}}" id="label_{{($index)}}">
+						<span class="question-option" ng-bind-html="option.text"></span>
+					</label>
+				</div>
+				<div id="resultWrapper">
+					<button type="button" ng-if="currentQuestionIndex == slide.questions.length - 1" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="finishTest()" class="btn btn-primary btn-sm">CONCLUIR</button>	
+					<button type="button" ng-if="slide.questions.length - 1 > currentQuestionIndex" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="loadNext()" class="btn btn-primary btn-sm">PRÓXIMA</button>	
+					<button type="button" ng-if="currentQuestionIndex >= 1" ng-click="loadPrevious()" class="btn btn-default btn-sm">ANTERIOR</button>		
+				</div>
+			</fieldset>
+		</form>
+	</div>
+	<div id="result" ng-show="showPanel == 'result'">
+		<div class="resultBox">
+		    <div class="bs-callout bs-callout-info">
+		        <h3 ng-show="!isApproved">Tente novamente</h3>
+		        <h3 ng-hide="!isApproved">Parabéns, você foi aprovado(a)!</h3>
+		        <p></p>
+		        <ul class="margin-bottom-30">
+		        	<li>Sua nota: <span class="code">{{cmiScoreRaw}}</span></li>
+		            <li>Valor da avaliação: <span class="code">{{cmiScoreMax}}</span></li>
+		            <li>Você acertou <span class="code">{{totalCorrect}}</span> de <span class="code">{{questionCount}}</span> questões.</li>
+		        </ul>
+		        <button type="button" ng-if="!isApproved" ng-click="init()" class="btn btn-primary btn-sm">REFAZER A AVALIAÇÃO</button>	
+				<button type="button" ng-if="isApproved" ng-click="knlUtils.next()" class="btn btn-primary btn-sm">AVANÇAR</button>	
+		    </div>
+		</div>
+	</div>
+</div>

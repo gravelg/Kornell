@@ -1,0 +1,19 @@
+<style>
+	.imageInnerDiv {
+	    text-align: center;
+	}
+	.imageInnerDiv img {
+	    max-width: {{slide.text && slide.text.length > 0 ? 80 : 100}}%;
+	    padding-top: 18px;
+	}
+	.contentText {
+	    text-align: left;
+	    font-size: 1em;
+        color: #{{classroomInfo.colorFont}};
+        margin: 1% 10%;
+	}
+</style>
+<div class="innerDiv container imageInnerDiv" ng-controller="ImageSlideController">
+    <img ng-src="{{slide.id.indexOf('//') >= 0 ? slide.id : classroomPath+'images/'+slide.id}}"/>
+    <p class="contentText" ng-bind-html="sce.trustAsHtml(slide.text)"></p>
+</div>
