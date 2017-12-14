@@ -312,10 +312,10 @@ app.controller('WizardController', [
       $scope.selectedNodeScope = scope;
       $rootScope.selectedTab = 'edit';
       $scope.previewURL = $sce.trustAsResourceUrl(
-        "/knlClassroom/#!/slide" + 
+        "knlClassroom/#!/slide" + 
         "?preview=1" + 
         "&uuid=" + $scope.selectedNode.uuid +
-        "&classroomPath=/../knl/classroom/");
+        "&classroomPath=/../knl/classroom/index.html");
       var editPanel = $('#editPanel').get(0)
       editPanel && editPanel.scrollIntoView();
     };

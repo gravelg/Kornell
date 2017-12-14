@@ -1,26 +1,8 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui' 
-	xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
-	xmlns:knl="urn:import:kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit">
+	xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
 
-	<g:FlowPanel ui:field="wizardPanel" addStyleNames="courseVersionWizardPanel">
-		<g:FlowPanel ui:field="sideWrapper" addStyleNames="sideWrapper left">
-			<g:FlowPanel addStyleNames="sideButtonsWrapper">
-				<b:Tooltip text="Inserir tópico">
-			    	<b:Button ui:field="btnNewTopic" addStyleNames="btnNotSelected btnStandard left marginRight10"></b:Button>
-				</b:Tooltip>
-				<b:Tooltip text="Inserir slide de conteúdo">
-			    	<b:Button ui:field="btnNewSlide" addStyleNames="btnNotSelected btnStandard left marginRight10"></b:Button>
-				</b:Tooltip>
-				<b:Tooltip text="Inserir slide de questionário">
-		        	<b:Button ui:field="btnNewSlideQuiz" addStyleNames="btnNotSelected btnStandard left"></b:Button>
-				</b:Tooltip>
-		    </g:FlowPanel>
-			<g:ScrollPanel ui:field="sideItemsScroll" addStyleNames="sidePanelScroll left">
-				<g:FlowPanel ui:field="sidePanel" addStyleNames="sidePanel left"></g:FlowPanel>
-			</g:ScrollPanel>
-		</g:FlowPanel>
-    	<knl:WizardSlideView ui:field="wizardSlideView"></knl:WizardSlideView>
+	<g:FlowPanel ui:field="wizardPanel">
 	</g:FlowPanel>
 
 </ui:UiBinder>
