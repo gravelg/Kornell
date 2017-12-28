@@ -4,7 +4,7 @@ import kornell.core.entity.Track
 import kornell.core.util.UUID
 import kornell.server.jdbc.SQL._
 
-class TracksRepo {
+object TracksRepo {
 
   def create(track: Track): Track = {
     if (track.getUUID == null) {

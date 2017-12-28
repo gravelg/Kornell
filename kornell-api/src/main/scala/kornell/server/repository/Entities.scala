@@ -507,10 +507,11 @@ object Entities {
     trackEnrollment
   }
 
-  def newTrackItem(uuid: String, courseVersionUUID: String, parentUUID: String, order: Integer, havingPreRequirements: Boolean, startDate: Date) = {
+  def newTrackItem(uuid: String, courseVersionUUID: String, trackUUID: String, parentUUID: String, order: Integer, havingPreRequirements: Boolean, startDate: Date) = {
     val trackItem = factory.newTrackItem.as
     trackItem.setUUID(uuid)
     trackItem.setCourseVersionUUID(courseVersionUUID)
+    trackItem.setTrackUUID(trackUUID)
     trackItem.setParentUUID(parentUUID)
     trackItem.setOrder(order)
     trackItem.setHavingPreRequirements(havingPreRequirements)

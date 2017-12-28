@@ -461,8 +461,9 @@ package object repository {
   implicit def toTrackItem(rs: ResultSet): TrackItem = newTrackItem(
     rs.getString("uuid"),
     rs.getString("courseVersionUUID"),
+    rs.getString("trackUUID"),
     rs.getString("parentUUID"),
     rs.getInt("order"),
-    rs.getBoolean("hasPreRequirements"),
+    rs.getBoolean("havingPreRequirements"),
     rs.getTimestamp("startDate"))
 }

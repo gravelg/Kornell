@@ -4,7 +4,7 @@ import kornell.server.jdbc.SQL._
 import kornell.core.entity.TrackEnrollment
 import kornell.core.util.UUID
 
-class TrackEnrollmentsRepo {
+object TrackEnrollmentsRepo {
 
   def create(trackEnrollment: TrackEnrollment): TrackEnrollment = {
     if (trackEnrollment.getUUID == null) {

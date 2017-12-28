@@ -13,10 +13,20 @@ class TrackItemRepo(uuid: String) {
   def update(trackItem: TrackItem): TrackItem = {
     sql"""
       update TrackItem set
-      | order = ${trackItem.getOrder},
-      | hasPreRequirements = ${trackItem.isHavingPreRequirements},
+      | `order` = ${trackItem.getOrder},
+      | havingPreRequirements = ${trackItem.isHavingPreRequirements},
       | startDate = ${trackItem.getStartDate}
-      | where uuid = ${trackItem.getUUID}
+      | where uuid = ${uuid}
+    """.executeUpdate
+
+    trackItem
+  }
+
+  def delete: TrackItem = {
+    val trackItem = get
+
+    sql"""
+      delete from TrackItem where uuid = ${uuid}
     """.executeUpdate
 
     trackItem
