@@ -9,6 +9,7 @@ public class Teachers {
 				.getCourseTO().getCourse().getContentSpec();
 		switch (spec) {
 		case KNL:
+		case WIZARD:
 			return new KNLTeacher(courseClassTO);
 		case SCORM12:
 			return new SCORM12Teacher(courseClassTO);

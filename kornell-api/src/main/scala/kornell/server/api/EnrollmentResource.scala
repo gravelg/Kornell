@@ -38,6 +38,7 @@ import kornell.server.jdbc.repository.EnrollmentsRepo
 import kornell.server.jdbc.repository.CourseVersionRepo
 import kornell.core.entity.ContentSpec
 import kornell.server.jdbc.repository.CourseRepo
+import kornell.server.jdbc.repository.EnrollmentRepo
 
 @Produces(Array(Enrollment.TYPE))
 class EnrollmentResource(uuid: String) {

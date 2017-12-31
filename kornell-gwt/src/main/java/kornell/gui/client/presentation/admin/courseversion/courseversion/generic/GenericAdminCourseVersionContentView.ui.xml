@@ -2,7 +2,7 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
 
 	<g:FlowPanel>
-		<g:HTMLPanel addStyleNames="title unclear fillWidth marginBottom25">Conteúdo da Versão do Curso</g:HTMLPanel>
+		<g:HTMLPanel ui:field="title" addStyleNames="title unclear fillWidth marginBottom25">Conteúdo da Versão do Curso</g:HTMLPanel>
 	    <g:FlowPanel ui:field="courseVersionUpload" addStyleNames="fieldsWrapper"></g:FlowPanel>  
 		<g:FlowPanel ui:field="wizardContainer"></g:FlowPanel>
 	</g:FlowPanel>

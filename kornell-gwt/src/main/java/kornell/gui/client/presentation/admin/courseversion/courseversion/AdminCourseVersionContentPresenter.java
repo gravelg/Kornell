@@ -42,6 +42,11 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
 			placeController.goTo(defaultPlace);
 		}
 	}
+	
+	@Override
+	public void upsertCourseVersion(CourseVersion courseVersion, boolean goToListPlace){
+		viewFactory.getAdminCourseVersionPresenter().upsertCourseVersion(courseVersion, goToListPlace);
+	}
 
 	@Override
 	public Widget asWidget() {

@@ -142,6 +142,7 @@ object CourseClassesRepo {
           cv.disabled as disabled,
           cv.parentVersionUUID as parentVersionUUID,
           cv.instanceCount as instanceCount,
+          cv.classroomJson as classroomJson,
           cv.label as label,
           cv.thumbUrl as courseVersionThumbUrl,
           cc.uuid as courseClassUUID,

@@ -7,8 +7,9 @@ import kornell.core.entity.CourseVersion;
 
 public interface AdminCourseVersionView extends IsWidget {
 	public interface Presenter extends IsWidget {
-		void upsertCourseVersion(CourseVersion courseVersion);
 		void buildContentView(CourseVersion courseVersion, ContentSpec contentSpec);
+		void upsertCourseVersion(CourseVersion courseVersion, boolean goToListPlace);
+		void upsertCourseVersion(CourseVersion courseVersion);
 	}
 	void setPresenter(Presenter presenter);
 	Presenter getPresenter();

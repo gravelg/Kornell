@@ -52,6 +52,17 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
 			placeController.goTo(defaultPlace);
 		}
 	}
+	
+	public void eventListener(String message) {
+	    KornellNotification.show("Received a message from child: " + message);
+	    sendIFrameMessage("wow");
+	}
+	
+	private native void sendIFrameMessage(String message) /*-{
+	    var domain = $wnd.location.protocol + "//" + $wnd.location.hostname;
+	    var iframe = $wnd.document.getElementById('angularFrame').contentWindow;
+	    iframe.postMessage(message, domain);
+	}-*/;
 
 	@Override
 	public Widget asWidget() {
@@ -64,6 +75,11 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
 
 	@Override
 	public void upsertCourseVersion(CourseVersion courseVersion) {
+		upsertCourseVersion(courseVersion, true);
+	}
+
+	@Override
+	public void upsertCourseVersion(CourseVersion courseVersion, boolean goToListPlace) {
 		if (courseVersion.getUUID() == null) {
 			session.courseVersions().create(courseVersion, new Callback<CourseVersion>() {
 				@Override
@@ -86,7 +102,9 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
 				public void ok(CourseVersion courseVersion) {
 					bus.fireEvent(new ShowPacifierEvent(false));
 					KornellNotification.show("Alterações salvas com sucesso!");
-					placeController.goTo(new AdminCourseVersionsPlace());
+					if(goToListPlace){
+						placeController.goTo(new AdminCourseVersionsPlace());
+					}
 				}
 
 				@Override

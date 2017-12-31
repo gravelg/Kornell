@@ -76,6 +76,7 @@ object CourseVersionsRepo {
       cv.disabled as courseVersionDisabled,
       cv.parentVersionUUID as parentVersionUUID,
       cv.instanceCount as instanceCount,
+      cv.classroomJson as classroomJson,
       cv.label as label,
       cv.thumbUrl as courseVersionThumbUrl,
       c.uuid as courseUUID,
@@ -149,6 +150,13 @@ object CourseVersionsRepo {
       | and cv.state <> ${EntityState.deleted.toString}
 	    """.first[CourseVersion](toCourseVersion)
   }
+  
+  def byCourseClassUUID(courseClassUUID: String) = sql"""
+	  select * from CourseVersion cv join
+	  CourseClass cc on cc.courseVersionUUID = cv.uuid 
+    where cc.uuid = $courseClassUUID
+    and cv.state <> ${EntityState.deleted.toString}
+  """.first[CourseVersion]
   
   def countByCourse(courseUUID: String) = 
     sql"""select count(*) 

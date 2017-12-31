@@ -12,6 +12,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -41,6 +42,8 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 	private KornellFormFieldWrapper name;
 	private List<KornellFormFieldWrapper> fields;
 
+	@UiField
+	HTMLPanel title;
 	@UiField
 	FlowPanel courseVersionUpload;
 	@UiField
@@ -106,6 +109,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 			wizardContainer.add(wizardView);
 		}
 		courseVersionUpload.setVisible(!isWizardVersion);
+		title.setVisible(!isWizardVersion);
 	}
 	
 	public static native void getFile(String url) /*-{
