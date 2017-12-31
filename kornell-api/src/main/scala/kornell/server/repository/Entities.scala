@@ -376,7 +376,7 @@ object Entities {
     repo
   }
 
-  def newChatThread(uuid: String = null, createdAt: Date = null, institutionUUID: String = null, courseClassUUID: String = null, personUUID: String = null, threadType: String = null, active: Boolean = true) = {
+  def newChatThread(uuid: String = null, createdAt: Date = null, institutionUUID: String = null, courseClassUUID: String = null, personUUID: String = null, threadType: String = null, active: Boolean = true, lastSentAt: Date = null) = {
     val chatThread = factory.newChatThread.as
     chatThread.setUUID(uuid)
     chatThread.setCreatedAt(DateConverter.convertDate(createdAt))
@@ -385,11 +385,12 @@ object Entities {
     chatThread.setPersonUUID(personUUID)
     chatThread.setThreadType(threadType)
     chatThread.setActive(active)
+    chatThread.setLastSentAt(lastSentAt)
     chatThread
   }
 
   def newChatThreadParticipant(uuid: String = null, chatThreadUUID: String = null, personUUID: String = null,
-    chatThreadName: String = null, lastReadAt: Date = null, active: Boolean = false, lastJoinDate: Date = null) = {
+    lastReadAt: Date = null, active: Boolean = false, lastJoinDate: Date = null, unreadCount: Integer = 0) = {
     val chatThreadParticipant = factory.newChatThreadParticipant.as
     chatThreadParticipant.setUUID(uuid)
     chatThreadParticipant.setThreadUUID(chatThreadUUID)
@@ -397,6 +398,7 @@ object Entities {
     chatThreadParticipant.setLastReadAt(DateConverter.convertDate(lastReadAt))
     chatThreadParticipant.setActive(active)
     chatThreadParticipant.setLastJoinDate(DateConverter.convertDate(lastJoinDate))
+    chatThreadParticipant.setUnreadCount(unreadCount)
     chatThreadParticipant
   }
 
@@ -488,5 +490,33 @@ object Entities {
     emailTemplate.setTitle(title)
     emailTemplate.setTemplate(template)
     emailTemplate
+  }
+
+  def newTrack(uuid: String, institutionUUID: String, name: String) = {
+    val track = factory.newTrack.as
+    track.setUUID(uuid)
+    track.setInstitutionUUID(institutionUUID)
+    track.setName(name)
+    track
+  }
+
+  def newTrackEnrollment(uuid: String, personUUID: String, trackUUID: String) = {
+    val trackEnrollment = factory.newTrackEnrollment.as
+    trackEnrollment.setUUID(uuid)
+    trackEnrollment.setPersonUUID(personUUID)
+    trackEnrollment.setTrackUUID(trackUUID)
+    trackEnrollment
+  }
+
+  def newTrackItem(uuid: String, courseVersionUUID: String, trackUUID: String, parentUUID: String, order: Integer, havingPreRequirements: Boolean, startDate: Date) = {
+    val trackItem = factory.newTrackItem.as
+    trackItem.setUUID(uuid)
+    trackItem.setCourseVersionUUID(courseVersionUUID)
+    trackItem.setTrackUUID(trackUUID)
+    trackItem.setParentUUID(parentUUID)
+    trackItem.setOrder(order)
+    trackItem.setHavingPreRequirements(havingPreRequirements)
+    trackItem.setStartDate(startDate)
+    trackItem
   }
 }

@@ -39,6 +39,7 @@ class ReportResource {
   @PUT
   @Path("/certificate")
   @Consumes(Array(SimplePeopleTO.TYPE))
+  @Produces(Array("text/plain"))
   def get(@QueryParam("courseClassUUID") courseClassUUID: String, peopleTO: SimplePeopleTO) = {
     ReportCertificateGenerator.generateCourseClassCertificates(courseClassUUID, peopleTO)
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
@@ -49,6 +50,7 @@ class ReportResource {
 
   @GET
   @Path("courseClassCertificateExists")
+  @Produces(Array("text/plain"))
   def fileExists(@QueryParam("courseClassUUID") courseClassUUID: String) = {
     ReportCertificateGenerator.courseClassCertificateExists(courseClassUUID)
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
@@ -79,7 +81,7 @@ class ReportResource {
     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr()).get
 
   @GET
-  @Path("/institutionBilling")      
+  @Path("/institutionBilling")
   def getInstitutionBilling(@Context resp: HttpServletResponse,
     @QueryParam("institutionUUID") institutionUUID: String,
     @QueryParam("periodStart") periodStart: String,

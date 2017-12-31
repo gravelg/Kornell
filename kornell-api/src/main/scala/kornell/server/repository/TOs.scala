@@ -59,6 +59,10 @@ import kornell.core.to.CourseDetailsLibrariesTO
 import kornell.core.entity.CourseDetailsLibrary
 import kornell.core.to.CourseDetailsSectionsTO
 import kornell.core.entity.CourseDetailsSection
+import kornell.core.to.TrackTO
+import kornell.core.entity.Track
+import kornell.core.to.TrackItemTO
+import kornell.core.entity.TrackItem
 
 //TODO: Consider turning to Object
 object TOs {
@@ -76,7 +80,7 @@ object TOs {
   def newEntityChangedEventsTO: EntityChangedEventsTO = tos.newEntityChangedEventsTO.as
 
   def newEnrollmentsTO(enrollmentList: List[EnrollmentTO]): EnrollmentsTO = {
-    val enrollments:EnrollmentsTO = newEnrollmentsTO
+    val enrollments: EnrollmentsTO = newEnrollmentsTO
     enrollments.setEnrollmentTOs(enrollmentList asJava)
     enrollments.setPageCount(enrollmentList.length)
     enrollments
@@ -87,7 +91,7 @@ object TOs {
     courseTO.setCourse(course)
     courseTO
   }
-  
+
   def newCoursesTO(coursesList: List[CourseTO]): CoursesTO = {
     val courses = newCoursesTO
     courses.setCourses(coursesList.asJava)
@@ -118,7 +122,7 @@ object TOs {
   }
 
   def newEnrollmentTO(enrollment: Enrollment, personUUID: String, fullName: String, username: String): EnrollmentTO = {
-    val enrollmentTO:EnrollmentTO = tos.newEnrollmentTO.as
+    val enrollmentTO: EnrollmentTO = tos.newEnrollmentTO.as
     enrollmentTO.setEnrollment(enrollment)
     enrollmentTO.setPersonUUID(personUUID)
     enrollmentTO.setFullName(fullName)
@@ -138,7 +142,7 @@ object TOs {
   }
 
   def newRegistrationRequestTO: RegistrationRequestTO = tos.newRegistrationRequestTO.as
-  def newRegistrationRequestTO(institutionUUID: String, fullName: String, email: String, password: String,cpf:String=null,username:String=null, registrationType: RegistrationType=null): RegistrationRequestTO = {
+  def newRegistrationRequestTO(institutionUUID: String, fullName: String, email: String, password: String, cpf: String = null, username: String = null, registrationType: RegistrationType = null): RegistrationRequestTO = {
     val to = newRegistrationRequestTO
     to.setInstitutionUUID(institutionUUID)
     to.setFullName(fullName)
@@ -204,7 +208,7 @@ object TOs {
     to
   }
 
-  def newUnreadChatThreadTO: UnreadChatThreadTO = tos.newUnreadChatThreadTO.as 
+  def newUnreadChatThreadTO: UnreadChatThreadTO = tos.newUnreadChatThreadTO.as
   def newUnreadChatThreadTO(unreadMessages: String, chatThreadUUID: String, supportType: String, creatorName: String, entityUUID: String, entityName: String): UnreadChatThreadTO = {
     val to = newUnreadChatThreadTO
     to.setUnreadMessages(unreadMessages)
@@ -223,7 +227,7 @@ object TOs {
     to
   }
 
-  def newChatThreadMessageTO: ChatThreadMessageTO = tos.newChatThreadMessageTO.as 
+  def newChatThreadMessageTO: ChatThreadMessageTO = tos.newChatThreadMessageTO.as
   def newChatThreadMessageTO(senderFullName: String, senderRole: RoleType, sentAt: Date, message: String): ChatThreadMessageTO = {
     val to = newChatThreadMessageTO
     to.setSenderFullName(senderFullName)
@@ -238,13 +242,13 @@ object TOs {
     to.setInstitutionRegistrationPrefixes(l asJava)
     to
   }
-  
+
   def newInstitutionHostNamesTO(l: List[String]) = {
     val to = tos.newInstitutionHostNamesTO().as
     to.setInstitutionHostNames(l asJava)
     to
   }
-  
+
   def newInstitutionEmailWhitelistTO(l: List[String]) = {
     val to = tos.newInstitutionEmailWhitelistTO().as
     to.setDomains(l asJava)
@@ -277,20 +281,20 @@ object TOs {
   def newCourseClassAuditTO(eventFiredAt: Date, eventType: String, adminFullName: String, adminUsername: String, participantFullName: String, participantUsername: String, fromCourseClassName: String, toCourseClassName: String, fromState: String, toState: String, adminUUID: String, participantUUID: String, enrollmentUUID: String, fromCourseClassUUID: String, toCourseClassUUID: String): CourseClassAuditTO = {
     val to = newCourseClassAuditTO
     to.setEventFiredAt(DateConverter.convertDate(eventFiredAt))
-  	to.setEventType(eventType)
-  	to.setAdminFullName(adminFullName)
-  	to.setAdminUsername(adminUsername)
-  	to.setParticipantFullName(participantFullName)
-  	to.setParticipantUsername(participantUsername)
-  	to.setFromCourseClassName(fromCourseClassName)
-  	to.setToCourseClassName(toCourseClassName)
-  	to.setFromState(fromState)
-  	to.setToState(toState)
-  	to.setAdminUUID(adminUUID)
-  	to.setParticipantUUID(participantUUID)
-  	to.setEnrollmentUUID(enrollmentUUID)
-  	to.setFromCourseClassUUID(fromCourseClassUUID)
-  	to.setToCourseClassUUID(toCourseClassUUID)
+    to.setEventType(eventType)
+    to.setAdminFullName(adminFullName)
+    to.setAdminUsername(adminUsername)
+    to.setParticipantFullName(participantFullName)
+    to.setParticipantUsername(participantUsername)
+    to.setFromCourseClassName(fromCourseClassName)
+    to.setToCourseClassName(toCourseClassName)
+    to.setFromState(fromState)
+    to.setToState(toState)
+    to.setAdminUUID(adminUUID)
+    to.setParticipantUUID(participantUUID)
+    to.setEnrollmentUUID(enrollmentUUID)
+    to.setFromCourseClassUUID(fromCourseClassUUID)
+    to.setToCourseClassUUID(toCourseClassUUID)
     to
   }
 
@@ -299,14 +303,14 @@ object TOs {
     ps.setPeopleTO(people.asJava)
     ps
   }
-  
+
   def newPersonTO(person: Person, username: String) = {
     val p = tos.newPersonTO.as
     p.setPerson(person)
     p.setUsername(username)
     p
   }
-  
+
   def newTokenTO(token: String, expiry: Date, personUUID: String, clientType: AuthClientType) = {
     val to = tos.newTokenTO.as
     to.setToken(token)
@@ -315,7 +319,7 @@ object TOs {
     to.setClientType(clientType)
     to
   }
-  
+
   def newSimplePersonTO(personUUID: String, fullName: String, username: String) = {
     val to = tos.newSimplePersonTO.as
     to.setPersonUUID(personUUID)
@@ -323,13 +327,13 @@ object TOs {
     to.setUsername(username)
     to
   }
-  
+
   def newSimplePeopleTO(simplePeople: List[SimplePersonTO]) = {
     val to = tos.newSimplePeopleTO.as
     to.setSimplePeopleTO(simplePeople.asJava)
     to
   }
-  
+
   def newDashboardLeaderboardItemTO(personUUID: String, fullName: String, attribute: String) = {
     val to = tos.newDashboardLeaderboardItemTO.as
     to.setPersonUUID(personUUID)
@@ -337,7 +341,7 @@ object TOs {
     to.setAttribute(attribute)
     to
   }
-  
+
   def newDashboardLeaderboardTO(dashboardLeaderboardItems: List[DashboardLeaderboardItemTO]) = {
     val to = tos.newDashboardLeaderboardTO.as
     to.setDashboardLeaderboardItems(dashboardLeaderboardItems.asJava)
@@ -348,20 +352,20 @@ object TOs {
     val to = tos.newEnrollmentLaunchTO().as()
     to
   }
-  
+
   def newEntityChanged(uuid: String, eventFiredAt: Date, institutionUUID: String, fromPersonUUID: String, entityType: AuditedEntityType, entityUUID: String, fromValue: String, toValue: String, entityName: String, fromPersonName: String, fromUsername: String) = {
     val event = events.newEntityChanged.as
     event.setUUID(uuid)
     event.setEventFiredAt(DateConverter.convertDate(eventFiredAt))
-  	event.setInstitutionUUID(institutionUUID)
-  	event.setFromPersonUUID(fromPersonUUID)
-  	event.setEntityType(entityType)
-  	event.setEntityUUID(entityUUID)
-  	event.setFromValue(fromValue)
-  	event.setToValue(toValue)
-  	event.setEntityName(entityName)
-  	event.setFromPersonName(fromPersonName)
-  	event.setFromUsername(fromUsername)
+    event.setInstitutionUUID(institutionUUID)
+    event.setFromPersonUUID(fromPersonUUID)
+    event.setEntityType(entityType)
+    event.setEntityUUID(entityUUID)
+    event.setFromValue(fromValue)
+    event.setToValue(toValue)
+    event.setEntityName(entityName)
+    event.setFromPersonName(fromPersonName)
+    event.setFromUsername(fromUsername)
     event
   }
 
@@ -373,7 +377,7 @@ object TOs {
   }
 
   def newCourseDetailsSectionsTO: CourseDetailsSectionsTO = tos.newCourseDetailsSectionsTO.as
-  
+
   def newCourseDetailsSectionsTO(courseDetailsSections: List[CourseDetailsSection]): CourseDetailsSectionsTO = {
     val courseDetailsSectionsTO = newCourseDetailsSectionsTO
     courseDetailsSectionsTO.setCourseDetailsSections(courseDetailsSections asJava)
@@ -381,7 +385,7 @@ object TOs {
   }
 
   def newCourseDetailsHintsTO: CourseDetailsHintsTO = tos.newCourseDetailsHintsTO.as
-  
+
   def newCourseDetailsHintsTO(courseDetailsHints: List[CourseDetailsHint]): CourseDetailsHintsTO = {
     val courseDetailsHintsTO = newCourseDetailsHintsTO
     courseDetailsHintsTO.setCourseDetailsHints(courseDetailsHints asJava)
@@ -389,10 +393,29 @@ object TOs {
   }
 
   def newCourseDetailsLibrariesTO: CourseDetailsLibrariesTO = tos.newCourseDetailsLibrariesTO.as
-  
+
   def newCourseDetailsLibrariesTO(courseDetailsLibraries: List[CourseDetailsLibrary]): CourseDetailsLibrariesTO = {
     val courseDetailsLibrariesTO = newCourseDetailsLibrariesTO
     courseDetailsLibrariesTO.setCourseDetailsLibraries(courseDetailsLibraries asJava)
     courseDetailsLibrariesTO
+  }
+
+  def newTrackTO: TrackTO = tos.newTrackTO.as
+
+  def newTrackTO(track: Track, trackItemTOs: List[TrackItemTO]): TrackTO = {
+    val to = newTrackTO
+    to.setTrack(track)
+    to.setTrackItems(trackItemTOs.asJava)
+    to
+  }
+
+  def newTrackItemTO: TrackItemTO = tos.newTrackItemTO.as
+
+  def newTrackItemTO(trackItem: TrackItem, courseVersionTO: CourseVersionTO, parent: TrackItem): TrackItemTO = {
+    val to = newTrackItemTO
+    to.setTrackItem(trackItem)
+    to.setCourseVersionTO(courseVersionTO)
+    to.setParent(parent)
+    to
   }
 }

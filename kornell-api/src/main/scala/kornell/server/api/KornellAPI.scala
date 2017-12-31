@@ -18,22 +18,22 @@ import kornell.server.ws.rs.exception.AuthenticationExceptionMapper
 
 class KornellAPI extends Application {
   type ClassSet = Set[Class[_]]
-  val readers:ClassSet = Set(classOf[EventsReader],
+  val readers: ClassSet = Set(classOf[EventsReader],
     classOf[TOReader],
     classOf[EntityReader],
     classOf[LOMReader])
 
-  val writers:ClassSet = Set(classOf[AutoBeanWriter],
+  val writers: ClassSet = Set(classOf[AutoBeanWriter],
     classOf[BooleanWriter])
-    
-  val mappers:ClassSet = Set(classOf[EntityNotFoundMapper],
-    classOf[EntityConflictMapper], 
+
+  val mappers: ClassSet = Set(classOf[EntityNotFoundMapper],
+    classOf[EntityConflictMapper],
     classOf[UnauthorizedAccessMapper],
     classOf[ServerErrorMapper],
     classOf[KornellExceptionMapper],
     classOf[AuthenticationExceptionMapper])
-    
-  val resources:ClassSet = Set(classOf[RootResource],
+
+  val resources: ClassSet = Set(classOf[RootResource],
     classOf[UserResource],
     classOf[PeopleResource],
     classOf[CoursesResource],
@@ -53,13 +53,15 @@ class KornellAPI extends Application {
     classOf[CourseDetailsLibrariesResource],
     classOf[CertificatesDetailsResource],
     classOf[CacheResource],
-    classOf[PostbackResource]
-  )
-    
-  override def getClasses() = 
-    readers ++ 
+    classOf[PostbackResource],
+    classOf[TracksResource],
+    classOf[TrackEnrollmentsResource],
+    classOf[TrackItemsResource])
+
+  override def getClasses() =
+    readers ++
     writers ++
-    mappers ++ 
+    mappers ++
     resources asJava
 
   override def getSingletons() = Collections.emptySet()

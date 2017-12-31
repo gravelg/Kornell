@@ -115,14 +115,6 @@ class CourseClassRepo(uuid: String) {
 
     courseClass
   }
-
-  def actomsVisitedBy(personUUID: String): List[String] = sql"""
-    select actomKey from ActomEntered ae
-    join Enrollment e on ae.enrollmentUUID=e.uuid
-    where e.courseClassUUID = ${uuid}
-    and personUUID = ${personUUID}
-    order by eventFiredAt
-    """.map[String]({ rs => rs.getString("actomKey") })
 }
 
 object CourseClassRepo extends App {
