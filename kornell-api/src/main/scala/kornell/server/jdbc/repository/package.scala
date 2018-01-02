@@ -144,6 +144,7 @@ package object repository {
     rs.getBoolean("disabled"),
     rs.getString("parentVersionUUID"),
     rs.getInt("instanceCount"),
+    rs.getString("classroomJson"),
     rs.getString("label"),
     rs.getString("thumbUrl"))
 
@@ -170,6 +171,7 @@ package object repository {
       rs.getBoolean("disabled"),
       rs.getString("parentVersionUUID"),
       rs.getInt("instanceCount"),
+      rs.getString("classroomJson"),
       rs.getString("label"),
       rs.getString("courseVersionThumbUrl"));
 
@@ -211,6 +213,7 @@ package object repository {
       rs.getBoolean("courseVersionDisabled"),
       rs.getString("parentVersionUUID"),
       rs.getInt("instanceCount"),
+      rs.getString("classroomJson"),
       rs.getString("label"),
       rs.getString("courseVersionThumbUrl"))
 

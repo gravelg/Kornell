@@ -1,0 +1,38 @@
+<style type="text/css">
+	.checkbox-primary input[type="checkbox"]:checked + label::before, 
+	.checkbox-primary input[type="radio"]:checked + label::before {
+	    background-color: #{{classroomInfo.colorTheme}} !important;
+	    border-color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.btn-primary {
+	    color:  #{{classroomInfo.colorTitle}} !important;
+	    background-color: #{{classroomInfo.colorTheme}} !important;
+	    border-color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.question-header,
+	.question-option {
+		color: #{{classroomInfo.colorFont}} !important;
+	}
+	.alert {
+		border: 1px solid #{{classroomInfo.colorTheme}};
+	}
+</style>
+<div class="innerDiv container" ng-controller="QuestionSlideController">
+    <br>
+    <span class="question-header" ng-bind-html="slide.text"></span>
+    <form class="option-form" action="#">
+		<fieldset>
+			<div class="checkbox checkbox-primary" ng-repeat="option in slide.options" >
+				<input ng-model="option.selected" ng-click="clear($index)" id="checkbox{{$index}}" type="checkbox">
+				<label for="checkbox{{$index}}" id="label_{{($index)}}">
+					<span class="question-option" ng-bind-html="option.text"></span>
+				</label>
+			</div>
+            <div id="resultWrapper">
+				<button type="button" id="solve" ng-click="solve()" class="btn btn-primary btn-sm">{{answerCorrect === true ? "AVANÇAR" : "VALIDAR"}}</button>	
+	        	<div ng-show="answerCorrect === true" class="alert alert-success" role="alert">Parabéns, acertou a resposta. Avance!</div>
+				<div ng-show="answerCorrect === false" class="alert alert-warning" role="alert">Releia as opções e tente novamente.</div>
+            </div>
+		</fieldset>
+    </form>
+</div>

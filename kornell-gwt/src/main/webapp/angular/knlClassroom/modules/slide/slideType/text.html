@@ -1,0 +1,20 @@
+<style>
+	.well {
+	    background: #{{classroomInfo.colorTheme}} !important;
+	    border: 1px solid #{{classroomInfo.colorTheme}} !important;
+        color: #{{classroomInfo.colorTitle}} !important;
+        font-size: 1.2em;
+        padding: 30px;
+		border-radius: 12px;
+		margin-top: 20px;
+	}
+	.text {
+        font-size: 1.2em;
+        padding: 30px;
+		border-radius: 12px;
+        color: #{{classroomInfo.colorFont}};
+	}
+</style>
+<div class="innerDiv container" ng-controller="TextSlideController">
+    <p class="{{slide.showWell ? 'well' : ''}} text" ng-bind-html="sce.trustAsHtml(slide.text)"></p>
+</div>

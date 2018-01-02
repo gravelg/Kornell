@@ -1,6 +1,5 @@
 package kornell.api.client;
 
-import kornell.core.lom.Contents;
 import kornell.core.to.EnrollmentLaunchTO;
 
 public class EnrollmentClient extends RESTClient{
@@ -9,10 +8,6 @@ public class EnrollmentClient extends RESTClient{
 
 	public EnrollmentClient(String enrollmentUUID) {
 		this.enrollmentUUID = enrollmentUUID;
-	}
-	
-	public void contents(Callback<Contents> callback) {
-		GET("enrollments",enrollmentUUID,"contents").go(callback);
 	}
 	
 	public ActomClient actom(String actomKey) {

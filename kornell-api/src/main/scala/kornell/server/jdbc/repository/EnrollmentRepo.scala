@@ -64,13 +64,13 @@ class EnrollmentRepo(uuid: String) {
     cv <- CourseVersionRepo(cc.getCourseVersionUUID).first
     c <- CourseRepo(cv.getCourseUUID).first
   } c.getContentSpec match {
-    case KNL => updateKNLProgress(e)
+    case KNL => updateKNLProgress(e, false)
+    case WIZARD => updateKNLProgress(e, true)
     case SCORM12 => updateSCORM12Progress(e)
-    case WIZARD => throw new Exception("Not supported")
   }
 
-  def updateKNLProgress(e: Enrollment) = {
-    val contents = ContentRepository.findKNLVisitedContent(e, PersonRepo(e.getPersonUUID).get)
+  def updateKNLProgress(e: Enrollment, isWizard: Boolean) = {
+    val contents = ContentRepository.findKNLVisitedContent(e, PersonRepo(e.getPersonUUID).get, isWizard)
     val actoms = ContentsOps.collectActoms(contents).asScala
     val visited = actoms.filter(_.isVisited).size
     val newProgress = visited / actoms.size.toDouble

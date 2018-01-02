@@ -18,6 +18,9 @@ import kornell.server.scorm12.ManifestParser
 import kornell.server.jdbc.repository.CoursesRepo
 import kornell.core.entity.ContentSpec
 import kornell.core.error.exception.ServerErrorException
+import kornell.server.jdbc.repository.CourseVersionsRepo
+import kornell.server.dev.util.WizardParser
+import kornell.core.entity.CourseVersion
 
 object ContentRepository {
 
@@ -29,9 +32,9 @@ object ContentRepository {
         CoursesRepo.byCourseClassUUID(enrollment.getCourseClassUUID).get.getContentSpec
     }
     contentSpec match {
-      case ContentSpec.KNL => findKNLVisitedContent(enrollment, person)
+      case ContentSpec.KNL => findKNLVisitedContent(enrollment, person, false)
+      case ContentSpec.WIZARD => findKNLVisitedContent(enrollment, person, true)
       case ContentSpec.SCORM12 => findSCORM12VisitedContent(enrollment, person)
-      case ContentSpec.WIZARD => throw new ServerErrorException("Wizard content not supported")
     }
   }
 
@@ -45,20 +48,24 @@ object ContentRepository {
     result.toList
   }
 
-  def findKNLVisitedContent(enrollment: Enrollment, person: Person) = {
-    val prefix = getPrefix(enrollment, person)
+  def findKNLVisitedContent(enrollment: Enrollment, person: Person, isWizard: Boolean) = {
     val visited = getVisited(enrollment)
-    val structureSrc = {
-      if (enrollment.getCourseClassUUID != null) {
-        getClassManifestContent(enrollment.getCourseClassUUID, "structure.knl")
-      } else {
-        getVersionManifestContent(enrollment.getCourseVersionUUID, "structure.knl")
+    if(isWizard){
+      val courseVersion = CourseVersionsRepo.byCourseClassUUID(enrollment.getCourseClassUUID).get
+      WizardParser.parse(courseVersion.getClassroomJson, visited)
+    } else {
+      val prefix = getPrefix(enrollment, person)
+      val structureSrc = {
+        if (enrollment.getCourseClassUUID != null) {
+          getClassManifestContent(enrollment.getCourseClassUUID, "structure.knl")
+        } else {
+          getVersionManifestContent(enrollment.getCourseVersionUUID, "structure.knl")
+        }
       }
+      ContentsParser.parse(prefix, structureSrc, visited)
     }
-    val content = ContentsParser.parse(prefix, structureSrc, visited)
-    content
   }
-
+  
   def findSCORM12VisitedContent(enrollment: Enrollment, person: Person) = {
     val prefix = getPrefix(enrollment, person)
     val visited = getVisited(enrollment)

@@ -23,6 +23,9 @@ public interface CourseVersion extends LearningEntity {
 	Integer getInstanceCount();
 	void setInstanceCount(Integer instanceCount);
 	
+	String getClassroomJson();
+	void setClassroomJson(String classroomJson);
+	
 	String getLabel();
 	void setLabel(String label);
 	

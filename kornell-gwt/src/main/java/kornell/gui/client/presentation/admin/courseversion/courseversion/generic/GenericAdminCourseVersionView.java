@@ -175,7 +175,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 			contentsTab.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
-					presenter.buildContentView(courseVersion, courseEntity.getContentSpec());
+					presenter.buildContentView(courseVersion, courseEntity);
 				}
 			});
 		} else {

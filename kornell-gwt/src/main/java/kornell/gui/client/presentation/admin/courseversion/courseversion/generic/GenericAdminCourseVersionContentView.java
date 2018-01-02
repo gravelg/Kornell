@@ -12,19 +12,18 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
+import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.Wizard;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.autobean.wizard.WizardElement;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.WizardUtils;
-import kornell.gui.client.presentation.admin.courseversion.courseversion.wizard.edit.WizardView;
 import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 
@@ -46,13 +45,12 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 	private List<KornellFormFieldWrapper> fields;
 
 	@UiField
+	HTMLPanel title;
+	@UiField
 	FlowPanel courseVersionUpload;
 	@UiField
 	FlowPanel wizardContainer;
 
-
-	private Wizard wizard;
-	private WizardElement selectedWizardElement;
 	private CourseVersion courseVersion;
 	private Presenter presenter;
 	
@@ -62,6 +60,8 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 	private String changedString = "(*) ";
 
 	private WizardView wizardView;
+
+	private double id;
 
 	public GenericAdminCourseVersionContentView(final KornellSession session, EventBus bus, PlaceController placeCtrl) {
 		this.session = session;
@@ -86,7 +86,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 		
 	    // Add a submit button to the form
 		com.github.gwtbootstrap.client.ui.Button btnOK = new com.github.gwtbootstrap.client.ui.Button();
-		WizardUtils.createIcon(btnOK, "fa-floppy-o");
+		FormHelper.createIcon(btnOK, "fa-floppy-o");
 		btnOK.addStyleName("btnAction");
 		btnOK.addClickHandler(new ClickHandler() {
 			@Override
@@ -103,18 +103,19 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 	}
 
 	@Override
-	public void init(CourseVersion courseVersion, Wizard wizard) {
+	public void init(CourseVersion courseVersion, Course course) {
 		this.courseVersion = courseVersion;
-		isWizardVersion = (wizard != null);
+		this.isWizardVersion = ContentSpec.WIZARD.equals(course.getContentSpec());
 		wizardContainer.clear();
 		if(isWizardVersion){
-			this.wizard = wizard;
-			this.selectedWizardElement = presenter.getSelectedWizardElement();
-			wizardView = new WizardView(session, bus);
-			wizardView.init(courseVersion, wizard, presenter);
+			if(wizardView == null){
+				wizardView = new WizardView(session, bus);
+			}
+			wizardView.init(courseVersion, course, presenter);
 			wizardContainer.add(wizardView);
 		}
 		courseVersionUpload.setVisible(!isWizardVersion);
+		title.setVisible(!isWizardVersion);
 	}
 	
 	public static native void getFile(String url) /*-{

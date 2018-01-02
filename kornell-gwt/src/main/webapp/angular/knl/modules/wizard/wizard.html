@@ -1,0 +1,443 @@
+<div class="sidePanel" id="page-wrapper">
+	<div ng-if="innerWidth > 991" class="row">
+	  <div class="col-md-3 noPadding">
+		  <div class="scroll-body" slimscroll="{}">
+		  	<div class="row">
+		  		<div class="col-sm-12">
+		  			<div class="tree-control-panel">
+					  	<a ng-disabled="false && !treeIsUnsaved" uib-tooltip="Salvar" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" confirm-click="saveTree()" confirm-message="Confirma?">
+					    	<i class="fa fa-floppy-o"></i>
+							</a>
+					  	<a ng-disabled="false && !treeIsUnsaved" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" confirm-click="discardTree()" confirm-message="Confirma?">
+					    	<i class="fa fa-times"></i>
+							</a>
+							<span ng-show="treeIsUnsaved">&nbsp;&nbsp;&nbsp;[ <i class="fa fa-asterisk changedFlagIcon"></i>&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;Alterações pendentes ]</span>
+		  			</div>
+		  		</div>
+		  	</div>
+				<div ng-include="'tree.html'"></div>
+			</div>
+	  </div>
+	  <div class="col-md-9 noPadding">
+		  <div class="scroll-body" slimscroll="{}">
+				<div ng-include="'edit.html'" id="editPanel"></div>
+			</div>
+	  </div>
+	</div>
+	<div ng-if="innerWidth <= 991" class="row">
+	  <div class="scroll-body" slimscroll="{}">
+		  <div class="col-sm-12">
+				<div ng-include="'tree.html'"></div><br>
+				<div ng-include="'edit.html'"></div>
+			</div>
+		</div>
+	</div>
+	<div ng-if="false" class="row">
+	  <div class="col-sm-12">
+	    <pre class="code">{{ data | json }}</pre>
+	  </div>
+	</div>
+</div>
+
+<script type="text/ng-template" id="edit.html">
+	<div ng-if="selectedNode.itemType == 'root'" ng-include="'editRoot.html'"></div>
+	<div ng-if="selectedNode.itemType == 'topic'" ng-include="'editTopic.html'"></div>
+	<div ng-if="selectedNode.itemType == 'slide'" ng-include="'editSlide.html'"></div>
+</script>
+
+<script type="text/ng-template" id="editSlide.html">
+	<div class="panel panel-default">
+    <div class="panel-body">
+      <ul class="nav nav-tabs" style="margin-bottom: 15px;">
+        <li class="" ng-class="{active: selectedTab === 'edit'}"><a ng-click="$root.selectedTab = 'edit'" data-toggle="tab">Editar</a></li>
+        <li class="" ng-class="{active: selectedTab === 'preview'}"><a ng-click="$root.selectedTab = 'preview'" data-toggle="tab">Visualizar</a></li>
+		    <a uib-tooltip="Remover slide" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
+		    	<i class="fa fa-trash-o"></i>
+				</a>
+      </ul>
+      <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade" ng-class="{active: selectedTab === 'edit', in: selectedTab === 'edit'}" ng-show="selectedTab === 'edit'">
+        	<h1 class="form-title"><small>Configurações do Slide &nbsp;- &nbsp;<i>{{getSlideNameByType(selectedNode.type)}}</i></small></h1>
+					<form role="form">
+					  <div class="form-group">
+					      <label>Nome do slide</label>
+					      <input ng-model="selectedNode.title" class="form-control">
+					      <p class="help-block">Nome desse slide. Esse nome aparecerá no cabeçalho do slide e no painel de detalhes do curso dentro da Eduvem.</p>
+					  </div>
+						<div ng-include="'editSlide_'+selectedNode.type+'.html'"></div>
+					</form>
+        </div>
+        <div class="tab-pane fade" ng-class="{active: selectedTab === 'preview', in: selectedTab === 'preview'}" ng-show="selectedTab === 'preview'">
+          <iframe ng-src="{{selectedTab === 'preview' ? previewURL : ''}}" ng-if="selectedTab === 'preview'" class="externalContent" allowtransparency="true" style="background-color: transparent;" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" width="100%" height="550px"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editSlide_text.html">
+  <div class="form-group">
+      <label>Texto</label>
+      <div ng-model="selectedNode.text" text-angular class="text-angular"></div>
+      <p class="help-block">Texto do slide. Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+      <div class="checkbox checkbox-primary">
+				<input class="" ng-model="selectedNode.showWell" type="checkbox" id="checkbox_showWell">
+				<label for="checkbox_showWell" id="label_showWell">
+					<span><small>Mostrar texto dentro de uma caixa com a cor principal do tema do curso.</small></span>
+				</label>
+			</div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editSlide_image.html">
+  <div class="form-group">
+      <label>Imagem</label>
+      <input ng-model="selectedNode.id" class="form-control">
+      <p class="help-block">URL da imagem que será mostrada.</p>
+  </div>
+  <div class="form-group">
+      <label>Texto</label>
+      <div ng-model="selectedNode.text" text-angular class="text-angular"></div>
+      <p class="help-block">Texto para ser mostrado abaixo da imagem (opcional). Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editSlide_bubble.html">
+  <div class="form-group">
+      <label>Texto do primeiro balão</label>
+      <div ng-model="selectedNode.text" text-angular class="text-angular"></div>
+      <p class="help-block">Texto que aparecerá no primeiro balão. Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+  </div>
+  <div class="form-group">
+      <label>Imagem do primeiro balão</label>
+      <input ng-model="selectedNode.id" class="form-control">
+      <p class="help-block">Imagem que aparecerá no primeiro balão.</p>
+  </div>
+  <div class="form-group">
+      <label>Texto do segundo balão</label>
+      <div ng-model="selectedNode.text2" text-angular class="text-angular"></div>
+      <p class="help-block">Texto que aparecerá no primeiro balão. O segundo balão só aparecerá caso exista um valor nesse campo.</p>
+  </div>
+  <div class="form-group">
+      <label>Imagem do segundo balão</label>
+      <input ng-model="selectedNode.id2" class="form-control">
+      <p class="help-block">Imagem que aparecerá no primeiro balão.</p>
+  </div>
+  <div class="form-group">
+      <label>Cor da fonte do segundo balão</label>
+  		<color-picker ng-model="selectedNode.color2" options="colorPickeroptions"></color-picker>
+      <p class="help-block">Essa é a cor que será utilizada para o segundo balão.</p>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editSlide_youtube.html">
+  <div class="form-group">
+      <label>Id do vídeo do YouTube</label>
+      <input ng-model="selectedNode.id" class="form-control" ng-change="trimYouTubeURL()">
+      <p class="help-block">Cole aqui o ID ou URL do vídeo do YouTube. Somente vídeos que permitam o compartilhamento podem ser mostrados pela plataforma.</p>
+  </div>
+  <div class="form-group">
+      <label>Texto</label>
+      <div ng-model="selectedNode.text" text-angular class="text-angular"></div>
+      <p class="help-block">Texto para ser mostrado abaixo do vídeo (opcional). Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editSlide_vimeo.html">
+  <div class="form-group">
+      <label>Id do vídeo do Vimeo</label>
+      <input ng-model="selectedNode.id" class="form-control" ng-change="trimVimeoURL()">
+      <p class="help-block">Cole aqui o ID ou URL do vídeo do vimeo. Somente vídeos que permitam o compartilhamento podem ser mostrados pela plataforma.</p>
+  </div>
+  <div class="form-group">
+      <label>Texto</label>
+      <div ng-model="selectedNode.text" text-angular class="text-angular"></div>
+      <p class="help-block">Texto para ser mostrado abaixo do vídeo (opcional). Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editSlide_video.html">
+VIDEO
+</script>
+
+<script type="text/ng-template" id="editSlide_finalExam.html">
+  <div class="form-group">
+		<div class="checkbox checkbox-primary">
+			<input class="" ng-model="selectedNode.isMultiple" ng-change="toggleOptions()" id="checkbox_isMultiple" type="checkbox">
+			<label for="checkbox_isMultiple" id="label_isMultiple">
+				<span><small>Permitir que mais de uma alternativa seja selecionada (ATENÇÃO: alterações afetarão todas as questões)</small></span>
+			</label>
+		</div>
+		<div class="checkbox checkbox-primary">
+			<input class="" ng-model="selectedNode.shuffleQuestions" id="checkbox_shuffleQuestions" type="checkbox">
+			<label for="checkbox_shuffleQuestions" id="label_shuffleQuestions">
+				<span><small>Embaralhar a ordem das alternativas cada vez que o slide for carregado (a cada tentativa de fazer a prova, o participante terá uma ordem aleatória de questões e alternativas)</small></span>
+			</label>
+		</div>
+  </div>
+  <div class="form-group">
+    <label>Questões da prova final</label>
+    <a uib-tooltip="Adicionar questão à prova final" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xs" data-nodrag ng-click="newQuestion()" style="margin-right: 3px;">
+    	<span class="glyphicon glyphicon-plus"></span>
+		</a>
+	  <br>
+	  <div class="questionPicker inline-block" ng-init="selectQuestion(0)" ui-sortable="questionPickerSortableOptions" data-ng-model="selectedNode.questions">
+	  	<a class="pull-left questionPickerButton btn btn-sm" ng-repeat="question in selectedNode.questions" ng-click="selectQuestion($index)" ng-class="{'btn-default': selectedQuestionIndex !== $index, 'btn-primary': selectedQuestionIndex === $index}">{{$index + 1}}</a>
+	  </div>
+	  <br><br>
+		<p class="help-block">Arraste e solte os itens acima para reordenar as questões. A prova final deve ter ao menos duas questões.</p><br>
+  </div>
+  <div class="form-group">
+	  <div ng-if="selectedQuestion">
+		  <div class="form-group">
+		      <label>Enunciado da questão {{selectedQuestionIndex + 1}}</label>
+			    <a ng-disabled="selectedNode.questions.length <= 2" uib-tooltip="Remover questão" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-xs removeOptionButton" data-nodrag confirm-click="removeQuestion($index)" confirm-message="Confirma?" style="margin-right: 20px;">
+			    	<i class="fa fa-trash-o"></i>
+					</a>
+		      <div ng-model="selectedQuestion.text" text-angular class="text-angular text-angular-sm"></div>
+		      <p class="help-block">Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+					<br>
+		  </div>
+		  <div class="form-group">
+		      <label>Alternativas da questão {{selectedQuestionIndex + 1}}</label>
+		      <a uib-tooltip="Adicionar alternativa a essa questão" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xs" data-nodrag ng-click="newOption(selectedQuestion)" style="margin-right: 3px;">
+			    	<span class="glyphicon glyphicon-plus"></span>
+					</a>
+		      <p class="help-block">Uma questão deve ter ao menos duas alternativas. Você pode arrastar e soltar as alternativas caso deseje reordená-las. <span ng-show="!selectedNode.isMultiple">Uma alternativa que for marcada como correta não pode ser excluída.</span> Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+			    <div ui-sortable="sortableOptions" data-ng-model="selectedQuestion.options">
+				    <div class="row optionDraggableArea" ng-repeat="option in selectedQuestion.options">
+						  <div class="col-sm-12">
+									<div class="checkbox checkbox-primary optionCheckBox">
+										<input class="" ng-model="option.expected" ng-change="toggleOption(selectedQuestion, $index)" uib-tooltip="Alternativa correta" tooltip-placement="top" tooltip-append-to-body="true" id="checkbox{{$index}}" type="checkbox">
+										<label for="checkbox{{$index}}" id="label_{{($index)}}"><span></span></label>
+									</div>
+		      				<div ng-model="option.text" text-angular class="text-angular text-angular-xs optionTextArea"></div>
+							    <a ng-disabled="selectedQuestion.options.length <= 2 || (!selectedNode.isMultiple && option.expected)" uib-tooltip="Remover alternativa" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-xs removeOptionButton" data-nodrag confirm-click="selectedQuestion.options.splice($index, 1)" confirm-message="Confirma?" style="margin-right: 3px; margin-top: 17px;">
+							    	<i class="fa fa-trash-o"></i>
+									</a>
+						  </div>
+			      </div>
+		      </div>
+		  </div>
+	  </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editSlide_question.html">
+  <div class="form-group">
+      <label>Enunciado da questão de aprendizado</label>
+      <div ng-model="selectedNode.text" text-angular class="text-angular text-angular-sm"></div>
+      <p class="help-block">Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+			<br>
+			<div class="checkbox checkbox-primary">
+				<input class="" ng-model="selectedNode.isMultiple" ng-change="toggleOption(selectedNode)" id="checkbox_isMultiple" type="checkbox">
+				<label for="checkbox_isMultiple" id="label_isMultiple">
+					<span><small>Permitir que mais de uma alternativa seja selecionada</small></span>
+				</label>
+			</div>
+			<div class="checkbox checkbox-primary">
+				<input class="" ng-model="selectedNode.shuffleQuestions" id="checkbox_shuffleQuestions" type="checkbox">
+				<label for="checkbox_shuffleQuestions" id="label_shuffleQuestions">
+					<span><small>Embaralhar a ordem das alternativas cada vez que o slide for carregado</small></span>
+				</label>
+			</div>
+  </div>
+  <div class="form-group">
+      <label>Alternativas da questão de aprendizado</label>
+      <a uib-tooltip="Adicionar alternativa" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xs" data-nodrag ng-click="selectedNode.options.push({text: 'Quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet'})" style="margin-right: 3px;">
+	    	<span class="glyphicon glyphicon-plus"></span>
+			</a>
+      <p class="help-block">Uma questão deve ter ao menos duas alternativas. Você pode arrastar e soltar as alternativas caso deseje reordená-las. <span ng-show="!selectedNode.isMultiple">Uma alternativa que for marcada como correta não pode ser excluída.</span> Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+	    <div ui-sortable="sortableOptions" data-ng-model="selectedNode.options">
+		    <div class="row optionDraggableArea" ng-repeat="option in selectedNode.options">
+				  <div class="col-sm-12">
+							<div class="checkbox checkbox-primary optionCheckBox">
+								<input class="" ng-model="option.expected" ng-change="toggleOption(selectedNode, $index)" uib-tooltip="Alternativa correta" tooltip-placement="top" tooltip-append-to-body="true" id="checkbox{{$index}}" type="checkbox">
+								<label for="checkbox{{$index}}" id="label_{{($index)}}"><span></span></label>
+							</div>
+      				<div ng-model="option.text" text-angular class="text-angular text-angular-xs optionTextArea"></div>
+					    <a ng-disabled="selectedNode.options.length <= 2 || (!selectedNode.isMultiple && option.expected)" uib-tooltip="Remover alternativa" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-xs removeOptionButton" data-nodrag confirm-click="selectedNode.options.splice($index, 1)" confirm-message="Confirma?" style="margin-right: 3px; margin-top: 17px;">
+					    	<i class="fa fa-trash-o"></i>
+							</a>
+				  </div>
+	      </div>
+      </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editRoot.html">
+	<div class="panel panel-default">
+    <div class="panel-body">
+    	<div class="row">
+    		<div class="col-sm-12">
+					<form role="form">
+						<h1 class="form-title"><small>Configurações do Curso</small></h1>
+					  <div class="form-group">
+					      <label>Nome do curso</label>
+					      <input ng-model="selectedNode.title" class="form-control">
+					      <p class="help-block">Nome que aparecerá no cabeçalho do curso.</p>
+					  </div>
+
+					  <div class="form-group">
+					      <label>Nota mínima da prova final</label>
+					      <input ng-model="selectedNode.expectedGrade" type="number" class="form-control">
+					      <p class="help-block">Nota mínima para aprovação na prova final. Deve ser um valor entre 0 e 100. Caso coloque 0, o participante será aprovado automaticamente após fazer o teste.</p>
+					  </div>
+
+					  <!-- <div class="form-group" ng-show="hasVideoSlides">
+					      <label>Tamanhos disponíveis de vídeos</label>
+					      <input ng-model="selectedNode.availableVideoSizes" class="form-control">
+					      <div class="help-block">
+						      	<span>Caso faça upload de vídeos, esse campo é obrigatório. Para mais de um tamanho disponível, os valores devem ser separador por vírgula. Ex: "144,360,720". Os vídeos devem seguir o seguinte formato:</span>
+						      	<ul>
+						      		<li>nomeDoVideo_144p.mp4</li>
+						      		<li>nomeDoVideo_360p.mp4</li>
+						      		<li>nomeDoVideo_720p.mp4</li>
+						      	</ul>
+					      </div>
+					  </div> -->
+
+					  <div class="form-group">
+					      <label>Cor principal do tema</label>
+					  		<color-picker ng-model="selectedNode.colorTheme" options="colorPickeroptions"></color-picker>
+					      <p class="help-block">Essa será a cor usada para a barra do topo do curso, títulos, etc.</p>
+					  </div>
+
+					  <div class="form-group">
+					      <label>Cor do plano de fundo</label>
+					  		<color-picker ng-model="selectedNode.colorBackground" options="colorPickeroptions"></color-picker>
+					      <p class="help-block">Essa é a cor do plano de fundo de cada slide.</p>
+					  </div>
+
+					  <div class="form-group">
+					      <label>Cor da fonte</label>
+					  		<color-picker ng-model="selectedNode.colorFont" options="colorPickeroptions"></color-picker>
+					      <p class="help-block">Essa é a cor que será utilizada para os textos do curso.</p>
+					  </div>
+
+					  <div class="form-group">
+					      <label>Cor da fonte secundária</label>
+					  		<color-picker ng-model="selectedNode.colorTitle" options="colorPickeroptions"></color-picker>
+					      <p class="help-block">Essa é a cor que será utilizada no texto dos títulos e em qualquer lugar que tenha a cor principal do tema no fundo.</p>
+					  </div>
+
+					  <!-- <div class="form-group" ng-show="hasVimeoSlides || hasYoutubeSlides">
+					      <label>Padding do iframe do vimeo ou youtube</label>
+					      <input ng-model="selectedNode.paddingTopIframe" type="number" class="form-control">
+					      <p class="help-block">Valor, em porcentagem, do padding do iframe do vimeo ou youtube. Isso fará com que ele fique melhor centralizado. Valor recomendado: 56%.</p>
+					  </div> -->
+
+					</form>
+				</div>
+    	</div>
+    	<br><br>
+    	<div class="row">
+    		<div class="col-sm-12">
+			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newTopic(true)">
+			    	<span class="glyphicon glyphicon-plus"></span> Adicionar novo tópico
+			    </a>
+    		</div>
+    	</div>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="editTopic.html">
+	<div class="panel panel-default">
+    <div class="panel-body">
+    	<div class="row">
+    		<div class="col-sm-12">
+	    		<a ng-if="selectedNode.slides.length == 0 && root.topics.length > 1" uib-tooltip="Remover tópico" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" data-nodrag confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
+				  	<i class="fa fa-trash-o"></i>
+					</a>
+					<form role="form">
+					<h1 class="form-title"><small>Configurações do Tópico</small></h1>
+					  <div class="form-group">
+					      <label>Nome do tópico</label>
+					      <input ng-model="selectedNode.title" class="form-control">
+					      <p class="help-block">Nome desse tópico. Esse nome aparecerá no cabeçalho de cada slide e no painel de detalhes do curso dentro da Eduvem.</p>
+					  </div>
+					</form>
+				</div>
+    	</div>
+    	<br><br>
+    	<div class="row">
+    		<div class="col-sm-12">
+			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newSlide(selectedNodeScope)">
+			    	<span class="glyphicon glyphicon-plus"></span> Adicionar novo slide a esse tópico
+			    </a>
+    		</div>
+    	</div>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="tree.html">
+  <div ui-tree="uiTreeOptions" id="tree-root">
+    <ol ui-tree-nodes ng-model="data" >
+      <li ui-tree-node ng-repeat="root in data">
+      	<div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === root.uuid}">
+		    <span class="tree-node-title"><b><i class="fa fa-asterisk changedFlagIcon" ng-show="root.isUnsaved"></i>{{root.title | limitToDots: limitToDots}}</b></span>
+		    <a id="nodeEdit_{{root.uuid}}" uib-tooltip="Editar curso" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
+		    	<span class="glyphicon glyphicon-edit"></span>
+		    </a>
+		    <a uib-tooltip="Adicionar novo tópico" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newTopic(true)" style="margin-right: 3px;">
+		    	<span class="glyphicon glyphicon-plus"></span>
+		    </a>
+		  </div>
+		  <ol ui-tree-nodes="" ng-model="root.topics" ng-class="{hidden: collapsed}">
+		    <li ng-repeat="topic in root.topics" ui-tree-node ng-include="'topicsRenderer.html'">
+		    </li>
+		  </ol>
+      </li>
+    </ol>
+  </div>
+</script>
+
+<script type="text/ng-template" id="topicsRenderer.html">
+  <div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === topic.uuid}">
+    <a class="btn btn-primary btn-xxs margin-right-5" ng-if="topic.slides && topic.slides.length > 0" data-nodrag ng-click="this.toggle()">
+    	<span class="glyphicon" ng-class="{ 'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed }"></span>
+    </a>
+    <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="topic.isUnsaved"></i>{{topic.title | limitToDots: limitToDots}}</span>
+    <a id="nodeEdit_{{topic.uuid}}" uib-tooltip="Editar tópico" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
+    	<span class="glyphicon glyphicon-edit"></span>
+    </a>
+    <a uib-tooltip="Adicionar novo slide" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newSlide(this)" style="margin-right: 3px;">
+    	<span class="glyphicon glyphicon-plus"></span>
+    </a>
+  </div>
+  <ol ui-tree-nodes="" ng-model="topic.slides" ng-class="{hidden: collapsed}">
+    <li ng-repeat="slide in topic.slides" ui-tree-node ng-include="'slidesRenderer.html'">
+    </li>
+  </ol>
+</script>
+
+<script type="text/ng-template" id="slidesRenderer.html">
+  <div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === slide.uuid}">
+    <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="slide.isUnsaved"></i>{{slide.title | limitToDots: limitToDots}}</span>
+    <a id="nodeEdit_{{slide.uuid}}" uib-tooltip="Editar slide" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs knlEditSlideButton" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
+    	<span class="glyphicon glyphicon-edit"></span>
+    </a>
+  </div>
+</script>
+
+<script type="text/ng-template" id="addSlideModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Adicionar Slide</h3>
+    </div>
+    <div class="modal-body" id="modal-body">
+		  <div class="form-group formGroupModal">
+	      <label>Tipo do Slide</label>
+	      <select class="form-control" ng-model="$ctrl.slideType" placeholder="fdas">
+	          <option value="" disabled selected>[ Selecione o tipo do slide ]</option>
+	          <option ng-disabled="slideType.type === 'slideTypeSeparator'" ng-repeat="slideType in $ctrl.SLIDE_TYPES" value="{{slideType.type}}">{{slideType.name}}</option>
+	      </select>
+	  		<p class="help-block">Existem vários tipo de slide, cada um com sua configuração específica.</p>
+			</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Adicionar</button>
+        <button class="btn btn-danger" type="button" ng-click="$ctrl.cancel()">Cancelar</button>
+    </div>
+</script>
