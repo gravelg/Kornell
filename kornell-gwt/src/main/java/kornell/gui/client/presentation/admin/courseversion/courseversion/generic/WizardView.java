@@ -12,7 +12,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;
+import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
+import kornell.core.util.StringUtils;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView.Presenter;
 
 public class WizardView extends Composite {
@@ -24,18 +26,21 @@ public class WizardView extends Composite {
 	private EventBus bus;
 	private Presenter presenter;
 	private CourseVersion courseVersion;
+	private Course course;
 	private IFrameElement iframe;
 	
 	@UiField
 	FlowPanel wizardPanel;
+
 
 	public WizardView(final KornellSession session, EventBus bus) {
 		this.bus = bus;
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public void init(CourseVersion courseVersion, Presenter presenter) {
+	public void init(CourseVersion courseVersion, Course course, Presenter presenter) {
 		this.courseVersion = courseVersion;
+		this.course = course;
 		this.presenter = presenter;
 		createIFrame();
 	}
@@ -59,7 +64,11 @@ public class WizardView extends Composite {
 	}
 	
 	public void iframeIsReady(String message) {
-	    sendIFrameMessage(courseVersion.getClassroomJson());
+		if(StringUtils.isSome(courseVersion.getClassroomJson())){
+		    sendIFrameMessage("classroomJsonLoad", courseVersion.getClassroomJson());
+		} else {
+		    sendIFrameMessage("classroomJsonNew", course.getName());
+		}
 	}
 	
 	public void saveWizard(String wizardData) {
@@ -67,10 +76,11 @@ public class WizardView extends Composite {
 	    presenter.upsertCourseVersion(courseVersion, false);
 	}
 	
-	private native void sendIFrameMessage(String message) /*-{
+	private native void sendIFrameMessage(String type, String message) /*-{
 	    var domain = $wnd.location;
 	    var iframe = $wnd.document.getElementById('angularFrame').contentWindow;
-	    iframe.postMessage(message, domain);
+	    var data = { type: type, message: message};
+	    iframe.postMessage(data, domain);
 	}-*/;
 	
 	private native void injectEventListener(WizardView v) /*-{

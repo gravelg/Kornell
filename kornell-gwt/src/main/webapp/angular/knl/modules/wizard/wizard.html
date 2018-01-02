@@ -333,7 +333,7 @@ VIDEO
     	<br><br>
     	<div class="row">
     		<div class="col-sm-12">
-			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newTopic(selectedNodeScope)">
+			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newTopic(true)">
 			    	<span class="glyphicon glyphicon-plus"></span> Adicionar novo tópico
 			    </a>
     		</div>
@@ -381,7 +381,7 @@ VIDEO
 		    <a id="nodeEdit_{{root.uuid}}" uib-tooltip="Editar curso" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
 		    	<span class="glyphicon glyphicon-edit"></span>
 		    </a>
-		    <a uib-tooltip="Adicionar novo tópico" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newTopic(this)" style="margin-right: 3px;">
+		    <a uib-tooltip="Adicionar novo tópico" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newTopic(true)" style="margin-right: 3px;">
 		    	<span class="glyphicon glyphicon-plus"></span>
 		    </a>
 		  </div>

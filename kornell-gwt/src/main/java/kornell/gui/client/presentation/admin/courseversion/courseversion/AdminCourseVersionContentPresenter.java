@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;
-import kornell.core.entity.ContentSpec;
+import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
 import kornell.gui.client.ViewFactory;
 
@@ -29,14 +29,11 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
 	}
 
 	@Override
-	public void init(CourseVersion courseVersion, ContentSpec contentSpec) {
+	public void init(CourseVersion courseVersion, Course course) {
 		if (session.isInstitutionAdmin()) {
 			view = viewFactory.getAdminCourseVersionContentView();
 			view.setPresenter(this);
-			
-			boolean isWizardVersion = ContentSpec.WIZARD.equals(contentSpec);
-			view.init(courseVersion, isWizardVersion);
-			
+			view.init(courseVersion, course);		
 		} else {
 			logger.warning("Hey, only admins are allowed to see this! " + this.getClass().getName());
 			placeController.goTo(defaultPlace);

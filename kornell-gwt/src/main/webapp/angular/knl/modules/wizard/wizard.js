@@ -17,8 +17,14 @@ app.controller('WizardController', [
     parent.postMessage({type: "wizardReady", message: ""}, parent.location);
 
     window.addEventListener('message',function(event) {
-      $scope.root = JSON.parse(event.data);
-      $scope.initWizard();
+    	console.log(event.data);
+      if(event.data.type === 'classroomJsonLoad'){
+        $scope.root = JSON.parse(event.data.message);
+        $scope.initWizard();
+      } else if(event.data.type === 'classroomJsonNew') {
+        $scope.newTree(event.data.message);
+        $scope.initWizard();
+      }
     },false);
     
     $scope.initWizard = function(){
@@ -65,9 +71,12 @@ app.controller('WizardController', [
         }
       };
 
+      if(!$scope.root) {
+    	  console.log(223);
+      }
+	  console.log($scope.root);
+      
       $scope.data = [$scope.root];
-
-      $scope.selectedNode = $scope.root;
 
       $scope.calculateLimitToDots();
 
@@ -79,8 +88,7 @@ app.controller('WizardController', [
       }, true);
 
       $timeout(function(){
-        //$(".knlEditSlideButton")[$(".knlEditSlideButton").length - 1].click();
-        $scope.goToNode($scope.lastSlideUUID);
+        $scope.goToNode($scope.lastSlideUUID || $scope.lastTopicUUID);
       });
 
     };
@@ -152,6 +160,7 @@ app.controller('WizardController', [
         $scope.root.uuid = $scope.root.uuid || $rootScope.uuid();
         angular.forEach($scope.root.topics, function(topic){
           topic.uuid = topic.uuid || $rootScope.uuid();
+          $scope.lastTopicUUID = topic.uuid;
           topic.parentUUID = $scope.root.uuid;
           topic.count = tCount++;
           var sCount = 0;
@@ -306,16 +315,34 @@ app.controller('WizardController', [
       selectedQuestion.options.push({text: 'Quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet'});
     };
 
-    $scope.newTopic = function(scope){
-      var nodeData = scope.$modelValue;
+    $scope.newTree = function(courseTitle){
+      $scope.root = {
+        title: courseTitle,
+        availableVideoSizes: "144,360,720",
+        colorBackground: "EBEBEB",
+        colorFont: "0284B5",
+        colorTheme: "0284B5",
+        colorTitle: "EBEBEB",
+        expectedGrade: 60,
+        itemType: "root",
+        paddingTopIframe: 56,
+        topics: [],
+        uuid: $rootScope.uuid()
+      };
+      $scope.newTopic();
+    }
+
+    $scope.newTopic = function(goToTopic){
       var newTopic = {
         itemType: 'topic',
-        title: 'Tópico ' + (nodeData.topics.length + 1),
+        title: 'Tópico ' + ($scope.root.topics.length + 1),
         uuid: $rootScope.uuid(),
         slides: []
       };
-      nodeData.topics.push(newTopic);
-      $scope.goToNode(newTopic.uuid);
+      $scope.root.topics.push(newTopic);
+      if(goToTopic){
+    	  $scope.goToNode(newTopic.uuid);
+      }
     };
 
     $scope.edit = function (scope) {

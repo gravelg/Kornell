@@ -19,6 +19,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
+import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
@@ -58,6 +60,8 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 	private String changedString = "(*) ";
 
 	private WizardView wizardView;
+
+	private double id;
 
 	public GenericAdminCourseVersionContentView(final KornellSession session, EventBus bus, PlaceController placeCtrl) {
 		this.session = session;
@@ -99,13 +103,15 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 	}
 
 	@Override
-	public void init(CourseVersion courseVersion, boolean isWizard) {
+	public void init(CourseVersion courseVersion, Course course) {
 		this.courseVersion = courseVersion;
-		this.isWizardVersion = isWizard;
+		this.isWizardVersion = ContentSpec.WIZARD.equals(course.getContentSpec());
 		wizardContainer.clear();
 		if(isWizardVersion){
-			wizardView = new WizardView(session, bus);
-			wizardView.init(courseVersion, presenter);
+			if(wizardView == null){
+				wizardView = new WizardView(session, bus);
+			}
+			wizardView.init(courseVersion, course, presenter);
 			wizardContainer.add(wizardView);
 		}
 		courseVersionUpload.setVisible(!isWizardVersion);
