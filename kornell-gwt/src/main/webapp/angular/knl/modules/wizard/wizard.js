@@ -17,7 +17,6 @@ app.controller('WizardController', [
     parent.postMessage({type: "wizardReady", message: ""}, parent.location);
 
     window.addEventListener('message',function(event) {
-    	console.log(event.data);
       if(event.data.type === 'classroomJsonLoad'){
         $scope.root = JSON.parse(event.data.message);
         $scope.initWizard();
@@ -70,11 +69,6 @@ app.controller('WizardController', [
           $scope.oldPosition = parseInt(ui.item[0].innerText - 1);
         }
       };
-
-      if(!$scope.root) {
-    	  console.log(223);
-      }
-	  console.log($scope.root);
       
       $scope.data = [$scope.root];
 
