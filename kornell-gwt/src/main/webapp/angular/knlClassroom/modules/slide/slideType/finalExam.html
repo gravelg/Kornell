@@ -58,15 +58,15 @@
 		    <div class="bs-callout bs-callout-info">
 		        <h3>Avaliação do curso</h3>
 		        <h4>{{classroomInfo.title}}</h4>
-		        <p ng-show="classroomInfo.expectedGrade">A aprovação nesta avaliação é necessária para retirada do certificado.</p>
+		        <p ng-show="slide.expectedGrade">A aprovação nesta avaliação é necessária para retirada do certificado.</p>
 		        <ul class="margin-bottom-30">
 		        	<li>Serão <span class="code">{{slide.questions.length}}</span> questões.</li>
 		        	<li ng-show="slide.isMultiple">Existem questões com mais de uma resposta correta.
-					<li ng-show="classroomInfo.expectedGrade">Valor total da avaliação: <span class="code">100</span> pontos.</li>
-					<li ng-show="classroomInfo.expectedGrade">Para ser aprovado é necessário obter <span class="code">{{classroomInfo.expectedGrade}}</span> pontos.</li>
-		        	<li ng-show="classroomInfo.expectedGrade">Caso não seja aprovado você poderá refazer a prova.</li>
+					<li ng-show="slide.expectedGrade">Valor total da avaliação: <span class="code">100</span> pontos.</li>
+					<li ng-show="slide.expectedGrade">Para ser aprovado é necessário obter <span class="code">{{slide.expectedGrade}}</span> pontos.</li>
+		        	<li ng-show="slide.expectedGrade">Caso não seja aprovado você poderá refazer a prova.</li>
 		        </ul>
-		        <p ng-show="classroomInfo.expectedGrade && currentScore && !isApproved" class="margin-bottom-30">É necessário fazer o teste novamente.</p>
+		        <p ng-show="slide.expectedGrade && currentScore && !isApproved" class="margin-bottom-30">É necessário fazer o teste novamente.</p>
 		        <p ng-show="currentScore && isApproved"><br>Você foi aprovado nesta avaliação. Você pode refazê-la se desejar, mas a sua nota continuará a mesma.</p>
 		    	<p ng-show="currentScore" class="">Nota atual: <span class="code">{{currentScore}}</span></p>
 		        <button ng-click="startTest()" class="btn btn-primary btn-sm margin-top-30">{{currentScore ? 'REFAZER' : 'INICIAR'}} A AVALIAÇÃO</button>

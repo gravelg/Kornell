@@ -41,7 +41,7 @@ app.constant('SLIDE_TYPES', [
   },
   {
     type: "finalExam",
-    name: "Prova Final"
+    name: "Avaliação Final"
   }
 ]);
 

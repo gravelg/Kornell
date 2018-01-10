@@ -110,6 +110,10 @@ body {
     cursor: pointer;
 }
 
+a {
+    cursor: pointer;
+}
+
 .btn-sm {
     line-height: 18px;
 }
@@ -136,6 +140,12 @@ body {
 
 label {
     font-size: 16px;
+}
+
+.alert-primary {
+    background-color: #30b0ec;
+    border-color: #30b0ec;
+    color: #ffffff;
 }
 
 .form-group, .form-title{
@@ -186,6 +196,10 @@ label {
 
 .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
     pointer-events: initial;
+}
+
+.btn-default.active.focus, .btn-default.active:focus, .btn-default.active:hover, .btn-default:active.focus, .btn-default:active:focus, .btn-default:active:hover, .open>.dropdown-toggle.btn-default.focus, .open>.dropdown-toggle.btn-default:focus, .open>.dropdown-toggle.btn-default:hover {
+    color: #ffffff;
 }
 
 .nav-tabs > li > a, 

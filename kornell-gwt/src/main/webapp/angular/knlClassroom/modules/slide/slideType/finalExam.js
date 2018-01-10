@@ -52,8 +52,8 @@ app.controller('FinalExamSlideController', [
             $scope.saveQuestionTimer();
             $scope.cmiScoreRaw = 0;//cmi.score.raw
             $scope.cmiScoreMax = 100;//cmi.score.max
-            $scope.cmiScoreMin = $scope.classroomInfo.expectedGrade;//cmi.score.min
-            $scope.classroomInfo.expectedGrade = $scope.classroomInfo.expectedGrade || 0;
+            $scope.cmiScoreMin = $scope.slide.expectedGrade;//cmi.score.min
+            $scope.slide.expectedGrade = $scope.slide.expectedGrade || 0;
 
             $scope.totalCorrect = 0;
             $scope.questionCount = $scope.slide.questions.length;

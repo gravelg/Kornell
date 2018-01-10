@@ -70,6 +70,28 @@ app.controller('WizardController', [
         }
       };
       
+      $scope.blankQuestion = {
+        text: 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium?',
+        options: [
+          {
+            text: "Voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati",
+            expected: true
+          },
+          {
+            text: "Cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi",
+            expected: false
+          },
+          {
+            text: "Et harum quidem rerum facilis est et expedita distinctio",
+            expected: false
+          },
+          {
+            text: "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil",
+            expected: false
+          }
+        ]
+      };
+      
       $scope.data = [$scope.root];
 
       $scope.calculateLimitToDots();
@@ -84,7 +106,7 @@ app.controller('WizardController', [
       $timeout(function(){
         $scope.goToNode($scope.lastSlideUUID || $scope.lastTopicUUID);
       });
-
+      
     };
 
     $scope.saveTree = function() {
@@ -138,8 +160,6 @@ app.controller('WizardController', [
             if(!angular.equals(o1, o2)){
               node.isUnsaved = true;
               $scope.treeIsUnsaved = true;
-              console.log(o1);
-              console.log(o2);
             } else {
               delete node.isUnsaved;
             }
@@ -150,6 +170,7 @@ app.controller('WizardController', [
         $scope.hasVimeoSlides = false;
         $scope.hasYoutubeSlides = false;
         $scope.hasVideoSlides = false;
+        $scope.hasFinalExamSlide = false;
         var tCount = 0, totalSlidesCount = 0;
         $scope.root.uuid = $scope.root.uuid || $rootScope.uuid();
         angular.forEach($scope.root.topics, function(topic){
@@ -175,6 +196,9 @@ app.controller('WizardController', [
             }
             if(slide.type === 'bubble'){
               $scope.lastBubbleColor2 = (slide.color2 && slide.color2.length) ? slide.color2 : $scope.lastBubbleColor2;
+            }
+            if(slide.type === 'finalExam'){
+              $scope.hasFinalExamSlide = true;
             }
             verifySavedStatus(slide);
           });
@@ -210,7 +234,11 @@ app.controller('WizardController', [
       var modalInstance = $uibModal.open({
         animation: true,
         component: 'addSlideModal',
-        resolve: {}
+        resolve: {
+          hasFinalExamSlide: function() {
+            return $scope.hasFinalExamSlide
+          }
+        }
       });
 
       modalInstance.result.then(
@@ -235,29 +263,12 @@ app.controller('WizardController', [
           } else if(slide.type == 'video') {
 
           } else if(slide.type == 'question') {
-            slide.text = 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium?';
+            slide.text = $scope.blankQuestion.text;;
             slide.isMultiple = false;
             slide.shuffleQuestions = false;
-            slide.options = [
-              {
-                text: "Voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati",
-                expected: true
-              },
-              {
-                text: "Cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi",
-                expected: false
-              },
-              {
-                text: "Et harum quidem rerum facilis est et expedita distinctio",
-                expected: false
-              },
-              {
-                text: "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil",
-                expected: false
-              }
-            ];
+            slide.options = angular.copy($scope.blankQuestion.options);
           } else if(slide.type == 'finalExam') {
-
+            slide.questions = [angular.copy($scope.blankQuestion), angular.copy($scope.blankQuestion), angular.copy($scope.blankQuestion)];
           } else if(slide.type == 'text') {
             slide.text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
             slide.showWell = true;
@@ -274,29 +285,7 @@ app.controller('WizardController', [
     };
 
     $scope.newQuestion = function(selectedQuestion) {
-      $scope.selectedNode.questions.push(
-        {
-          text: 'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium?',
-          options: [
-            {
-              text: "Voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati",
-              expected: true
-            },
-            {
-              text: "Cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi",
-              expected: false
-            },
-            {
-              text: "Et harum quidem rerum facilis est et expedita distinctio",
-              expected: false
-            },
-            {
-              text: "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil",
-              expected: false
-            }
-          ]
-        }
-      );
+      $scope.selectedNode.questions.push(angular.copy($scope.blankQuestion));
       $scope.selectQuestion($scope.selectedNode.questions.length - 1);
     };
 
@@ -317,7 +306,6 @@ app.controller('WizardController', [
         colorFont: "0284B5",
         colorTheme: "0284B5",
         colorTitle: "EBEBEB",
-        expectedGrade: 60,
         itemType: "root",
         paddingTopIframe: 56,
         topics: [],
@@ -335,7 +323,7 @@ app.controller('WizardController', [
       };
       $scope.root.topics.push(newTopic);
       if(goToTopic){
-    	  $scope.goToNode(newTopic.uuid);
+        $scope.goToNode(newTopic.uuid);
       }
     };
 
@@ -376,7 +364,7 @@ app.controller('WizardController', [
 
     $scope.goToNode = function(uuid){
       $timeout(function(){
-        $('#nodeEdit_'+uuid)[0].click();
+        $('#nodeEdit_'+uuid)[0] && $('#nodeEdit_'+uuid)[0].click();
       });
     };
 
@@ -501,21 +489,27 @@ app.component('addSlideModal', {
     close: '&',
     dismiss: '&'
   },
-  controller: function (SLIDE_TYPES) {
-    var $ctrl = this;
-    $ctrl.SLIDE_TYPES = SLIDE_TYPES;
+  controller: [
+    'SLIDE_TYPES',
+    function (SLIDE_TYPES) {
+      var $ctrl = this;
 
-    $ctrl.$onInit = function () {
-    };
+      $ctrl.$onInit = function () {
+          $ctrl.SLIDE_TYPES = angular.copy(SLIDE_TYPES);
+          if($ctrl.resolve.hasFinalExamSlide){
+            $ctrl.SLIDE_TYPES.splice($ctrl.SLIDE_TYPES.indexOf("finalExam"),1);
+          }
+      };
 
-    $ctrl.ok = function () {
-      if($ctrl.slideType && $ctrl.slideType !== 'slideTypeSeparator'){
-        $ctrl.close({$value: $ctrl.slideType});
-      }
-    };
+      $ctrl.ok = function () {
+        if($ctrl.slideType && $ctrl.slideType !== 'slideTypeSeparator'){
+          $ctrl.close({$value: $ctrl.slideType});
+        }
+      };
 
-    $ctrl.cancel = function () {
-      $ctrl.dismiss({$value: 'cancel'});
-    };
-  }
+      $ctrl.cancel = function () {
+        $ctrl.dismiss({$value: 'cancel'});
+      };
+    }
+  ]
 });
