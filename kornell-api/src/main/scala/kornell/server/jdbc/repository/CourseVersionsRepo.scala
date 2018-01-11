@@ -17,14 +17,18 @@ import kornell.core.entity.AuditedEntityType
 import kornell.core.util.StringUtils
 import kornell.server.jdbc.PreparedStmt
 import kornell.core.entity.EntityState
+import kornell.core.entity.InstitutionType
 
 object CourseVersionsRepo {
 
   def create(courseVersion: CourseVersion, institutionUUID: String): CourseVersion = {
     val courseVersionExists = sql"""
-      select count(*) from CourseVersion where courseUUID = ${courseVersion.getCourseUUID} and
-          (name = ${courseVersion.getName} or distributionPrefix = ${courseVersion.getDistributionPrefix})
-        and state <> ${EntityState.deleted.toString}
+      select count(*) from CourseVersion cv
+        left join Course c on c.uuid = cv.courseUUID
+        left join Institution i on i.uuid = c.institutionUUID
+        where cv.courseUUID = ${courseVersion.getCourseUUID} and
+        (cv.name = ${courseVersion.getName} or (cv.distributionPrefix = ${courseVersion.getDistributionPrefix}) and i.institutionType <> ${InstitutionType.DASHBOARD.toString()})
+        and cv.state <> ${EntityState.deleted.toString}
       """.first[String].get
     if (courseVersionExists == "0") {
       if (courseVersion.getUUID == null) {
