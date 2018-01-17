@@ -6,6 +6,7 @@ import com.google.gwt.dom.client.IFrameElement;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -47,8 +48,12 @@ public class WizardView extends Composite {
 
 	private void createIFrame() {
 		if (iframe == null) {
+			String iframeSrc = "/angular/knl.html#!/wizard";
+			if(Window.Location.getHostName().indexOf("localhost") >= 0){
+				iframeSrc = "http://localhost:8008" + iframeSrc;
+			}
 			iframe = Document.get().createIFrameElement();
-			iframe.setSrc("/angular/knl.html#!/wizard");
+			iframe.setSrc(iframeSrc);
 			iframe.setId("angularFrame");
 			iframe.addClassName("externalContent");
 			iframe.setAttribute("allowtransparency", "true");
@@ -78,6 +83,9 @@ public class WizardView extends Composite {
 	
 	private native void sendIFrameMessage(String type, String message) /*-{
 	    var domain = $wnd.location;
+	    if(domain.host.indexOf('localhost:') >= 0){
+	    	domain = '*';
+	    }
 	    var iframe = $wnd.document.getElementById('angularFrame').contentWindow;
 	    var data = { type: type, message: message};
 	    iframe.postMessage(data, domain);

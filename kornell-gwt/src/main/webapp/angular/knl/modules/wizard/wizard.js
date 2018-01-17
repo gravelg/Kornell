@@ -14,7 +14,13 @@ app.controller('WizardController', [
   'SLIDE_TYPES',
   function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, toaster, SLIDE_TYPES) {
     
-    parent.postMessage({type: "wizardReady", message: ""}, parent.location);
+    var getDomain = function(){
+      if(window.location.host.indexOf('localhost:') >= 0){
+        return '*';
+      }
+      return parent.location;;
+    }
+    parent.postMessage({type: "wizardReady", message: ""}, getDomain());
 
     window.addEventListener('message',function(event) {
       if(event.data.type === 'classroomJsonLoad'){
@@ -113,7 +119,7 @@ app.controller('WizardController', [
       $scope.savedRoot = angular.copy($scope.root);
       $scope.verifyTree();
       var contents = decodeURI(Base64.decode(localStorage.KNLwp));
-      parent.postMessage({type: "wizardSave", message: contents}, parent.location);
+      parent.postMessage({type: "wizardSave", message: contents}, getDomain());
     };
 
     $scope.discardTree = function() {
