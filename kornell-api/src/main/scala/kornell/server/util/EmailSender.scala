@@ -33,49 +33,49 @@ object EmailSender {
     replyTo: String,
     body: String,
     imgFile: File = null): Unit = try {
-    	getEmailSession match {
-      	case Some(session) => {
-      		val message = new MimeMessage(session);
-      		message.setFrom(new InternetAddress(from))
-      		message.setRecipients(Message.RecipientType.TO, to)
-      		message.setSentDate(new Date())
-      		message.setSubject(subject, "UTF-8")
-      		message.setReplyTo(Array(new InternetAddress(replyTo)))
-      		// creates message part
-      		val messageBodyPart: MimeBodyPart = new MimeBodyPart()
-      		messageBodyPart.setContent(body, "text/html; charset=utf-8")
-  
-      		// creates multi-part
-      		val multipart: Multipart = new MimeMultipart()
-      		multipart.addBodyPart(messageBodyPart)
-  
-      		if (imgFile != null) {
-      			val imagePartLogo: MimeBodyPart = new MimeBodyPart()
-      					imagePartLogo.setHeader("Content-ID", "<logo>")
-      					imagePartLogo.setDisposition(Part.INLINE)
-      					imagePartLogo.attachFile(imgFile)
-      					multipart.addBodyPart(imagePartLogo)
-      		}
-  
-      		message.setContent(multipart)
-  
-      		val transport = session.getTransport
-      		val username = SMTP_USERNAME
-      		val password = SMTP_PASSWORD
-      		transport.connect(username, password)
-  
-      		val test_mode:String = Settings.TEST_MODE
-      		if (!"true".equals(test_mode.orNull)) {
-      			transport.sendMessage(message, Array(new InternetAddress(to)))
-      		}
-  
-      		logger.finer(s"Email with subject [$subject] sent to [$to] by [$from]")
-      	}
-      	case None => logger.warning(s"No SMTP configured. Email could not be sent to [$to]")
+    getEmailSession match {
+      case Some(session) => {
+        val message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(from))
+        message.setRecipients(Message.RecipientType.TO, to)
+        message.setSentDate(new Date())
+        message.setSubject(subject, "UTF-8")
+        message.setReplyTo(Array(new InternetAddress(replyTo)))
+        // creates message part
+        val messageBodyPart: MimeBodyPart = new MimeBodyPart()
+        messageBodyPart.setContent(body, "text/html; charset=utf-8")
+
+        // creates multi-part
+        val multipart: Multipart = new MimeMultipart()
+        multipart.addBodyPart(messageBodyPart)
+
+        if (imgFile != null) {
+          val imagePartLogo: MimeBodyPart = new MimeBodyPart()
+          imagePartLogo.setHeader("Content-ID", "<logo>")
+          imagePartLogo.setDisposition(Part.INLINE)
+          imagePartLogo.attachFile(imgFile)
+          multipart.addBodyPart(imagePartLogo)
+        }
+
+        message.setContent(multipart)
+
+        val transport = session.getTransport
+        val username = SMTP_USERNAME
+        val password = SMTP_PASSWORD
+        transport.connect(username, password)
+
+        val test_mode: String = Settings.TEST_MODE
+        if (!"true".equals(test_mode.orNull)) {
+          transport.sendMessage(message, Array(new InternetAddress(to)))
+        }
+
+        logger.finer(s"Email with subject [$subject] sent to [$to] by [$from]")
       }
-    } catch {
-      case e: Exception => logger.log(Level.SEVERE, "Problem sending email ", e)
+      case None => logger.warning(s"No SMTP configured. Email could not be sent to [$to]")
     }
+  } catch {
+    case e: Exception => logger.log(Level.SEVERE, "Problem sending email ", e)
+  }
 
   def sendEmail(subject: String,
     from: String,
@@ -95,9 +95,8 @@ object EmailSender {
       props.put("mail.smtp.port", SMTP_PORT.get)
       props.put("mail.smtp.ssl.enable", "true");
       props.put("mail.transport.protocol", "smtp");
-      props.put("mail.smtp.starttls.enable", "true");      
+      props.put("mail.smtp.starttls.enable", "true");
       Session.getDefaultInstance(props);
     }
 
-  
 }

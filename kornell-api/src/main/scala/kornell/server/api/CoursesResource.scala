@@ -17,27 +17,27 @@ import kornell.server.service.CourseCreationService
 
 @Path("courses")
 class CoursesResource {
-  
+
   @Path("{uuid}")
-  def getCourse(@PathParam("uuid") uuid:String) = CourseResource(uuid)
-  
+  def getCourse(@PathParam("uuid") uuid: String) = CourseResource(uuid)
+
   @GET
   @Produces(Array(CoursesTO.TYPE))
   def getCourses(@QueryParam("fetchChildCourses") fetchChildCourses: String, @QueryParam("searchTerm") searchTerm: String,
-      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) = {
+    @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) = {
     CoursesRepo.byInstitution(fetchChildCourses == "true", PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true")
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-  
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @POST
   @Produces(Array(CourseClassTO.TYPE))
   @Consumes(Array(Course.TYPE))
   def create(course: Course) = {
     CourseCreationService.simpleCreation(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, course)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 }
 
 object CoursesResource {

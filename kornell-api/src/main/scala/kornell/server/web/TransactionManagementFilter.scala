@@ -15,17 +15,17 @@ import java.util.logging.Level
 import java.sql.SQLException
 
 class TransactionManagementFilter extends Filter {
-  
+
   val logger = Logger.getLogger("kornell.server.web")
   val DOMAIN_HEADER = "X-KNL-DOMAIN"
-  
-  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) = 
+
+  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) =
     (sreq, sres) match {
       case (hreq: HttpServletRequest, hres: HttpServletResponse) => {
-        	doFilter(hreq, hres, chain)
+        doFilter(hreq, hres, chain)
       }
     }
-  
+
   def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
     try {
       chain.doFilter(req, resp)

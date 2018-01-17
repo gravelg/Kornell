@@ -33,9 +33,6 @@ import kornell.server.jdbc.PreparedStmt
 import kornell.server.jdbc.SQL.SQLHelper
 import kornell.server.repository.TOs
 
-class CourseClassesRepo {
-}
-
 object CourseClassesRepo {
 
   def apply(uuid: String) = CourseClassRepo(uuid)

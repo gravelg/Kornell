@@ -33,17 +33,16 @@ object LOM {
     fileName: String = "",
     title: String = "",
     actomKey: String = "",
-    index:Int) = {
+    index: Int) = {
 
     val baseURL: String = ""
     val page = factory.newExternalPage.as
     page.setTitle(title)
 
-    
     val idx = Try {
       fileName.split("\\.")(0).toInt
-    }.getOrElse(index) 
-    page.setIndex(idx) 
+    }.getOrElse(index)
+    page.setIndex(idx)
     page.setKey(actomKey)
     val pageURL = mkurl(baseURL, prefix, fileName)
     page.setURL(pageURL)

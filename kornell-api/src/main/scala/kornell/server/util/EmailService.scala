@@ -8,7 +8,7 @@ import kornell.core.entity.Person
 import kornell.core.entity.Course
 import kornell.core.entity.PersonCategory
 import kornell.core.entity.CourseClass
-import  kornell.core.util.StringUtils._
+import kornell.core.util.StringUtils._
 import kornell.server.jdbc.repository.PersonRepo
 import kornell.core.entity.Enrollment
 import kornell.server.jdbc.repository.InstitutionEmailWhitelistRepo
@@ -30,7 +30,6 @@ import collection.JavaConverters._
 import kornell.core.entity.EmailTemplateType
 import kornell.server.jdbc.repository.EmailTemplatesRepo
 
-
 object EmailService {
 
   val logger = Logger.getLogger("kornell.server.email")
@@ -38,7 +37,7 @@ object EmailService {
   def sendEmailBatchEnrollment(person: Person, institution: Institution, courseClass: CourseClass) = {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
       val values = scala.collection.mutable.Map[String, String]()
-      values("PERSON_FULLNAME") =  person.getFullName
+      values("PERSON_FULLNAME") = person.getFullName
       values("CLASS_NAME") = courseClass.getName
       values("BUTTON_LINK") = institution.getBaseURL + "#a.courseClass:" + courseClass.getUUID
       values("INSTITUTION_NAME") = institution.getFullName
@@ -54,7 +53,7 @@ object EmailService {
   def sendEmailConfirmation(person: Person, institution: Institution) = {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
       val values = scala.collection.mutable.Map[String, String]()
-      values("PERSON_FULLNAME") =  person.getFullName
+      values("PERSON_FULLNAME") = person.getFullName
       values("GENDER_MODIFIER") = PersonCategory.getSexSuffix(person, UserLocale.getLocale.get)
       values("BUTTON_LINK") = institution.getBaseURL + "#vitrine:"
       values("INSTITUTION_NAME") = institution.getFullName
@@ -70,7 +69,7 @@ object EmailService {
   def sendEmailRequestPasswordChange(person: Person, institution: Institution, requestPasswordChangeUUID: String) = {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
       val values = scala.collection.mutable.Map[String, String]()
-      values("PERSON_FULLNAME") =  person.getFullName
+      values("PERSON_FULLNAME") = person.getFullName
       values("BUTTON_LINK") = institution.getBaseURL + "#vitrine:" + requestPasswordChangeUUID
       values("INSTITUTION_NAME") = institution.getFullName
 
@@ -85,14 +84,14 @@ object EmailService {
   def sendEmailEnrolled(person: Person, institution: Institution, course: Course, enrollment: Enrollment, courseClass: CourseClass) = {
     if (checkWhitelistForDomain(institution, person.getEmail) && person.isReceiveEmailCommunication) {
       val hasPassword = PersonRepo(person.getUUID).hasPassword(institution.getUUID)
-      val actionLink = if(hasPassword) {
+      val actionLink = if (hasPassword) {
         institution.getBaseURL + "#classroom:" + enrollment.getUUID
       } else {
         institution.getBaseURL + "#vitrine:" + person.getEmail
       }
 
       val values = scala.collection.mutable.Map[String, String]()
-      values("PERSON_FULLNAME") =  person.getFullName
+      values("PERSON_FULLNAME") = person.getFullName
       values("GENDER_MODIFIER") = PersonCategory.getSexSuffix(person, UserLocale.getLocale.get)
       values("BUTTON_LINK") = actionLink
       values("INSTITUTION_NAME") = institution.getFullName
@@ -112,20 +111,20 @@ object EmailService {
     val participant = PersonRepo(chatThread.getPersonUUID).get
     if (checkWhitelistForDomain(institution, person.getEmail) && person.isReceiveEmailCommunication && !participant.getUUID.equals(person.getUUID)) {
       val templateType = {
-        if("SUPPORT".equalsIgnoreCase(chatThread.getThreadType))
+        if ("SUPPORT".equalsIgnoreCase(chatThread.getThreadType))
           EmailTemplateType.NEW_SUPPORT_CHAT_THREAD
-        else if("INSTITUTION_SUPPORT".equalsIgnoreCase(chatThread.getThreadType))
+        else if ("INSTITUTION_SUPPORT".equalsIgnoreCase(chatThread.getThreadType))
           EmailTemplateType.NEW_INSTITUTION_SUPPORT_CHAT_THREAD
-        else if("PLATFORM_SUPPORT".equalsIgnoreCase(chatThread.getThreadType))
+        else if ("PLATFORM_SUPPORT".equalsIgnoreCase(chatThread.getThreadType))
           EmailTemplateType.NEW_PLATFORM_SUPPORT_CHAT_THREAD
-        else if("TUTORING".equalsIgnoreCase(chatThread.getThreadType))
+        else if ("TUTORING".equalsIgnoreCase(chatThread.getThreadType))
           EmailTemplateType.NEW_TUTORING_CHAT_THREAD
         else
           throw new Exception()
       }
 
       val values = scala.collection.mutable.Map[String, String]()
-      values("PERSON_FULLNAME") =  person.getFullName
+      values("PERSON_FULLNAME") = person.getFullName
       values("BUTTON_LINK") = institution.getBaseURL + "#message:"
       values("INSTITUTION_SHORTNAME") = institution.getName
       values("CLASS_NAME") = courseClass.getName
@@ -166,7 +165,7 @@ object EmailService {
 
       val values = scala.collection.mutable.Map[String, String]()
       values("INSTITUTION_SHORTNAME") = institution.getName
-      values("PERSON_FULLNAME") =  person.getFullName
+      values("PERSON_FULLNAME") = person.getFullName
       values("PERSON_EMAIL") = person.getEmail
       values("COURSE_NAME") = course.getName
       values("CLASS_NAME") = enrolledClass.getName
@@ -183,7 +182,7 @@ object EmailService {
     }
   }
 
-  private def getFromEmail(institution: kornell.core.entity.Institution):String = {
+  private def getFromEmail(institution: kornell.core.entity.Institution): String = {
     if (StringUtils.isSome(institution.getInstitutionSupportEmail))
       institution.getInstitutionSupportEmail
     else
@@ -217,7 +216,7 @@ object EmailService {
     val imgFile: File = imgPath.toFile()
 
     val purgeTime = System.currentTimeMillis - (1 * 24 * 60 * 60 * 1000) //one day
-    if(imgFile.lastModified < purgeTime && !imgFile.delete)
+    if (imgFile.lastModified < purgeTime && !imgFile.delete)
       logger.warning("Unable to delete file: " + imgFile)
 
     if (!imgFile.exists) {

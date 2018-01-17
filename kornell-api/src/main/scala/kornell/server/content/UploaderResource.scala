@@ -25,10 +25,10 @@ class UploaderResource {
   @Path("{path: .+}")
   @OPTIONS
   def options(): Response = Response.status(200).build()
-  
+
   @Path("{path: .+}")
   @PUT
-  def put(@Context resp: HttpServletResponse, @Context req: HttpServletRequest, @PathParam("path") path: String):Response = {
+  def put(@Context resp: HttpServletResponse, @Context req: HttpServletRequest, @PathParam("path") path: String): Response = {
     val repoData = StringUtils.parseRepositoryData(path.replace("repository/", ""))
     val repositoryUUID = repoData.getRepositoryUUID()
     val cm = ContentManagers.forRepository(repositoryUUID);
@@ -46,8 +46,8 @@ class UploaderResource {
         Files.copy(fileContent, destinationPath, StandardCopyOption.REPLACE_EXISTING)
       }
       Response.status(200).build()
-//    } catch {
-//      case e: Exception => Response.status(500).entity(s"Key [${path}] not loaded").build()
+      //    } catch {
+      //      case e: Exception => Response.status(500).entity(s"Key [${path}] not loaded").build()
     } finally {
       fileContent.close()
     }
@@ -58,25 +58,25 @@ class UploaderResource {
     var entry = zis.getNextEntry()
     val buffer = new Array[Byte](1024)
 
-    while(entry != null) {
-        val fileName = entry.getName()
-        val outputStream = new ByteArrayOutputStream()
-        var len = zis.read(buffer)
-        while (len > 0) {
-            outputStream.write(buffer, 0, len)
-            len = zis.read(buffer)
-        }
-        val is = new ByteArrayInputStream(outputStream.toByteArray())
-        val path = Paths.get(uploadDirectory.getAbsolutePath, fileName)
-        // sometimes zips contain directory entries, don't create because we create on file copy
-        if (path.getFileName.toString.indexOf(".") != -1) {
-          Files.createDirectories(path.getParent)
-          Files.copy(is, path, StandardCopyOption.REPLACE_EXISTING)
-        }
+    while (entry != null) {
+      val fileName = entry.getName()
+      val outputStream = new ByteArrayOutputStream()
+      var len = zis.read(buffer)
+      while (len > 0) {
+        outputStream.write(buffer, 0, len)
+        len = zis.read(buffer)
+      }
+      val is = new ByteArrayInputStream(outputStream.toByteArray())
+      val path = Paths.get(uploadDirectory.getAbsolutePath, fileName)
+      // sometimes zips contain directory entries, don't create because we create on file copy
+      if (path.getFileName.toString.indexOf(".") != -1) {
+        Files.createDirectories(path.getParent)
+        Files.copy(is, path, StandardCopyOption.REPLACE_EXISTING)
+      }
 
-        is.close();
-        outputStream.close();
-        entry = zis.getNextEntry();
+      is.close();
+      outputStream.close();
+      entry = zis.getNextEntry();
     }
     zis.closeEntry();
     zis.close();

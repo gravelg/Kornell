@@ -7,7 +7,7 @@ import javax.ws.rs.ext.Provider
 @Provider
 class EventsReader extends AutoBeanReader {
   val factory = AutoBeanFactorySource.create(classOf[EventFactory])
-  
+
   override def getTypePrefix = EventFactory.PREFIX
-  override def getAutoBeanFactory = factory  
+  override def getAutoBeanFactory = factory
 }

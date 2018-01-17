@@ -16,195 +16,181 @@ import kornell.core.util.StringUtils;
  * @author jfaerman
  */
 public class DMElement {
-	private DMElement parent = null;
-	private List<DMElement> children = new ArrayList<>();
-	private String key;
-	private String fqkn;
-	private DataType type;
 
-	// private Object access;
-	// private boolean mandatory;
+    private DMElement parent = null;
+    private List<DMElement> children = new ArrayList<>();
+    private String key;
+    private String fqkn;
+    private DataType type;
 
-	public DMElement() {
-		this("");
-	}
+    // private Object access;
+    // private boolean mandatory;
 
-	public DMElement(String key, DMElement... children) {
-		this.key = key;
-		addAll(children);
-	}
+    public DMElement() {
+        this("");
+    }
 
-	protected void addAll(DMElement... children) {
-		for (DMElement c : children){
-			add(c);
-			c.parent = this;
-		}
-	}
+    public DMElement(String key, DMElement... children) {
+        this.key = key;
+        addAll(children);
+    }
 
-	public DMElement(String key,
-			DataType type, SCOAccess access) {
-		this(key,false,type,access);
-	}
-	
-	public DMElement(String key, boolean mandatory,
-			DataType type, SCOAccess access) {
-		this.key = key;
-		this.type = type;
-		// this.access = access;
-		// this.mandatory = mandatory;
-	}
+    protected void addAll(DMElement... children) {
+        for (DMElement c : children) {
+            add(c);
+            c.parent = this;
+        }
+    }
 
-	public DMElement(String key) {
-		this(key, false, null, null);
-	}
+    public DMElement(String key, DataType type, SCOAccess access) {
+        this(key, false, type, access);
+    }
 
-	public synchronized DMElement add(DMElement child) {
-		if (child != null) {
-			this.children.add(child);
-			if (child.parent != null && child.parent != this) {
-				child.parent.children.remove(child);
-			}
-			child.parent = this;
-		}
-		return this;
-	}
+    public DMElement(String key, boolean mandatory, DataType type, SCOAccess access) {
+        this.key = key;
+        this.type = type;
+        // this.access = access;
+        // this.mandatory = mandatory;
+    }
 
+    public DMElement(String key) {
+        this(key, false, null, null);
+    }
 
-	public List<DMElement> getChildren() {
-		return children;
-	}
+    public synchronized DMElement add(DMElement child) {
+        if (child != null) {
+            this.children.add(child);
+            if (child.parent != null && child.parent != this) {
+                child.parent.children.remove(child);
+            }
+            child.parent = this;
+        }
+        return this;
+    }
 
-	/**
-	 * The launch value is the value to be set to a given data model upon
-	 * launching the SCO
-	 */
-	public Map<String, String> initializeMap(Map<String, String> entries,
-			Person person,
-			Enrollment enrollment,
-			CourseClass courseClass) {
-		return nothing();
-	}
-	
-	
+    public List<DMElement> getChildren() {
+        return children;
+    }
 
-	/**
-	 * The finish value is the value to be set to a given when the LMSFinish is
-	 * called or the user navigates away
-	 */
-	// TODO: map when the user navigates away reliably
-	protected Map<String, String> finishMap(Map<String, String> entries) {
-		return nothing();
-	}
+    /**
+     * The launch value is the value to be set to a given data model upon
+     * launching the SCO
+     */
+    public Map<String, String> initializeMap(Map<String, String> entries, Person person, Enrollment enrollment,
+            CourseClass courseClass) {
+        return nothing();
+    }
 
-	/**
-	 * Fully Qualified Key Name (e.g. cmi.core.lesson_status)
-	 */
-	public String getFQKN() {
-		if (fqkn == null) {
-			if (parent != null) {
-				String pfqkn = parent.getFQKN();
-				if (StringUtils.isSome(pfqkn)) 
-					fqkn = pfqkn + "." + key;
-				else
-					fqkn = key;
-			}
-		}
-		return fqkn;
-	}
+    /**
+     * The finish value is the value to be set to a given when the LMSFinish is
+     * called or the user navigates away
+     */
+    // TODO: map when the user navigates away reliably
+    protected Map<String, String> finishMap(Map<String, String> entries) {
+        return nothing();
+    }
 
-	public String get(Map<String, String> entries) {
-		return entries.get(getFQKN());
-	}
+    /**
+     * Fully Qualified Key Name (e.g. cmi.core.lesson_status)
+     */
+    public String getFQKN() {
+        if (fqkn == null) {
+            if (parent != null) {
+                String pfqkn = parent.getFQKN();
+                if (StringUtils.isSome(pfqkn))
+                    fqkn = pfqkn + "." + key;
+                else
+                    fqkn = key;
+            }
+        }
+        return fqkn;
+    }
 
-	public boolean is(Map<String, String> entries, String value) {
-		String entryValue = get(entries);
-		return (entryValue == null) ? false : entryValue.equals(value);
-	}
+    public String get(Map<String, String> entries) {
+        return entries.get(getFQKN());
+    }
 
-	String dirty_flag = "_";
+    public boolean is(Map<String, String> entries, String value) {
+        String entryValue = get(entries);
+        return (entryValue == null) ? false : entryValue.equals(value);
+    }
 
-	
-	public Map<String, String> set(final String value,
-			final boolean dirty) {
-		return set(null, value, dirty);
-	}
-			
-	public Map<String, String> set(Map<String, String> entries,
-			final String value,
-			final boolean dirtyCheck) {
-		if (entries == null) {
-			entries = nothing();
-			if (type != null && !type.check(value)) {
-				throw new IllegalArgumentException("Type [" + type.toString()
-						+ "] does not contain [" + value + "]");
-			}
-		}
-		boolean dirty = false;
-		if(dirtyCheck){
-			String curr = get(entries);
-			dirty = curr != null && curr.equals(value);
-		}
-		String key = dirty ? dirty(getFQKN()) : getFQKN();		
-		entries.put(key, value);
-		return entries;
-	}
+    String dirty_flag = "_";
 
-	protected Map<String, String> set(final String value) {
-		return set(null, value, true);
-	}
+    public Map<String, String> set(final String value, final boolean dirty) {
+        return set(null, value, dirty);
+    }
 
-	protected Map<String, String> set(Map<String, String> out, final String value) {
-		return set(out, value, true);
-	}
+    public Map<String, String> set(Map<String, String> entries, final String value, final boolean dirtyCheck) {
+        if (entries == null) {
+            entries = nothing();
+            if (type != null && !type.check(value)) {
+                throw new IllegalArgumentException("Type [" + type.toString() + "] does not contain [" + value + "]");
+            }
+        }
+        boolean dirty = false;
+        if (dirtyCheck) {
+            String curr = get(entries);
+            dirty = curr != null && curr.equals(value);
+        }
+        String key = dirty ? dirty(getFQKN()) : getFQKN();
+        entries.put(key, value);
+        return entries;
+    }
 
-	private String dirty(String fqkn) {
-		return dirty_flag + fqkn;
-	}
+    protected Map<String, String> set(final String value) {
+        return set(null, value, true);
+    }
 
-	private Map<String, String> defaultTo(Map<String, String> entries,
-			String defaultValue, boolean dirty) {
-		if (entries != null){
-			String key = getFQKN();
-			if(key.contains("launch")){
-				System.out.println("BREAK");
-			}
-			boolean isDefined = entries.containsKey(key);
-			if(! isDefined){
-				Map<String, String> result = set(null, defaultValue, dirty);
-				return result;
-			}
-		}
-		return nothing();
-	}
+    protected Map<String, String> set(Map<String, String> out, final String value) {
+        return set(out, value, true);
+    }
 
-	public boolean isSome(Map<String, String> entries) {
-		return StringUtils.isSome(entries.get(getFQKN()));
-	}
+    private String dirty(String fqkn) {
+        return dirty_flag + fqkn;
+    }
 
-	protected Map<String, String> nothing() {
-		return new HashMap<>();
-	}
+    private Map<String, String> defaultTo(Map<String, String> entries, String defaultValue, boolean dirty) {
+        if (entries != null) {
+            String key = getFQKN();
+            if (key.contains("launch")) {
+                System.out.println("BREAK");
+            }
+            boolean isDefined = entries.containsKey(key);
+            if (!isDefined) {
+                Map<String, String> result = set(null, defaultValue, dirty);
+                return result;
+            }
+        }
+        return nothing();
+    }
 
-	/**
-	 * Sets data model value and flags entry as dirty to be persisted before
-	 * launch
-	 */
-	protected Map<String, String> setDefault(Map<String, String> entries,
-			String value) {
-		return defaultTo(entries, value, true);
-	}
+    public boolean isSome(Map<String, String> entries) {
+        return StringUtils.isSome(entries.get(getFQKN()));
+    }
 
-	/**
-	 * Sets data model default value, does not persist
-	 */
-	protected Map<String, String> defaultTo(Map<String, String> entries,
-			String value) {
-		return defaultTo(entries, value, false);
-	}
+    protected Map<String, String> nothing() {
+        return new HashMap<>();
+    }
 
-	public Integer asInt(Map<String, String> entries) {
-		String str = get(entries);
-		return Integer.parseInt(str);
-	}
-	
+    /**
+     * Sets data model value and flags entry as dirty to be persisted before
+     * launch
+     */
+    protected Map<String, String> setDefault(Map<String, String> entries, String value) {
+        return defaultTo(entries, value, true);
+    }
+
+    /**
+     * Sets data model default value, does not persist
+     */
+    protected Map<String, String> defaultTo(Map<String, String> entries, String value) {
+        return defaultTo(entries, value, false);
+    }
+
+    public Integer asInt(Map<String, String> entries) {
+        String str = get(entries);
+        return Integer.parseInt(str);
+    }
+
 }

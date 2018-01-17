@@ -1,10 +1,9 @@
 package kornell.server.jdbc.repository
 
 import java.sql.ResultSet
-import kornell.server.jdbc.SQL._ 
+import kornell.server.jdbc.SQL._
 import scala.collection.JavaConverters._
 import kornell.core.entity.CourseDetailsSection
-
 
 class CourseDetailsSectionRepo(uuid: String) {
 
@@ -12,22 +11,22 @@ class CourseDetailsSectionRepo(uuid: String) {
 
   def get = finder.get[CourseDetailsSection]
   def first = finder.first[CourseDetailsSection]
-  
-  def update(courseDetailsSection: CourseDetailsSection): CourseDetailsSection = {    
+
+  def update(courseDetailsSection: CourseDetailsSection): CourseDetailsSection = {
     sql"""
     | update CourseDetailsSection s
     | set s.text = ${courseDetailsSection.getText},
-    | s.index = ${courseDetailsSection.getIndex}, 
+    | s.index = ${courseDetailsSection.getIndex},
     | s.title = ${courseDetailsSection.getTitle}
     | where s.uuid = ${courseDetailsSection.getUUID}""".executeUpdate
-    
+
     courseDetailsSection
-  }  
-  
-  def delete = {    
+  }
+
+  def delete = {
     val courseDetailsSection = get
     sql"""
-      delete from CourseDetailsSection 
+      delete from CourseDetailsSection
       where uuid = ${uuid}""".executeUpdate
 
     val courseDetailsSections = CourseDetailsSectionsRepo.getForEntity(courseDetailsSection.getEntityUUID, courseDetailsSection.getEntityType).getCourseDetailsSections
@@ -38,7 +37,7 @@ class CourseDetailsSectionRepo(uuid: String) {
       courseDetailsSection.setIndex(index)
       CourseDetailsSectionRepo(courseDetailsSection.getUUID).update(courseDetailsSection)
     }
-      
+
     courseDetailsSection
   }
 

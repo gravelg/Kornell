@@ -91,10 +91,10 @@ class EnrollmentsResource {
   def putNotesChange(@PathParam("courseClassUUID") courseClassUUID: String, notes: String) =
     AuthRepo().withPerson { p =>
       sql"""
-    	update Enrollment set notes=$notes
-    	where personUUID=${p.getUUID}
-    	and courseClassUUID=${courseClassUUID}
-    	""".executeUpdate
+      update Enrollment set notes=$notes
+      where personUUID=${p.getUUID}
+      and courseClassUUID=${courseClassUUID}
+      """.executeUpdate
     }
 
   @GET
@@ -107,17 +107,17 @@ class EnrollmentsResource {
     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr())
     .or(isCourseClassTutor(courseClassUUID), AccessDeniedErr())
     .or(isCourseClassObserver(courseClassUUID), AccessDeniedErr()).get
-  
+
   @GET
   @Path("leaderboard/{dashboardEnrollmentUUID}")
   @Produces(Array(DashboardLeaderboardTO.TYPE))
-  def leaderboard(@PathParam("dashboardEnrollmentUUID") dashboardEnrollmentUUID: String) = 
+  def leaderboard(@PathParam("dashboardEnrollmentUUID") dashboardEnrollmentUUID: String) =
     EnrollmentsRepo.getLeaderboardForDashboard(dashboardEnrollmentUUID)
-  
+
   @GET
   @Path("leaderboardPosition/{dashboardEnrollmentUUID}")
   @Produces(Array("text/plain"))
-  def leaderboardPosition(@PathParam("dashboardEnrollmentUUID") dashboardEnrollmentUUID: String) = 
+  def leaderboardPosition(@PathParam("dashboardEnrollmentUUID") dashboardEnrollmentUUID: String) =
     EnrollmentsRepo.getLeaderboardPosition(dashboardEnrollmentUUID)
 
 }

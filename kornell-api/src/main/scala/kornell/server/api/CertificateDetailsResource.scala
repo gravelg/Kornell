@@ -11,33 +11,32 @@ import kornell.server.jdbc.repository.CertificateDetailsRepo
 import kornell.server.util.Conditional.toConditional
 import javax.ws.rs.DELETE
 
-
 class CertificateDetailsResource(uuid: String) {
-  
+
   @GET
   @Produces(Array(CertificateDetails.TYPE))
   def get = {
     CertificateDetailsRepo(uuid).get
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @PUT
   @Consumes(Array(CertificateDetails.TYPE))
   @Produces(Array(CertificateDetails.TYPE))
   def update(certificateDetails: CertificateDetails) = {
     CertificateDetailsRepo(uuid).update(certificateDetails)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 
   @DELETE
   @Produces(Array(CertificateDetails.TYPE))
   def delete() = {
     CertificateDetailsRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 }
 
 object CertificateDetailsResource {

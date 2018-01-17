@@ -30,7 +30,6 @@ class AutoBeanWriter extends MessageBodyWriter[Any] {
     genericType: java.lang.reflect.Type,
     annotations: Array[java.lang.annotation.Annotation],
     mediaType: MediaType) = mediaType.toString().contains("vnd.kornell")
-  
 
   override def writeTo(t: Any,
     aType: java.lang.Class[_],
@@ -40,27 +39,27 @@ class AutoBeanWriter extends MessageBodyWriter[Any] {
     httpHeaders: MultivaluedMap[java.lang.String, java.lang.Object],
     out: java.io.OutputStream) {
     t match {
-      case Some(thing) => {outputPayload(thing,out) }
-      case Passed(block) => {outputPayload(block,out) }
-      case Failed(err) => {spitErr(err) }
-      case _ => {outputPayload(t,out)}
+      case Some(thing) => { outputPayload(thing, out) }
+      case Passed(block) => { outputPayload(block, out) }
+      case Failed(err) => { spitErr(err) }
+      case _ => { outputPayload(t, out) }
     }
   }
-  
-  def spitErr(e:Err) = {
+
+  def spitErr(e: Err) = {
     println(e)
     val response = Response.status(Response.Status.BAD_REQUEST).build();
     throw new WebApplicationException(response);
-  } 
+  }
 
-  private def outputPayload(content: Any,out:OutputStream) = {    
+  private def outputPayload(content: Any, out: OutputStream) = {
     val bean = AutoBeanUtils.getAutoBean(content)
     val payload = AutoBeanCodex.encode(bean).getPayload
     val writer = new OutputStreamWriter(out, "UTF-8");
     writer.write(payload)
     writer.flush()
     writer.close()
-    
+
   }
-  
+
 }

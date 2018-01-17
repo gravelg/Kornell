@@ -21,49 +21,49 @@ import kornell.core.to.CourseDetailsSectionsTO
 
 @Path("courseDetailsSections")
 class CourseDetailsSectionsResource {
-  
+
   @Path("{uuid}")
   def get(@PathParam("uuid") uuid: String) = CourseDetailsSectionResource(uuid)
-   
+
   @POST
   @Consumes(Array(CourseDetailsSection.TYPE))
   @Produces(Array(CourseDetailsSection.TYPE))
   def create(courseDetailsSection: CourseDetailsSection) = {
     CourseDetailsSectionsRepo.create(courseDetailsSection)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
-   @GET
-   @Path("/{entityType}/{entityUUID}")
-   @Produces(Array(CourseDetailsSectionsTO.TYPE))
-   def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
-       @PathParam("entityUUID") entityUUID: String) = {
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
+  @GET
+  @Path("/{entityType}/{entityUUID}")
+  @Produces(Array(CourseDetailsSectionsTO.TYPE))
+  def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
+    @PathParam("entityUUID") entityUUID: String) = {
     CourseDetailsSectionsRepo.getForEntity(entityUUID, CourseDetailsEntityType.valueOf(entityType))
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
-   @POST
-   @Path("/{entityType}/{entityUUID}/moveUp/{index}")
-   def moveUp(@PathParam("entityType") entityType: String,
-       @PathParam("entityUUID") entityUUID: String,
-       @PathParam("index") index: String) = {
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
+  @POST
+  @Path("/{entityType}/{entityUUID}/moveUp/{index}")
+  def moveUp(@PathParam("entityType") entityType: String,
+    @PathParam("entityUUID") entityUUID: String,
+    @PathParam("index") index: String) = {
     CourseDetailsSectionsRepo.moveUp(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
-   @POST
-   @Path("/{entityType}/{entityUUID}/moveDown/{index}")
-   def moveDown(@PathParam("entityType") entityType: String,
-       @PathParam("entityUUID") entityUUID: String,
-       @PathParam("index") index: String) = {
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
+  @POST
+  @Path("/{entityType}/{entityUUID}/moveDown/{index}")
+  def moveDown(@PathParam("entityType") entityType: String,
+    @PathParam("entityUUID") entityUUID: String,
+    @PathParam("index") index: String) = {
     CourseDetailsSectionsRepo.moveDown(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-      
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
 }
 
 object CourseDetailsSectionsResource {

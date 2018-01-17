@@ -17,20 +17,20 @@ object EnrollmentUtil {
   def containsAssessment(entries: EntriesMap) =
     entries.containsKey("cmi.core.score.raw") ||
       entries.containsKey("cmi.suspend_data")
-      
-  def parsePreScore(value:String) = value match {
-        case preScore_r(x) => parseBigDecimal(x)
-        case _ => None
+
+  def parsePreScore(value: String) = value match {
+    case preScore_r(x) => parseBigDecimal(x)
+    case _ => None
   }
-  
-  def parsePostScore(value:String) = value match {
-        case postScore_r(x) => parseBigDecimal(x)
-        case _ => None
+
+  def parsePostScore(value: String) = value match {
+    case postScore_r(x) => parseBigDecimal(x)
+    case _ => None
   }
-  
-  def optSuspendData(entries:EntriesMap):Option[String] = 
-    Option(entries.get("cmi.suspend_data")) 
-  
+
+  def optSuspendData(entries: EntriesMap): Option[String] =
+    Option(entries.get("cmi.suspend_data"))
+
   def parsePreAssessmentScore(entries: EntriesMap): Option[BigDecimal] =
     optSuspendData(entries) flatMap parsePreScore
 

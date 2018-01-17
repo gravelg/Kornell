@@ -19,7 +19,7 @@ import kornell.core.entity.AuthClientType
 import java.util.Date
 import com.google.gwt.uibinder.elementparsers.IsEmptyParser
 
-class BasicAuthFilter extends Filter { 
+class BasicAuthFilter extends Filter {
   val log = Logger.getLogger(classOf[BasicAuthFilter].getName)
   val tokenRepo = TokenRepo()
   val X_KNL_TOKEN = "X-KNL-TOKEN"
@@ -43,7 +43,7 @@ class BasicAuthFilter extends Filter {
     (sreq, sres) match {
       case (hreq: HttpServletRequest, hres: HttpServletResponse) => {
         if (hreq.getRequestURI.startsWith("/api")) {
-        	doFilter(hreq, hres, chain)
+          doFilter(hreq, hres, chain)
         } else {
           chain.doFilter(hreq, hres)
         }
@@ -51,16 +51,16 @@ class BasicAuthFilter extends Filter {
     }
 
   def getCredentials(req: HttpServletRequest): String = {
-    if(req.getHeader(X_KNL_TOKEN) != null)
+    if (req.getHeader(X_KNL_TOKEN) != null)
       req.getHeader(X_KNL_TOKEN)
-    else if(req.getCookies() != null && !req.getCookies().filter(c => X_KNL_TOKEN.equals(c.getName())).isEmpty)
+    else if (req.getCookies() != null && !req.getCookies().filter(c => X_KNL_TOKEN.equals(c.getName())).isEmpty)
       req.getCookies().filter(c => X_KNL_TOKEN.equals(c.getName())).head.getValue
     else
       null
-  }    
-    
-  def hasCredentials(req: HttpServletRequest): Boolean = getCredentials(req) != null 
-    
+  }
+
+  def hasCredentials(req: HttpServletRequest): Boolean = getCredentials(req) != null
+
   def isPrivate(req: HttpServletRequest, resp: HttpServletResponse) = !isPublic(req, resp)
 
   def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) =
@@ -77,29 +77,28 @@ class BasicAuthFilter extends Filter {
     isOption || isPublic
   }
 
-
   def checkCredentials(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
     val auth = getCredentials(req)
-    
+
     if (auth != null && auth.length() > 0) {
-        val token = tokenRepo.checkToken(auth)
-        if (!token.isDefined || (token.get.getClientType == AuthClientType.web && token.get.getExpiry.before(new Date))) {
-        	writeErrorMessage("mustAuthenticate",req, resp)
-        } else {
-          ThreadLocalAuthenticator.setAuthenticatedPersonUUID(token.get.getPersonUUID)
-          chain.doFilter(req, resp);
-        }
-        logout
+      val token = tokenRepo.checkToken(auth)
+      if (!token.isDefined || (token.get.getClientType == AuthClientType.web && token.get.getExpiry.before(new Date))) {
+        writeErrorMessage("mustAuthenticate", req, resp)
+      } else {
+        ThreadLocalAuthenticator.setAuthenticatedPersonUUID(token.get.getPersonUUID)
+        chain.doFilter(req, resp);
+      }
+      logout
     } else {
-      writeErrorMessage("mustAuthenticate",req, resp)
+      writeErrorMessage("mustAuthenticate", req, resp)
     }
   }
-  
+
   def writeErrorMessage(messageKey: String, req: HttpServletRequest, resp: HttpServletResponse) = {
-      resp.setContentType(KornellErrorTO.TYPE)
-      resp.setStatus(401)
-      resp.setCharacterEncoding("UTF-8")
-      resp.getWriter().write("{\"messageKey\":\""+messageKey+"\"}")
+    resp.setContentType(KornellErrorTO.TYPE)
+    resp.setStatus(401)
+    resp.setCharacterEncoding("UTF-8")
+    resp.getWriter().write("{\"messageKey\":\"" + messageKey + "\"}")
   }
 
   override def init(cfg: FilterConfig) {}

@@ -5,9 +5,9 @@ package kornell.core.entity;
  */
 public abstract class Entities {
 
-	public EnrollmentProgress newEnrollmentProgress() {		
-		return getEntityFactory().newEnrollmentProgress().as();
-	}
+    public EnrollmentProgress newEnrollmentProgress() {
+        return getEntityFactory().newEnrollmentProgress().as();
+    }
 
-	protected abstract EntityFactory getEntityFactory();
+    protected abstract EntityFactory getEntityFactory();
 }

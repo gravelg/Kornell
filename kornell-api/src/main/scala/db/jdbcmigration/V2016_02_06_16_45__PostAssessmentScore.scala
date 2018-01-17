@@ -7,7 +7,7 @@ import kornell.server.jdbc.repository.EnrollmentRepo
 import kornell.server.jdbc.SQL._
 import kornell.server.jdbc.ConnectionHandler
 
-class V2016_02_13_16_45__PostAssessmentScore extends JdbcMigration  {
+class V2016_02_13_16_45__PostAssessmentScore extends JdbcMigration {
   override def migrate(conn: Connection) {
     migratePostAssessmentScores
   }

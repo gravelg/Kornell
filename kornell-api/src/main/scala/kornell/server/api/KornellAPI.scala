@@ -60,9 +60,9 @@ class KornellAPI extends Application {
 
   override def getClasses() =
     readers ++
-    writers ++
-    mappers ++
-    resources asJava
+      writers ++
+      mappers ++
+      resources asJava
 
   override def getSingletons() = Collections.emptySet()
 }

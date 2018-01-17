@@ -10,7 +10,7 @@ class ServerErrorMapper extends ExceptionMapper[ServerErrorException] {
     if (see.getCause != null)
       ExceptionMapperHelper.handleError(500, see.getMessageKey, see.getCause.getMessage)
     else
-      ExceptionMapperHelper.handleError(500, see.getMessageKey)  
+      ExceptionMapperHelper.handleError(500, see.getMessageKey)
   }
-    
+
 }

@@ -9,11 +9,11 @@ import kornell.core.entity.AuditedEntityType
 class InstitutionRepo(uuid: String) {
 
   def get = InstitutionsRepo.getByUUID(uuid).get
-  
-  def update(institution: Institution): Institution = { 
+
+  def update(institution: Institution): Institution = {
     //get previous version
     val oldInstitution = InstitutionsRepo.getByUUID(institution.getUUID).get
-    
+
     sql"""
     | update Institution i
     | set i.name = ${institution.getName},
@@ -37,26 +37,26 @@ class InstitutionRepo(uuid: String) {
     | i.notifyInstitutionAdmins = ${institution.isNotifyInstitutionAdmins},
     | i.allowedLanguages = ${institution.getAllowedLanguages}
     | where i.uuid = ${institution.getUUID}""".executeUpdate
-	    
+
     //log entity change
     EventsRepo.logEntityChange(institution.getUUID, AuditedEntityType.institution, institution.getUUID, oldInstitution, institution)
-    
-	  InstitutionsRepo.updateCaches(institution)
-	
+
+    InstitutionsRepo.updateCaches(institution)
+
     InstitutionsRepo.cleanUpHostNameCache
-	  
+
     institution
   }
-  
+
   def getInstitutionRegistrationPrefixes = {
-	  TOs.newInstitutionRegistrationPrefixesTO(sql"""
-	    | select * from InstitutionRegistrationPrefix 
-	    | where institutionUUID = ${uuid}
-	        """.map[InstitutionRegistrationPrefix](toInstitutionRegistrationPrefix))
+    TOs.newInstitutionRegistrationPrefixesTO(sql"""
+      | select * from InstitutionRegistrationPrefix
+      | where institutionUUID = ${uuid}
+          """.map[InstitutionRegistrationPrefix](toInstitutionRegistrationPrefix))
   }
 
 }
 
 object InstitutionRepo {
-  def apply(uuid:String) = new InstitutionRepo(uuid)
+  def apply(uuid: String) = new InstitutionRepo(uuid)
 }

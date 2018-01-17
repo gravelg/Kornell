@@ -26,4 +26,3 @@ object SQL {
   def randomUUID = UUID.random()
 
 }
-

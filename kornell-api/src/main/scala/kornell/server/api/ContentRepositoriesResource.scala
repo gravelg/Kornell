@@ -13,10 +13,10 @@ import kornell.core.entity.ContentRepository
 
 @Path("contentRepositories")
 class ContentRepositoriesResource {
-  
+
   @Path("{repositoryUUID}")
   def getByUUID(@PathParam("repositoryUUID") repositoryUUID: String) = ContentRepositoryResource(repositoryUUID)
-  
+
   @POST
   @Produces(Array(ContentRepository.TYPE))
   @Consumes(Array(ContentRepository.TYPE))

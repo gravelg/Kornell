@@ -13,14 +13,14 @@ import java.io.InputStream
 
 object ContentsParser {
 
-  val topicPattern = """#\s?(.*)""".r 
+  val topicPattern = """#\s?(.*)""".r
 
-  def parse(prefix:String, stream: InputStream, visited:List[String]): Contents = {
+  def parse(prefix: String, stream: InputStream, visited: List[String]): Contents = {
     val source = Source.fromInputStream(stream, "UTF-8")
     parseLines(prefix, source.getLines, visited)
   }
 
-  def parseLines(prefix:String,lines:Iterator[String],visited:List[String]) = {
+  def parseLines(prefix: String, lines: Iterator[String], visited: List[String]) = {
     val result = ListBuffer[Content]()
     var topic: Topic = null
     var index = 1 //should start with 1, in case of the ordering fallback
@@ -33,11 +33,11 @@ object ContentsParser {
 
         case _ => {
           val tokens = line.split(";")
-          val fileName = Try{tokens(0)}.getOrElse("")
-          val title = Try{tokens(1)}.getOrElse("")
-          val actomKey = Try{tokens(2)}.getOrElse(fileName)
+          val fileName = Try { tokens(0) }.getOrElse("")
+          val title = Try { tokens(1) }.getOrElse("")
+          val actomKey = Try { tokens(2) }.getOrElse(fileName)
 
-          val page = LOM.newExternalPage(prefix,fileName,title,actomKey,index)
+          val page = LOM.newExternalPage(prefix, fileName, title, actomKey, index)
           page.setVisited(visited.contains(page.getKey()))
           val content = LOM.newContent(page)
           if (topic != null)

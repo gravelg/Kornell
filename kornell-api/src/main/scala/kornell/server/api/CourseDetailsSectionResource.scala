@@ -14,32 +14,32 @@ import kornell.server.jdbc.repository.CourseDetailsSectionRepo
 import kornell.core.entity.CourseDetailsSection
 
 class CourseDetailsSectionResource(uuid: String) {
-  
+
   @GET
   @Produces(Array(CourseDetailsSection.TYPE))
   def get = {
     CourseDetailsSectionRepo(uuid).get
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @PUT
   @Consumes(Array(CourseDetailsSection.TYPE))
   @Produces(Array(CourseDetailsSection.TYPE))
   def update(courseDetailsSection: CourseDetailsSection) = {
     CourseDetailsSectionRepo(uuid).update(courseDetailsSection)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 
   @DELETE
   @Produces(Array(CourseDetailsSection.TYPE))
   def delete() = {
     CourseDetailsSectionRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
 }
 
 object CourseDetailsSectionResource {

@@ -27,7 +27,7 @@ import kornell.server.util.EmailService
 
 //TODO: Specific column names and proper sql
 class EnrollmentRepo(uuid: String) {
-  
+
   lazy val finder = sql" SELECT * FROM Enrollment e WHERE uuid = ${uuid} "
 
   def get: Enrollment = first.get
@@ -37,23 +37,23 @@ class EnrollmentRepo(uuid: String) {
   def update(e: Enrollment): Enrollment = {
     e.setLastProgressUpdate(DateTime.now.toDate)
     sql"""
-    update Enrollment    
-    set 
-  		progress = ${e.getProgress},
-  		notes = ${e.getNotes},
-  		state = ${e.getState.toString},
-  		lastProgressUpdate = ${e.getLastProgressUpdate},
-  		assessment = ${Option(e.getAssessment).map(_.toString).getOrElse(null)},
-  		lastAssessmentUpdate = ${e.getLastAssessmentUpdate},
-  		assessmentScore = ${e.getAssessmentScore},
-  		certifiedAt = ${e.getCertifiedAt},
+    update Enrollment
+    set
+      progress = ${e.getProgress},
+      notes = ${e.getNotes},
+      state = ${e.getState.toString},
+      lastProgressUpdate = ${e.getLastProgressUpdate},
+      assessment = ${Option(e.getAssessment).map(_.toString).getOrElse(null)},
+      lastAssessmentUpdate = ${e.getLastAssessmentUpdate},
+      assessmentScore = ${e.getAssessmentScore},
+      certifiedAt = ${e.getCertifiedAt},
       parentEnrollmentUUID = ${e.getParentEnrollmentUUID},
       start_date = ${e.getStartDate},
       end_date = ${e.getEndDate}
     where uuid = ${e.getUUID} """.executeUpdate
-    
+
     EnrollmentsRepo.updateCache(sql" SELECT * FROM Enrollment e WHERE uuid = ${uuid}".first[Enrollment].get)
-	ChatThreadsRepo.addParticipantsToCourseClassThread(CourseClassesRepo(e.getCourseClassUUID).get)
+    ChatThreadsRepo.addParticipantsToCourseClassThread(CourseClassesRepo(e.getCourseClassUUID).get)
     e
   }
 
@@ -79,18 +79,18 @@ class EnrollmentRepo(uuid: String) {
   }
 
   def findProgressMilestone(e: Enrollment, actomKey: String): Option[Int] = {
-      val actomLike = "%" + actomKey
-      val enrollmentUUID = e.getUUID
-      val progress = sql"""
-    	  select progress from ActomEntries AE
-    		join ProgressMilestone PM on AE.actomKey = PM.actomKey and AE.entryValue = PM.entryValue
+    val actomLike = "%" + actomKey
+    val enrollmentUUID = e.getUUID
+    val progress = sql"""
+        select progress from ActomEntries AE
+        join ProgressMilestone PM on AE.actomKey = PM.actomKey and AE.entryValue = PM.entryValue
           where AE.enrollmentUUID = ${enrollmentUUID}
-    		and AE.actomKey LIKE ${actomLike}
-    		and AE.entryKey = 'cmi.core.lesson_location'
+        and AE.actomKey LIKE ${actomLike}
+        and AE.entryKey = 'cmi.core.lesson_location'
       """.map[Integer] { rs => rs.getInt("progress") }
 
-      if (progress.isEmpty) None else Some(progress.head)
-    }
+    if (progress.isEmpty) None else Some(progress.head)
+  }
 
   def progressFromMilestones(e: Enrollment): Option[Int] = {
     val actomKeys = ContentRepository.findSCORM12Actoms(e.getCourseClassUUID)
@@ -103,12 +103,11 @@ class EnrollmentRepo(uuid: String) {
   }
 
   val progress_r = """.*::progress,(\d+).*""".r
-  def parseProgress(sdata: String) = 
+  def parseProgress(sdata: String) =
     sdata match {
-      case progress_r(matched) => Try {matched.toInt}.toOption
+      case progress_r(matched) => Try { matched.toInt }.toOption
       case _ => None
-  }
-
+    }
 
   def progressFromSuspendData(e: Enrollment): Option[Int] = {
     val suspend_datas = ActomEntriesRepo.getValues(e.getUUID, "%", "cmi.suspend_data")
@@ -122,10 +121,11 @@ class EnrollmentRepo(uuid: String) {
 
   def progressFromLessonStatus(e: Enrollment): Option[Int] = {
     val lesson_statuses = ActomEntriesRepo.getValues(e.getUUID, "%", "cmi.core.lesson_status")
-    val progresses = lesson_statuses.flatMap { _ match {
+    val progresses = lesson_statuses.flatMap {
+      _ match {
         case "passed" => Option(100)
         case _ => None
-      } 
+      }
     }
     val progress = if (progresses.isEmpty)
       None
@@ -134,38 +134,36 @@ class EnrollmentRepo(uuid: String) {
     progress
   }
 
-  def updateSCORM12Progress(e: Enrollment) = 
+  def updateSCORM12Progress(e: Enrollment) =
     progressFromSuspendData(e)
       .orElse(progressFromMilestones(e))
       .orElse(progressFromLessonStatus(e))
       .orElse(Some(1))
       .foreach { p => setEnrollmentProgress(e, p) }
-  
 
   def setEnrollmentProgress(e: Enrollment, newProgress: Int) = {
     val currentProgress = e.getProgress
-    val isProgress = newProgress > currentProgress    
+    val isProgress = newProgress > currentProgress
     if (isProgress) {
       val isValid = newProgress >= 0 && newProgress <= 100
-      if (isValid){
+      if (isValid) {
         e.setProgress(newProgress)
         update(e)
         checkCompletion(e);
-      }else {
+      } else {
         logger.warning(s"Invalid progress [${currentProgress} to ${newProgress}] on enrollment [${e.getUUID}]")
       }
-    } 
+    }
   }
 
   //TODO: WRONG ASSUMPTION: Courses can have multiple assessments, should be across all grades
   def findMaxScore(enrollmentUUID: String): Option[BigDecimal] = sql"""
-  		SELECT  MAX(CAST(entryValue AS DECIMAL(8,5))) as maxScore
-  		FROM ActomEntries
-  		WHERE enrollmentUUID = ${enrollmentUUID}
-  		AND entryKey = 'cmi.core.score.raw'
+      SELECT  MAX(CAST(entryValue AS DECIMAL(8,5))) as maxScore
+      FROM ActomEntries
+      WHERE enrollmentUUID = ${enrollmentUUID}
+      AND entryKey = 'cmi.core.score.raw'
   """.first[BigDecimal] { rs => rs.getBigDecimal("maxScore") }
 
-  
   def updateAssessment = first map { e =>
     val notPassed = !Assessment.PASSED.equals(e.getAssessment)
     if (notPassed && e.getCourseClassUUID != null) {
@@ -197,13 +195,13 @@ class EnrollmentRepo(uuid: String) {
       update(e)
       EmailService.sendEmailClassCompletion(EnrollmentRepo(e.getUUID).get)
     }
-  }  
-  
-  def checkExistingEnrollment(courseClassUUID: String):Boolean = {
-    sql"""select count(*) as enrollmentExists from Enrollment where  personUUID = ${first.get.getPersonUUID} and courseClassUUID = ${courseClassUUID}"""
-    	.first[Integer] { rs => rs.getInt("enrollmentExists") }.get >= 1
   }
-  
+
+  def checkExistingEnrollment(courseClassUUID: String): Boolean = {
+    sql"""select count(*) as enrollmentExists from Enrollment where  personUUID = ${first.get.getPersonUUID} and courseClassUUID = ${courseClassUUID}"""
+      .first[Integer] { rs => rs.getInt("enrollmentExists") }.get >= 1
+  }
+
   def transfer(fromCourseClassUUID: String, toCourseClassUUID: String) = {
     val enrollment = first.get
     //disable participation to global class thread for old class
@@ -216,21 +214,21 @@ class EnrollmentRepo(uuid: String) {
     sql"""update ChatThread set active = 0 where courseClassUUID = ${fromCourseClassUUID} and personUUID = ${enrollment.getPersonUUID} and threadType in  (${ChatThreadType.SUPPORT.toString}, ${ChatThreadType.TUTORING.toString})""".executeUpdate
 
     EnrollmentsRepo.invalidateCache(uuid)
-    
+
     //add participation to global class thread for new class
     ChatThreadsRepo.addParticipantToCourseClassThread(enrollment)
   }
-  
-  def updatePreAssessmentScore(score:BigDecimal) = sql"""
-		  update Enrollment 
-		  set preAssessmentScore = ${score}
-  		  where uuid = ${uuid}
+
+  def updatePreAssessmentScore(score: BigDecimal) = sql"""
+      update Enrollment
+      set preAssessmentScore = ${score}
+        where uuid = ${uuid}
   """.executeUpdate
-  
-  def updatePostAssessmentScore(score:BigDecimal) = sql"""
-		  update Enrollment 
-		  set postAssessmentScore = ${score}
-  		  where uuid = ${uuid}
+
+  def updatePostAssessmentScore(score: BigDecimal) = sql"""
+      update Enrollment
+      set postAssessmentScore = ${score}
+        where uuid = ${uuid}
   """.executeUpdate
 
 }

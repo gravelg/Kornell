@@ -19,10 +19,9 @@ import kornell.server.jdbc.repository.InstitutionsRepo
 import kornell.server.jdbc.repository.CourseRepo
 import kornell.server.service.S3Service
 
-
 object LibraryFilesRepository {
-//TODO: Review
-  def findLibraryFiles(courseClassUUID: String) =  {
+  //TODO: Review
+  def findLibraryFiles(courseClassUUID: String) = {
     val classRepo = CourseClassesRepo(courseClassUUID)
     val institutionRepo = classRepo.institution
     val repositoryUUID = institutionRepo.get.getAssetsRepositoryUUID
@@ -37,7 +36,7 @@ object LibraryFilesRepository {
       val contents = LibraryFilesParser.parse(repo.url(filesURL), libraryFilesText)
       contents
     } catch {
-      case e:Exception => TOs.newLibraryFilesTO(List[LibraryFileTO]())
+      case e: Exception => TOs.newLibraryFilesTO(List[LibraryFileTO]())
     }
   }
 }

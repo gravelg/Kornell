@@ -4,14 +4,14 @@ import java.sql.Connection
 
 object ConnectionHandler {
   val threadLocal = new ThreadLocal[Connection]
-  
+
   def getConnection() = {
     if (threadLocal.get == null) {
       threadLocal.set(DataSources.connectionFactory())
     }
     threadLocal.get
   }
-  
+
   def rollback() = {
     val trans = threadLocal.get
     if (trans != null) {
@@ -20,7 +20,7 @@ object ConnectionHandler {
       threadLocal.remove
     }
   }
-  
+
   def commit() = {
     val trans = threadLocal.get
     if (trans != null) {

@@ -20,7 +20,7 @@ object ZipEventsTableFix extends App {
     actomKey: String,
     entryKey: String) = {
     val stmt = conn.prepareStatement(
-        "delete from ActomEntryChangedEvent where uuid=?")
+      "delete from ActomEntryChangedEvent where uuid=?")
     var reds = 0
     var last_value: String = null
     val entries = sql"""
@@ -36,8 +36,8 @@ object ZipEventsTableFix extends App {
       val entryKey = rs.getString("entryValue")
       val entryValue = rs.getString("entryValue")
       val entryTime = rs.getTimestamp("ingestedAt")
-      
-      val entryTimeS = Try {df.format(entryTime)}.getOrElse("unparseable_date@"+System.currentTimeMillis)
+
+      val entryTimeS = Try { df.format(entryTime) }.getOrElse("unparseable_date@" + System.currentTimeMillis)
       val isRedundant = (entryValue == last_value)
       if (isRedundant) {
         reds += 1
@@ -111,7 +111,7 @@ object ZipEventsTableFix extends App {
     println(s"** Fixed [${fixed.get}]")
     val t1 = System.currentTimeMillis
     val pace = ((1000) * count.get) / (t1 - t0)
-    println(s"** Pace  [$pace] rs/s")    
+    println(s"** Pace  [$pace] rs/s")
     mainThread.join
   }
   println(s"==== === ====")

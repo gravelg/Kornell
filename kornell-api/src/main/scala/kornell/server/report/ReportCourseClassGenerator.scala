@@ -28,11 +28,11 @@ import kornell.server.util.DateConverter
 object ReportCourseClassGenerator {
 
   def newCourseClassReportTO: CourseClassReportTO = new CourseClassReportTO
-  def newCourseClassReportTO(fullName: String, username: String, email: String, cpf: String, state: String, progressState: String, 
-      progress: Int, assessmentScore: BigDecimal,  preAssessmentScore: BigDecimal,  postAssessmentScore: BigDecimal, 
-      certifiedAt: Date, enrolledAt: Date, courseName: String, courseVersionName: String, courseClassName: String, 
-      company: String, title: String, sex: String, birthDate: String, telephone: String, country: String, stateProvince: String, 
-      city: String, addressLine1: String, addressLine2: String, postalCode: String): CourseClassReportTO = {
+  def newCourseClassReportTO(fullName: String, username: String, email: String, cpf: String, state: String, progressState: String,
+    progress: Int, assessmentScore: BigDecimal, preAssessmentScore: BigDecimal, postAssessmentScore: BigDecimal,
+    certifiedAt: Date, enrolledAt: Date, courseName: String, courseVersionName: String, courseClassName: String,
+    company: String, title: String, sex: String, birthDate: String, telephone: String, country: String, stateProvince: String,
+    city: String, addressLine1: String, addressLine2: String, postalCode: String): CourseClassReportTO = {
     val to = newCourseClassReportTO
     to.setFullName(fullName)
     to.setUsername(username)
@@ -49,57 +49,57 @@ object ReportCourseClassGenerator {
     to.setCourseName(courseName)
     to.setCourseVersionName(courseVersionName)
     to.setCourseClassName(courseClassName)
-  	to.setCompany(company)
-  	to.setTitle(title)
-  	to.setSex(sex)
-  	to.setBirthDate(birthDate)
-  	to.setTelephone(telephone)
-  	to.setCountry(country)
-  	to.setStateProvince(stateProvince)
-  	to.setCity(city)
-  	to.setAddressLine1(addressLine1)
-  	to.setAddressLine2(addressLine2)
-  	to.setPostalCode(postalCode)
+    to.setCompany(company)
+    to.setTitle(title)
+    to.setSex(sex)
+    to.setBirthDate(birthDate)
+    to.setTelephone(telephone)
+    to.setCountry(country)
+    to.setStateProvince(stateProvince)
+    to.setCity(city)
+    to.setAddressLine1(addressLine1)
+    to.setAddressLine2(addressLine2)
+    to.setPostalCode(postalCode)
     to
   }
 
   implicit def toCourseClassReportTO(rs: ResultSet): CourseClassReportTO =
     newCourseClassReportTO(
-		rs.getString("fullName"),
-		rs.getString("username"),
-		rs.getString("email"),
-		rs.getString("cpf"),
-		rs.getString("state"),
-		rs.getString("progressState"),
-		rs.getInt("progress"),
-		rs.getBigDecimal("assessmentScore"),
-		rs.getBigDecimal("preAssessmentScore"),
-		rs.getBigDecimal("postAssessmentScore"),
-		rs.getTimestamp("certifiedAt"),
-		rs.getTimestamp("enrolledAt"),
-		rs.getString("courseName"),
-		rs.getString("courseVersionName"),
-		rs.getString("courseClassName"),
-		rs.getString("company"),
-		rs.getString("title"),
-		rs.getString("sex"),
-		rs.getString("birthDate"),
-		rs.getString("telephone"),
-		rs.getString("country"),
-		rs.getString("stateProvince"),
-		rs.getString("city"),
-		rs.getString("addressLine1"),
-		rs.getString("addressLine2"),
-		rs.getString("postalCode"))
-      
-  type BreakdownData = Tuple2[String,Integer] 
-  implicit def breakdownConvertion(rs:ResultSet): BreakdownData = (rs.getString(1), rs.getInt(2))
-  
+      rs.getString("fullName"),
+      rs.getString("username"),
+      rs.getString("email"),
+      rs.getString("cpf"),
+      rs.getString("state"),
+      rs.getString("progressState"),
+      rs.getInt("progress"),
+      rs.getBigDecimal("assessmentScore"),
+      rs.getBigDecimal("preAssessmentScore"),
+      rs.getBigDecimal("postAssessmentScore"),
+      rs.getTimestamp("certifiedAt"),
+      rs.getTimestamp("enrolledAt"),
+      rs.getString("courseName"),
+      rs.getString("courseVersionName"),
+      rs.getString("courseClassName"),
+      rs.getString("company"),
+      rs.getString("title"),
+      rs.getString("sex"),
+      rs.getString("birthDate"),
+      rs.getString("telephone"),
+      rs.getString("country"),
+      rs.getString("stateProvince"),
+      rs.getString("city"),
+      rs.getString("addressLine1"),
+      rs.getString("addressLine2"),
+      rs.getString("postalCode"))
+
+  type BreakdownData = Tuple2[String, Integer]
+  implicit def breakdownConvertion(rs: ResultSet): BreakdownData = (rs.getString(1), rs.getInt(2))
+
   def generateCourseClassReport(courseUUID: String, courseClassUUID: String, fileType: String, resp: HttpServletResponse) = {
-	  if(courseUUID != null || courseClassUUID != null){
-	    resp.addHeader("Content-disposition", "attachment; filename=" + getFileName(courseUUID, courseClassUUID, fileType))
-	    resp.setContentType(getContentType(fileType))
-	    
+    if (courseUUID != null || courseClassUUID != null) {
+      resp.addHeader("Content-disposition", "attachment; filename=" + getFileName(courseUUID, courseClassUUID, fileType))
+      resp.setContentType(getContentType(fileType))
+
       val courseClassReportTO = sql"""
   			select 
   				p.fullName, 
@@ -175,30 +175,29 @@ object ReportCourseClassGenerator {
   				pw.username,
   				p.email
 	    """.map[CourseClassReportTO](toCourseClassReportTO)
-	    
-	    val parameters = getTotalsAsParameters(courseUUID, courseClassUUID, fileType)
-	    addInfoParameters(courseUUID, courseClassUUID, parameters)
-	
-	    val enrollmentBreakdowns: ListBuffer[EnrollmentsBreakdownTO] = ListBuffer()
-	    enrollmentBreakdowns += TOs.newEnrollmentsBreakdownTO("aa", new Integer(1))
-	    enrollmentBreakdowns.toList
-		  
-	    val cl = Thread.currentThread.getContextClassLoader
-	    val jasperStream = {
-      	if(fileType != null && fileType == "xls")
-      	  cl.getResourceAsStream("reports/courseClassInfoXLS.jasper")
-      	else
-      	  cl.getResourceAsStream("reports/courseClassInfo.jasper")
-    	}
-	    getReportBytesFromStream(courseClassReportTO, parameters, jasperStream, fileType)
-	  }
-    
-    
+
+      val parameters = getTotalsAsParameters(courseUUID, courseClassUUID, fileType)
+      addInfoParameters(courseUUID, courseClassUUID, parameters)
+
+      val enrollmentBreakdowns: ListBuffer[EnrollmentsBreakdownTO] = ListBuffer()
+      enrollmentBreakdowns += TOs.newEnrollmentsBreakdownTO("aa", new Integer(1))
+      enrollmentBreakdowns.toList
+
+      val cl = Thread.currentThread.getContextClassLoader
+      val jasperStream = {
+        if (fileType != null && fileType == "xls")
+          cl.getResourceAsStream("reports/courseClassInfoXLS.jasper")
+        else
+          cl.getResourceAsStream("reports/courseClassInfo.jasper")
+      }
+      getReportBytesFromStream(courseClassReportTO, parameters, jasperStream, fileType)
+    }
+
   }
-      
-  type ReportHeaderData = Tuple9[String,String, String, Date, String, String, Date, String, String]
-  implicit def headerDataConvertion(rs:ResultSet): ReportHeaderData = (rs.getString(1), rs.getString(2), rs.getString(3), rs.getDate(4), rs.getString(5), rs.getString(6), rs.getDate(7), rs.getString(8), rs.getString(9))
-  
+
+  type ReportHeaderData = Tuple9[String, String, String, Date, String, String, Date, String, String]
+  implicit def headerDataConvertion(rs: ResultSet): ReportHeaderData = (rs.getString(1), rs.getString(2), rs.getString(3), rs.getDate(4), rs.getString(5), rs.getString(6), rs.getDate(7), rs.getString(8), rs.getString(9))
+
   private def addInfoParameters(courseUUID: String, courseClassUUID: String, parameters: HashMap[String, Object]) = {
     val headerInfo = sql"""
 			select 
@@ -227,12 +226,12 @@ object ReportCourseClassGenerator {
     			cc.state <> ${EntityState.deleted.toString} and 
     			(cc.state = ${EntityState.active.toString} or ${courseUUID} is null)
     """.first[ReportHeaderData](headerDataConvertion)
-    
-    if(headerInfo.isDefined) {
+
+    if (headerInfo.isDefined) {
       parameters.put("institutionName", headerInfo.get._1)
       parameters.put("courseTitle", headerInfo.get._2)
-  	  parameters.put("assetsURL", mkurl(headerInfo.get._9, "repository", headerInfo.get._6, S3Service.PREFIX, S3Service.INSTITUTION, ""))
-      if(courseClassUUID != null){
+      parameters.put("assetsURL", mkurl(headerInfo.get._9, "repository", headerInfo.get._6, S3Service.PREFIX, S3Service.INSTITUTION, ""))
+      if (courseClassUUID != null) {
         parameters.put("courseClassName", headerInfo.get._3)
         parameters.put("createdAt", headerInfo.get._4)
         parameters.put("maxEnrollments", headerInfo.get._5)
@@ -243,7 +242,7 @@ object ReportCourseClassGenerator {
     parameters
   }
 
-  private def getTotalsAsParameters(courseUUID: String, courseClassUUID: String, fileType: String): HashMap[String,Object] = {
+  private def getTotalsAsParameters(courseUUID: String, courseClassUUID: String, fileType: String): HashMap[String, Object] = {
     val enrollmentStateBreakdown = sql"""
     		select 
 					case    
@@ -271,16 +270,15 @@ object ReportCourseClassGenerator {
 						else 'completed'   
 					end
 		    """.map[BreakdownData](breakdownConvertion)
-		    
+
     val parameters: HashMap[String, Object] = new HashMap()
-    enrollmentStateBreakdown.foreach(rd => parameters.put(rd._1, rd._2)) 
+    enrollmentStateBreakdown.foreach(rd => parameters.put(rd._1, rd._2))
     parameters
   }
-  
-  def getFileName(courseUUID: String, courseClassUUID: String, fileType: String) = { 
-  	val title = if(courseUUID != null) CourseRepo(courseUUID).get.getName else CourseClassRepo(courseClassUUID).get.getName
+
+  def getFileName(courseUUID: String, courseClassUUID: String, fileType: String) = {
+    val title = if (courseUUID != null) CourseRepo(courseUUID).get.getName else CourseClassRepo(courseClassUUID).get.getName
     title + " - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) + "." + getFileType(fileType)
   }
 
- 
 }

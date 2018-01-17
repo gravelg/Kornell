@@ -49,16 +49,16 @@ object EventsRepo {
 
   def logActomEntered(event: ActomEntered) = {
     sql"""
-    insert into ActomEntered(uuid,eventFiredAt,enrollmentUUID,actomKey) 
+    insert into ActomEntered(uuid,eventFiredAt,enrollmentUUID,actomKey)
     values(${event.getUUID},
-  		   now(),
+         now(),
            ${event.getEnrollmentUUID},
-		   ${event.getActomKey}); 
-	""".executeUpdate
+       ${event.getActomKey});
+  """.executeUpdate
 
     EnrollmentSEP.onProgress(event.getEnrollmentUUID)
     EnrollmentSEP.onAssessment(event.getEnrollmentUUID)
-    
+
   }
 
   def logAttendanceSheetSigned(event: AttendanceSheetSigned) = {
@@ -66,35 +66,35 @@ object EventsRepo {
     val todayEnd = DateTime.now.plusDays(1).withTimeAtStartOfDay.minusMillis(1).toDate
     // don't log more than once a day
     val attendanceSheetSignedUUID = sql"""
-			  select uuid from AttendanceSheetSigned
-			  where personUUID=${event.getPersonUUID()}
-			  and institutionUUID=${event.getInstitutionUUID()}
-			  and eventFiredAt between ${todayStart} and ${todayEnd}
-		  """.first
+        select uuid from AttendanceSheetSigned
+        where personUUID=${event.getPersonUUID()}
+        and institutionUUID=${event.getInstitutionUUID()}
+        and eventFiredAt between ${todayStart} and ${todayEnd}
+      """.first
     if (!attendanceSheetSignedUUID.isDefined)
       sql"""
-		    insert into AttendanceSheetSigned(uuid,eventFiredAt,institutionUUID,personUUID)
-		    values(${event.getUUID}, now(), ${event.getInstitutionUUID}, ${event.getPersonUUID});
-			""".executeUpdate
+        insert into AttendanceSheetSigned(uuid,eventFiredAt,institutionUUID,personUUID)
+        values(${event.getUUID}, now(), ${event.getInstitutionUUID}, ${event.getPersonUUID});
+      """.executeUpdate
 
   }
 
   def logEnrollmentStateChanged(uuid: String, fromPersonUUID: String,
     enrollmentUUID: String, fromState: EnrollmentState, toState: EnrollmentState, sendEmail: Boolean, notes: String) = {
-    
+
     sql"""insert into EnrollmentStateChanged(uuid,eventFiredAt,personUUID,enrollmentUUID,fromState,toState,notes)
-	    values(${uuid},
-			   now(),
+      values(${uuid},
+         now(),
          ${fromPersonUUID},
          ${enrollmentUUID},
          ${fromState.toString},
-			   ${toState.toString},
+         ${toState.toString},
          ${notes});
-		""".executeUpdate
+    """.executeUpdate
 
     sql"""update Enrollment set state = ${toState.toString} where uuid = ${enrollmentUUID};
-		""".executeUpdate
-		
+    """.executeUpdate
+
     EnrollmentsRepo.invalidateCache(enrollmentUUID)
 
     if (EnrollmentState.enrolled.equals(toState) && sendEmail) {
@@ -103,10 +103,10 @@ object EventsRepo {
       val testMode = Settings.TEST_MODE.getOpt.orNull
       val notTestMode = !"true".equals(testMode)
       if (person.getEmail != null && notTestMode) {
-          val courseClass = CourseClassesRepo(enrollment.getCourseClassUUID).get
-		      val course = CoursesRepo.byCourseClassUUID(courseClass.getUUID).get
-          val institution = InstitutionsRepo.getByUUID(courseClass.getInstitutionUUID).get
-          EmailService.sendEmailEnrolled(person, institution, course, enrollment, courseClass)
+        val courseClass = CourseClassesRepo(enrollment.getCourseClassUUID).get
+        val course = CoursesRepo.byCourseClassUUID(courseClass.getUUID).get
+        val institution = InstitutionsRepo.getByUUID(courseClass.getInstitutionUUID).get
+        EmailService.sendEmailEnrolled(person, institution, course, enrollment, courseClass)
       }
     }
   }
@@ -119,17 +119,17 @@ object EventsRepo {
     courseClassUUID: String, fromState: EntityState, toState: EntityState) = {
 
     sql"""insert into CourseClassStateChanged(uuid,eventFiredAt,personUUID,courseClassUUID,fromState,toState)
-	    values(${uuid},
-		 now(),
+      values(${uuid},
+     now(),
          ${fromPersonUUID},
          ${courseClassUUID},
          ${fromState.toString},
-		 ${toState.toString});
-		""".executeUpdate
+     ${toState.toString});
+    """.executeUpdate
 
     sql"""update CourseClass set state = ${toState.toString} where uuid = ${courseClassUUID};
-		""".executeUpdate
-		
+    """.executeUpdate
+
   }
 
   def logCourseClassStateChanged(event: CourseClassStateChanged): Unit =
@@ -138,119 +138,119 @@ object EventsRepo {
 
   def logEnrollmentTransferred(event: EnrollmentTransferred): Unit = {
     if (EnrollmentRepo(event.getEnrollmentUUID).checkExistingEnrollment(event.getToCourseClassUUID)) {
-      throw new EntityConflictException("userAlreadyEnrolledInClass") 
+      throw new EntityConflictException("userAlreadyEnrolledInClass")
     }
-    sql"""insert into EnrollmentTransferred (uuid, personUUID, enrollmentUUID, fromCourseClassUUID, toCourseClassUUID, eventFiredAt) 
+    sql"""insert into EnrollmentTransferred (uuid, personUUID, enrollmentUUID, fromCourseClassUUID, toCourseClassUUID, eventFiredAt)
         values (${UUID.random},
         ${event.getFromPersonUUID},
         ${event.getEnrollmentUUID},
         ${event.getFromCourseClassUUID},
         ${event.getToCourseClassUUID},
         now());""".executeUpdate
-        
-        EnrollmentRepo(event.getEnrollmentUUID).transfer(event.getFromCourseClassUUID, event.getToCourseClassUUID)
+
+    EnrollmentRepo(event.getEnrollmentUUID).transfer(event.getFromCourseClassUUID, event.getToCourseClassUUID)
   }
 
-  def logEntityChange(institutionUUID: String, auditedEntityType: AuditedEntityType, entityUUID: String, fromBean: Any, toBean: Any):Any = {
-	  logEntityChange(institutionUUID, auditedEntityType, entityUUID, fromBean, toBean, null)
+  def logEntityChange(institutionUUID: String, auditedEntityType: AuditedEntityType, entityUUID: String, fromBean: Any, toBean: Any): Any = {
+    logEntityChange(institutionUUID, auditedEntityType, entityUUID, fromBean, toBean, null)
   }
-  
+
   def logEntityChange(institutionUUID: String, auditedEntityType: AuditedEntityType, entityUUID: String, fromBean: Any, toBean: Any, personUUID: String) = {
-    var fromAB: AutoBean[Any] = null  
+    var fromAB: AutoBean[Any] = null
     var fromValue: String = null
-    if(fromBean != null){
-    	fromAB = AutoBeanUtils.getAutoBean(fromBean)
-    	fromValue = AutoBeanCodex.encode(fromAB).getPayload.toString
+    if (fromBean != null) {
+      fromAB = AutoBeanUtils.getAutoBean(fromBean)
+      fromValue = AutoBeanCodex.encode(fromAB).getPayload.toString
     }
-	var toAB: AutoBean[Any] = null  
+    var toAB: AutoBean[Any] = null
     var toValue: String = null
-    if(toBean != null){
-		toAB = AutoBeanUtils.getAutoBean(toBean)
-	    toValue = AutoBeanCodex.encode(toAB).getPayload.toString
+    if (toBean != null) {
+      toAB = AutoBeanUtils.getAutoBean(toBean)
+      toValue = AutoBeanCodex.encode(toAB).getPayload.toString
     }
-	val logChange = fromBean == null || toBean == null || {
-	  val diffMap = AutoBeanUtils.diff(fromAB, toAB)
-	  diffMap.size() > 0 && fromValue != toValue
-	}
-    if(logChange){
-	    sql"""insert into EntityChanged(uuid, personUUID, institutionUUID, entityType, entityUUID, fromValue, toValue, eventFiredAt)
-		    values(${UUID.random},
-	         ${ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(personUUID)},
-	         ${institutionUUID},
-	         ${auditedEntityType.toString},
-	         ${entityUUID},
-	         ${fromValue},
-	         ${toValue},
-			 now());
-			""".executeUpdate
+    val logChange = fromBean == null || toBean == null || {
+      val diffMap = AutoBeanUtils.diff(fromAB, toAB)
+      diffMap.size() > 0 && fromValue != toValue
+    }
+    if (logChange) {
+      sql"""insert into EntityChanged(uuid, personUUID, institutionUUID, entityType, entityUUID, fromValue, toValue, eventFiredAt)
+        values(${UUID.random},
+           ${ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(personUUID)},
+           ${institutionUUID},
+           ${auditedEntityType.toString},
+           ${entityUUID},
+           ${fromValue},
+           ${toValue},
+       now());
+      """.executeUpdate
     }
   }
-  
+
   def getEntityChangedEvents(institutionUUID: String, entityType: AuditedEntityType, pageSize: Int, pageNumber: Int): EntityChangedEventsTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
-    
+
     val entityChangedEventsTO = newEntityChangedEventsTO(sql"""
-	  	select ec.*, p.fullName as fromPersonName, pwd.username as fromUsername, 'FIX-ME' as entityName
-		from EntityChanged ec
-			join Person p on p.uuid = ec.personUUID
-			join Password pwd on p.uuid = pwd.personUUID
-		where ec.institutionUUID = ${institutionUUID}
-    		and ec.entityType = ${entityType.toString}
-		order by eventFiredAt desc limit ${resultOffset}, ${pageSize} 
-	  """.map[EntityChanged](toEntityChanged))
-	  
-   entityChangedEventsTO.setPageSize(pageSize)
-   entityChangedEventsTO.setPageNumber(pageNumber.max(1))
-   entityChangedEventsTO.setCount({
-    sql"""select count(ec.uuid)
-		from EntityChanged ec
-		where ec.institutionUUID = ${institutionUUID}
-    		and ec.entityType = ${entityType.toString}"""
-	    	.first[String].get.toInt
-   })
-   entityChangedEventsTO.setSearchCount(entityChangedEventsTO.getCount)
+      select ec.*, p.fullName as fromPersonName, pwd.username as fromUsername, 'FIX-ME' as entityName
+    from EntityChanged ec
+      join Person p on p.uuid = ec.personUUID
+      join Password pwd on p.uuid = pwd.personUUID
+    where ec.institutionUUID = ${institutionUUID}
+        and ec.entityType = ${entityType.toString}
+    order by eventFiredAt desc limit ${resultOffset}, ${pageSize}
+    """.map[EntityChanged](toEntityChanged))
 
-   def getEntityName(entityChanged: EntityChanged): String = {
+    entityChangedEventsTO.setPageSize(pageSize)
+    entityChangedEventsTO.setPageNumber(pageNumber.max(1))
+    entityChangedEventsTO.setCount({
+      sql"""select count(ec.uuid)
+    from EntityChanged ec
+    where ec.institutionUUID = ${institutionUUID}
+        and ec.entityType = ${entityType.toString}"""
+        .first[String].get.toInt
+    })
+    entityChangedEventsTO.setSearchCount(entityChangedEventsTO.getCount)
+
+    def getEntityName(entityChanged: EntityChanged): String = {
       entityChanged.getEntityType match {
-	      case AuditedEntityType.person | 
-	      	AuditedEntityType.password => {
-	      	  val person = PersonRepo(entityChanged.getEntityUUID).first
-	      	  if(person.isDefined){
-	      	    person.get.getFullName
-	      	  } else "DELETED_ENTITY"
-	      	}
-	      case AuditedEntityType.institution | 
-	      	AuditedEntityType.institutionAdmin | 
-	      	AuditedEntityType.institutionHostName | 
-	      	AuditedEntityType.institutionEmailWhitelist => InstitutionsRepo.getByUUID(entityChanged.getEntityUUID).get.getName
-	      case AuditedEntityType.course => {
-	      	  val course = CourseRepo(entityChanged.getEntityUUID).first
-	      	  if(course.isDefined){
-	      	    course.get.getName
-	      	  } else "DELETED_ENTITY"
-	      	}
-	      case AuditedEntityType.courseVersion => {
-	      	  val courseVersion = CourseVersionRepo(entityChanged.getEntityUUID).first
-	      	  if(courseVersion.isDefined){
-	      	    courseVersion.get.getName
-	      	  } else "DELETED_ENTITY"
-	      	}
-	      case AuditedEntityType.courseClass | 
-	      	AuditedEntityType.courseClassAdmin | 
-	      	AuditedEntityType.courseClassObserver |
-	      	AuditedEntityType.courseClassTutor =>  {
-	      	  val courseClass = CourseClassRepo(entityChanged.getEntityUUID).first
-	      	  if(courseClass.isDefined){
-	      	    courseClass.get.getName
-	      	  } else "DELETED_ENTITY"
-	      	}
-	      case _ => "FIX-ME"
+        case AuditedEntityType.person |
+          AuditedEntityType.password => {
+          val person = PersonRepo(entityChanged.getEntityUUID).first
+          if (person.isDefined) {
+            person.get.getFullName
+          } else "DELETED_ENTITY"
+        }
+        case AuditedEntityType.institution |
+          AuditedEntityType.institutionAdmin |
+          AuditedEntityType.institutionHostName |
+          AuditedEntityType.institutionEmailWhitelist => InstitutionsRepo.getByUUID(entityChanged.getEntityUUID).get.getName
+        case AuditedEntityType.course => {
+          val course = CourseRepo(entityChanged.getEntityUUID).first
+          if (course.isDefined) {
+            course.get.getName
+          } else "DELETED_ENTITY"
+        }
+        case AuditedEntityType.courseVersion => {
+          val courseVersion = CourseVersionRepo(entityChanged.getEntityUUID).first
+          if (courseVersion.isDefined) {
+            courseVersion.get.getName
+          } else "DELETED_ENTITY"
+        }
+        case AuditedEntityType.courseClass |
+          AuditedEntityType.courseClassAdmin |
+          AuditedEntityType.courseClassObserver |
+          AuditedEntityType.courseClassTutor => {
+          val courseClass = CourseClassRepo(entityChanged.getEntityUUID).first
+          if (courseClass.isDefined) {
+            courseClass.get.getName
+          } else "DELETED_ENTITY"
+        }
+        case _ => "FIX-ME"
       }
-   } 
-   
-   entityChangedEventsTO.getEntitiesChanged.asScala.foreach(ec => ec.setEntityName(getEntityName(ec)))
+    }
 
-   entityChangedEventsTO
+    entityChangedEventsTO.getEntitiesChanged.asScala.foreach(ec => ec.setEntityName(getEntityName(ec)))
+
+    entityChangedEventsTO
   }
 
 }

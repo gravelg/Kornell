@@ -16,16 +16,17 @@ import kornell.core.scorm12.rte.SCOAccess;
  * The minimum score that the student could have achieved.
  * The cmi.core.score.min must be a normalized value between 0 and 100. 
  */
-public class Min extends DMElement{
-	public static final Min dme = new Min();
-	
-	private Min(){
-		super("min",false,EITHER(CMIDecimal,CMIBlank),SCOAccess.RW);
-	}
-	
-	@Override
-	public Map<String, String> initializeMap(Map<String, String> entries,Person p,Enrollment enrollment,
-			CourseClass courseClass) {		
-		return defaultTo(entries, "");
-	}
+public class Min extends DMElement {
+
+    public static final Min dme = new Min();
+
+    private Min() {
+        super("min", false, EITHER(CMIDecimal, CMIBlank), SCOAccess.RW);
+    }
+
+    @Override
+    public Map<String, String> initializeMap(Map<String, String> entries, Person p, Enrollment enrollment,
+            CourseClass courseClass) {
+        return defaultTo(entries, "");
+    }
 }

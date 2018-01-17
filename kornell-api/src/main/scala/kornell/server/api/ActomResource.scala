@@ -57,9 +57,9 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
   }
 
   def updateQueryModel(entryKey: String, entryValue: String) = sql"""
-  	insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue) 
-  	values (${randomUUID}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue})
-  	on duplicate key update entryValue = ${entryValue}
+    insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue)
+    values (${randomUUID}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue})
+    on duplicate key update entryValue = ${entryValue}
   """.executeUpdate
 
   //Batch version of put value using a map
@@ -71,7 +71,7 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
     }
     queryModelQuery += queryModelStrings.mkString(",")
     queryModelQuery += " on duplicate key update entryValue = VALUES(entryValue)"
-      
+
     new PreparedStmt(queryModelQuery, List[String]()).executeUpdate
   }
 
@@ -82,30 +82,30 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
   def putEntries(entries: ActomEntries) = {
     val modifiedAt = entries.getLastModifiedAt()
     val actomEntries = entries.getEntries
-    
+
     val enrollmentMap = collection.mutable.Map[String, String]()
-    for ((key, value) <- actomEntries)  
+    for ((key, value) <- actomEntries)
       enrollmentMap(key) = value
-     
+
     val enrollmentsJMap = enrollmentMap.asJava
-    if(enrollmentsJMap.size() > 0){
-      putValues(enrollmentsJMap)  
+    if (enrollmentsJMap.size() > 0) {
+      putValues(enrollmentsJMap)
     }
-        
+
     val hasProgress = containsProgress(actomEntries)
-    if (hasProgress){
+    if (hasProgress) {
       EnrollmentSEP.onProgress(enrollmentUUID)
     }
     val hasAssessment = containsAssessment(actomEntries)
     if (hasAssessment) {
       EnrollmentSEP.onAssessment(enrollmentUUID)
     }
-    
+
     parsePreAssessmentScore(actomEntries)
       .foreach {
         EnrollmentSEP.onPreAssessmentScore(enrollmentUUID, _);
       }
-    
+
     parsePostAssessmentScore(actomEntries)
       .foreach {
         EnrollmentSEP.onPostAssessmentScore(enrollmentUUID, _);
@@ -114,22 +114,20 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
     entries
   }
 
-
   @Path("entries")
   @Produces(Array(ActomEntries.TYPE))
   @GET
   def getEntries(): ActomEntries = {
     val entries = Entities.newActomEntries(enrollmentUUID, actomKey, new HashMap[String, String])
     sql"""
-  	select * from ActomEntries 
-  	where enrollmentUUID=${enrollmentUUID}
-  	  and actomKey=${actomKey}""".foreach { rs =>
+    select * from ActomEntries
+    where enrollmentUUID=${enrollmentUUID}
+      and actomKey=${actomKey}""".foreach { rs =>
       entries.getEntries().put(rs.getString("entryKey"), rs.getString("entryValue"))
     }
     entries
   }
 
-  
 }
 
 object ActomResource {

@@ -12,15 +12,15 @@ class ExceptionMapperHelper {
 
 object ExceptionMapperHelper {
   val errorFactory = AutoBeanFactorySource.create(classOf[TOFactory])
-  
+
   def handleError(code: Int, messageKey: String, exception: String = null): Response = {
     var errorTO = errorFactory.newKornellErrorTO.as;
     errorTO.setMessageKey(messageKey)
     errorTO.setException(exception)
     Response
-    	.status(code)
-    	.entity(errorTO)
-    	.header("Content-Type", KornellErrorTO.TYPE)
-    	.build()
+      .status(code)
+      .entity(errorTO)
+      .header("Content-Type", KornellErrorTO.TYPE)
+      .build()
   }
 }

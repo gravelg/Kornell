@@ -14,22 +14,21 @@ import kornell.server.util.Conditional.toConditional
 import kornell.server.jdbc.repository.CourseClassRepo
 import kornell.server.util.AccessDeniedErr
 
-
 @Path("people")
 @Produces(Array(People.TYPE))
 class PeopleResource() {
-  
+
   @Path("{uuid}")
-  def get(@PathParam("uuid") uuid:String):PersonResource = new PersonResource(uuid) 
-  
+  def get(@PathParam("uuid") uuid: String): PersonResource = new PersonResource(uuid)
+
   @GET
   @Produces(Array(PeopleTO.TYPE))
-  def findBySearchTerm(@QueryParam("institutionUUID") institutionUUID:String, @QueryParam("search") search:String) = {
+  def findBySearchTerm(@QueryParam("institutionUUID") institutionUUID: String, @QueryParam("search") search: String) = {
     PeopleRepo.findBySearchTerm(institutionUUID, search)
   }.requiring(isPlatformAdmin(institutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(institutionUUID), AccessDeniedErr()).get
+    .or(isInstitutionAdmin(institutionUUID), AccessDeniedErr()).get
 }
 
-object PeopleResource{
+object PeopleResource {
   def apply() = new PeopleResource()
 }

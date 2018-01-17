@@ -14,37 +14,36 @@ import kornell.core.entity.CourseDetailsEntityType
 import javax.ws.rs.GET
 import kornell.core.error.exception.EntityNotFoundException
 
-
 @Path("certificatesDetails")
 class CertificatesDetailsResource {
-  
+
   @Path("{uuid}")
   def get(@PathParam("uuid") uuid: String) = CertificateDetailsResource(uuid)
-   
+
   @POST
   @Consumes(Array(CertificateDetails.TYPE))
   @Produces(Array(CertificateDetails.TYPE))
   def create(certificateDetails: CertificateDetails) = {
     CertificatesDetailsRepo.create(certificateDetails)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
-   @GET
-   @Path("/{entityType}/{entityUUID}")
-   @Produces(Array(CertificateDetails.TYPE))
-   def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
-       @PathParam("entityUUID") entityUUID: String) = {
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
+  @GET
+  @Path("/{entityType}/{entityUUID}")
+  @Produces(Array(CertificateDetails.TYPE))
+  def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
+    @PathParam("entityUUID") entityUUID: String) = {
     val certificatesDetailsRepo = CertificatesDetailsRepo.getForEntity(entityUUID, CourseDetailsEntityType.valueOf(entityType))
     certificatesDetailsRepo match {
       case Some(x) => x
       case _ => throw new EntityNotFoundException("notFound")
     }
-    
+
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
 }
 
 object CertificatesDetailsResource {

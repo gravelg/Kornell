@@ -23,26 +23,26 @@ class RepositoryResource {
 
   @Path("{path: .+}")
   @GET
-  def get(@Context resp: HttpServletResponse, @PathParam("path") path: String):Response = {
+  def get(@Context resp: HttpServletResponse, @PathParam("path") path: String): Response = {
     val repoData = StringUtils.parseRepositoryData(path)
     val repositoryUUID = repoData.getRepositoryUUID()
-    val cm = ContentManagers.forRepository(repositoryUUID);    
+    val cm = ContentManagers.forRepository(repositoryUUID);
     val key = repoData.getKey
     val input = cm.inputStream(key)
     input match {
-      case Success(in) => {  
-		  val out: OutputStream = resp.getOutputStream();
-		  try {
-		    resp.setContentType(StringUtils.getMimeType(key))
-		    IOUtils.copy(in, out)
-		    in.close()
-		    Response.ok().build()
-		  } catch {
-		    case ioe: IOException => Response.status(500).entity(s"Key [${key}] not loaded").build()
-		  }
-      }      
+      case Success(in) => {
+        val out: OutputStream = resp.getOutputStream();
+        try {
+          resp.setContentType(StringUtils.getMimeType(key))
+          IOUtils.copy(in, out)
+          in.close()
+          Response.ok().build()
+        } catch {
+          case ioe: IOException => Response.status(500).entity(s"Key [${key}] not loaded").build()
+        }
+      }
       case Failure(e) => Response.status(404).entity(s"Key [${key}] not found").build()
-    } 
+    }
   }
 
 }

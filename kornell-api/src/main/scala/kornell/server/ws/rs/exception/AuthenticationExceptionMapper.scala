@@ -7,6 +7,6 @@ import javax.ws.rs.core.Response
 
 @Provider
 class AuthenticationExceptionMapper extends ExceptionMapper[AuthenticationException] {
-	override def toResponse(authException: AuthenticationException): Response = 
-	  ExceptionMapperHelper.handleError(403, authException.getMessageKey)
+  override def toResponse(authException: AuthenticationException): Response =
+    ExceptionMapperHelper.handleError(403, authException.getMessageKey)
 }

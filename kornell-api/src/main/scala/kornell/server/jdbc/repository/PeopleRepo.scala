@@ -19,7 +19,7 @@ object PeopleRepo {
   implicit def toString(rs: ResultSet): String = rs.getString(1)
 
   type InstitutionKey = (String, String)
-  
+
   val usernameLoader = new CacheLoader[InstitutionKey, Option[Person]]() {
     override def load(instKey: InstitutionKey): Option[Person] = lookupByUsername(instKey._1, instKey._2)
   }
@@ -91,21 +91,21 @@ object PeopleRepo {
 		select p.* from Person p	
 		where p.uuid = $uuid
 	""".first[Person]
-  
-  def lookupTimezoneByUUID(personUUID: String) = 
-	sql"""select i.timeZone from Person p left join Institution i on p.institutionUUID = i.uuid where p.uuid = ${personUUID}""".first[String]
+
+  def lookupTimezoneByUUID(personUUID: String) =
+    sql"""select i.timeZone from Person p left join Institution i on p.institutionUUID = i.uuid where p.uuid = ${personUUID}""".first[String]
 
   def get(institutionUUID: String, any: String): Option[Person] = get(institutionUUID, any, any, any)
 
-  def get(institutionUUID: String, cpf: String, email: String): Option[Person] = 
+  def get(institutionUUID: String, cpf: String, email: String): Option[Person] =
     getByUsername(institutionUUID, {
-      if(cpf == null)
-      	cpf
+      if (cpf == null)
+        cpf
       else
         email
     })
-    .orElse(getByCPF(institutionUUID, cpf))
-    .orElse(getByEmail(institutionUUID, email))
+      .orElse(getByCPF(institutionUUID, cpf))
+      .orElse(getByEmail(institutionUUID, email))
 
   def get(institutionUUID: String, username: String, cpf: String, email: String): Option[Person] =
     getByUsername(institutionUUID, username)
@@ -129,7 +129,7 @@ object PeopleRepo {
 
   def createPerson(institutionUUID: String = null, email: String = null, fullName: String = null, cpf: String = null): Person =
     create(Entities.newPerson(institutionUUID = institutionUUID, fullName = fullName, email = email, cpf = cpf, registrationType = RegistrationType.email))
-  
+
   def createPersonCPF(institutionUUID: String, cpf: String, fullName: String): Person =
     create(Entities.newPerson(institutionUUID = institutionUUID, fullName = fullName, cpf = cpf, registrationType = RegistrationType.cpf))
 
@@ -152,10 +152,10 @@ object PeopleRepo {
 	             ${person.getRegistrationType.toString},
 	             ${person.getInstitutionRegistrationPrefixUUID})
     """.executeUpdate
-    
+
     //log entity creation
     EventsRepo.logEntityChange(person.getInstitutionUUID, AuditedEntityType.person, person.getUUID, null, person)
-    
+
     updateCaches(person)
     person
   }
@@ -165,11 +165,11 @@ object PeopleRepo {
     uuidCache.put(p.getUUID, op)
     if (isSome(p.getCPF)) cpfCache.put((p.getInstitutionUUID, p.getCPF), op)
     if (isSome(p.getEmail)) emailCache.put((p.getInstitutionUUID, p.getEmail), op)
-    if(timezoneCache.get(p.getUUID).isDefined){
-    	timezoneCache.put(p.getUUID, lookupTimezoneByUUID(p.getUUID)) 
+    if (timezoneCache.get(p.getUUID).isDefined) {
+      timezoneCache.put(p.getUUID, lookupTimezoneByUUID(p.getUUID))
     }
   }
-  
+
   def invalidateCache(p: Person) = {
     if (isSome(p.getCPF)) cpfCache.invalidate((p.getInstitutionUUID, p.getCPF))
     if (isSome(p.getEmail)) emailCache.invalidate((p.getInstitutionUUID, p.getEmail))

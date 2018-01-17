@@ -13,25 +13,25 @@ import org.apache.http.client.utils.URLEncodedUtils
 import java.nio.charset.Charset
 
 class InstitutionHostnameFilter extends Filter {
-  
+
   val logger = Logger.getLogger("kornell.server.web")
   val DOMAIN_HEADER = "X-KNL-DOMAIN"
-  
-  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) = 
+
+  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) =
     (sreq, sres) match {
       case (hreq: HttpServletRequest, hres: HttpServletResponse) => {
         if (hreq.getRequestURI.startsWith("/api") && !hreq.getRequestURI.equals("/api")) {
-        	doFilter(hreq, hres, chain)
+          doFilter(hreq, hres, chain)
         } else {
           chain.doFilter(hreq, hres)
         }
       }
     }
-  
+
   def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
-//    debugLogRequest(req)
+    //    debugLogRequest(req)
     val institution = getInstitution(req)
-    
+
     if (institution.isDefined) {
       DateConverter.setTimeZone(institution.get.getTimeZone)
       chain.doFilter(req, resp)
@@ -40,12 +40,12 @@ class InstitutionHostnameFilter extends Filter {
       logAndContinue(req, resp, chain)
     }
   }
-  
+
   def logAndContinue(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
     logger.warning("Request did not contain a valid 'X-KNL-DOMAIN' header, could not initialize DateConverter for URL " + req.getRequestURL)
     chain.doFilter(req, resp)
   }
-  
+
   def debugLogRequest(request: HttpServletRequest) = {
     val pathString = {
       if (request.getQueryString != null) request.getMethod + " " + request.getRequestURI + "?" + request.getQueryString
@@ -53,7 +53,7 @@ class InstitutionHostnameFilter extends Filter {
     }
     logger.info(pathString)
     val headers = request.getHeaderNames
-    while(headers.hasMoreElements) {
+    while (headers.hasMoreElements) {
       val header = headers.nextElement
       logger.info(header + ": " + request.getHeader(header))
     }
@@ -68,7 +68,7 @@ class InstitutionHostnameFilter extends Filter {
       None
     }
   }
-  
+
   def getInstitutionFromHeader(header: String): Option[Institution] = {
     val pattern = """institution=([a-z]+)$""".r
     val institutionName = pattern findFirstIn header match {
@@ -85,6 +85,6 @@ class InstitutionHostnameFilter extends Filter {
   override def init(cfg: FilterConfig) {}
 
   override def destroy() {}
-  
+
   def clearTimeZone = DateConverter.clearTimeZone
 }
