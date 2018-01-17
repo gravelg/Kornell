@@ -13,19 +13,18 @@ import kornell.core.scorm12.rte.DMElement;
 import kornell.core.util.StringUtils;
 
 public class ClassStartDate extends DMElement {
-	public static final ClassStartDate dme = new ClassStartDate();
 
-	public ClassStartDate() {
-		super("class_start_date", CMIString255, RO);
-	}
-	
-	@Override
-	public Map<String, String> initializeMap(Map<String, String> entries, 
-			Person person, 
-			Enrollment enrollment,
-			CourseClass courseClass) {
-		Date startDate = courseClass.getStartDate();
-		String startDateStr = StringUtils.toISO(startDate);
-		return set(entries,startDateStr);
-	}
+    public static final ClassStartDate dme = new ClassStartDate();
+
+    public ClassStartDate() {
+        super("class_start_date", CMIString255, RO);
+    }
+
+    @Override
+    public Map<String, String> initializeMap(Map<String, String> entries, Person person, Enrollment enrollment,
+            CourseClass courseClass) {
+        Date startDate = courseClass.getStartDate();
+        String startDateStr = StringUtils.toISO(startDate);
+        return set(entries, startDateStr);
+    }
 }

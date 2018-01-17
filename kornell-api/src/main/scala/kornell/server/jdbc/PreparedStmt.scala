@@ -33,10 +33,10 @@ class PreparedStmt(query: String, params: List[Any]) {
           case p: Integer => pstmt.setInt(i, p)
           case p: Double => pstmt.setDouble(i, p)
           case p: JDate => pstmt.setTimestamp(i, new Timestamp(p.getTime))
-//          case p: KDate => pstmt.setDate(i, new SQLDate(TimeUtil.toJUD(p).getTime()))
+          //          case p: KDate => pstmt.setDate(i, new SQLDate(TimeUtil.toJUD(p).getTime()))
           case p: BigDecimal => pstmt.setBigDecimal(i, p)
           case p: Boolean => pstmt.setBoolean(i, p)
-          //TODO: make this work: case (p: Entity, i) => pstmt.setString(i, p.getUUID) 
+          //TODO: make this work: case (p: Entity, i) => pstmt.setString(i, p.getUUID)
           case _ => throw new EntityConflictException("invalidValue")
         }
       } catch {

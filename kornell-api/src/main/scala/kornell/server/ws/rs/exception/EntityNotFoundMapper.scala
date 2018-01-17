@@ -6,6 +6,6 @@ import kornell.core.error.exception.EntityNotFoundException
 
 @Provider
 class EntityNotFoundMapper extends ExceptionMapper[EntityNotFoundException] {
-  override def toResponse(enf: EntityNotFoundException): Response = 
+  override def toResponse(enf: EntityNotFoundException): Response =
     ExceptionMapperHelper.handleError(404, enf.getMessageKey)
 }

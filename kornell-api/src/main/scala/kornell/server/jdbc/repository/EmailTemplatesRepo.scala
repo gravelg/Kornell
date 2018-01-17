@@ -41,6 +41,6 @@ object EmailTemplatesRepo {
     template
   }
 
-  def lookupByTemplateTypeAndLocale(cacheEntry: EmailTemplateCacheEntry) = 
-	  sql"select * from EmailTemplate where templateType = ${cacheEntry._1.toString} and locale = ${cacheEntry._2}".first[EmailTemplate]
+  def lookupByTemplateTypeAndLocale(cacheEntry: EmailTemplateCacheEntry) =
+    sql"select * from EmailTemplate where templateType = ${cacheEntry._1.toString} and locale = ${cacheEntry._2}".first[EmailTemplate]
 }

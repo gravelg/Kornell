@@ -12,11 +12,11 @@ import kornell.server.util.Settings
 
 class UserLocaleFilter extends Filter {
 
-  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) = 
+  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) =
     (sreq, sres) match {
       case (hreq: HttpServletRequest, hres: HttpServletResponse) => {
         if (hreq.getRequestURI.startsWith("/api") && !hreq.getRequestURI.equals("/api")) {
-        	doFilter(hreq, hres, chain)
+          doFilter(hreq, hres, chain)
         } else {
           chain.doFilter(hreq, hres)
         }
@@ -24,15 +24,14 @@ class UserLocaleFilter extends Filter {
     }
 
   def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
-      getLocale(req)
-      chain.doFilter(req, resp)
-      UserLocale.clearLocale
+    getLocale(req)
+    chain.doFilter(req, resp)
+    UserLocale.clearLocale
   }
-
 
   def getLocale(req: HttpServletRequest) = {
     if (req.getCookies != null) {
-    val cookie = req.getCookies.find(p => p.getName == "knlLocale")
+      val cookie = req.getCookies.find(p => p.getName == "knlLocale")
       if (cookie.isEmpty) {
         //No cookie, set default locale
         UserLocale.setLocale(Settings.DEFAULT_LOCALE)

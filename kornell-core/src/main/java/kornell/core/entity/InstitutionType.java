@@ -1,7 +1,7 @@
 package kornell.core.entity;
 
 public enum InstitutionType {
-	DEFAULT,
-	DASHBOARD,
-	CONTROL_PANEL;
+    DEFAULT,
+    DASHBOARD,
+    CONTROL_PANEL;
 }

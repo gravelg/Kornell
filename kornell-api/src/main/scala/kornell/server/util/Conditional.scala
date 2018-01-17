@@ -4,8 +4,7 @@ trait Err extends Throwable
 case class StringErr(val e: String) extends Err
 case object RequirementNotMet extends Err
 
-
-abstract class Conditional[+T] {    
+abstract class Conditional[+T] {
   def isPassed: Boolean
   def get: T
   def err: Err

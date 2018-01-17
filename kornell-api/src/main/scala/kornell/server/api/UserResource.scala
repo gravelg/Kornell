@@ -60,20 +60,20 @@ class UserResource(private val authRepo: AuthRepo) {
     val userHello = newUserHelloTO
 
     val institution = {
-      if(name != null) InstitutionsRepo.getByName(name)
-      else if(hostName != null) InstitutionsRepo.getByHostName(hostName)
+      if (name != null) InstitutionsRepo.getByName(name)
+      else if (hostName != null) InstitutionsRepo.getByHostName(hostName)
       else None
     }
     userHello.setInstitution(institution.getOrElse(null));
     val auth = req.getHeader("X-KNL-TOKEN")
-    
+
     val token = TokenRepo().checkToken(auth)
     if (token.isDefined) {
       val person = PersonRepo(token.get.getPersonUUID).first.getOrElse(null)
       userHello.setUserInfoTO(getUser(person).getOrElse(null))
       userHello.setCourseClassesTO(CourseClassesRepo.byPersonAndInstitution(person.getUUID, person.getInstitutionUUID))
-      
-      if(institution.isDefined && person.getInstitutionUUID != institution.get.getUUID){
+
+      if (institution.isDefined && person.getInstitutionUUID != institution.get.getUUID) {
         throw new UnauthorizedAccessException("personDoesNotBelongToInstitution")
       }
     }
@@ -138,12 +138,12 @@ class UserResource(private val authRepo: AuthRepo) {
     val person = PeopleRepo.getByEmail(institution.get.getUUID, email)
     if (person.isDefined && institution.isDefined) {
       val requestPasswordChangeUUID = UUID.random
-      
+
       AuthRepo().getUsernameByPersonUUID(person.get.getUUID) match {
         case Some(one) => authRepo.updateRequestPasswordChangeUUID(person.get.getUUID, requestPasswordChangeUUID)
         case None => authRepo.setPlainPassword(institution.get.getUUID, person.get.getUUID, person.get.getEmail, null, false, requestPasswordChangeUUID)
-    	}
-      
+      }
+
       EmailService.sendEmailRequestPasswordChange(person.get, institution.get, requestPasswordChangeUUID)
     } else {
       throw new EntityNotFoundException("personOrInstitutionNotFound")
@@ -159,7 +159,7 @@ class UserResource(private val authRepo: AuthRepo) {
     if (person.isDefined) {
       PersonRepo(person.get.getUUID).setPassword(password, false)
 
-      //log entity change 
+      //log entity change
       EventsRepo.logEntityChange(person.get.getInstitutionUUID, AuditedEntityType.password, person.get.getUUID, null, null, person.get.getUUID)
 
       val user = newUserInfoTO

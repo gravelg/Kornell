@@ -3,23 +3,23 @@ package kornell.core.entity;
 import java.util.Date;
 
 public interface TrackItem extends Entity {
-	public static String TYPE = EntityFactory.PREFIX + "trackItem+json";
+    public static String TYPE = EntityFactory.PREFIX + "trackItem+json";
 
-	String getCourseVersionUUID();
-	void setCourseVersionUUID(String courseVersionUUID);
+    String getCourseVersionUUID();
+    void setCourseVersionUUID(String courseVersionUUID);
 
-	String getTrackUUID();
-	void setTrackUUID(String trackUUID);
+    String getTrackUUID();
+    void setTrackUUID(String trackUUID);
 
-	String getParentUUID();
-	void setParentUUID(String parentUUID);
+    String getParentUUID();
+    void setParentUUID(String parentUUID);
 
-	Integer getOrder();
-	void setOrder(Integer order);
+    Integer getOrder();
+    void setOrder(Integer order);
 
-	Boolean isHavingPreRequirements();
-	void setHavingPreRequirements(Boolean havingPreRequirements);
+    Boolean isHavingPreRequirements();
+    void setHavingPreRequirements(Boolean havingPreRequirements);
 
-	Date getStartDate();
-	void setStartDate(Date startDate);
+    Date getStartDate();
+    void setStartDate(Date startDate);
 }

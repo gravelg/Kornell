@@ -1,29 +1,29 @@
 package kornell.server.jdbc.repository
 
 import java.sql.ResultSet
-import kornell.server.jdbc.SQL._ 
+import kornell.server.jdbc.SQL._
 import kornell.core.entity.CertificateDetails
 import kornell.core.util.UUID
 import kornell.core.entity.CourseDetailsEntityType
 
 object CertificatesDetailsRepo {
-  
-   def create(certificateDetails: CertificateDetails): CertificateDetails = {
-    if (certificateDetails.getUUID == null){
+
+  def create(certificateDetails: CertificateDetails): CertificateDetails = {
+    if (certificateDetails.getUUID == null) {
       certificateDetails.setUUID(UUID.random)
-    }    
+    }
     sql"""
     | insert into CertificateDetails (uuid,bgImage,certificateType,entityType,entityUUID)
     | values(
     | ${certificateDetails.getUUID},
     | ${certificateDetails.getBgImage},
     | ${certificateDetails.getCertificateType.toString},
-    | ${certificateDetails.getEntityType.toString}, 
+    | ${certificateDetails.getEntityType.toString},
     | ${certificateDetails.getEntityUUID})""".executeUpdate
-    
+
     certificateDetails
   }
-  
+
   def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType): Option[CertificateDetails] = {
     sql"""
       select * from CertificateDetails where entityUUID = ${entityUUID} and entityType = ${entityType.toString}

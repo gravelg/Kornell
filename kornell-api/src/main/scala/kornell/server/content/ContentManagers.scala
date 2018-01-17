@@ -5,13 +5,14 @@ import kornell.core.entity.RepositoryType
 
 object ContentManagers {
 
-  def forRepository(repoUUID: String): SyncContentManager = 
+  def forRepository(repoUUID: String): SyncContentManager =
     ContentRepositoriesRepo
-    	.getByRepositoryUUID(repoUUID)
-    	.map { _ match {
-    	  case x if x.getRepositoryType == RepositoryType.S3 => new S3ContentManager(x)
-    	  case x if x.getRepositoryType == RepositoryType.FS => new FSContentManager(x)
-    	  case _ => throw new IllegalStateException("Unknown repository type")
-    	}
-  	}.getOrElse(throw new IllegalArgumentException(s"Could not find repository [$repoUUID]"))
+      .getByRepositoryUUID(repoUUID)
+      .map {
+        _ match {
+          case x if x.getRepositoryType == RepositoryType.S3 => new S3ContentManager(x)
+          case x if x.getRepositoryType == RepositoryType.FS => new FSContentManager(x)
+          case _ => throw new IllegalStateException("Unknown repository type")
+        }
+      }.getOrElse(throw new IllegalArgumentException(s"Could not find repository [$repoUUID]"))
 }

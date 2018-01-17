@@ -11,16 +11,16 @@ import kornell.core.entity.Person;
 import kornell.core.scorm12.rte.DMElement;
 
 public class StudentName extends DMElement {
-	public static final StudentName dme = new StudentName();
 
-	public StudentName() {
-		super("student_name", true, CMIIdentifier, RO);
-	}
+    public static final StudentName dme = new StudentName();
 
-	@Override
-	public Map<String, String> initializeMap(Map<String, String> entries,
-			Person person,Enrollment enrollment,
-			CourseClass courseClass) {
-		return set(person.getFullName());
-	}
+    public StudentName() {
+        super("student_name", true, CMIIdentifier, RO);
+    }
+
+    @Override
+    public Map<String, String> initializeMap(Map<String, String> entries, Person person, Enrollment enrollment,
+            CourseClass courseClass) {
+        return set(person.getFullName());
+    }
 }

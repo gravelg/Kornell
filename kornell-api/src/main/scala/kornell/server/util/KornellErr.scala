@@ -1,9 +1,9 @@
 package kornell.server.util
 
-class KornellErr (code:Int, messageKey: String) extends Err {
+class KornellErr(code: Int, messageKey: String) extends Err {
 
-  def getCode:Int = code
-  def getMessageKey:String = messageKey
+  def getCode: Int = code
+  def getMessageKey: String = messageKey
 }
 
 object AccessDeniedErr {

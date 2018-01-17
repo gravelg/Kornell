@@ -30,20 +30,19 @@ object DataSources {
     config.setJdbcUrl(jdbcURL)
     config.setUsername(username)
     config.setPassword(password)
-    config.addDataSourceProperty("characterEncoding","utf8")
-    config.addDataSourceProperty("useUnicode","true")
+    config.addDataSourceProperty("characterEncoding", "utf8")
+    config.addDataSourceProperty("useUnicode", "true")
     config.setAutoCommit(false)
     val ds = new HikariDataSource(config)
     ds
   }
 
+  lazy val POOL = { () => hikariDS.getConnection }
 
-  lazy val POOL = { () => hikariDS.getConnection  }
+  val connectionFactory = POOL
 
-  val connectionFactory = POOL 
-  
-  def configure(flyway:Flyway) = flyway.setDataSource(
-          JDBC_CONNECTION_STRING,
-          JDBC_USERNAME,
-          JDBC_PASSWORD)
+  def configure(flyway: Flyway) = flyway.setDataSource(
+    JDBC_CONNECTION_STRING,
+    JDBC_USERNAME,
+    JDBC_PASSWORD)
 }

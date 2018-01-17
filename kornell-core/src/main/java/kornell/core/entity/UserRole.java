@@ -1,5 +1,5 @@
 package kornell.core.entity;
 
-public interface UserRole extends Role{
+public interface UserRole extends Role {
 
 }

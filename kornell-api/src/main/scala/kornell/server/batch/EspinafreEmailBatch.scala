@@ -9,13 +9,13 @@ import kornell.core.entity.InstitutionType
 
 @Singleton
 class EspinafreEmailBatch {
-  
+
   //3pm Brasilia time
-  @Schedule(hour="18", persistent=false)
+  @Schedule(hour = "18", persistent = false)
   def sendEspinafreEmailReminder() = {
     val institution = InstitutionsRepo.byType(InstitutionType.DASHBOARD).get
     val emailList = EnrollmentsRepo.getEspinafreEmailList
     emailList.foreach(
-        person => EmailService.sendEmailEspinafreReminder(person, institution))
+      person => EmailService.sendEmailEspinafreReminder(person, institution))
   }
 }

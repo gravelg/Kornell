@@ -25,7 +25,7 @@ import kornell.server.jdbc.repository.CourseClassRepo
 
 @Path("courseClasses")
 class CourseClassesResource {
-   
+
   @Path("{uuid}")
   def get(@PathParam("uuid") uuid: String) = CourseClassResource(uuid)
 
@@ -34,40 +34,41 @@ class CourseClassesResource {
   def getClasses(implicit @Context sc: SecurityContext) =
     AuthRepo().withPerson { person =>
       {
-          CourseClassesRepo.byPersonAndInstitution(person.getUUID, person.getInstitutionUUID)
+        CourseClassesRepo.byPersonAndInstitution(person.getUUID, person.getInstitutionUUID)
       }
     }
-  
+
   @POST
   @Consumes(Array(CourseClass.TYPE))
   @Produces(Array(CourseClass.TYPE))
   def create(courseClass: CourseClass) = {
     CourseClassesRepo.create(courseClass)
-  }.requiring(isPlatformAdmin(courseClass.getInstitutionUUID), AccessDeniedErr()) 
-   .or(isInstitutionAdmin(courseClass.getInstitutionUUID), AccessDeniedErr())
-   .get
-  
+  }.requiring(isPlatformAdmin(courseClass.getInstitutionUUID), AccessDeniedErr())
+    .or(isInstitutionAdmin(courseClass.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @GET
   @Path("enrollment/{enrollmentUUID}")
   @Produces(Array(CourseClassTO.TYPE))
   def getByEnrollment(implicit @Context sc: SecurityContext, @PathParam("enrollmentUUID") enrollmentUUID: String) =
-    AuthRepo().withPerson { person => {
-    		CourseClassesRepo.byEnrollment(enrollmentUUID, person.getUUID, person.getInstitutionUUID);
-    	}
+    AuthRepo().withPerson { person =>
+      {
+        CourseClassesRepo.byEnrollment(enrollmentUUID, person.getUUID, person.getInstitutionUUID);
+      }
     }
 
   @GET
   @Produces(Array(CourseClassesTO.TYPE))
   @Path("administrated")
   def getAdministratedClasses(implicit @Context sc: SecurityContext, @QueryParam("courseVersionUUID") courseVersionUUID: String, @QueryParam("searchTerm") searchTerm: String,
-      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) =
+    @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) =
     AuthRepo().withPerson { person =>
       {
-          CourseClassesRepo.getAllClassesByInstitutionPaged(person.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true", person.getUUID, courseVersionUUID, null)
+        CourseClassesRepo.getAllClassesByInstitutionPaged(person.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true", person.getUUID, courseVersionUUID, null)
       }
     }
 }
 
-object CourseClassesResource{
+object CourseClassesResource {
   def apply() = new CourseClassesResource()
 }

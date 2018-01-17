@@ -7,6 +7,6 @@ import kornell.core.error.exception.EntityConflictException
 
 @Provider
 class EntityConflictMapper extends ExceptionMapper[EntityConflictException] {
-    override def toResponse(ece: EntityConflictException): Response = 
-      ExceptionMapperHelper.handleError(409, ece.getMessageKey)
+  override def toResponse(ece: EntityConflictException): Response =
+    ExceptionMapperHelper.handleError(409, ece.getMessageKey)
 }

@@ -18,7 +18,7 @@ class CourseDetailsHintRepo(uuid: String) {
     | update CourseDetailsHint c
     | set c.title = ${courseDetailsHint.getTitle},
     | c.text = ${courseDetailsHint.getText},
-    | c.index = ${courseDetailsHint.getIndex}, 
+    | c.index = ${courseDetailsHint.getIndex},
     | c.fontAwesomeClassName = ${courseDetailsHint.getFontAwesomeClassName}
     | where c.uuid = ${courseDetailsHint.getUUID}""".executeUpdate
 
@@ -28,7 +28,7 @@ class CourseDetailsHintRepo(uuid: String) {
   def delete = {
     val courseDetailsHint = get
     sql"""
-      delete from CourseDetailsHint 
+      delete from CourseDetailsHint
       where uuid = ${uuid}""".executeUpdate
 
     val courseDetailsHints = CourseDetailsHintsRepo.getForEntity(courseDetailsHint.getEntityUUID, courseDetailsHint.getEntityType).getCourseDetailsHints
@@ -39,7 +39,7 @@ class CourseDetailsHintRepo(uuid: String) {
       courseDetailsHint.setIndex(index)
       CourseDetailsHintRepo(courseDetailsHint.getUUID).update(courseDetailsHint)
     }
-    
+
     courseDetailsHint
   }
 

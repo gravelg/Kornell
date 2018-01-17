@@ -13,8 +13,7 @@ import net.lingala.zip4j.core.ZipFile
 import java.sql.ResultSet
 import kornell.server.jdbc.ConnectionHandler
 
-
-class V2017_04_25_23_38__UpdateCourseCodes extends JdbcMigration  {
+class V2017_04_25_23_38__UpdateCourseCodes extends JdbcMigration {
   override def migrate(conn: Connection) {
     migrateCourseCodes
   }
@@ -25,16 +24,16 @@ class V2017_04_25_23_38__UpdateCourseCodes extends JdbcMigration  {
   		""".map[(String, String, String)](toTuple)
 
     for ((courseUUID, prefix, versionUUID) <- versions) {
-    
+
       try {
         val code = prefix.replaceAll("/[0-9a-zA-Z\\.\\-]+/?$", "")
         val newPrefix = prefix.replaceAll("^[0-9a-zA-Z\\-]+/", "")
         println(code + " " + newPrefix + " " + courseUUID + " " + versionUUID)
-        if(code.length > 0 && newPrefix.length > 0){
+        if (code.length > 0 && newPrefix.length > 0) {
           sql"""
       		  update Course set code = ${code} where uuid = ${courseUUID}
       		""".executeUpdate
-      		sql"""
+          sql"""
       		  update CourseVersion set distributionPrefix = ${newPrefix} where uuid = ${versionUUID}
       		""".executeUpdate
         }

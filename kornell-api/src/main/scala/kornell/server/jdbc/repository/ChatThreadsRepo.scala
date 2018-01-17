@@ -32,9 +32,6 @@ import kornell.server.util.EmailService
 import kornell.server.api.InstitutionResource
 import kornell.core.entity.EntityState
 
-class ChatThreadsRepo {
-}
-
 object ChatThreadsRepo {
 
   def postMessageToCourseClassThread(personUUID: String, courseClassUUID: String, message: String, threadType: ChatThreadType) = {

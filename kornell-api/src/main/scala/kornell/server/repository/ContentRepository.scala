@@ -50,7 +50,7 @@ object ContentRepository {
 
   def findKNLVisitedContent(enrollment: Enrollment, person: Person, isWizard: Boolean) = {
     val visited = getVisited(enrollment)
-    if(isWizard){
+    if (isWizard) {
       val courseVersion = CourseVersionsRepo.byCourseClassUUID(enrollment.getCourseClassUUID).get
       WizardParser.parse(courseVersion.getClassroomJson, visited)
     } else {
@@ -65,7 +65,7 @@ object ContentRepository {
       ContentsParser.parse(prefix, structureSrc, visited)
     }
   }
-  
+
   def findSCORM12VisitedContent(enrollment: Enrollment, person: Person) = {
     val prefix = getPrefix(enrollment, person)
     val visited = getVisited(enrollment)
@@ -80,7 +80,6 @@ object ContentRepository {
     contents
   }
 
-
   private def getPrefix(enrollment: Enrollment, person: Person): String = {
     val institutionRepo = InstitutionRepo(person.getInstitutionUUID)
     val repositoryUUID = institutionRepo.get.getAssetsRepositoryUUID
@@ -88,7 +87,7 @@ object ContentRepository {
     val version = {
       if (enrollment.getCourseVersionUUID != null)
         CourseVersionRepo(enrollment.getCourseVersionUUID)
-       else 
+      else
         CourseClassesRepo(enrollment.getCourseClassUUID).version
     }.get
     val course = CourseRepo(version.getCourseUUID).get

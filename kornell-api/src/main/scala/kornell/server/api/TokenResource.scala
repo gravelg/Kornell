@@ -21,12 +21,12 @@ import kornell.core.error.exception.AuthenticationException
 
 @Path("auth")
 class TokenResource {
-  
+
   @POST
   @Produces(Array(TokenTO.TYPE))
   @Path("token")
   def getToken(@FormParam("clientType") clientType: String, @FormParam("institutionUUID") institutionUUID: String,
-      @FormParam("userkey") userkey: String, @FormParam("password") password: String) = {
+    @FormParam("userkey") userkey: String, @FormParam("password") password: String) = {
     //gotta escape because form params and plus signs are weird
     val authValue = AuthRepo().authenticate(institutionUUID, userkey.replaceAll(" ", "\\+"), password)
     val authClientType = AuthClientType.valueOf(clientType)
@@ -48,14 +48,14 @@ class TokenResource {
         }
       } else {
         //token did not exist, we create one
-    	  TokenRepo.createToken(UUID.random(), personUUID, authClientType)
+        TokenRepo.createToken(UUID.random(), personUUID, authClientType)
       }
     } else {
       //throw login exception
       throw new UnauthorizedAccessException("authenticationFailed")
     }
   }
-  
+
   @POST
   @Path("logout")
   def logout(@Context req: HttpServletRequest) = {

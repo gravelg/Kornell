@@ -16,13 +16,11 @@ import javax.ws.rs.QueryParam
 import kornell.server.util.Conditional.toConditional
 import kornell.server.util.AccessDeniedErr
 
-
-
 @Produces(Array(Person.TYPE))
 class PersonResource(uuid: String) {
-  
+
   @GET
-  def get = { 
+  def get = {
     PersonRepo(uuid)
   }.requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(uuid), AccessDeniedErr())
     .get
@@ -30,12 +28,12 @@ class PersonResource(uuid: String) {
   @Path("isRegistered")
   @Produces(Array("application/boolean"))
   @GET
-  def isRegistered(@QueryParam("cpf") cpf:String,
-      @QueryParam("email") email:String):Boolean = 
+  def isRegistered(@QueryParam("cpf") cpf: String,
+    @QueryParam("email") email: String): Boolean =
     AuthRepo().withPerson { person =>
-    	val result = get.isRegistered(person.getInstitutionUUID,cpf,email)
-    	result
-   }.requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(uuid), AccessDeniedErr())
-    .get
-  
+      val result = get.isRegistered(person.getInstitutionUUID, cpf, email)
+      result
+    }.requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(uuid), AccessDeniedErr())
+      .get
+
 }

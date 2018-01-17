@@ -56,7 +56,7 @@ class EnrollmentResource(uuid: String) {
   def update(enrollment: Enrollment) = {
     EnrollmentRepo(enrollment.getUUID).update(enrollment)
   }.requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(enrollment.getPersonUUID), AccessDeniedErr())
-   .get
+    .get
 
   @Path("actoms/{actomKey}")
   def actom(@PathParam("actomKey") actomKey: String) = ActomResource(uuid, actomKey)
@@ -69,71 +69,69 @@ class EnrollmentResource(uuid: String) {
       ContentRepository.findVisitedContent(e, person)
     }
   }
-    
- def findRootOf(uuid:String): String ={ 
-   val parent = sql"""
+
+  def findRootOf(uuid: String): String = {
+    val parent = sql"""
    select parentEnrollmentUUID from Enrollment where uuid = $uuid
    """.first[String] match {
-     case Some(p) => p
-     case None => uuid
-   }
-   parent 
- }
- 
- def findFamilyOf(parentUUID:String):List[String] ={
-   val selfie = List(parentUUID)
-   val children = sql"""
+      case Some(p) => p
+      case None => uuid
+    }
+    parent
+  }
+
+  def findFamilyOf(parentUUID: String): List[String] = {
+    val selfie = List(parentUUID)
+    val children = sql"""
    select uuid from Enrollment where parentEnrollmentUUID = $parentUUID
   """.map[String]
-   val result = selfie ++ children
-   result
- }
- 
- 
-  
- def findEnrollmentsFamilyUUIDs():List[String] = {
-   val selfie = Set(uuid)
-   val family = findFamilyOf(findRootOf(uuid)).toSet
-   val result = (selfie ++ family).toList
-   result
- }
+    val result = selfie ++ children
+    result
+  }
+
+  def findEnrollmentsFamilyUUIDs(): List[String] = {
+    val selfie = Set(uuid)
+    val family = findFamilyOf(findRootOf(uuid)).toSet
+    val result = (selfie ++ family).toList
+    result
+  }
 
   @GET
   @Path("launch")
   @Produces(Array(EnrollmentLaunchTO.TYPE))
   def launch() = AuthRepo().withPerson { person =>
-    
+
     val courseClassUUID = Option(enrollment.getCourseClassUUID).getOrElse {
       val parent = EnrollmentRepo(enrollment.getParentEnrollmentUUID).first
-      parent.map{_.getCourseClassUUID()}.getOrElse(null)
+      parent.map { _.getCourseClassUUID() }.getOrElse(null)
     }
-    val courseClass = if(courseClassUUID != null){
+    val courseClass = if (courseClassUUID != null) {
       CourseClassesRepo(courseClassUUID).get
     } else null
     val courseVersion = CourseVersionRepo(courseClass.getCourseVersionUUID).get
-    
+
     val eLaunch: EnrollmentLaunchTO = TOs.newEnrollmentLaunchTO
-    
+
     val eContents = contents.get
     eLaunch.setContents(eContents)
-    
-    val enrollments:List[String] = findEnrollmentsFamilyUUIDs
+
+    val enrollments: List[String] = findEnrollmentsFamilyUUIDs
     val eEntries = getEntries(enrollments)
-    val mEntries = eEntries.getEnrollmentEntriesMap.asScala    
-    
+    val mEntries = eEntries.getEnrollmentEntriesMap.asScala
+
     for {
       (enrollmentUUID, enrollmentEntries) <- mEntries.par
-      (actomKey,actomEntries) <- enrollmentEntries.getActomEntriesMap.asScala
+      (actomKey, actomEntries) <- enrollmentEntries.getActomEntriesMap.asScala
     } {
       val entriesMap = actomEntries.getEntries
       val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
       entriesMap.putAll(launchedMap)
       actomEntries.setEntries(entriesMap)
     }
-    
+
     //if the enrollment is on a class and it's a SCORM12 version
-    if(courseClass != null &&
-        ContentSpec.SCORM12.equals(CourseRepo(courseVersion.getCourseUUID).get.getContentSpec)) {
+    if (courseClass != null &&
+      ContentSpec.SCORM12.equals(CourseRepo(courseVersion.getCourseUUID).get.getContentSpec)) {
       //initialize the enrollmentEntries map if no attribute exists
       val enrollmentEntries = Option(eEntries.getEnrollmentEntriesMap.get(enrollment.getUUID)) match {
         case Some(ee) => ee
@@ -143,16 +141,16 @@ class EnrollmentResource(uuid: String) {
           ee
         }
       }
-      
+
       //initialize for each actom
-      eContents.getChildren.asScala.foreach { topic =>  
-        if(topic.getTopic != null){
-          topic.getTopic.getChildren.asScala.foreach { externalPage =>  
+      eContents.getChildren.asScala.foreach { topic =>
+        if (topic.getTopic != null) {
+          topic.getTopic.getChildren.asScala.foreach { externalPage =>
             val key = externalPage.getExternalPage.getKey
             val actomEntries = Option(enrollmentEntries.getActomEntriesMap.get(key)) match {
               case Some(ae) => ae
               case None => {
-                val entriesMap = new HashMap[String,String]()
+                val entriesMap = new HashMap[String, String]()
                 val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
                 entriesMap.putAll(launchedMap)
                 val ae = Entities.newActomEntries(enrollment.getUUID, key, entriesMap)
@@ -160,7 +158,7 @@ class EnrollmentResource(uuid: String) {
                 ae
               }
             }
-          }  
+          }
         }
       }
     }
@@ -170,17 +168,17 @@ class EnrollmentResource(uuid: String) {
     eLaunch
   }
 
-  def getEntries(es:List[String]):EnrollmentsEntries = {
+  def getEntries(es: List[String]): EnrollmentsEntries = {
     val esEntries: EnrollmentsEntries = Entities.newEnrollmentsEntries()
     val esEntriesMap = esEntries.getEnrollmentEntriesMap
-    
+
     val sql = s"""
       select * from ActomEntries
-      where enrollmentUUID IN (${es.map{s => s"'${s}'"}.mkString(",")})
-      order by enrollmentUUID, actomKey      
+      where enrollmentUUID IN (${es.map { s => s"'${s}'" }.mkString(",")})
+      order by enrollmentUUID, actomKey
     """
-    
-    new PreparedStmt(sql,List()).foreach { rs =>  
+
+    new PreparedStmt(sql, List()).foreach { rs =>
       val enrollmentUUID = rs.getString("enrollmentUUID")
       val actomKey = rs.getString("actomKey")
       val entryKey = rs.getString("entryKey")
@@ -195,8 +193,8 @@ class EnrollmentResource(uuid: String) {
         }
       }
 
-      val aeMap = enrollmentEntries.getActomEntriesMap() 
-      
+      val aeMap = enrollmentEntries.getActomEntriesMap()
+
       val actomEntries = Option(aeMap.get(actomKey)) match {
         case Some(a) => a
         case None => {
@@ -208,7 +206,7 @@ class EnrollmentResource(uuid: String) {
 
       actomEntries.getEntries.put(entryKey, entryValue)
     }
-    esEntries   
+    esEntries
   }
 
   @GET
@@ -225,10 +223,9 @@ class EnrollmentResource(uuid: String) {
       ""
     }
   }
-    
+
   @GET
   @Produces(Array(EnrollmentsEntries.TYPE))
-  def getEntries():EnrollmentsEntries = getEntries(List(uuid))
-
+  def getEntries(): EnrollmentsEntries = getEntries(List(uuid))
 
 }

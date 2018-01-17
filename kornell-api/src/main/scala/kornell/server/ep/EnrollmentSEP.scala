@@ -14,16 +14,14 @@ object EnrollmentSEP {
   def onProgress(enrollmentUUID: String) = {
     EnrollmentRepo(enrollmentUUID).updateProgress
   }
-    
-  def onAssessment(enrollmentUUID: String) = 
+
+  def onAssessment(enrollmentUUID: String) =
     EnrollmentRepo(enrollmentUUID).updateAssessment
-  
-  def onPreAssessmentScore(enrollmentUUID:String, score:BigDecimal) =
+
+  def onPreAssessmentScore(enrollmentUUID: String, score: BigDecimal) =
     EnrollmentRepo(enrollmentUUID).updatePreAssessmentScore(score)
-  
-  def onPostAssessmentScore(enrollmentUUID:String, score:BigDecimal) =
+
+  def onPostAssessmentScore(enrollmentUUID: String, score: BigDecimal) =
     EnrollmentRepo(enrollmentUUID).updatePostAssessmentScore(score)
-  
-    
 
 }

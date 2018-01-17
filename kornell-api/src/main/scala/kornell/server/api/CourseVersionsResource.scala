@@ -20,27 +20,27 @@ import kornell.server.util.AccessDeniedErr
 
 @Path("courseVersions")
 class CourseVersionsResource {
-  
+
   @Path("{uuid}")
-  def getCourseVersion(@PathParam("uuid") uuid:String) = CourseVersionResource(uuid)
+  def getCourseVersion(@PathParam("uuid") uuid: String) = CourseVersionResource(uuid)
 
   @GET
   @Produces(Array(CourseVersionsTO.TYPE))
   def getCourseVersions(@QueryParam("courseUUID") courseUUID: String, @QueryParam("searchTerm") searchTerm: String,
-      @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) = {
-      CourseVersionsRepo.byInstitution(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true", courseUUID)
-    }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-  
+    @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) = {
+    CourseVersionsRepo.byInstitution(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true", courseUUID)
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @POST
   @Produces(Array(CourseVersion.TYPE))
   @Consumes(Array(CourseVersion.TYPE))
   def create(courseVersion: CourseVersion) = {
     CourseVersionsRepo.create(courseVersion, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 }
 
 object CourseVersionsResource {

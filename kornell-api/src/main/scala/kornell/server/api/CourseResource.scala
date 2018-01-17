@@ -19,50 +19,50 @@ import javax.ws.rs.QueryParam
 import javax.ws.rs.POST
 
 class CourseResource(uuid: String) {
-  
+
   @GET
   @Produces(Array(Course.TYPE))
   def get = {
     CourseRepo(uuid).get
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
-   .or(isInstitutionAdmin(), AccessDeniedErr())
-   .get
-   
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .get
+
   @PUT
   @Consumes(Array(Course.TYPE))
   @Produces(Array(Course.TYPE))
   def update(course: Course) = {
     CourseRepo(uuid).update(course)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
-   .or(isInstitutionAdmin(), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .get
 
   @DELETE
   @Produces(Array(Course.TYPE))
   def delete() = {
     CourseRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-  
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @POST
   @Path("copy")
   @Produces(Array(Course.TYPE))
   def copy = {
     CourseRepo(uuid).copy
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
-   @GET
-   @Path("uploadUrl")
-   @Produces(Array("text/plain"))
-   def getUploadUrl(@QueryParam("filename") filename: String, @QueryParam("path") path:String) : String = {
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
+  @GET
+  @Path("uploadUrl")
+  @Produces(Array("text/plain"))
+  def getUploadUrl(@QueryParam("filename") filename: String, @QueryParam("path") path: String): String = {
     S3Service.getCourseUploadUrl(uuid, filename, path)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
-   .or(isInstitutionAdmin(), AccessDeniedErr())
-   .get
-   
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .get
+
 }
 
 object CourseResource {

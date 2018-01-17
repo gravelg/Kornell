@@ -8,12 +8,12 @@ import kornell.core.entity.CourseDetailsSection;
 
 public interface CourseDetailsTO {
 
-	List<CourseDetailsHint> getCourseDetailsHints();
-	void setCourseDetailsHints(List<CourseDetailsHint> courseDetailsHints);
-	
-	List<CourseDetailsSection> getCourseDetailsSections();
-	void setCourseDetailsSections(List<CourseDetailsSection> courseDetailsSection);
-	
-	List<CourseDetailsLibrary> getCourseDetailsLibraries();
-	void setCourseDetailsLibraries(List<CourseDetailsLibrary> courseDetailsLibraries);
+    List<CourseDetailsHint> getCourseDetailsHints();
+    void setCourseDetailsHints(List<CourseDetailsHint> courseDetailsHints);
+
+    List<CourseDetailsSection> getCourseDetailsSections();
+    void setCourseDetailsSections(List<CourseDetailsSection> courseDetailsSection);
+
+    List<CourseDetailsLibrary> getCourseDetailsLibraries();
+    void setCourseDetailsLibraries(List<CourseDetailsLibrary> courseDetailsLibraries);
 }

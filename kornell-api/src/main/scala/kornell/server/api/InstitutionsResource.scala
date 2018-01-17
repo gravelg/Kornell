@@ -12,10 +12,10 @@ import kornell.server.util.Conditional.toConditional
 
 @Path("institutions")
 class InstitutionsResource {
-  
+
   @Path("{uuid}")
-  def get(@PathParam("uuid") uuid:String):InstitutionResource = new InstitutionResource(uuid)
-    
+  def get(@PathParam("uuid") uuid: String): InstitutionResource = new InstitutionResource(uuid)
+
   @POST
   @Produces(Array(Institution.TYPE))
   @Consumes(Array(Institution.TYPE))

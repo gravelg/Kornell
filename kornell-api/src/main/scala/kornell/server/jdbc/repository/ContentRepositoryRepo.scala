@@ -4,9 +4,9 @@ import kornell.core.entity.ContentRepository
 import kornell.server.jdbc.SQL._
 
 class ContentRepositoryRepo(uuid: String) {
-  
+
   def get = ContentRepositoriesRepo.getByRepositoryUUID(uuid).get
-  
+
   def update(repo: ContentRepository): ContentRepository = {
     sql"""
       update ContentRepository set
@@ -19,8 +19,8 @@ class ContentRepositoryRepo(uuid: String) {
       | path = ${repo.getPath}
       | where uuid = ${repo.getUUID}
     """.executeUpdate
-    
-    ContentRepositoriesRepo.updateCache(repo)  
+
+    ContentRepositoriesRepo.updateCache(repo)
     repo
   }
 }

@@ -36,7 +36,6 @@ import javax.ws.rs.PathParam
 import kornell.server.service.S3Service
 import javax.ws.rs.POST
 
-
 class CourseClassResource(uuid: String) {
 
   @GET
@@ -44,14 +43,13 @@ class CourseClassResource(uuid: String) {
   @Produces(Array(CourseClassTO.TYPE))
   def getTO(implicit @Context sc: SecurityContext) =
     AuthRepo().withPerson { person =>
-       	CourseClassesRepo.getCourseClassTO(person.getInstitutionUUID, uuid)
+      CourseClassesRepo.getCourseClassTO(person.getInstitutionUUID, uuid)
     }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isCourseClassAdmin(uuid), AccessDeniedErr())
-   .or(isCourseClassTutor(uuid), AccessDeniedErr())
-   .or(isCourseClassObserver(uuid), AccessDeniedErr())
-   .get
-
+      .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+      .or(isCourseClassAdmin(uuid), AccessDeniedErr())
+      .or(isCourseClassTutor(uuid), AccessDeniedErr())
+      .or(isCourseClassObserver(uuid), AccessDeniedErr())
+      .get
 
   @PUT
   @Consumes(Array(CourseClass.TYPE))
@@ -76,7 +74,7 @@ class CourseClassResource(uuid: String) {
     val courseClass = CourseClassRepo(uuid).get
     if (courseClass == null)
       throw new EntityNotFoundException("classNotFound")
-    
+
     val roles = RolesRepo.getUserRoles(p.getUUID, RoleCategory.BIND_DEFAULT).getRoleTOs
     val institutionUUID = CourseClassRepo(uuid).get.getInstitutionUUID
     if (!(RoleCategory.isPlatformAdmin(roles, institutionUUID) ||
@@ -91,95 +89,94 @@ class CourseClassResource(uuid: String) {
           throw new EntityConflictException("constraintViolatedUUIDName")
       }
   }
-  
+
   @POST
   @Path("copy")
   @Produces(Array(CourseClass.TYPE))
   def copy = {
     CourseClassRepo(uuid).copy
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 
   @Produces(Array(LibraryFilesTO.TYPE))
   @Path("libraryFiles")
   @GET
-  def getLibraryFiles =  LibraryFilesRepository.findLibraryFiles(uuid)
-     
-  
+  def getLibraryFiles = LibraryFilesRepository.findLibraryFiles(uuid)
+
   @PUT
   @Consumes(Array(Roles.TYPE))
   @Produces(Array(Roles.TYPE))
   @Path("admins")
   def updateAdmins(roles: Roles) = AuthRepo().withPerson { person =>
     {
-        val r = RolesRepo.updateCourseClassAdmins(person.getInstitutionUUID, uuid, roles)
-        ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.SUPPORT)
-        ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.INSTITUTION_SUPPORT)
+      val r = RolesRepo.updateCourseClassAdmins(person.getInstitutionUUID, uuid, roles)
+      ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.SUPPORT)
+      ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.INSTITUTION_SUPPORT)
     }
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 
   @GET
   @Produces(Array(RolesTO.TYPE))
   @Path("admins")
-  def getAdmins(@QueryParam("bind") bindMode:String) = AuthRepo().withPerson { person =>
-        RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.courseClassAdmin, bindMode)
+  def getAdmins(@QueryParam("bind") bindMode: String) = AuthRepo().withPerson { person =>
+    RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.courseClassAdmin, bindMode)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-  
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @PUT
   @Consumes(Array(Roles.TYPE))
   @Produces(Array(Roles.TYPE))
   @Path("tutors")
   def updateTutors(roles: Roles) = AuthRepo().withPerson { person =>
     {
-        val r = RolesRepo.updateTutors(person.getInstitutionUUID, uuid, roles)
-        ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.TUTORING)
-        r
+      val r = RolesRepo.updateTutors(person.getInstitutionUUID, uuid, roles)
+      ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.TUTORING)
+      r
     }
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 
   @GET
   @Produces(Array(RolesTO.TYPE))
   @Path("tutors")
-  def getTutors(@QueryParam("bind") bindMode:String) = AuthRepo().withPerson { person =>
-        RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.tutor, bindMode)
+  def getTutors(@QueryParam("bind") bindMode: String) = AuthRepo().withPerson { person =>
+    RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.tutor, bindMode)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 
-   @PUT
+  @PUT
   @Consumes(Array(Roles.TYPE))
   @Produces(Array(Roles.TYPE))
   @Path("observers")
   def updateObservers(roles: Roles) = AuthRepo().withPerson { person =>
-        RolesRepo.updateObservers(person.getInstitutionUUID, uuid, roles)
+    RolesRepo.updateObservers(person.getInstitutionUUID, uuid, roles)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 
   @GET
   @Produces(Array(RolesTO.TYPE))
   @Path("observers")
-  def getObservers(@QueryParam("bind") bindMode:String) = AuthRepo().withPerson { person =>
-        RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.observer, bindMode)
+  def getObservers(@QueryParam("bind") bindMode: String) = AuthRepo().withPerson { person =>
+    RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.observer, bindMode)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
-   @GET
-   @Path("uploadUrl")
-   @Produces(Array("text/plain"))
-   def getUploadUrl(@QueryParam("filename") filename: String, @QueryParam("path") path:String) : String = {
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
+  @GET
+  @Path("uploadUrl")
+  @Produces(Array("text/plain"))
+  def getUploadUrl(@QueryParam("filename") filename: String, @QueryParam("path") path: String): String = {
     S3Service.getCourseClassUploadUrl(uuid, filename, path)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
-   .or(isInstitutionAdmin(), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .get
 }
 
 object CourseClassResource {

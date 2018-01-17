@@ -15,7 +15,7 @@ import kornell.core.error.exception.EntityNotFoundException
 
 @Path("cache")
 class CacheResource {
-  
+
   @Path("/clear/{entityType}")
   @POST
   def clearCache(@PathParam("entityType") entityType: String) = {

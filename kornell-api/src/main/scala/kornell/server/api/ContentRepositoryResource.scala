@@ -11,25 +11,24 @@ import kornell.server.jdbc.repository.ContentRepositoryRepo
 import javax.ws.rs.PUT
 import javax.ws.rs.Consumes
 
-
 class ContentRepositoryResource(uuid: String) {
- 
+
   @GET
   @Produces(Array(ContentRepository.TYPE))
-  def get : ContentRepository  = {
+  def get: ContentRepository = {
     ContentRepositoryRepo(uuid).get
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @PUT
   @Consumes(Array(ContentRepository.TYPE))
   @Produces(Array(ContentRepository.TYPE))
   def update(contentRepo: ContentRepository) = {
     ContentRepositoryRepo(uuid).update(contentRepo)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 }
 
 object ContentRepositoryResource {

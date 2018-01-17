@@ -1,7 +1,7 @@
 package kornell.server.jdbc.repository
 
 import java.sql.ResultSet
-import kornell.server.jdbc.SQL._ 
+import kornell.server.jdbc.SQL._
 import scala.collection.JavaConverters._
 import kornell.core.entity.CourseDetailsLibrary
 import kornell.server.content.ContentManagers
@@ -14,26 +14,26 @@ class CourseDetailsLibraryRepo(uuid: String) {
 
   def get = finder.get[CourseDetailsLibrary]
   def first = finder.first[CourseDetailsLibrary]
-  
-  def update(courseDetailsLibrary: CourseDetailsLibrary): CourseDetailsLibrary = {    
+
+  def update(courseDetailsLibrary: CourseDetailsLibrary): CourseDetailsLibrary = {
     sql"""
     | update CourseDetailsLibrary l
     | set l.title = ${courseDetailsLibrary.getTitle},
-    | l.index = ${courseDetailsLibrary.getIndex}, 
+    | l.index = ${courseDetailsLibrary.getIndex},
     | l.description = ${courseDetailsLibrary.getDescription},
     | l.size = ${courseDetailsLibrary.getSize},
     | l.path = ${courseDetailsLibrary.getPath},
     | l.uploadDate = ${courseDetailsLibrary.getUploadDate},
     | l.fontAwesomeClassName = ${courseDetailsLibrary.getFontAwesomeClassName}
     | where l.uuid = ${courseDetailsLibrary.getUUID}""".executeUpdate
-    
+
     courseDetailsLibrary
   }
-  
-  def delete = {    
+
+  def delete = {
     val courseDetailsLibrary = get
     sql"""
-      delete from CourseDetailsLibrary 
+      delete from CourseDetailsLibrary
       where uuid = ${uuid}""".executeUpdate
 
     val courseDetailsLibraries = CourseDetailsLibrariesRepo.getForEntity(courseDetailsLibrary.getEntityUUID, courseDetailsLibrary.getEntityType).getCourseDetailsLibraries

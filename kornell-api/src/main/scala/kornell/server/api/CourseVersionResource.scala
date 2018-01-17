@@ -26,53 +26,53 @@ class CourseVersionResource(uuid: String) {
   @Produces(Array(CourseVersionTO.TYPE))
   def get = {
     CourseVersionsRepo.getCourseVersionTO(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, uuid)
-   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
+  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @PUT
   @Consumes(Array(CourseVersion.TYPE))
   @Produces(Array(CourseVersion.TYPE))
   def update(courseVersion: CourseVersion) = {
     CourseVersionRepo(uuid).update(courseVersion, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
 
   @DELETE
   @Produces(Array(CourseVersion.TYPE))
   def delete() = {
     CourseVersionRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-  
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
   @POST
   @Path("copy")
   @Produces(Array(CourseVersion.TYPE))
   def copy = {
     CourseVersionRepo(uuid).copy
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-   .get
-   
-   @GET
-   @Path("uploadUrl")
-   @Produces(Array("text/plain"))
-   def getUploadUrl(@QueryParam("filename") filename: String, @QueryParam("path") path:String) : String = {
+    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .get
+
+  @GET
+  @Path("uploadUrl")
+  @Produces(Array("text/plain"))
+  def getUploadUrl(@QueryParam("filename") filename: String, @QueryParam("path") path: String): String = {
     S3Service.getCourseVersionUploadUrl(uuid, filename, path)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
-   .or(isInstitutionAdmin(), AccessDeniedErr())
-   .get
-   
-   @GET
-   @Path("contentUploadUrl")
-   @Produces(Array("text/plain"))
-   def getUploadUrl : String = {
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .get
+
+  @GET
+  @Path("contentUploadUrl")
+  @Produces(Array("text/plain"))
+  def getUploadUrl: String = {
     S3Service.getCourseVersionContentUploadUrl(uuid)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
-   .or(isInstitutionAdmin(), AccessDeniedErr())
-   .get
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .get
 }
 
 object CourseVersionResource {

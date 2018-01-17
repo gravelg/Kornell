@@ -13,20 +13,20 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.model.DeleteObjectsRequest
 
 class S3ContentManager(repo: ContentRepository)
-  extends SyncContentManager {
+    extends SyncContentManager {
 
   val logger = Logger.getLogger(classOf[S3ContentManager].getName)
 
   lazy val s3 = if (isSome(repo.getAccessKeyId()))
-    new AmazonS3Client(new BasicAWSCredentials(repo.getAccessKeyId(),repo.getSecretAccessKey()))
+    new AmazonS3Client(new BasicAWSCredentials(repo.getAccessKeyId(), repo.getSecretAccessKey()))
   else
     new AmazonS3Client
 
   def source(keys: String*) =
-    inputStream(keys:_*).map { Source.fromInputStream(_, "UTF-8") }
+    inputStream(keys: _*).map { Source.fromInputStream(_, "UTF-8") }
 
   def inputStream(keys: String*): Try[InputStream] = Try {
-    val fqkn = url(keys:_*)
+    val fqkn = url(keys: _*)
     logger.finest(s"loading key [ ${fqkn} ]")
     try {
       s3.getObject(repo.getBucketName, fqkn).getObjectContent
@@ -39,26 +39,26 @@ class S3ContentManager(repo: ContentRepository)
     }
   }
 
-  def put(value: InputStream, contentType: String, contentDisposition: String, metadataMap: Map[String, String],keys: String*) = {
+  def put(value: InputStream, contentType: String, contentDisposition: String, metadataMap: Map[String, String], keys: String*) = {
     val metadata = new ObjectMetadata()
     metadata.setUserMetadata(metadataMap asJava)
     Option(contentType).foreach { metadata.setContentType(_) }
     Option(contentDisposition).foreach { metadata.setContentDisposition(_) }
-    s3.putObject(repo.getBucketName, url(keys:_*), value, metadata)
+    s3.putObject(repo.getBucketName, url(keys: _*), value, metadata)
   }
 
   def delete(keys: String*) = {
     // keys we support delete for already have repo prefix appended
-    logger.info("Trying to delete object [ " + mkurl("", keys:_*) + " ]")
-    s3.deleteObject(repo.getBucketName, mkurl("", keys:_*))
+    logger.info("Trying to delete object [ " + mkurl("", keys: _*) + " ]")
+    s3.deleteObject(repo.getBucketName, mkurl("", keys: _*))
   }
 
   def deleteFolder(keys: String*) = {
-    val path = url(keys:_*)
+    val path = url(keys: _*)
     logger.info("Trying to delete folder object [ " + path + " ]")
     val objects = s3.listObjects(repo.getBucketName, path)
     val keyPaths = objects.getObjectSummaries.asScala.map(f => f.getKey)
-    val deleteRequest = new DeleteObjectsRequest(repo.getBucketName).withKeys(keyPaths:_*)
+    val deleteRequest = new DeleteObjectsRequest(repo.getBucketName).withKeys(keyPaths: _*)
     try {
       s3.deleteObjects(deleteRequest)
     } catch {

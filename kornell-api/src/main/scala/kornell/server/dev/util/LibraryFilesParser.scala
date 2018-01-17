@@ -16,9 +16,9 @@ import kornell.core.util.StringUtils
 
 object LibraryFilesParser {
 
-  def parse(filesURL:String,source: String): LibraryFilesTO =
-    parseLines(filesURL,source.lines)
-    
+  def parse(filesURL: String, source: String): LibraryFilesTO =
+    parseLines(filesURL, source.lines)
+
   def parseLine(lineArray: Array[String], filesURL: String) = {
     val libraryFileTO = TOs.newLibraryFileTO
     //#fullFileName#fileType#fileNameDisplay#fileDescription#fileSize#publishingDate
@@ -30,14 +30,14 @@ object LibraryFilesParser {
     libraryFileTO.setPublishingDate(lineArray(5))
     libraryFileTO
   }
-  
-  def parseLines(filesURL:String,lines:Iterator[String]) = {
+
+  def parseLines(filesURL: String, lines: Iterator[String]) = {
     val result = ListBuffer[LibraryFileTO]()
-    lines foreach { line => 
+    lines foreach { line =>
       val lineArray = line.split(";")
-      if(lineArray.length > 1)
-        result += parseLine(lineArray, filesURL) 
-     }
+      if (lineArray.length > 1)
+        result += parseLine(lineArray, filesURL)
+    }
     val libraryFiles = result.toList
     TOs.newLibraryFilesTO(libraryFiles)
   }
