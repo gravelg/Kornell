@@ -315,6 +315,7 @@ package object repository {
       case RoleType.tutor => Entities.newTutorRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
       case RoleType.observer => Entities.newObserverRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
       case RoleType.controlPanelAdmin => Entities.newControlPanelAdminRole(rs.getString("personUUID"))
+      case RoleType.publisher => Entities.newPublisherRole(rs.getString("personUUID"), rs.getString("institutionUUID"))
     }
     role
   }

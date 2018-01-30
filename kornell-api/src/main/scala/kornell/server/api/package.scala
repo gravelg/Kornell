@@ -35,6 +35,12 @@ package object api {
   def isCourseClassObserver(courseClassUUID: String): Boolean =
     RoleCategory.isCourseClassObserver(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)
 
+  def isPublisher(institutionUUID: String): Boolean =
+    RoleCategory.isPublisher(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
+
+  def isPublisher(): Boolean =
+    RoleCategory.isPublisher(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
+
   def getAuthenticatedPersonUUID = ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null)
 
   def getInstitutionUUID(courseClassUUID: String, courseUUID: String = null) = if (courseUUID != null) CourseRepo(courseUUID).get.getInstitutionUUID else CourseClassRepo(courseClassUUID).get.getInstitutionUUID

@@ -60,6 +60,14 @@ public class RoleCategory {
             if (RoleType.controlPanelAdmin.equals(type))
                 return true;
             break;
+        case publisher:
+            if (RoleType.publisher.equals(type)
+                    && institutionUUID != null
+                    && role.getPublisherRole()
+                    .getInstitutionUUID()
+                    .equals(institutionUUID))
+                return true;
+            break;
         default:
             break;
         }
@@ -96,6 +104,10 @@ public class RoleCategory {
             if (RoleType.controlPanelAdmin.equals(type))
                 return true;
             break;
+        case publisher:
+            if (RoleType.publisher.equals(type))
+                return true;
+            break;
         default:
             break;
         }
@@ -124,6 +136,10 @@ public class RoleCategory {
 
     public static boolean isCourseClassTutor(List<RoleTO> roleTOs, String courseClassUUID) {
         return isValidRole(roleTOs, RoleType.tutor, null, courseClassUUID);
+    }
+
+    public static boolean isPublisher(List<RoleTO> roleTOs, String institutionUUID) {
+        return isValidRole(roleTOs, RoleType.publisher, institutionUUID, null);
     }
 
     public static boolean isValidRole(List<RoleTO> roleTOs, RoleType type, String institutionUUID, String courseClassUUID) {

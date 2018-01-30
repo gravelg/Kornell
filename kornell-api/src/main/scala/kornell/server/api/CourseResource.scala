@@ -26,6 +26,7 @@ class CourseResource(uuid: String) {
     CourseRepo(uuid).get
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @PUT
@@ -35,6 +36,7 @@ class CourseResource(uuid: String) {
     CourseRepo(uuid).update(course)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @DELETE
@@ -43,6 +45,7 @@ class CourseResource(uuid: String) {
     CourseRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @POST
@@ -52,6 +55,7 @@ class CourseResource(uuid: String) {
     CourseRepo(uuid).copy
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @GET
@@ -61,6 +65,7 @@ class CourseResource(uuid: String) {
     S3Service.getCourseUploadUrl(uuid, filename, path)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
 }

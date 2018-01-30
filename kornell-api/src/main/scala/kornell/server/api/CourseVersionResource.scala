@@ -28,6 +28,7 @@ class CourseVersionResource(uuid: String) {
     CourseVersionsRepo.getCourseVersionTO(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, uuid)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @PUT
@@ -37,6 +38,7 @@ class CourseVersionResource(uuid: String) {
     CourseVersionRepo(uuid).update(courseVersion, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @DELETE
@@ -45,6 +47,7 @@ class CourseVersionResource(uuid: String) {
     CourseVersionRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @POST
@@ -54,6 +57,7 @@ class CourseVersionResource(uuid: String) {
     CourseVersionRepo(uuid).copy
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @GET
@@ -63,6 +67,7 @@ class CourseVersionResource(uuid: String) {
     S3Service.getCourseVersionUploadUrl(uuid, filename, path)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @GET
@@ -72,6 +77,7 @@ class CourseVersionResource(uuid: String) {
     S3Service.getCourseVersionContentUploadUrl(uuid)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 }
 
