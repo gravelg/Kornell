@@ -32,161 +32,164 @@ import kornell.gui.client.util.view.KornellNotification;
 import kornell.scorm.client.scorm12.SCORM12Runtime;
 
 public class ClassroomPresenter implements ClassroomView.Presenter {
-	
-	private static KornellConstants constants = GWT.create(KornellConstants.class);
-	private static final String PREFIX = ClientProperties.PREFIX + "Classroom";
 
-	private ClassroomView view;
-	private ClassroomPlace place;
-	private PlaceController placeCtrl;
-	private SequencerFactory sequencerFactory;
-	private KornellSession session;
-	private Contents contents;
-	private Sequencer sequencer;
-	private EventBus bus;
+    private static KornellConstants constants = GWT.create(KornellConstants.class);
+    private static final String PREFIX = ClientProperties.PREFIX + "Classroom";
 
-	public ClassroomPresenter(EventBus bus, ClassroomView view, PlaceController placeCtrl,
-			SequencerFactory seqFactory, KornellSession session) {
-		this.bus = bus;
-		this.view = view;
-		view.setPresenter(this);
-		this.placeCtrl = placeCtrl;
-		this.sequencerFactory = seqFactory;
-		this.session = session;
+    private ClassroomView view;
+    private ClassroomPlace place;
+    private PlaceController placeCtrl;
+    private SequencerFactory sequencerFactory;
+    private KornellSession session;
+    private Contents contents;
+    private Sequencer sequencer;
+    private EventBus bus;
 
+    public ClassroomPresenter(EventBus bus, ClassroomView view, PlaceController placeCtrl, SequencerFactory seqFactory,
+            KornellSession session) {
+        this.bus = bus;
+        this.view = view;
+        view.setPresenter(this);
+        this.placeCtrl = placeCtrl;
+        this.sequencerFactory = seqFactory;
+        this.session = session;
 
-		bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
-			@Override
-			public void onPlaceChange(PlaceChangeEvent event) {
-				stopSequencer();
-			}
-		});
-	}
+        bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
+            @Override
+            public void onPlaceChange(PlaceChangeEvent event) {
+                stopSequencer();
+            }
+        });
+    }
 
-	private void displayPlace() {
-		if(session.isAnonymous()){
-			placeCtrl.goTo(new VitrinePlace());
-			return;
-		}
-		
-		view.asWidget().setVisible(false);
+    private void displayPlace() {
+        if (session.isAnonymous()) {
+            placeCtrl.goTo(new VitrinePlace());
+            return;
+        }
+
+        view.asWidget().setVisible(false);
 
         bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClasses().getByEnrollment(place.getEnrollmentUUID(), new Callback<CourseClassTO>() {
-            @Override            
+            @Override
             public void ok(CourseClassTO courseClassTO) {
                 bus.fireEvent(new ShowPacifierEvent(false));
-        		courseClassFetched(courseClassTO);
+                courseClassFetched(courseClassTO);
             }
-            
+
             @Override
-            public void notFound(KornellErrorTO kornellErrorTO){
+            public void notFound(KornellErrorTO kornellErrorTO) {
                 bus.fireEvent(new ShowPacifierEvent(false));
-        		courseClassFetched(null);
+                courseClassFetched(null);
             }
         });
-	}
+    }
 
-	private void courseClassFetched(CourseClassTO courseClassTO) {
-		
-		Enrollment enrollment = courseClassTO != null ? courseClassTO.getEnrollment() : null;
-		boolean isEnrolled = enrollment != null && EnrollmentState.enrolled.equals(enrollment.getState());
-		if(enrollment == null){
-			session.setCurrentCourseClass((CourseClassTO)null);
-		} else {			
-	        ClientProperties.set(PREFIX + ClientProperties.SEPARATOR + session.getCurrentUser().getPerson().getUUID()
-	                + ClientProperties.SEPARATOR + ClientProperties.CURRENT_ENROLLMENT,
-	        		courseClassTO.getEnrollment().getUUID());
-	        
-			session.setCurrentCourseClass(courseClassTO);
-		}
-		
-		CourseClass courseClass = session.getCurrentCourseClass() != null ? session.getCurrentCourseClass().getCourseClass() : null;
-		EntityState courseClassState = courseClass != null ? courseClass.getState() : null;
-		
-		//TODO: Consider if the null state is inactive				
-        final boolean showCourseClassContent = enrollment == null || (isEnrolled && (courseClassState != null && !EntityState.inactive.equals(courseClassState)));
+    private void courseClassFetched(CourseClassTO courseClassTO) {
 
-        if(showCourseClassContent){
-			bus.fireEvent(new ShowPacifierEvent(true));		
-			final Alert alert = KornellNotification.show(constants.loadingTheCourse(), AlertType.WARNING, -1);
-			bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
-				@Override
-				public void onPlaceChange(PlaceChangeEvent event) {
-					alert.close();
-				}
-			});
-			session.enrollment(place.getEnrollmentUUID()).launch(new Callback<EnrollmentLaunchTO>() {
-				
-				public void ok(EnrollmentLaunchTO to) {
-					alert.close();
-					loadRuntime(to.getEnrollmentEntries());
-					loadContents(place.getEnrollmentUUID(),to.getContents());
-				};
-				
-				private void loadRuntime(EnrollmentsEntries enrollmentEntries) {
-					SCORM12Runtime.launch(bus, session,placeCtrl, enrollmentEntries);
-				}
-	
-				private void loadContents(final String enrollmentUUID, final Contents contents) {
-					// check if user has a valid enrollment to this course
-					boolean shouldHideSouthBar = (session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null);
-					GenericClientFactoryImpl.EVENT_BUS.fireEvent(new HideSouthBarEvent(shouldHideSouthBar));
-					setContents(contents);
-					view.display(showCourseClassContent);	
-					view.asWidget().setVisible(true);
-					bus.fireEvent(new ShowPacifierEvent(false));
-				}
-	
-			});
-		} else {
-			GenericClientFactoryImpl.EVENT_BUS.fireEvent(new HideSouthBarEvent());
-			setContents(null);
-			view.display(showCourseClassContent);	
-			view.asWidget().setVisible(true);
-		}
-	}	
+        Enrollment enrollment = courseClassTO != null ? courseClassTO.getEnrollment() : null;
+        boolean isEnrolled = enrollment != null && EnrollmentState.enrolled.equals(enrollment.getState());
+        if (enrollment == null) {
+            session.setCurrentCourseClass((CourseClassTO) null);
+        } else {
+            ClientProperties.set(
+                    PREFIX + ClientProperties.SEPARATOR + session.getCurrentUser().getPerson().getUUID()
+                            + ClientProperties.SEPARATOR + ClientProperties.CURRENT_ENROLLMENT,
+                    courseClassTO.getEnrollment().getUUID());
 
-	private FlowPanel getPanel() {
-		return view.getContentPanel();
-	}
+            session.setCurrentCourseClass(courseClassTO);
+        }
 
-	@Override
-	public void startSequencer() {
-		if(contents != null){
-			sequencer = sequencerFactory.withPlace(place).withPanel(getPanel());
-			sequencer.go(contents);
-		}
-	}
+        CourseClass courseClass = session.getCurrentCourseClass() != null
+                ? session.getCurrentCourseClass().getCourseClass() : null;
+        EntityState courseClassState = courseClass != null ? courseClass.getState() : null;
 
-	@Override
-	public void stopSequencer() {
-		if (sequencer != null)
-			sequencer.stop();
-	}
+        // TODO: Consider if the null state is inactive
+        final boolean showCourseClassContent = enrollment == null
+                || (isEnrolled && (courseClassState != null && !EntityState.inactive.equals(courseClassState)));
 
-	@Override
-	public Contents getContents() {
-		return contents;
-	}
+        if (showCourseClassContent) {
+            bus.fireEvent(new ShowPacifierEvent(true));
+            final Alert alert = KornellNotification.show(constants.loadingTheCourse(), AlertType.WARNING, -1);
+            bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
+                @Override
+                public void onPlaceChange(PlaceChangeEvent event) {
+                    alert.close();
+                }
+            });
+            session.enrollment(place.getEnrollmentUUID()).launch(new Callback<EnrollmentLaunchTO>() {
 
-	private void setContents(Contents contents) {
-		this.contents = contents;
-	}
+                public void ok(EnrollmentLaunchTO to) {
+                    alert.close();
+                    loadRuntime(to.getEnrollmentEntries());
+                    loadContents(place.getEnrollmentUUID(), to.getContents());
+                };
 
-	@Override
-	public Widget asWidget() {
-		return view.asWidget();
-	}
+                private void loadRuntime(EnrollmentsEntries enrollmentEntries) {
+                    SCORM12Runtime.launch(bus, session, placeCtrl, enrollmentEntries);
+                }
 
-	public void setPlace(ClassroomPlace place) {
-		this.place = place;
-		displayPlace();
-	}
+                private void loadContents(final String enrollmentUUID, final Contents contents) {
+                    // check if user has a valid enrollment to this course
+                    boolean shouldHideSouthBar = (session.getCurrentCourseClass().getCourseVersionTO()
+                            .getCourseVersion().getParentVersionUUID() == null);
+                    GenericClientFactoryImpl.EVENT_BUS.fireEvent(new HideSouthBarEvent(shouldHideSouthBar));
+                    setContents(contents);
+                    view.display(showCourseClassContent);
+                    view.asWidget().setVisible(true);
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                }
 
-	@Override
-	public void fireProgressEvent() {
-		if (sequencer != null)
-			sequencer.fireProgressEvent();
-	}
+            });
+        } else {
+            GenericClientFactoryImpl.EVENT_BUS.fireEvent(new HideSouthBarEvent());
+            setContents(null);
+            view.display(showCourseClassContent);
+            view.asWidget().setVisible(true);
+        }
+    }
+
+    private FlowPanel getPanel() {
+        return view.getContentPanel();
+    }
+
+    @Override
+    public void startSequencer() {
+        if (contents != null) {
+            sequencer = sequencerFactory.withPlace(place).withPanel(getPanel());
+            sequencer.go(contents);
+        }
+    }
+
+    @Override
+    public void stopSequencer() {
+        if (sequencer != null)
+            sequencer.stop();
+    }
+
+    @Override
+    public Contents getContents() {
+        return contents;
+    }
+
+    private void setContents(Contents contents) {
+        this.contents = contents;
+    }
+
+    @Override
+    public Widget asWidget() {
+        return view.asWidget();
+    }
+
+    public void setPlace(ClassroomPlace place) {
+        this.place = place;
+        displayPlace();
+    }
+
+    @Override
+    public void fireProgressEvent() {
+        if (sequencer != null)
+            sequencer.fireProgressEvent();
+    }
 }

@@ -24,101 +24,105 @@ import kornell.gui.client.presentation.admin.institution.AdminInstitutionPresent
 import kornell.gui.client.presentation.classroom.ClassroomView;
 import kornell.gui.client.presentation.classroom.generic.details.GenericCourseDetailsView;
 
-public class GenericClassroomView extends Composite implements ClassroomView, ShowDetailsEventHandler, ShowChatDockEventHandler {
-	interface MyUiBinder extends UiBinder<Widget, GenericClassroomView> {
-	}
-	private PlaceController placeCtrl;
-	private KornellSession session;
-	private EventBus bus;
-	private ViewFactory viewFactory;
+public class GenericClassroomView extends Composite
+        implements ClassroomView, ShowDetailsEventHandler, ShowChatDockEventHandler {
+    interface MyUiBinder extends UiBinder<Widget, GenericClassroomView> {
+    }
 
-	Logger logger = Logger.getLogger(AdminInstitutionPresenter.class.getName());
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private PlaceController placeCtrl;
+    private KornellSession session;
+    private EventBus bus;
+    private ViewFactory viewFactory;
 
-	@UiField
-	FlowPanel contentPanel;
-	@UiField
-	FlowPanel detailsPanel;
-	@UiField
-	FlowPanel dockChatPanel;
-	
-	private boolean showCourseClassContent;
-	
-	private GenericCourseDetailsView detailsView;
+    Logger logger = Logger.getLogger(AdminInstitutionPresenter.class.getName());
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	private Presenter presenter;
-	
-	boolean chatDockWasShown = false;
+    @UiField
+    FlowPanel contentPanel;
+    @UiField
+    FlowPanel detailsPanel;
+    @UiField
+    FlowPanel dockChatPanel;
 
-	public GenericClassroomView(PlaceController placeCtrl, KornellSession session, EventBus bus, ViewFactory viewFactory) {
-		this.placeCtrl = placeCtrl;
-		this.session = session;
-		this.bus = bus;
-		this.bus.addHandler(ShowChatDockEvent.TYPE,this);
-		this.viewFactory = viewFactory;
-		bus.addHandler(ShowDetailsEvent.TYPE,this);
-		initWidget(uiBinder.createAndBindUi(this));
-		detailsPanel.setVisible(true);
-		contentPanel.setVisible(false);
-		dockChatPanel.setVisible(false);
-	}
+    private boolean showCourseClassContent;
 
-	@Override
-	public void display(boolean showCourseClassContent) {
-		presenter.stopSequencer();
-		this.showCourseClassContent = showCourseClassContent;
-		if(this.showCourseClassContent){
-			presenter.startSequencer();
-		}
-		detailsView = new GenericCourseDetailsView(bus, session, placeCtrl, viewFactory);
-		detailsView.setPresenter(presenter);
-		detailsView.initData();
-		detailsPanel.clear();
-		detailsPanel.add(detailsView);
-		CourseClassTO courseClassTO = session.getCurrentCourseClass();
-		Enrollment enrollment = courseClassTO!= null ? courseClassTO.getEnrollment() : null;		
-		boolean showDetails = !showCourseClassContent || EnrollmentCategory.isFinished(enrollment);
-		bus.fireEvent(new ShowDetailsEvent(showDetails));
-        bus.fireEvent(new ShowChatDockEvent(!showDetails && session.getCurrentCourseClass() != null && session.getCurrentCourseClass().getCourseClass().isChatDockEnabled()));
-	}
+    private GenericCourseDetailsView detailsView;
 
-	@Override
-	public void setPresenter(Presenter presenter) {
-		this.presenter = presenter;
-	}
-	
-	@Override
-	public FlowPanel getContentPanel() {
-		return contentPanel;
-	}
+    private Presenter presenter;
 
-	@Override
-	public void onShowDetails(ShowDetailsEvent event) {
-		boolean showDetails = event.isShowDetails();
-		contentPanel.setVisible(!showDetails);
-		detailsPanel.setVisible(showDetails);
-		if(showDetails) {
-			if(dockChatPanel != null){
-				dockChatPanel.clear();
-			}
-			presenter.fireProgressEvent();
-		}
-	}
+    boolean chatDockWasShown = false;
 
-	@Override
-	public void onShowChatDock(ShowChatDockEvent event) {
-		dockChatPanel.setVisible(event.isShowChatDock());
-		if(event.isShowChatDock()){
-			if(!chatDockWasShown){
-				dockChatPanel.clear();
-				viewFactory.getMessagePresenterClassroomGlobalChat().threadClicked(null);
-				chatDockWasShown = true;
-			} else {
-				viewFactory.getMessagePresenterClassroomGlobalChat().getChatThreadMessagesSinceLast();
-			}
-			dockChatPanel.add(viewFactory.getMessagePresenterClassroomGlobalChat().asWidget());
-		} else if(dockChatPanel != null){
-			dockChatPanel.clear();
-		}
-	}
+    public GenericClassroomView(PlaceController placeCtrl, KornellSession session, EventBus bus,
+            ViewFactory viewFactory) {
+        this.placeCtrl = placeCtrl;
+        this.session = session;
+        this.bus = bus;
+        this.bus.addHandler(ShowChatDockEvent.TYPE, this);
+        this.viewFactory = viewFactory;
+        bus.addHandler(ShowDetailsEvent.TYPE, this);
+        initWidget(uiBinder.createAndBindUi(this));
+        detailsPanel.setVisible(true);
+        contentPanel.setVisible(false);
+        dockChatPanel.setVisible(false);
+    }
+
+    @Override
+    public void display(boolean showCourseClassContent) {
+        presenter.stopSequencer();
+        this.showCourseClassContent = showCourseClassContent;
+        if (this.showCourseClassContent) {
+            presenter.startSequencer();
+        }
+        detailsView = new GenericCourseDetailsView(bus, session, placeCtrl, viewFactory);
+        detailsView.setPresenter(presenter);
+        detailsView.initData();
+        detailsPanel.clear();
+        detailsPanel.add(detailsView);
+        CourseClassTO courseClassTO = session.getCurrentCourseClass();
+        Enrollment enrollment = courseClassTO != null ? courseClassTO.getEnrollment() : null;
+        boolean showDetails = !showCourseClassContent || EnrollmentCategory.isFinished(enrollment);
+        bus.fireEvent(new ShowDetailsEvent(showDetails));
+        bus.fireEvent(new ShowChatDockEvent(!showDetails && session.getCurrentCourseClass() != null
+                && session.getCurrentCourseClass().getCourseClass().isChatDockEnabled()));
+    }
+
+    @Override
+    public void setPresenter(Presenter presenter) {
+        this.presenter = presenter;
+    }
+
+    @Override
+    public FlowPanel getContentPanel() {
+        return contentPanel;
+    }
+
+    @Override
+    public void onShowDetails(ShowDetailsEvent event) {
+        boolean showDetails = event.isShowDetails();
+        contentPanel.setVisible(!showDetails);
+        detailsPanel.setVisible(showDetails);
+        if (showDetails) {
+            if (dockChatPanel != null) {
+                dockChatPanel.clear();
+            }
+            presenter.fireProgressEvent();
+        }
+    }
+
+    @Override
+    public void onShowChatDock(ShowChatDockEvent event) {
+        dockChatPanel.setVisible(event.isShowChatDock());
+        if (event.isShowChatDock()) {
+            if (!chatDockWasShown) {
+                dockChatPanel.clear();
+                viewFactory.getMessagePresenterClassroomGlobalChat().threadClicked(null);
+                chatDockWasShown = true;
+            } else {
+                viewFactory.getMessagePresenterClassroomGlobalChat().getChatThreadMessagesSinceLast();
+            }
+            dockChatPanel.add(viewFactory.getMessagePresenterClassroomGlobalChat().asWidget());
+        } else if (dockChatPanel != null) {
+            dockChatPanel.clear();
+        }
+    }
 }

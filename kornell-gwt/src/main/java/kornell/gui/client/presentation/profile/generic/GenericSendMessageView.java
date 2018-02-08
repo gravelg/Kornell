@@ -23,80 +23,80 @@ import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class GenericSendMessageView extends Composite implements ProfileView {
-	interface MyUiBinder extends UiBinder<Widget, GenericSendMessageView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericSendMessageView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	private static KornellConstants constants = GWT.create(KornellConstants.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private static KornellConstants constants = GWT.create(KornellConstants.class);
 
-	private KornellSession session;
-	private EventBus bus;
-	private FormHelper formHelper;
+    private KornellSession session;
+    private EventBus bus;
+    private FormHelper formHelper;
 
-	@UiField
-	Modal sendMessageModal;
-	@UiField
-	FlowPanel sendMessageFields;
-	@UiField
-	Button btnOK;
-	@UiField
-	Button btnCancel;
-	
-	private UserInfoTO user;
-	private TextArea modalMessageTextArea;
-	private boolean initialized;
+    @UiField
+    Modal sendMessageModal;
+    @UiField
+    FlowPanel sendMessageFields;
+    @UiField
+    Button btnOK;
+    @UiField
+    Button btnCancel;
 
+    private UserInfoTO user;
+    private TextArea modalMessageTextArea;
+    private boolean initialized;
 
-	public GenericSendMessageView() {
-		initWidget(uiBinder.createAndBindUi(this));
-	}
-	
-	public void show(){
-		if(initialized)
-			sendMessageModal.show();
-	}
+    public GenericSendMessageView() {
+        initWidget(uiBinder.createAndBindUi(this));
+    }
 
-	public void initData(KornellSession session, EventBus bus, UserInfoTO user, boolean isCurrentUser) {
-		this.session = session;
-		this.bus = bus;
-		this.user = user;
-		formHelper = new FormHelper();
-		sendMessageFields.clear();
-		initialized = true;
+    public void show() {
+        if (initialized)
+            sendMessageModal.show();
+    }
 
-		btnOK.setText(constants.okButton().toUpperCase());
-		btnCancel.setText(constants.cancelButton().toUpperCase());
-		
-		modalMessageTextArea = new TextArea();
-		sendMessageFields.add(modalMessageTextArea);
-		
-		sendMessageFields.add(formHelper.getImageSeparator());
-	}
+    public void initData(KornellSession session, EventBus bus, UserInfoTO user, boolean isCurrentUser) {
+        this.session = session;
+        this.bus = bus;
+        this.user = user;
+        formHelper = new FormHelper();
+        sendMessageFields.clear();
+        initialized = true;
 
-	@UiHandler("btnOK")
-	void doOK(ClickEvent e) { 
-		if(modalMessageTextArea.getText().length() > 0){
-			bus.fireEvent(new ShowPacifierEvent(true));
-			session.chatThreads().postMessageToDirectThread(modalMessageTextArea.getText(), user.getPerson().getUUID(), new Callback<Void>() {
-				@Override
-				public void ok(Void to) {
-					bus.fireEvent(new ShowPacifierEvent(false));
-					modalMessageTextArea.setText("");
-					sendMessageModal.hide();
-					KornellNotification.show(constants.messageSentSuccess());
-				}
-			});
+        btnOK.setText(constants.okButton().toUpperCase());
+        btnCancel.setText(constants.cancelButton().toUpperCase());
 
-		}
-	}
+        modalMessageTextArea = new TextArea();
+        sendMessageFields.add(modalMessageTextArea);
 
-	@UiHandler("btnCancel")
-	void doCancel(ClickEvent e) {
-		sendMessageModal.hide();
-	}
+        sendMessageFields.add(formHelper.getImageSeparator());
+    }
 
-	@Override
-	public void setPresenter(Presenter presenter) {
-	}
+    @UiHandler("btnOK")
+    void doOK(ClickEvent e) {
+        if (modalMessageTextArea.getText().length() > 0) {
+            bus.fireEvent(new ShowPacifierEvent(true));
+            session.chatThreads().postMessageToDirectThread(modalMessageTextArea.getText(), user.getPerson().getUUID(),
+                    new Callback<Void>() {
+                        @Override
+                        public void ok(Void to) {
+                            bus.fireEvent(new ShowPacifierEvent(false));
+                            modalMessageTextArea.setText("");
+                            sendMessageModal.hide();
+                            KornellNotification.show(constants.messageSentSuccess());
+                        }
+                    });
+
+        }
+    }
+
+    @UiHandler("btnCancel")
+    void doCancel(ClickEvent e) {
+        sendMessageModal.hide();
+    }
+
+    @Override
+    public void setPresenter(Presenter presenter) {
+    }
 
 }

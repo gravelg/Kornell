@@ -26,282 +26,278 @@ import kornell.gui.client.util.view.KornellNotification;
  * {@link PlaceChangeEvent} events. Each activity can start itself
  * asynchronously, and provides a widget to be shown when it's ready to run.
  */
-public class AsyncActivityManager implements PlaceChangeEvent.Handler,
-		PlaceChangeRequestEvent.Handler {
+public class AsyncActivityManager implements PlaceChangeEvent.Handler, PlaceChangeRequestEvent.Handler {
 
-	Logger logger = Logger.getLogger(AsyncActivityManager.class.getName());
-	/**
-	 * Wraps our real display to prevent an Activity from taking it over if it
-	 * is not the currentActivity.
-	 */
-	private class ProtectedDisplay implements AcceptsOneWidget {
-		private final Activity activity;
+    Logger logger = Logger.getLogger(AsyncActivityManager.class.getName());
 
-		ProtectedDisplay(Activity activity) {
-			this.activity = activity;
-		}
+    /**
+     * Wraps our real display to prevent an Activity from taking it over if it
+     * is not the currentActivity.
+     */
+    private class ProtectedDisplay implements AcceptsOneWidget {
+        private final Activity activity;
 
-		public void setWidget(IsWidget view) {
-			if (this.activity == AsyncActivityManager.this.currentActivity && view != null) {
-				startingNext = false;
-				showWidget(view);
-			}
-		}
-	}
+        ProtectedDisplay(Activity activity) {
+            this.activity = activity;
+        }
 
-	private static final Activity NULL_ACTIVITY = new AbstractActivity() {
+        public void setWidget(IsWidget view) {
+            if (this.activity == AsyncActivityManager.this.currentActivity && view != null) {
+                startingNext = false;
+                showWidget(view);
+            }
+        }
+    }
 
-		@Override
-		public void start(AcceptsOneWidget panel,
-				com.google.gwt.event.shared.EventBus eventBus) {
-		}
-	};
+    private static final Activity NULL_ACTIVITY = new AbstractActivity() {
 
-	private final AsyncActivityMapper mapper;
+        @Override
+        public void start(AcceptsOneWidget panel, com.google.gwt.event.shared.EventBus eventBus) {
+        }
+    };
 
-	private final EventBus eventBus;
+    private final AsyncActivityMapper mapper;
 
-	/*
-	 * Note that we use the legacy class from com.google.gwt.event.shared,
-	 * because we can't change the Activity interface.
-	 */
-	private final ResettableEventBus stopperedEventBus;
+    private final EventBus eventBus;
 
-	private Activity currentActivity = NULL_ACTIVITY;
+    /*
+     * Note that we use the legacy class from com.google.gwt.event.shared,
+     * because we can't change the Activity interface.
+     */
+    private final ResettableEventBus stopperedEventBus;
 
-	private AcceptsOneWidget display;
+    private Activity currentActivity = NULL_ACTIVITY;
 
-	private boolean startingNext = false;
+    private AcceptsOneWidget display;
 
-	private HandlerRegistration handlerRegistration;
+    private boolean startingNext = false;
 
-	/**
-	 * Create an ActivityManager. Next call {@link #setDisplay}.
-	 * 
-	 * @param mapper
-	 *            finds the {@link Activity} for a given
-	 *            {@link com.google.gwt.place.shared.Place}
-	 * @param eventBus
-	 *            source of {@link PlaceChangeEvent} and
-	 *            {@link PlaceChangeRequestEvent} events.
-	 */
-	public AsyncActivityManager(AsyncActivityMapper mapper, EventBus eventBus) {
-		this.mapper = mapper;
-		this.eventBus = eventBus;
-		this.stopperedEventBus = new ResettableEventBus(eventBus);
-	}
+    private HandlerRegistration handlerRegistration;
 
-	/**
-	 * Returns an event bus which is in use by the currently running activity.
-	 * <p>
-	 * Any handlers attached to the returned event bus will be de-registered
-	 * when the current activity is stopped.
-	 * 
-	 * @return the event bus used by the current activity
-	 */
-	public EventBus getActiveEventBus() {
-		return stopperedEventBus;
-	}
+    /**
+     * Create an ActivityManager. Next call {@link #setDisplay}.
+     * 
+     * @param mapper
+     *            finds the {@link Activity} for a given
+     *            {@link com.google.gwt.place.shared.Place}
+     * @param eventBus
+     *            source of {@link PlaceChangeEvent} and
+     *            {@link PlaceChangeRequestEvent} events.
+     */
+    public AsyncActivityManager(AsyncActivityMapper mapper, EventBus eventBus) {
+        this.mapper = mapper;
+        this.eventBus = eventBus;
+        this.stopperedEventBus = new ResettableEventBus(eventBus);
+    }
 
-	/**
-	 * Deactivate the current activity, find the next one from our
-	 * ActivityMapper, and start it.
-	 * <p>
-	 * The current activity's widget will be hidden immediately, which can cause
-	 * flicker if the next activity provides its widget asynchronously. That can
-	 * be minimized by decent caching. Perenially slow activities might mitigate
-	 * this by providing a widget immediately, with some kind of "loading"
-	 * treatment.
-	 */
-	public void onPlaceChange(PlaceChangeEvent event) {
-		getNextActivity(event,new ActivityCallbackHandler() {
-			
-			@Override
-			public void onReceiveActivity(Activity nextActivity) {
-		    GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
-					@Override
-					public void onUncaughtException(Throwable e) {
-						e = unwrap(e);
-						logger.log(Level.SEVERE, "Ex caught!", e);
-						if(Window.Location.getHostName().indexOf("localhost") >= 0 ||
-								Window.Location.getHostName().indexOf("127.0.0.1") >= 0){
-							KornellNotification.show(e.getMessage(), AlertType.ERROR, 0);
-							GWT.debugger();
-						}
-					}
+    /**
+     * Returns an event bus which is in use by the currently running activity.
+     * <p>
+     * Any handlers attached to the returned event bus will be de-registered
+     * when the current activity is stopped.
+     * 
+     * @return the event bus used by the current activity
+     */
+    public EventBus getActiveEventBus() {
+        return stopperedEventBus;
+    }
 
-				  public Throwable unwrap(Throwable e) {
-				    if(e instanceof UmbrellaException) {
-				      UmbrellaException ue = (UmbrellaException) e;
-				      if(ue.getCauses().size() == 1) {
-				        return unwrap(ue.getCauses().iterator().next());
-				      }
-				    }
-				    return e;
-				  }
-				});
-				
-				Throwable caughtOnStop = null;
-				Throwable caughtOnCancel = null;
-				Throwable caughtOnStart = null;
+    /**
+     * Deactivate the current activity, find the next one from our
+     * ActivityMapper, and start it.
+     * <p>
+     * The current activity's widget will be hidden immediately, which can cause
+     * flicker if the next activity provides its widget asynchronously. That can
+     * be minimized by decent caching. Perenially slow activities might mitigate
+     * this by providing a widget immediately, with some kind of "loading"
+     * treatment.
+     */
+    public void onPlaceChange(PlaceChangeEvent event) {
+        getNextActivity(event, new ActivityCallbackHandler() {
 
-				if (nextActivity == null) {
-					nextActivity = NULL_ACTIVITY;
-				}
+            @Override
+            public void onReceiveActivity(Activity nextActivity) {
+                GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
+                    @Override
+                    public void onUncaughtException(Throwable e) {
+                        e = unwrap(e);
+                        logger.log(Level.SEVERE, "Ex caught!", e);
+                        if (Window.Location.getHostName().indexOf("localhost") >= 0
+                                || Window.Location.getHostName().indexOf("127.0.0.1") >= 0) {
+                            KornellNotification.show(e.getMessage(), AlertType.ERROR, 0);
+                            GWT.debugger();
+                        }
+                    }
 
-				if (currentActivity.equals(nextActivity)) {
-					return;
-				}
+                    public Throwable unwrap(Throwable e) {
+                        if (e instanceof UmbrellaException) {
+                            UmbrellaException ue = (UmbrellaException) e;
+                            if (ue.getCauses().size() == 1) {
+                                return unwrap(ue.getCauses().iterator().next());
+                            }
+                        }
+                        return e;
+                    }
+                });
 
-				if (startingNext) {
-					// The place changed again before the new current activity showed
-					// its
-					// widget
-					caughtOnCancel = tryStopOrCancel(false);
-					currentActivity = NULL_ACTIVITY;
-					startingNext = false;
-				} else if (!currentActivity.equals(NULL_ACTIVITY)) {
-					showWidget(null);
+                Throwable caughtOnStop = null;
+                Throwable caughtOnCancel = null;
+                Throwable caughtOnStart = null;
 
-					/*
-					 * Kill off the activity's handlers, so it doesn't have to worry
-					 * about them accidentally firing as a side effect of its tear down
-					 */
-					stopperedEventBus.removeHandlers();
-					caughtOnStop = tryStopOrCancel(true);
-				}
+                if (nextActivity == null) {
+                    nextActivity = NULL_ACTIVITY;
+                }
 
-				currentActivity = nextActivity;
+                if (currentActivity.equals(nextActivity)) {
+                    return;
+                }
 
-				if (currentActivity.equals(NULL_ACTIVITY)) {
-					showWidget(null);
-				} else {
-					startingNext = true;
-					caughtOnStart = tryStart();
-				}
+                if (startingNext) {
+                    // The place changed again before the new current activity
+                    // showed
+                    // its
+                    // widget
+                    caughtOnCancel = tryStopOrCancel(false);
+                    currentActivity = NULL_ACTIVITY;
+                    startingNext = false;
+                } else if (!currentActivity.equals(NULL_ACTIVITY)) {
+                    showWidget(null);
 
-				if (caughtOnStart != null || caughtOnCancel != null
-						|| caughtOnStop != null) {
-					Set<Throwable> causes = new LinkedHashSet<Throwable>();
-					if (caughtOnStop != null) {
-						causes.add(caughtOnStop);
-					}
-					if (caughtOnCancel != null) {
-						causes.add(caughtOnCancel);
-					}
-					if (caughtOnStart != null) {
-						causes.add(caughtOnStart);
-					}
+                    /*
+                     * Kill off the activity's handlers, so it doesn't have to
+                     * worry about them accidentally firing as a side effect of
+                     * its tear down
+                     */
+                    stopperedEventBus.removeHandlers();
+                    caughtOnStop = tryStopOrCancel(true);
+                }
 
-					throw new UmbrellaException(causes);
-				}
+                currentActivity = nextActivity;
 
-				
-			}
-		});
-	}
+                if (currentActivity.equals(NULL_ACTIVITY)) {
+                    showWidget(null);
+                } else {
+                    startingNext = true;
+                    caughtOnStart = tryStart();
+                }
 
-	/**
-	 * Reject the place change if the current activity is not willing to stop.
-	 * 
-	 * @see com.google.gwt.place.shared.PlaceChangeRequestEvent.Handler#onPlaceChangeRequest(PlaceChangeRequestEvent)
-	 */
-	public void onPlaceChangeRequest(PlaceChangeRequestEvent event) {
-		event.setWarning(currentActivity.mayStop());
-	}
+                if (caughtOnStart != null || caughtOnCancel != null || caughtOnStop != null) {
+                    Set<Throwable> causes = new LinkedHashSet<Throwable>();
+                    if (caughtOnStop != null) {
+                        causes.add(caughtOnStop);
+                    }
+                    if (caughtOnCancel != null) {
+                        causes.add(caughtOnCancel);
+                    }
+                    if (caughtOnStart != null) {
+                        causes.add(caughtOnStart);
+                    }
 
-	/**
-	 * Sets the display for the receiver, and has the side effect of starting or
-	 * stopping its monitoring the event bus for place change events.
-	 * <p>
-	 * If you are disposing of an ActivityManager, it is important to call
-	 * setDisplay(null) to get it to deregister from the event bus, so that it
-	 * can be garbage collected.
-	 * 
-	 * @param display
-	 *            an instance of AcceptsOneWidget
-	 */
-	public void setDisplay(AcceptsOneWidget display) {
-		boolean wasActive = (null != this.display);
-		boolean willBeActive = (null != display);
-		this.display = display;
-		if (wasActive != willBeActive) {
-			updateHandlers(willBeActive);
-		}
-	}
+                    throw new UmbrellaException(causes);
+                }
 
-	private void getNextActivity(PlaceChangeEvent event,ActivityCallbackHandler activityCallbackHandler) {
-		if (display == null) {
-			/*
-			 * Display may have been nulled during PlaceChangeEvent dispatch.
-			 * Don't bother the mapper, just return a null to ensure we shut
-			 * down the current activity
-			 */
-			return;
-		}
-		mapper.getActivity(event.getNewPlace(),activityCallbackHandler);
-	}
+            }
+        });
+    }
 
-	private void showWidget(IsWidget view) {
-		if (display != null && view != null) {
-			display.setWidget(view);
-		}
-	}
+    /**
+     * Reject the place change if the current activity is not willing to stop.
+     * 
+     * @see com.google.gwt.place.shared.PlaceChangeRequestEvent.Handler#onPlaceChangeRequest(PlaceChangeRequestEvent)
+     */
+    public void onPlaceChangeRequest(PlaceChangeRequestEvent event) {
+        event.setWarning(currentActivity.mayStop());
+    }
 
-	private Throwable tryStart() {
-		Throwable caughtOnStart = null;
-		try {
-			/*
-			 * Wrap the actual display with a per-call instance that protects
-			 * the display from canceled or stopped activities, and which
-			 * maintains our startingNext state.
-			 */
-			currentActivity.start(new ProtectedDisplay(currentActivity),
-					stopperedEventBus);
-		} catch (Throwable t) {
-			caughtOnStart = t;
-		}
-		return caughtOnStart;
-	}
+    /**
+     * Sets the display for the receiver, and has the side effect of starting or
+     * stopping its monitoring the event bus for place change events.
+     * <p>
+     * If you are disposing of an ActivityManager, it is important to call
+     * setDisplay(null) to get it to deregister from the event bus, so that it
+     * can be garbage collected.
+     * 
+     * @param display
+     *            an instance of AcceptsOneWidget
+     */
+    public void setDisplay(AcceptsOneWidget display) {
+        boolean wasActive = (null != this.display);
+        boolean willBeActive = (null != display);
+        this.display = display;
+        if (wasActive != willBeActive) {
+            updateHandlers(willBeActive);
+        }
+    }
 
-	private Throwable tryStopOrCancel(boolean stop) {
-		Throwable caughtOnStop = null;
-		try {
-			if (stop) {
-				currentActivity.onStop();
-			} else {
-				currentActivity.onCancel();
-			}
-		} catch (Throwable t) {
-			caughtOnStop = t;
-		} finally {
-			/*
-			 * Kill off the handlers again in case it was naughty and added new
-			 * ones during onstop or oncancel
-			 */
-			stopperedEventBus.removeHandlers();
-		}
-		return caughtOnStop;
-	}
+    private void getNextActivity(PlaceChangeEvent event, ActivityCallbackHandler activityCallbackHandler) {
+        if (display == null) {
+            /*
+             * Display may have been nulled during PlaceChangeEvent dispatch.
+             * Don't bother the mapper, just return a null to ensure we shut
+             * down the current activity
+             */
+            return;
+        }
+        mapper.getActivity(event.getNewPlace(), activityCallbackHandler);
+    }
 
-	private void updateHandlers(boolean activate) {
-		if (activate) {
-			final HandlerRegistration placeReg = eventBus.addHandler(
-					PlaceChangeEvent.TYPE, this);
-			final HandlerRegistration placeRequestReg = eventBus.addHandler(
-					PlaceChangeRequestEvent.TYPE, this);
+    private void showWidget(IsWidget view) {
+        if (display != null && view != null) {
+            display.setWidget(view);
+        }
+    }
 
-			this.handlerRegistration = new HandlerRegistration() {
-				public void removeHandler() {
-					placeReg.removeHandler();
-					placeRequestReg.removeHandler();
-				}
-			};
-		} else {
-			if (handlerRegistration != null) {
-				handlerRegistration.removeHandler();
-				handlerRegistration = null;
-			}
-		}
-	}
+    private Throwable tryStart() {
+        Throwable caughtOnStart = null;
+        try {
+            /*
+             * Wrap the actual display with a per-call instance that protects
+             * the display from canceled or stopped activities, and which
+             * maintains our startingNext state.
+             */
+            currentActivity.start(new ProtectedDisplay(currentActivity), stopperedEventBus);
+        } catch (Throwable t) {
+            caughtOnStart = t;
+        }
+        return caughtOnStart;
+    }
+
+    private Throwable tryStopOrCancel(boolean stop) {
+        Throwable caughtOnStop = null;
+        try {
+            if (stop) {
+                currentActivity.onStop();
+            } else {
+                currentActivity.onCancel();
+            }
+        } catch (Throwable t) {
+            caughtOnStop = t;
+        } finally {
+            /*
+             * Kill off the handlers again in case it was naughty and added new
+             * ones during onstop or oncancel
+             */
+            stopperedEventBus.removeHandlers();
+        }
+        return caughtOnStop;
+    }
+
+    private void updateHandlers(boolean activate) {
+        if (activate) {
+            final HandlerRegistration placeReg = eventBus.addHandler(PlaceChangeEvent.TYPE, this);
+            final HandlerRegistration placeRequestReg = eventBus.addHandler(PlaceChangeRequestEvent.TYPE, this);
+
+            this.handlerRegistration = new HandlerRegistration() {
+                public void removeHandler() {
+                    placeReg.removeHandler();
+                    placeRequestReg.removeHandler();
+                }
+            };
+        } else {
+            if (handlerRegistration != null) {
+                handlerRegistration.removeHandler();
+                handlerRegistration = null;
+            }
+        }
+    }
 }

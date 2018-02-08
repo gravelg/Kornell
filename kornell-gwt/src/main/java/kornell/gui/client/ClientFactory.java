@@ -10,24 +10,27 @@ import kornell.core.to.CourseClassesTO;
 import kornell.gui.client.mvp.HistoryMapper;
 
 public interface ClientFactory {
-	
-	void startApp();
-	
-	ViewFactory getViewFactory();
-	
-	PlaceController getPlaceController();
-	HistoryMapper getHistoryMapper();
-	EventBus getEventBus();
-	Place getDefaultPlace();
-	void setDefaultPlace(Place place);
-	Place getHomePlace();
-	void setHomePlace(Place place, CourseClassesTO courseClassesTO);
 
-	void logState();
+    void startApp();
 
-	KornellSession getKornellSession();
+    ViewFactory getViewFactory();
 
+    PlaceController getPlaceController();
 
+    HistoryMapper getHistoryMapper();
 
+    EventBus getEventBus();
+
+    Place getDefaultPlace();
+
+    void setDefaultPlace(Place place);
+
+    Place getHomePlace();
+
+    void setHomePlace(Place place, CourseClassesTO courseClassesTO);
+
+    void logState();
+
+    KornellSession getKornellSession();
 
 }

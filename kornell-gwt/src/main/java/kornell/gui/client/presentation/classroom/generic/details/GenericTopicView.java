@@ -38,123 +38,121 @@ import kornell.core.to.CourseClassTO;
 import kornell.gui.client.util.ClientConstants;
 
 public class GenericTopicView extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, GenericTopicView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericTopicView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	private PlaceController placeCtrl;
-	private EventBus bus;
-	private String IMAGES_PATH = mkurl(ClientConstants.IMAGES_PATH, "courseDetails");
-	private Content content;
-	private KornellSession session;
-	private CourseClassTO currentCourse;
-	private int index;
-	private boolean enableAnchorOnFirstChild;
-	
-	@UiField
-	CollapseTrigger trigger;
-	@UiField
-	FlowPanel topicWrapper;
-	@UiField
-	FlowPanel topicPanel;
-	@UiField
-	Image topicIcon;
-	@UiField
-	Label lblTopic;
-	@UiField
-	Collapse collapse;
-	@UiField
-	FluidRow childrenPanel;
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private PlaceController placeCtrl;
+    private EventBus bus;
+    private String IMAGES_PATH = mkurl(ClientConstants.IMAGES_PATH, "courseDetails");
+    private Content content;
+    private KornellSession session;
+    private CourseClassTO currentCourse;
+    private int index;
+    private boolean enableAnchorOnFirstChild;
 
-	public GenericTopicView(EventBus eventBus, KornellClient client,
-			PlaceController placeCtrl, KornellSession session,
-			CourseClassTO currentCourse, Content content, int index, boolean enableAnchorOnFirstChild) {
-		this.bus = eventBus;
-		this.placeCtrl = placeCtrl;
-		this.session = session;
-		this.content = content;
-		this.currentCourse = currentCourse;
-		this.index = index;
-		this.enableAnchorOnFirstChild = enableAnchorOnFirstChild;
-		initWidget(uiBinder.createAndBindUi(this));
-		
-		collapse.addShowHandler(new ShowHandler() {
-			@Override
-			public void onShow(ShowEvent showEvent) {
-				updateIconURL(true);
-			}
-		});
-		collapse.addHideHandler(new HideHandler() {
-			@Override
-			public void onHide(HideEvent hideEvent) {
-				updateIconURL(false);
-			}
-		});
-		Timer timer = new Timer() {
-			public void run() {
-				display();
-			}
-		};
-		timer.schedule(500);
-	}
-	
-	public void show(final boolean show){
-	    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-	        @Override
-	        public void execute() {
-				if(show)
-					collapse.show();
-				else
-					collapse.hide();
-	        }
-	    });
-	}
+    @UiField
+    CollapseTrigger trigger;
+    @UiField
+    FlowPanel topicWrapper;
+    @UiField
+    FlowPanel topicPanel;
+    @UiField
+    Image topicIcon;
+    @UiField
+    Label lblTopic;
+    @UiField
+    Collapse collapse;
+    @UiField
+    FluidRow childrenPanel;
 
-	private void display() {
-		trigger.setTarget("#toggle" + index);
-		collapse.setId("toggle" + index);
-		updateIconURL(false);
-		
-		String topicName = "???Topic???";
-		Topic topic = content.getTopic();
-		List<Content> children = new ArrayList<Content>();
-		if (ContentFormat.Topic.equals(content.getFormat())) {			
-			topicName = topic.getName();
-			children = topic.getChildren();
-		}
-		lblTopic.setText(topicName);
-			
-		ExternalPage page;
-		int childrenIndex = 0;
-				 
-		for (Content contentItem : children) {
-			page = contentItem.getExternalPage();
-			if (!page.getTitle().startsWith("###")) { // TODO MDA
-				Enrollment enrollment = currentCourse != null? currentCourse.getEnrollment() : null;
-				EnrollmentState state = enrollment != null ? enrollment.getState() : null;
-				boolean enableAnchor = (page.isVisited()
-							|| (childrenIndex == 0 && enableAnchorOnFirstChild))
-						&& EnrollmentState.enrolled.equals(state)
-						&& !EntityState.inactive.equals(currentCourse.getCourseClass().getState());
-				childrenPanel.add(new GenericPageView(bus, session, placeCtrl, page, currentCourse, enableAnchor));
-			}
-			childrenIndex++;
-		}
+    public GenericTopicView(EventBus eventBus, KornellClient client, PlaceController placeCtrl, KornellSession session,
+            CourseClassTO currentCourse, Content content, int index, boolean enableAnchorOnFirstChild) {
+        this.bus = eventBus;
+        this.placeCtrl = placeCtrl;
+        this.session = session;
+        this.content = content;
+        this.currentCourse = currentCourse;
+        this.index = index;
+        this.enableAnchorOnFirstChild = enableAnchorOnFirstChild;
+        initWidget(uiBinder.createAndBindUi(this));
 
-		if (childrenPanel.getWidgetCount() > 0) {
-			this.addStyleName("cursorPointer");
-		} else {
-			topicIcon.addStyleName("shy");
-			this.addStyleName("cursorDefault");
-		}
+        collapse.addShowHandler(new ShowHandler() {
+            @Override
+            public void onShow(ShowEvent showEvent) {
+                updateIconURL(true);
+            }
+        });
+        collapse.addHideHandler(new HideHandler() {
+            @Override
+            public void onHide(HideEvent hideEvent) {
+                updateIconURL(false);
+            }
+        });
+        Timer timer = new Timer() {
+            public void run() {
+                display();
+            }
+        };
+        timer.schedule(500);
+    }
 
-		topicWrapper.removeStyleName("shy");
-	}
+    public void show(final boolean show) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                if (show)
+                    collapse.show();
+                else
+                    collapse.hide();
+            }
+        });
+    }
 
-	private void updateIconURL(boolean isOpened) {
-		if(isOpened)
-			topicIcon.setUrl(mkurl(IMAGES_PATH, "topic-expanded.png"));
-		else
-			topicIcon.setUrl(mkurl(IMAGES_PATH, "topic-contracted.png"));
-	}
+    private void display() {
+        trigger.setTarget("#toggle" + index);
+        collapse.setId("toggle" + index);
+        updateIconURL(false);
+
+        String topicName = "???Topic???";
+        Topic topic = content.getTopic();
+        List<Content> children = new ArrayList<Content>();
+        if (ContentFormat.Topic.equals(content.getFormat())) {
+            topicName = topic.getName();
+            children = topic.getChildren();
+        }
+        lblTopic.setText(topicName);
+
+        ExternalPage page;
+        int childrenIndex = 0;
+
+        for (Content contentItem : children) {
+            page = contentItem.getExternalPage();
+            if (!page.getTitle().startsWith("###")) { // TODO MDA
+                Enrollment enrollment = currentCourse != null ? currentCourse.getEnrollment() : null;
+                EnrollmentState state = enrollment != null ? enrollment.getState() : null;
+                boolean enableAnchor = (page.isVisited() || (childrenIndex == 0 && enableAnchorOnFirstChild))
+                        && EnrollmentState.enrolled.equals(state)
+                        && !EntityState.inactive.equals(currentCourse.getCourseClass().getState());
+                childrenPanel.add(new GenericPageView(bus, session, placeCtrl, page, currentCourse, enableAnchor));
+            }
+            childrenIndex++;
+        }
+
+        if (childrenPanel.getWidgetCount() > 0) {
+            this.addStyleName("cursorPointer");
+        } else {
+            topicIcon.addStyleName("shy");
+            this.addStyleName("cursorDefault");
+        }
+
+        topicWrapper.removeStyleName("shy");
+    }
+
+    private void updateIconURL(boolean isOpened) {
+        if (isOpened)
+            topicIcon.setUrl(mkurl(IMAGES_PATH, "topic-expanded.png"));
+        else
+            topicIcon.setUrl(mkurl(IMAGES_PATH, "topic-contracted.png"));
+    }
 }

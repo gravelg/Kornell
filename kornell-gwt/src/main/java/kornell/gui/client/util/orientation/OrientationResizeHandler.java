@@ -6,25 +6,25 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public final class OrientationResizeHandler implements ResizeHandler {
 
-	private static final OrientationChangeEvent LANDSCAPE_EVENT = new OrientationChangeEvent(Orientation.LANDSCAPE);
+    private static final OrientationChangeEvent LANDSCAPE_EVENT = new OrientationChangeEvent(Orientation.LANDSCAPE);
 
-	private static final OrientationChangeEvent PORTRAIT_EVENT = new OrientationChangeEvent(Orientation.PORTRAIT);
+    private static final OrientationChangeEvent PORTRAIT_EVENT = new OrientationChangeEvent(Orientation.PORTRAIT);
 
-	private Orientation orientation;
-	
-	private EventBus bus;
-	
-	public OrientationResizeHandler(EventBus bus){
-		this.bus = bus;
-	}
+    private Orientation orientation;
 
-	@Override
-	public void onResize(final ResizeEvent event) {
-		final Orientation o = event.getWidth() > event.getHeight() ? Orientation.LANDSCAPE : Orientation.PORTRAIT;
-		if (orientation != o) {
-			bus.fireEvent(o == Orientation.PORTRAIT ? PORTRAIT_EVENT : LANDSCAPE_EVENT);
-			orientation = o;
-		}
-	}
+    private EventBus bus;
+
+    public OrientationResizeHandler(EventBus bus) {
+        this.bus = bus;
+    }
+
+    @Override
+    public void onResize(final ResizeEvent event) {
+        final Orientation o = event.getWidth() > event.getHeight() ? Orientation.LANDSCAPE : Orientation.PORTRAIT;
+        if (orientation != o) {
+            bus.fireEvent(o == Orientation.PORTRAIT ? PORTRAIT_EVENT : LANDSCAPE_EVENT);
+            orientation = o;
+        }
+    }
 
 }

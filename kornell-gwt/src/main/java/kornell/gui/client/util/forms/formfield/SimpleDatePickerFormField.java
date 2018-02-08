@@ -5,25 +5,25 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class SimpleDatePickerFormField implements KornellFormField<TextBox> {
 
-	SimpleDatePicker field;
-	
-	public SimpleDatePickerFormField(SimpleDatePicker field) {
-		this.field = field;
-	}
+    SimpleDatePicker field;
 
-	@Override
-	public Widget getFieldWidget() {
-		return field;
-	}
-	
-	@Override
-	public String getDisplayText() {
-		return field.getDisplayText();
-	}
+    public SimpleDatePickerFormField(SimpleDatePicker field) {
+        this.field = field;
+    }
 
-	@Override
-	public String getPersistText() {
-		return field.getPersistText();
-	}
+    @Override
+    public Widget getFieldWidget() {
+        return field;
+    }
+
+    @Override
+    public String getDisplayText() {
+        return field.getDisplayText();
+    }
+
+    @Override
+    public String getPersistText() {
+        return field.getPersistText();
+    }
 
 }

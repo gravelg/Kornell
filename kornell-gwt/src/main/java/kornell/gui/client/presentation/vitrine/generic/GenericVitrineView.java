@@ -37,369 +37,372 @@ import kornell.gui.client.presentation.vitrine.VitrineViewType;
 import kornell.gui.client.util.view.FlagsPanel;
 
 public class GenericVitrineView extends Composite implements VitrineView {
-	interface MyUiBinder extends UiBinder<Widget, GenericVitrineView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericVitrineView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	private static KornellConstants constants = GWT.create(KornellConstants.class);
-	private VitrineView.Presenter presenter;
-	private VitrineViewType currentViewType = VitrineViewType.login;
-	private String registrationEmail;
-	private boolean forcedPasswordUpdate = false;
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private static KornellConstants constants = GWT.create(KornellConstants.class);
+    private VitrineView.Presenter presenter;
+    private VitrineViewType currentViewType = VitrineViewType.login;
+    private String registrationEmail;
+    private boolean forcedPasswordUpdate = false;
 
-	@UiField
-	FlowPanel vitrineWrapper;
-	
-	@UiField
-	FlowPanel boxLogin;
-	
-	@UiField
-	Image imgLogo;
-	
-	@UiField
-	FlowPanel loginPanel;
-	@UiField
-	Form frmLogin;
-	@UiField
-	TextBox txtUsername;
-	@UiField
-	PasswordTextBox pwdPassword;
-	@UiField
-	Button btnLogin;
-	@UiField
-	Button btnRegister;
-	@UiField
-	Button btnForgotPassword;
-	@UiField
-	Alert alertError;
-	
-	@UiField
-	FlowPanel signUpPanel;
-	@UiField
-	Form frmSignUp;
-	@UiField
-	TextBox suName;
-	@UiField
-	TextBox suEmail;
-	@UiField
-	PasswordTextBox suPassword;
-	@UiField
-	PasswordTextBox suPasswordConfirm;
-	@UiField
-	Button btnOK;
-	@UiField
-	Button btnCancel;
-	
-	@UiField
-	FlowPanel forgotPasswordPanel;
-	@UiField
-	Form frmforgotPassword;
-	@UiField
-	TextBox fpEmail;
-	@UiField
-	Button btnOKFp;
-	@UiField
-	Button btnCancelFp;
-	
-	@UiField
-	FlowPanel newPasswordPanel;
-	@UiField
-	Form frmNewPassword;
-	@UiField
-	PasswordTextBox newPassword;
-	@UiField
-	PasswordTextBox newPasswordConfirm;
-	@UiField
-	Button btnOKNewPassword;
-	@UiField
-	Button btnCancelNewPassword;
-	@UiField
-	HTMLPanel panelHR;
-	
-	
-	public GenericVitrineView() {
-		initWidget(uiBinder.createAndBindUi(this));
-		buildSupportIcon();
-		boxLogin.insert(new FlagsPanel(), 0);
-		displayView(VitrineViewType.login);
-		
-		KeyPressHandler kpHandler = new KeyPressHandler() {
-			@Override
-			public void onKeyPress(KeyPressEvent event) {
-				if (KeyCodes.KEY_ENTER == event.getCharCode()){
-					switch (currentViewType) {
-					case login: doLogin(null);
-						break;
-					case register: signUp(null);
-						break;
-					case forgotPassword: requestPasswordChange(null);
-						break;
-					case newPassword: changePassword(null);
-						break;
-					default:
-						break;
-					}
-				}
-			}
-		};
-		pwdPassword.addKeyPressHandler(kpHandler);
-		suPasswordConfirm.addKeyPressHandler(kpHandler);
-		fpEmail.addKeyPressHandler(kpHandler);
-		newPasswordConfirm.addKeyPressHandler(kpHandler);
-		
-		txtUsername.getElement().setAttribute("autocorrect", "off");
-		txtUsername.getElement().setAttribute("autocapitalize", "off");
-	}
-	
-	private void buildSupportIcon(){
-		String supportEmail = getSupportEmail();
-		
-		Icon icon = new Icon();
-		icon.addStyleName("fa fa-question-circle");
+    @UiField
+    FlowPanel vitrineWrapper;
 
-		IconAnchor anchor = new IconAnchor();
-		anchor.addStyleName("vitrine-support-icon");
-		anchor.setHref("mailto:"+supportEmail);
-		anchor.clear();
-		anchor.add(icon);
-				
-		Tooltip tooltip = new Tooltip(supportEmail);
-		tooltip.setPlacement(Placement.LEFT);
-		tooltip.add(anchor);
-		
-		boxLogin.add(tooltip);
-	}
+    @UiField
+    FlowPanel boxLogin;
 
-	private String getSupportEmail() {
-		String supportEmail = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getInstitutionSupportEmail();
-		supportEmail = StringUtils.isSome(supportEmail) ? supportEmail : "suporte@craftware.com.br";
-		if(supportEmail.indexOf('<') >= 0 && supportEmail.indexOf('>') >= 0){
-			supportEmail = supportEmail.substring(supportEmail.indexOf('<') + 1, supportEmail.indexOf('>'));
-		}
-		return supportEmail;
-	}
+    @UiField
+    Image imgLogo;
 
-	@Override
-	public void setPresenter(Presenter presenter) {
-		this.presenter = presenter;
-	}
+    @UiField
+    FlowPanel loginPanel;
+    @UiField
+    Form frmLogin;
+    @UiField
+    TextBox txtUsername;
+    @UiField
+    PasswordTextBox pwdPassword;
+    @UiField
+    Button btnLogin;
+    @UiField
+    Button btnRegister;
+    @UiField
+    Button btnForgotPassword;
+    @UiField
+    Alert alertError;
 
-	@UiHandler("btnLogin")
-	void doLogin(ClickEvent e) {
-		presenter.onLoginButtonClicked();
-	}
+    @UiField
+    FlowPanel signUpPanel;
+    @UiField
+    Form frmSignUp;
+    @UiField
+    TextBox suName;
+    @UiField
+    TextBox suEmail;
+    @UiField
+    PasswordTextBox suPassword;
+    @UiField
+    PasswordTextBox suPasswordConfirm;
+    @UiField
+    Button btnOK;
+    @UiField
+    Button btnCancel;
 
-	@UiHandler("btnRegister")
-	void register(ClickEvent e) {
-		presenter.onRegisterButtonClicked();
-	}
+    @UiField
+    FlowPanel forgotPasswordPanel;
+    @UiField
+    Form frmforgotPassword;
+    @UiField
+    TextBox fpEmail;
+    @UiField
+    Button btnOKFp;
+    @UiField
+    Button btnCancelFp;
 
-	@UiHandler("btnForgotPassword")
-	void forgotPassword(ClickEvent e) {
-		presenter.onForgotPasswordButtonClicked();
-	}
+    @UiField
+    FlowPanel newPasswordPanel;
+    @UiField
+    Form frmNewPassword;
+    @UiField
+    PasswordTextBox newPassword;
+    @UiField
+    PasswordTextBox newPasswordConfirm;
+    @UiField
+    Button btnOKNewPassword;
+    @UiField
+    Button btnCancelNewPassword;
+    @UiField
+    HTMLPanel panelHR;
 
-	@UiHandler("btnOK")
-	void signUp(ClickEvent e) {
-		presenter.onSignUpButtonClicked();
-	}
+    public GenericVitrineView() {
+        initWidget(uiBinder.createAndBindUi(this));
+        buildSupportIcon();
+        boxLogin.insert(new FlagsPanel(), 0);
+        displayView(VitrineViewType.login);
 
-	@UiHandler("btnCancel")
-	void cancelSignUp(ClickEvent e) {
-		presenter.onCancelSignUpButtonClicked();
-	}
+        KeyPressHandler kpHandler = new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                if (KeyCodes.KEY_ENTER == event.getCharCode()) {
+                    switch (currentViewType) {
+                    case login:
+                        doLogin(null);
+                        break;
+                    case register:
+                        signUp(null);
+                        break;
+                    case forgotPassword:
+                        requestPasswordChange(null);
+                        break;
+                    case newPassword:
+                        changePassword(null);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        };
+        pwdPassword.addKeyPressHandler(kpHandler);
+        suPasswordConfirm.addKeyPressHandler(kpHandler);
+        fpEmail.addKeyPressHandler(kpHandler);
+        newPasswordConfirm.addKeyPressHandler(kpHandler);
 
-	@UiHandler("btnOKFp")
-	void requestPasswordChange(ClickEvent e) {
-		presenter.onRequestPasswordChangeButtonClicked();
-	}
+        txtUsername.getElement().setAttribute("autocorrect", "off");
+        txtUsername.getElement().setAttribute("autocapitalize", "off");
+    }
 
-	@UiHandler("btnCancelFp")
-	void cancelPasswordChangeRequest(ClickEvent e) {
-		presenter.onCancelPasswordChangeRequestButtonClicked();
-	}
+    private void buildSupportIcon() {
+        String supportEmail = getSupportEmail();
 
-	@UiHandler("btnOKNewPassword")
-	void changePassword(ClickEvent e) {
-		presenter.onChangePasswordButtonClicked();
-	}
+        Icon icon = new Icon();
+        icon.addStyleName("fa fa-question-circle");
 
-	@UiHandler("btnCancelNewPassword")
-	void cancelChangePassword(ClickEvent e) {
-		presenter.onCancelChangePasswordButtonClicked();
-	}
+        IconAnchor anchor = new IconAnchor();
+        anchor.addStyleName("vitrine-support-icon");
+        anchor.setHref("mailto:" + supportEmail);
+        anchor.clear();
+        anchor.add(icon);
 
-	@Override
-	public String getEmail() {
-		return txtUsername.getValue();
-	}
+        Tooltip tooltip = new Tooltip(supportEmail);
+        tooltip.setPlacement(Placement.LEFT);
+        tooltip.add(anchor);
 
-	@Override
-	public void setEmail(String email) {
-		txtUsername.setValue(email);
-	}
+        boxLogin.add(tooltip);
+    }
 
-	@Override
-	public String getPassword() {
-		return pwdPassword.getValue();
-	}
+    private String getSupportEmail() {
+        String supportEmail = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getInstitutionSupportEmail();
+        supportEmail = StringUtils.isSome(supportEmail) ? supportEmail : "suporte@craftware.com.br";
+        if (supportEmail.indexOf('<') >= 0 && supportEmail.indexOf('>') >= 0) {
+            supportEmail = supportEmail.substring(supportEmail.indexOf('<') + 1, supportEmail.indexOf('>'));
+        }
+        return supportEmail;
+    }
 
-	@Override
-	public void setPassword(String password) {
-		pwdPassword.setValue(password);
-	}
+    @Override
+    public void setPresenter(Presenter presenter) {
+        this.presenter = presenter;
+    }
 
-	@Override
-	public void hideMessage() {
-		alertError.setVisible(false);
-	}
+    @UiHandler("btnLogin")
+    void doLogin(ClickEvent e) {
+        presenter.onLoginButtonClicked();
+    }
 
-	@Override
-	public void showMessage() {
-		alertError.setVisible(true);
-	}
+    @UiHandler("btnRegister")
+    void register(ClickEvent e) {
+        presenter.onRegisterButtonClicked();
+    }
 
-	@Override
-	public void setMessage(String msg) {
-		alertError.setHTML(msg);
-		alertError.setType(AlertType.ERROR);
-	}
+    @UiHandler("btnForgotPassword")
+    void forgotPassword(ClickEvent e) {
+        presenter.onForgotPasswordButtonClicked();
+    }
 
-	@Override
-	public void setMessage(String msg, AlertType alertType) {
-		alertError.setHTML(msg);
-		alertError.setType(alertType);
-	}
-	
-	@Override
-	public void setMessage(List<String> msgs){
-		String errorsStr = "";
-		for (String error : msgs) {
-			errorsStr += error+"<br>";
-		}
-		alertError.setType(AlertType.ERROR);
-		alertError.setHTML(errorsStr);
-	}
-	
-	@Override 
-	public void displayView(VitrineViewType type){
-		if(type == null){
-			vitrineWrapper.setVisible(false);
-			return;
-		}
-		vitrineWrapper.setVisible(true);
-		loginPanel.setVisible(false);
-		signUpPanel.setVisible(false);
-		forgotPasswordPanel.setVisible(false);
-		newPasswordPanel.setVisible(false);
-		
-		switch (type) {
-		case login: 
-			loginPanel.setVisible(true);
-			Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-				public void execute() {
-					txtUsername.setFocus(true);
-				}
-			});
-			break;
-		case register: 
-			if(registrationEmail != null){
-				suEmail.setText(registrationEmail);
-				suEmail.setEnabled(false);
-				suEmail.setTitle(constants.registrationEmailMessage());
-			}
-			signUpPanel.setVisible(true);
-			Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-				public void execute() {
-					suName.setFocus(true);
-				}
-			});
-			break;
-		case forgotPassword: 
-			forgotPasswordPanel.setVisible(true);
-			Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-				public void execute() {
-					fpEmail.setFocus(true);
-				}
-			});
-			break;
-		case newPassword:
-			newPasswordPanel.setVisible(true);
-			Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-				public void execute() {
-					newPassword.setFocus(true);
-				}
-			});
-			break;
-		default:
-			break;
-		}
-		
-		currentViewType = type;
-	}
+    @UiHandler("btnOK")
+    void signUp(ClickEvent e) {
+        presenter.onSignUpButtonClicked();
+    }
 
-	@Override
-	public String getSuEmail() {
-		return suEmail.getValue();
-	}
+    @UiHandler("btnCancel")
+    void cancelSignUp(ClickEvent e) {
+        presenter.onCancelSignUpButtonClicked();
+    }
 
-	@Override
-	public String getSuName() {
-		return suName.getValue();
-	}
+    @UiHandler("btnOKFp")
+    void requestPasswordChange(ClickEvent e) {
+        presenter.onRequestPasswordChangeButtonClicked();
+    }
 
-	@Override
-	public String getSuPassword() {
-		return suPassword.getValue();
-	}
+    @UiHandler("btnCancelFp")
+    void cancelPasswordChangeRequest(ClickEvent e) {
+        presenter.onCancelPasswordChangeRequestButtonClicked();
+    }
 
-	@Override
-	public String getSuPasswordConfirm() {
-		return suPasswordConfirm.getValue();
-	}
+    @UiHandler("btnOKNewPassword")
+    void changePassword(ClickEvent e) {
+        presenter.onChangePasswordButtonClicked();
+    }
 
-	@Override
-	public String getFpEmail() {
-		return fpEmail.getValue();
-	}
+    @UiHandler("btnCancelNewPassword")
+    void cancelChangePassword(ClickEvent e) {
+        presenter.onCancelChangePasswordButtonClicked();
+    }
 
-	@Override
-	public String getNewPassword() {
-		return newPassword.getValue();
-	}
+    @Override
+    public String getEmail() {
+        return txtUsername.getValue();
+    }
 
-	@Override
-	public String getNewPasswordConfirm() {
-		return newPasswordConfirm.getValue();
-	}
+    @Override
+    public void setEmail(String email) {
+        txtUsername.setValue(email);
+    }
 
-	@Override
-	public void setLogoURL(String assetsURL) {
-		String skin = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getSkin();
-		boolean isLightSkin = skin == null || !skin.contains("_light");
-		String barLogoFileName = "logo300x80" + (isLightSkin ? "_light" : "") + ".png";
-		imgLogo.setUrl(mkurl(assetsURL, barLogoFileName));
-	}
+    @Override
+    public String getPassword() {
+        return pwdPassword.getValue();
+    }
 
-	@Override
-	public void showRegistrationOption(boolean show) {
-		btnRegister.setVisible(show);
-		panelHR.setVisible(show);
-	}
+    @Override
+    public void setPassword(String password) {
+        pwdPassword.setValue(password);
+    }
 
-	@Override
-	public void setRegistrationEmail(String email) {
-		this.registrationEmail = email;  
-	}
+    @Override
+    public void hideMessage() {
+        alertError.setVisible(false);
+    }
 
-	@Override
-	public boolean isForcedPasswordUpdate() {
-		return forcedPasswordUpdate;
-	}
+    @Override
+    public void showMessage() {
+        alertError.setVisible(true);
+    }
 
-	@Override
-	public void setForcedPasswordUpdate(boolean forcedPasswordUpdate) {
-		this.forcedPasswordUpdate = forcedPasswordUpdate;
-	}
+    @Override
+    public void setMessage(String msg) {
+        alertError.setHTML(msg);
+        alertError.setType(AlertType.ERROR);
+    }
+
+    @Override
+    public void setMessage(String msg, AlertType alertType) {
+        alertError.setHTML(msg);
+        alertError.setType(alertType);
+    }
+
+    @Override
+    public void setMessage(List<String> msgs) {
+        String errorsStr = "";
+        for (String error : msgs) {
+            errorsStr += error + "<br>";
+        }
+        alertError.setType(AlertType.ERROR);
+        alertError.setHTML(errorsStr);
+    }
+
+    @Override
+    public void displayView(VitrineViewType type) {
+        if (type == null) {
+            vitrineWrapper.setVisible(false);
+            return;
+        }
+        vitrineWrapper.setVisible(true);
+        loginPanel.setVisible(false);
+        signUpPanel.setVisible(false);
+        forgotPasswordPanel.setVisible(false);
+        newPasswordPanel.setVisible(false);
+
+        switch (type) {
+        case login:
+            loginPanel.setVisible(true);
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                public void execute() {
+                    txtUsername.setFocus(true);
+                }
+            });
+            break;
+        case register:
+            if (registrationEmail != null) {
+                suEmail.setText(registrationEmail);
+                suEmail.setEnabled(false);
+                suEmail.setTitle(constants.registrationEmailMessage());
+            }
+            signUpPanel.setVisible(true);
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                public void execute() {
+                    suName.setFocus(true);
+                }
+            });
+            break;
+        case forgotPassword:
+            forgotPasswordPanel.setVisible(true);
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                public void execute() {
+                    fpEmail.setFocus(true);
+                }
+            });
+            break;
+        case newPassword:
+            newPasswordPanel.setVisible(true);
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                public void execute() {
+                    newPassword.setFocus(true);
+                }
+            });
+            break;
+        default:
+            break;
+        }
+
+        currentViewType = type;
+    }
+
+    @Override
+    public String getSuEmail() {
+        return suEmail.getValue();
+    }
+
+    @Override
+    public String getSuName() {
+        return suName.getValue();
+    }
+
+    @Override
+    public String getSuPassword() {
+        return suPassword.getValue();
+    }
+
+    @Override
+    public String getSuPasswordConfirm() {
+        return suPasswordConfirm.getValue();
+    }
+
+    @Override
+    public String getFpEmail() {
+        return fpEmail.getValue();
+    }
+
+    @Override
+    public String getNewPassword() {
+        return newPassword.getValue();
+    }
+
+    @Override
+    public String getNewPasswordConfirm() {
+        return newPasswordConfirm.getValue();
+    }
+
+    @Override
+    public void setLogoURL(String assetsURL) {
+        String skin = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getSkin();
+        boolean isLightSkin = skin == null || !skin.contains("_light");
+        String barLogoFileName = "logo300x80" + (isLightSkin ? "_light" : "") + ".png";
+        imgLogo.setUrl(mkurl(assetsURL, barLogoFileName));
+    }
+
+    @Override
+    public void showRegistrationOption(boolean show) {
+        btnRegister.setVisible(show);
+        panelHR.setVisible(show);
+    }
+
+    @Override
+    public void setRegistrationEmail(String email) {
+        this.registrationEmail = email;
+    }
+
+    @Override
+    public boolean isForcedPasswordUpdate() {
+        return forcedPasswordUpdate;
+    }
+
+    @Override
+    public void setForcedPasswordUpdate(boolean forcedPasswordUpdate) {
+        this.forcedPasswordUpdate = forcedPasswordUpdate;
+    }
 
 }

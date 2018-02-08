@@ -24,60 +24,62 @@ import kornell.gui.client.presentation.vitrine.VitrinePlace;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class Captain implements LogoutEventHandler, LoginEventHandler {
-	Logger logger = Logger.getLogger(Captain.class.getName());
-	private PlaceController placeCtrl;
-	private KornellSession session;
-	
-	private static KornellConstants constants = GWT.create(KornellConstants.class);
+    Logger logger = Logger.getLogger(Captain.class.getName());
+    private PlaceController placeCtrl;
+    private KornellSession session;
 
-	public Captain(EventBus bus, final KornellSession session, final PlaceController placeCtrl) {
-		this.placeCtrl = placeCtrl;
-		this.session = session;
-		bus.addHandler(LogoutEvent.TYPE, this);
-		bus.addHandler(LoginEvent.TYPE, this);
+    private static KornellConstants constants = GWT.create(KornellConstants.class);
 
-		bus.addHandler(PlaceChangeRequestEvent.TYPE, new PlaceChangeRequestEvent.Handler() {
-			@Override
-			public void onPlaceChangeRequest(PlaceChangeRequestEvent event) {
-				// if the user tries to go from one classroom to another, don't show this message
-                if (!(placeCtrl.getWhere() instanceof ClassroomPlace && event.getNewPlace() instanceof ClassroomPlace)) {
-                	// if the user is inside the classroom and doesn't try to go to
-					// the vitrine (by logging out, for example)
-					if (placeCtrl.getWhere() instanceof ClassroomPlace && !(event.getNewPlace() instanceof VitrinePlace)) {
-						// if the courseClassTO is null, it's a Dashboard institution on a child course (enrollment is attached on the version)
-						// if the user hasn't passed the class and the type of the
-						// version isn't KNL (small htmls, user won't lose progress)
-						CourseClassTO courseClassTO = session.getCurrentCourseClass();
-						if (courseClassTO == null 
-								|| (courseClassTO.getCourseClass() != null
-									&& ContentSpec.SCORM12.equals(courseClassTO.getCourseVersionTO()
-											.getCourseTO().getCourse().getContentSpec())
-									&& courseClassTO.getEnrollment() != null
-									&& courseClassTO.getEnrollment().getCertifiedAt() == null
-									&& EntityState.active.equals(courseClassTO.getCourseClass().getState())
-									&& EnrollmentState.enrolled.equals(courseClassTO.getEnrollment().getState())
-									)
-						) {
-							event.setWarning(constants.leavingTheClassroom());	
-						}
-					}
-				}
-                //since the new place might have a placebar or not, reposition the notifications
+    public Captain(EventBus bus, final KornellSession session, final PlaceController placeCtrl) {
+        this.placeCtrl = placeCtrl;
+        this.session = session;
+        bus.addHandler(LogoutEvent.TYPE, this);
+        bus.addHandler(LoginEvent.TYPE, this);
+
+        bus.addHandler(PlaceChangeRequestEvent.TYPE, new PlaceChangeRequestEvent.Handler() {
+            @Override
+            public void onPlaceChangeRequest(PlaceChangeRequestEvent event) {
+                // if the user tries to go from one classroom to another, don't
+                // show this message
+                if (!(placeCtrl.getWhere() instanceof ClassroomPlace
+                        && event.getNewPlace() instanceof ClassroomPlace)) {
+                    // if the user is inside the classroom and doesn't try to go
+                    // to the vitrine (by logging out, for example)
+                    if (placeCtrl.getWhere() instanceof ClassroomPlace
+                            && !(event.getNewPlace() instanceof VitrinePlace)) {
+                        // if the courseClassTO is null, it's a Dashboard
+                        // institution on a child course (enrollment is attached on the version)
+                        // if the user hasn't passed the class and the type of the
+                        // version isn't KNL (small htmls, user won't lose progress)
+                        CourseClassTO courseClassTO = session.getCurrentCourseClass();
+                        if (courseClassTO == null || (courseClassTO.getCourseClass() != null
+                                && ContentSpec.SCORM12.equals(
+                                        courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getContentSpec())
+                                && courseClassTO.getEnrollment() != null
+                                && courseClassTO.getEnrollment().getCertifiedAt() == null
+                                && EntityState.active.equals(courseClassTO.getCourseClass().getState())
+                                && EnrollmentState.enrolled.equals(courseClassTO.getEnrollment().getState()))) {
+                            event.setWarning(constants.leavingTheClassroom());
+                        }
+                    }
+                }
+                // since the new place might have a placebar or not, reposition
+                // the notifications
                 KornellNotification.repositionPopups();
-			}
-		});
-	}
+            }
+        });
+    }
 
-	@Override
-	public void onLogout() {
-		session.logout();
-		placeCtrl.goTo(VitrinePlace.instance);
-		Window.Location.reload();
-	}
+    @Override
+    public void onLogout() {
+        session.logout();
+        placeCtrl.goTo(VitrinePlace.instance);
+        Window.Location.reload();
+    }
 
-	@Override
-	public void onLogin(UserInfoTO user) {
-		logger.info("User logged in as " + user.getUsername());
-	}
+    @Override
+    public void onLogin(UserInfoTO user) {
+        logger.info("User logged in as " + user.getUsername());
+    }
 
 }

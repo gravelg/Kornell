@@ -32,191 +32,190 @@ import kornell.gui.client.util.validation.ValidationChangedHandler;
 import kornell.gui.client.util.validation.Validator;
 
 public class KornellFormFieldWrapper extends Composite {
-	EventBus fieldBus = new SimpleEventBus();
-	
-	interface MyUiBinder extends UiBinder<Widget, KornellFormFieldWrapper> {
-	}
+    EventBus fieldBus = new SimpleEventBus();
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    interface MyUiBinder extends UiBinder<Widget, KornellFormFieldWrapper> {
+    }
 
-	@UiField
-	FlowPanel fieldPanelWrapper;
-	@UiField
-	FlowPanel labelPanel;
-	@UiField
-	Label fieldLabel;
-	@UiField
-	FlowPanel fieldPanel;
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	TextBox fieldTextBox;
-	ListBox fieldListBox;
-	SimpleDatePicker fieldSimpleDatePicker;
+    @UiField
+    FlowPanel fieldPanelWrapper;
+    @UiField
+    FlowPanel labelPanel;
+    @UiField
+    Label fieldLabel;
+    @UiField
+    FlowPanel fieldPanel;
 
-	Label fieldError;
-	Label fieldTxt;
+    TextBox fieldTextBox;
+    ListBox fieldListBox;
+    SimpleDatePicker fieldSimpleDatePicker;
 
-	boolean isEditMode;
-	KornellFormField<?> formField;
+    Label fieldError;
+    Label fieldTxt;
 
-	private Validator validator;
+    boolean isEditMode;
+    KornellFormField<?> formField;
 
-	private Timer updateTimer;
+    private Validator validator;
 
-	public KornellFormFieldWrapper(String label, KornellFormField<?> formField) {
-		this(label, formField, true,null);
-	}
+    private Timer updateTimer;
 
-	public KornellFormFieldWrapper(String label, KornellFormField<?> formField,
-			boolean isEditMode){
-		this(label, formField, isEditMode, null);
-	}
-	
-	public KornellFormFieldWrapper(String label, KornellFormField<?> formField,
-			boolean isEditMode, Validator validator) {
-			this(label, formField, isEditMode, validator, null);
-	}
-	
-	public KornellFormFieldWrapper(String label, KornellFormField<?> formField,
-			boolean isEditMode, Validator validator, String tooltipText) {
+    public KornellFormFieldWrapper(String label, KornellFormField<?> formField) {
+        this(label, formField, true, null);
+    }
 
-		initWidget(uiBinder.createAndBindUi(this));
-		fieldLabel.setText(label);
-		if(tooltipText != null && isEditMode){
-			Icon icon = new Icon();
-			icon.addStyleName("fa fa-question-circle");
-			Tooltip tooltip = new Tooltip(tooltipText);
-			tooltip.setPlacement(Placement.TOP);
-			tooltip.add(icon);
-			labelPanel.add(tooltip);
-		}
-		this.formField = formField;
-		this.isEditMode = isEditMode;
-		this.validator = validator;
-		initData(formField);
+    public KornellFormFieldWrapper(String label, KornellFormField<?> formField, boolean isEditMode) {
+        this(label, formField, isEditMode, null);
+    }
 
-		updateTimer = new Timer() {
-			@Override
-			public void run() {
-				validate();
-			}
-		};
-	}
+    public KornellFormFieldWrapper(String label, KornellFormField<?> formField, boolean isEditMode,
+            Validator validator) {
+        this(label, formField, isEditMode, validator, null);
+    }
 
-	public void initData(KornellFormField<?> formField) {
-		fieldPanel.clear();
-		this.formField = formField;
-		if (!isEditMode) {
-			fieldTxt = new Label();
-			fieldTxt.addStyleName("lblValue");
-			fieldTxt.setText(formField.getDisplayText());
-			fieldPanel.add(fieldTxt);
-		} else {
-			final Widget fieldWidget = formField.getFieldWidget();
-			fieldPanel.add(fieldWidget);
+    public KornellFormFieldWrapper(String label, KornellFormField<?> formField, boolean isEditMode, Validator validator,
+            String tooltipText) {
 
-			if (fieldWidget instanceof HasKeyUpHandlers) {
-				HasKeyUpHandlers ku = (HasKeyUpHandlers) fieldWidget;
-				if(validator != null){
-					ku.addKeyUpHandler(new KeyUpHandler() {
-						@Override
-						public void onKeyUp(KeyUpEvent event) {
-							scheduleValidation();							
-						}
-					});
-				}
-			}
+        initWidget(uiBinder.createAndBindUi(this));
+        fieldLabel.setText(label);
+        if (tooltipText != null && isEditMode) {
+            Icon icon = new Icon();
+            icon.addStyleName("fa fa-question-circle");
+            Tooltip tooltip = new Tooltip(tooltipText);
+            tooltip.setPlacement(Placement.TOP);
+            tooltip.add(icon);
+            labelPanel.add(tooltip);
+        }
+        this.formField = formField;
+        this.isEditMode = isEditMode;
+        this.validator = validator;
+        initData(formField);
 
-			if (fieldWidget instanceof HasChangeHandlers) {
-				HasChangeHandlers ku = (HasChangeHandlers) fieldWidget;
-				if(validator != null){
-					ku.addChangeHandler(new ChangeHandler() {
-						@Override
-						public void onChange(ChangeEvent event) {
-							scheduleValidation();							
-						}
-					});
-				}
-			}
+        updateTimer = new Timer() {
+            @Override
+            public void run() {
+                validate();
+            }
+        };
+    }
 
-			fieldError = new Label();
-			fieldError.addStyleName("error");
-			fieldPanel.add(fieldError);
-		}
-	}
+    public void initData(KornellFormField<?> formField) {
+        fieldPanel.clear();
+        this.formField = formField;
+        if (!isEditMode) {
+            fieldTxt = new Label();
+            fieldTxt.addStyleName("lblValue");
+            fieldTxt.setText(formField.getDisplayText());
+            fieldPanel.add(fieldTxt);
+        } else {
+            final Widget fieldWidget = formField.getFieldWidget();
+            fieldPanel.add(fieldWidget);
 
-	private void validate() {
-		validator.getErrors(formField.getFieldWidget(), new Callback<List<String>>() {
-			@Override
-			public void ok(List<String> errors) {
-				if(errors.isEmpty()){
-					setError("");
-				}else {
-					showErrors(errors);
-				}
-				fieldBus.fireEvent(new ValidationChangedEvent());
-				
-			}
-		});
-	}
-	
-	public void scheduleValidation(){
-		updateTimer.cancel();
-		updateTimer.schedule(500);
-	}
+            if (fieldWidget instanceof HasKeyUpHandlers) {
+                HasKeyUpHandlers ku = (HasKeyUpHandlers) fieldWidget;
+                if (validator != null) {
+                    ku.addKeyUpHandler(new KeyUpHandler() {
+                        @Override
+                        public void onKeyUp(KeyUpEvent event) {
+                            scheduleValidation();
+                        }
+                    });
+                }
+            }
 
-	private void showErrors(List<String> errorKeys) {
-		StringBuilder buf = new StringBuilder();
-		for(String e:errorKeys){
-			buf.append(e);
-		}
-		setError(buf.toString());
-	}
+            if (fieldWidget instanceof HasChangeHandlers) {
+                HasChangeHandlers ku = (HasChangeHandlers) fieldWidget;
+                if (validator != null) {
+                    ku.addChangeHandler(new ChangeHandler() {
+                        @Override
+                        public void onChange(ChangeEvent event) {
+                            scheduleValidation();
+                        }
+                    });
+                }
+            }
 
-	public KornellFormField<?> getFormField() {
-		return formField;
-	}
-	
-	public void setFieldLabelText(String text) {
-		fieldLabel.setText(text);
-	}
+            fieldError = new Label();
+            fieldError.addStyleName("error");
+            fieldPanel.add(fieldError);
+        }
+    }
 
-	public Widget getFieldWidget() {
-		return formField.getFieldWidget();
-	}
+    private void validate() {
+        validator.getErrors(formField.getFieldWidget(), new Callback<List<String>>() {
+            @Override
+            public void ok(List<String> errors) {
+                if (errors.isEmpty()) {
+                    setError("");
+                } else {
+                    showErrors(errors);
+                }
+                fieldBus.fireEvent(new ValidationChangedEvent());
 
-	public String getFieldDisplayText() {
-		return formField.getDisplayText();
-	}
+            }
+        });
+    }
 
-	public String getFieldPersistText() {
-		return formField.getPersistText();
-	}
+    public void scheduleValidation() {
+        updateTimer.cancel();
+        updateTimer.schedule(500);
+    }
 
-	public void setError(String text) {
-		if(fieldError != null)
-			fieldError.setText(text);
-	}
+    private void showErrors(List<String> errorKeys) {
+        StringBuilder buf = new StringBuilder();
+        for (String e : errorKeys) {
+            buf.append(e);
+        }
+        setError(buf.toString());
+    }
 
-	public String getError() {
-		return fieldError != null ? fieldError.getText() : "";
-	}
+    public KornellFormField<?> getFormField() {
+        return formField;
+    }
 
-	public void clearError() {
-		if (fieldError != null) {
-			fieldError.setText("");
-		}
-	}
-	
-	public void addStyleName(String styleName){
-		fieldPanelWrapper.addStyleName(styleName);
-	}
-	
-	public boolean isValid(){		
-		return fieldError == null || isNone(fieldError.getText());
-	}
+    public void setFieldLabelText(String text) {
+        fieldLabel.setText(text);
+    }
 
-	public void addValidationListener(ValidationChangedHandler handler) {
-		fieldBus.addHandler(ValidationChangedEvent.TYPE, handler);
-	}
-	
+    public Widget getFieldWidget() {
+        return formField.getFieldWidget();
+    }
+
+    public String getFieldDisplayText() {
+        return formField.getDisplayText();
+    }
+
+    public String getFieldPersistText() {
+        return formField.getPersistText();
+    }
+
+    public void setError(String text) {
+        if (fieldError != null)
+            fieldError.setText(text);
+    }
+
+    public String getError() {
+        return fieldError != null ? fieldError.getText() : "";
+    }
+
+    public void clearError() {
+        if (fieldError != null) {
+            fieldError.setText("");
+        }
+    }
+
+    public void addStyleName(String styleName) {
+        fieldPanelWrapper.addStyleName(styleName);
+    }
+
+    public boolean isValid() {
+        return fieldError == null || isNone(fieldError.getText());
+    }
+
+    public void addValidationListener(ValidationChangedHandler handler) {
+        fieldBus.addHandler(ValidationChangedEvent.TYPE, handler);
+    }
+
 }

@@ -26,64 +26,64 @@ import kornell.gui.client.sequence.NavigationRequest;
 import kornell.gui.client.util.ClientConstants;
 
 public class GenericPageView extends Composite implements ProgressEventHandler {
-	interface MyUiBinder extends UiBinder<Widget, GenericPageView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericPageView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	private EventBus bus;
-	private String IMAGES_PATH = mkurl(ClientConstants.IMAGES_PATH, "courseDetails");
+    private EventBus bus;
+    private String IMAGES_PATH = mkurl(ClientConstants.IMAGES_PATH, "courseDetails");
 
-	@UiField
-	FlowPanel topicWrapper;
-	@UiField
-	Image topicImg;
-	@UiField
-	FlowPanel topicPanel;
-	@UiField
-	Image topicIcon;
-	@UiField
-	FlowPanel lblPage;
+    @UiField
+    FlowPanel topicWrapper;
+    @UiField
+    Image topicImg;
+    @UiField
+    FlowPanel topicPanel;
+    @UiField
+    Image topicIcon;
+    @UiField
+    FlowPanel lblPage;
 
-	private ExternalPage page;
-	
-	public GenericPageView(EventBus eventBus, KornellSession session,
-			final PlaceController placeCtrl, final ExternalPage page, CourseClassTO currentCourse, boolean enableAnchor) {
-		this.bus = eventBus;
-		this.page = page;
-		bus.addHandler(ProgressEvent.TYPE,this);
-		initWidget(uiBinder.createAndBindUi(this));
-		display(enableAnchor);
-	}
-	
-	private void display(boolean enableAnchor) {
-		String status = page.isVisited() ? "finished" : "toStart";
-		topicImg.setUrl(mkurl(IMAGES_PATH, "pageIdent.png"));
-		topicIcon.setUrl(mkurl(IMAGES_PATH, "status_"+status+".png"));
-		lblPage.clear();
-		int index = page.getIndex();
-		String title = index + ".  " + page.getTitle();
-		if(enableAnchor || page.isVisited()){
-			Anchor pageAnchor = new Anchor(title);
-			pageAnchor.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					bus.fireEvent(NavigationRequest.direct(page.getKey()));
-					bus.fireEvent(new ShowDetailsEvent(false));
-				}
-			});
-			lblPage.add(pageAnchor);
-		} else {
-			lblPage.add(new Label(title));
-		}
-	}
+    private ExternalPage page;
 
-	@Override
-	public void onProgress(ProgressEvent event) {
-		int index = page.getIndex();
-		page.setVisited(index <= event.getPagesVisitedCount().intValue());
-		// enable the anchor until the next one after the current
-		display(index == event.getPagesVisitedCount());
-	}
-	
+    public GenericPageView(EventBus eventBus, KornellSession session, final PlaceController placeCtrl,
+            final ExternalPage page, CourseClassTO currentCourse, boolean enableAnchor) {
+        this.bus = eventBus;
+        this.page = page;
+        bus.addHandler(ProgressEvent.TYPE, this);
+        initWidget(uiBinder.createAndBindUi(this));
+        display(enableAnchor);
+    }
+
+    private void display(boolean enableAnchor) {
+        String status = page.isVisited() ? "finished" : "toStart";
+        topicImg.setUrl(mkurl(IMAGES_PATH, "pageIdent.png"));
+        topicIcon.setUrl(mkurl(IMAGES_PATH, "status_" + status + ".png"));
+        lblPage.clear();
+        int index = page.getIndex();
+        String title = index + ".  " + page.getTitle();
+        if (enableAnchor || page.isVisited()) {
+            Anchor pageAnchor = new Anchor(title);
+            pageAnchor.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    bus.fireEvent(NavigationRequest.direct(page.getKey()));
+                    bus.fireEvent(new ShowDetailsEvent(false));
+                }
+            });
+            lblPage.add(pageAnchor);
+        } else {
+            lblPage.add(new Label(title));
+        }
+    }
+
+    @Override
+    public void onProgress(ProgressEvent event) {
+        int index = page.getIndex();
+        page.setVisited(index <= event.getPagesVisitedCount().intValue());
+        // enable the anchor until the next one after the current
+        display(index == event.getPagesVisitedCount());
+    }
+
 }

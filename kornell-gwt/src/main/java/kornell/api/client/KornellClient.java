@@ -2,116 +2,118 @@ package kornell.api.client;
 
 public class KornellClient extends RESTClient {
 
-	protected KornellClient() {}
+    protected KornellClient() {
+    }
 
-	public UserClient user() {
-		// TODO: Consider lifecycle
-		return new UserClient();
-	}
+    public UserClient user() {
+        // TODO: Consider lifecycle
+        return new UserClient();
+    }
 
-	public InstitutionsClient institutions() {
-		return new InstitutionsClient();
-	}
-	
-	public ReportClient report() {
-		return new ReportClient();
-	}
-	
-	public EmailClient email() {
-		return new EmailClient();
-	}
+    public InstitutionsClient institutions() {
+        return new InstitutionsClient();
+    }
 
-	public AssetsClient assets() {
-		return new AssetsClient();
-	}
+    public ReportClient report() {
+        return new ReportClient();
+    }
 
-	public CertificatesDetailsClient certificatesDetails() {
-		return new CertificatesDetailsClient();
-	}
+    public EmailClient email() {
+        return new EmailClient();
+    }
 
-	public CertificateDetailsClient certificateDetails(String uuid) {
-		return new CertificateDetailsClient(uuid);
-	}
+    public AssetsClient assets() {
+        return new AssetsClient();
+    }
 
-	public CourseDetailsHintsClient courseDetailsHints() {
-		return new CourseDetailsHintsClient();
-	}
+    public CertificatesDetailsClient certificatesDetails() {
+        return new CertificatesDetailsClient();
+    }
 
-	public CourseDetailsHintClient courseDetailsHint(String uuid) {
-		return new CourseDetailsHintClient(uuid);
-	}
+    public CertificateDetailsClient certificateDetails(String uuid) {
+        return new CertificateDetailsClient(uuid);
+    }
 
-	public CourseDetailsLibrariesClient courseDetailsLibraries() {
-		return new CourseDetailsLibrariesClient();
-	}
+    public CourseDetailsHintsClient courseDetailsHints() {
+        return new CourseDetailsHintsClient();
+    }
 
-	public CourseDetailsLibraryClient courseDetailsLibrary(String uuid) {
-		return new CourseDetailsLibraryClient(uuid);
-	}
+    public CourseDetailsHintClient courseDetailsHint(String uuid) {
+        return new CourseDetailsHintClient(uuid);
+    }
 
-	public CourseDetailsSectionsClient courseDetailsSections() {
-		return new CourseDetailsSectionsClient();
-	}
+    public CourseDetailsLibrariesClient courseDetailsLibraries() {
+        return new CourseDetailsLibrariesClient();
+    }
 
-	public CourseDetailsSectionClient courseDetailsSection(String uuid) {
-		return new CourseDetailsSectionClient(uuid);
-	}
+    public CourseDetailsLibraryClient courseDetailsLibrary(String uuid) {
+        return new CourseDetailsLibraryClient(uuid);
+    }
 
-	public CoursesClient courses() {
-		return new CoursesClient();
-	}
+    public CourseDetailsSectionsClient courseDetailsSections() {
+        return new CourseDetailsSectionsClient();
+    }
 
-	public CourseClient course(String uuid) {
-		return new CourseClient(uuid);
-	}
+    public CourseDetailsSectionClient courseDetailsSection(String uuid) {
+        return new CourseDetailsSectionClient(uuid);
+    }
 
-	public CourseVersionsClient courseVersions() {
-		return new CourseVersionsClient();
-	}
+    public CoursesClient courses() {
+        return new CoursesClient();
+    }
 
-	public CourseVersionClient courseVersion(String uuid) {
-		return new CourseVersionClient(uuid);
-	}
+    public CourseClient course(String uuid) {
+        return new CourseClient(uuid);
+    }
 
-	public CourseClassesClient courseClasses() {
-		return new CourseClassesClient();
-	}
+    public CourseVersionsClient courseVersions() {
+        return new CourseVersionsClient();
+    }
 
-	public InstitutionClient institution(String uuid) {
-		return new InstitutionClient(uuid);
-	}
+    public CourseVersionClient courseVersion(String uuid) {
+        return new CourseVersionClient(uuid);
+    }
 
-	public PeopleClient people() {
-		return new PeopleClient();
-	}
+    public CourseClassesClient courseClasses() {
+        return new CourseClassesClient();
+    }
 
-	public PersonClient person(String personUUID){
-		return new PersonClient(personUUID);
-	}
+    public InstitutionClient institution(String uuid) {
+        return new InstitutionClient(uuid);
+    }
 
-	public CourseClassClient courseClass(String courseClassUUID) {
-		return new CourseClassClient(courseClassUUID);
-	}
+    public PeopleClient people() {
+        return new PeopleClient();
+    }
 
-	public EnrollmentClient enrollment(String enrollmentUUID){
-		return new EnrollmentClient(enrollmentUUID);
-	}
+    public PersonClient person(String personUUID) {
+        return new PersonClient(personUUID);
+    }
 
-	public EnrollmentsClient enrollments(){
-		return new EnrollmentsClient();
-	}
+    public CourseClassClient courseClass(String courseClassUUID) {
+        return new CourseClassClient(courseClassUUID);
+    }
 
-	public ChatThreadsClient chatThreads() {
-		return new ChatThreadsClient();
-	}
-	
-	public RepositoryClient repository() {
-		return new RepositoryClient();
-	}
+    public EnrollmentClient enrollment(String enrollmentUUID) {
+        return new EnrollmentClient(enrollmentUUID);
+    }
 
-	static final EventsClient eventsClient = new EventsClient();
-	public EventsClient events() {
-		return eventsClient;
-	}
+    public EnrollmentsClient enrollments() {
+        return new EnrollmentsClient();
+    }
+
+    public ChatThreadsClient chatThreads() {
+        return new ChatThreadsClient();
+    }
+
+    public RepositoryClient repository() {
+        return new RepositoryClient();
+    }
+
+    static final EventsClient eventsClient = new EventsClient();
+
+    public EventsClient events() {
+        return eventsClient;
+    }
 
 }

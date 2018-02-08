@@ -5,14 +5,15 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 public class SandboxActivity extends AbstractActivity {
-	
-	SandboxPresenter presenter;
-	public SandboxActivity(SandboxPresenter presenter) {
-	    this.presenter = presenter;
-	  }
 
-	@Override
-	public void start(AcceptsOneWidget panel, EventBus eventBus) {
-		panel.setWidget(presenter);		
-	}
+    SandboxPresenter presenter;
+
+    public SandboxActivity(SandboxPresenter presenter) {
+        this.presenter = presenter;
+    }
+
+    @Override
+    public void start(AcceptsOneWidget panel, EventBus eventBus) {
+        panel.setWidget(presenter);
+    }
 }

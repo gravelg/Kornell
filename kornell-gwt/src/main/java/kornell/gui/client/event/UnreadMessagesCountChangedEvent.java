@@ -2,46 +2,46 @@ package kornell.gui.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class UnreadMessagesCountChangedEvent extends GwtEvent<UnreadMessagesCountChangedEventHandler>{
-	public static final Type<UnreadMessagesCountChangedEventHandler> TYPE = new Type<UnreadMessagesCountChangedEventHandler>();
-	
-	private int countChange;
+public class UnreadMessagesCountChangedEvent extends GwtEvent<UnreadMessagesCountChangedEventHandler> {
+    public static final Type<UnreadMessagesCountChangedEventHandler> TYPE = new Type<UnreadMessagesCountChangedEventHandler>();
 
-	private boolean increment;
-	
-	public UnreadMessagesCountChangedEvent(int unreadMessagesCount) {
-		this(unreadMessagesCount, false);
-	}
-	
-	public UnreadMessagesCountChangedEvent(int countChange, boolean isIncrement) {
-		this.countChange = countChange;
-		this.setIncrement(isIncrement);
-	}
+    private int countChange;
 
-	@Override
-	protected void dispatch(UnreadMessagesCountChangedEventHandler handler) {
-		handler.onUnreadMessagesCountChanged(this);		
-	}
+    private boolean increment;
 
-	@Override
-	public Type<UnreadMessagesCountChangedEventHandler> getAssociatedType() {
-		return TYPE;
-	}
+    public UnreadMessagesCountChangedEvent(int unreadMessagesCount) {
+        this(unreadMessagesCount, false);
+    }
 
-	public int getCountChange() {
-	  return countChange;
-  }
+    public UnreadMessagesCountChangedEvent(int countChange, boolean isIncrement) {
+        this.countChange = countChange;
+        this.setIncrement(isIncrement);
+    }
 
-	public void setCountChange(int countChange) {
-	  this.countChange = countChange;
-  }
+    @Override
+    protected void dispatch(UnreadMessagesCountChangedEventHandler handler) {
+        handler.onUnreadMessagesCountChanged(this);
+    }
 
-	public boolean isIncrement() {
-	  return increment;
-  }
+    @Override
+    public Type<UnreadMessagesCountChangedEventHandler> getAssociatedType() {
+        return TYPE;
+    }
 
-	public void setIncrement(boolean increment) {
-	  this.increment = increment;
-  }
-	
+    public int getCountChange() {
+        return countChange;
+    }
+
+    public void setCountChange(int countChange) {
+        this.countChange = countChange;
+    }
+
+    public boolean isIncrement() {
+        return increment;
+    }
+
+    public void setIncrement(boolean increment) {
+        this.increment = increment;
+    }
+
 }

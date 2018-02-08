@@ -6,27 +6,27 @@ import com.google.gwt.event.shared.GwtEvent;
 
 import kornell.core.to.UnreadChatThreadTO;
 
-public class UnreadMessagesPerThreadFetchedEvent extends GwtEvent<UnreadMessagesPerThreadFetchedEventHandler>{
-	public static final Type<UnreadMessagesPerThreadFetchedEventHandler> TYPE = new Type<UnreadMessagesPerThreadFetchedEventHandler>();
-	
-	private List<UnreadChatThreadTO> unreadChatThreadTOs;
-	
-	public UnreadMessagesPerThreadFetchedEvent(List<UnreadChatThreadTO> unreadChatThreadTO) {
-		this.unreadChatThreadTOs = unreadChatThreadTO;
-	}
+public class UnreadMessagesPerThreadFetchedEvent extends GwtEvent<UnreadMessagesPerThreadFetchedEventHandler> {
+    public static final Type<UnreadMessagesPerThreadFetchedEventHandler> TYPE = new Type<UnreadMessagesPerThreadFetchedEventHandler>();
 
-	@Override
-	protected void dispatch(UnreadMessagesPerThreadFetchedEventHandler handler) {
-		handler.onUnreadMessagesPerThreadFetched(this);		
-	}
+    private List<UnreadChatThreadTO> unreadChatThreadTOs;
 
-	@Override
-	public Type<UnreadMessagesPerThreadFetchedEventHandler> getAssociatedType() {
-		return TYPE;
-	}
+    public UnreadMessagesPerThreadFetchedEvent(List<UnreadChatThreadTO> unreadChatThreadTO) {
+        this.unreadChatThreadTOs = unreadChatThreadTO;
+    }
 
-	public List<UnreadChatThreadTO> getUnreadChatThreadTOs() {
-	  return unreadChatThreadTOs;
-  }
-	
+    @Override
+    protected void dispatch(UnreadMessagesPerThreadFetchedEventHandler handler) {
+        handler.onUnreadMessagesPerThreadFetched(this);
+    }
+
+    @Override
+    public Type<UnreadMessagesPerThreadFetchedEventHandler> getAssociatedType() {
+        return TYPE;
+    }
+
+    public List<UnreadChatThreadTO> getUnreadChatThreadTOs() {
+        return unreadChatThreadTOs;
+    }
+
 }

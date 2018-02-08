@@ -8,10 +8,13 @@ import kornell.core.to.CourseVersionTO;
 import kornell.gui.client.util.view.table.PaginationPresenter;
 
 public interface AdminCourseVersionsView extends IsWidget {
-	public interface Presenter extends PaginationPresenter<CourseVersionTO> {
-		void deleteCourseVersion(CourseVersionTO courseVersionTO);
-		void duplicateCourseVersion(CourseVersionTO courseVersionTO);
-	}
-	void setPresenter(AdminCourseVersionsView.Presenter presenter);
-	void setCourseVersions(List<CourseVersionTO> courseVersionTOs);
+    public interface Presenter extends PaginationPresenter<CourseVersionTO> {
+        void deleteCourseVersion(CourseVersionTO courseVersionTO);
+
+        void duplicateCourseVersion(CourseVersionTO courseVersionTO);
+    }
+
+    void setPresenter(AdminCourseVersionsView.Presenter presenter);
+
+    void setCourseVersions(List<CourseVersionTO> courseVersionTOs);
 }

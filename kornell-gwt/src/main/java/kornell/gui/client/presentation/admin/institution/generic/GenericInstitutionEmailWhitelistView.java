@@ -27,95 +27,97 @@ import kornell.gui.client.util.forms.formfield.SimpleMultipleSelect;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class GenericInstitutionEmailWhitelistView extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, GenericInstitutionEmailWhitelistView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericInstitutionEmailWhitelistView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	public static final TOFactory toFactory = GWT.create(TOFactory.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    public static final TOFactory toFactory = GWT.create(TOFactory.class);
 
-	private KornellSession session;
-	private EventBus bus;
-	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
-	
-	SimpleMultipleSelect simpleMultipleSelect;
+    private KornellSession session;
+    private EventBus bus;
+    boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
-	@UiField
-	Form form;
-	@UiField
-	FlowPanel adminsFields;
-	@UiField
-	Button btnOK;
-	@UiField
-	Button btnCancel;
+    SimpleMultipleSelect simpleMultipleSelect;
 
-	private Institution institution;
-	
-	public GenericInstitutionEmailWhitelistView(final KornellSession session, EventBus bus,
-			kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter, Institution institution) {
-		this.session = session;
-		this.bus = bus;
-		this.institution = institution;
-		initWidget(uiBinder.createAndBindUi(this));
+    @UiField
+    Form form;
+    @UiField
+    FlowPanel adminsFields;
+    @UiField
+    Button btnOK;
+    @UiField
+    Button btnCancel;
 
-		// i18n
-		btnOK.setText("Salvar Alterações");
-		btnCancel.setText("Cancelar Alterações");
-		
-		initData();
-	}
+    private Institution institution;
 
-	public void initData() {
-		adminsFields.clear();
-		FlowPanel fieldPanelWrapper = new FlowPanel();
-		fieldPanelWrapper.addStyleName("fieldPanelWrapper");
-		
-		FlowPanel labelPanel = new FlowPanel();
-		labelPanel.addStyleName("labelPanel");
-		Label lblLabel = new Label("Domínios (sem '@')");
-		lblLabel.addStyleName("lblLabel");
-		labelPanel.add(lblLabel);
-		fieldPanelWrapper.add(labelPanel);
-		
+    public GenericInstitutionEmailWhitelistView(final KornellSession session, EventBus bus,
+            kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter,
+            Institution institution) {
+        this.session = session;
+        this.bus = bus;
+        this.institution = institution;
+        initWidget(uiBinder.createAndBindUi(this));
 
-		bus.fireEvent(new ShowPacifierEvent(true));
-		session.institution(institution.getUUID()).getEmailWhitelist(new Callback<InstitutionEmailWhitelistTO>() {
-			@Override
-			public void ok(InstitutionEmailWhitelistTO to) {
-				for (String domain : to.getDomains()) {
-					simpleMultipleSelect.addItem(domain, domain);
-				}
-				bus.fireEvent(new ShowPacifierEvent(false));
-			}
-		});
-		simpleMultipleSelect = new SimpleMultipleSelect();
-		fieldPanelWrapper.add(simpleMultipleSelect.asWidget());
-		
-		adminsFields.add(fieldPanelWrapper);
-	}
+        // i18n
+        btnOK.setText("Salvar Alterações");
+        btnCancel.setText("Cancelar Alterações");
 
-	@UiHandler("btnOK")
-	void doOK(ClickEvent e) {
-		if(session.isInstitutionAdmin()){
-			InstitutionEmailWhitelistTO institutionEmailWhitelistTO = toFactory.newInstitutionEmailWhitelistTO().as();
-			List<String> domains = new ArrayList<String>();
-			ListBox multipleSelect = simpleMultipleSelect.getMultipleSelect();
-			for (int i = 0; i < multipleSelect.getItemCount(); i++) {
-				domains.add(multipleSelect.getValue(i));  
-			}
-			institutionEmailWhitelistTO.setDomains(domains);
-			session.institution(institution.getUUID()).updateEmailWhitelist(institutionEmailWhitelistTO, new Callback<InstitutionEmailWhitelistTO>() {
-				@Override
-				public void ok(InstitutionEmailWhitelistTO to) {
-					KornellNotification.show("Os domínios de email permitidos da instituição foram atualizados com sucesso.");
-				}
-			});
-		}
-		
-	}
+        initData();
+    }
 
-	@UiHandler("btnCancel")
-	void doCancel(ClickEvent e) {
-		initData();
-	}
+    public void initData() {
+        adminsFields.clear();
+        FlowPanel fieldPanelWrapper = new FlowPanel();
+        fieldPanelWrapper.addStyleName("fieldPanelWrapper");
+
+        FlowPanel labelPanel = new FlowPanel();
+        labelPanel.addStyleName("labelPanel");
+        Label lblLabel = new Label("Domínios (sem '@')");
+        lblLabel.addStyleName("lblLabel");
+        labelPanel.add(lblLabel);
+        fieldPanelWrapper.add(labelPanel);
+
+        bus.fireEvent(new ShowPacifierEvent(true));
+        session.institution(institution.getUUID()).getEmailWhitelist(new Callback<InstitutionEmailWhitelistTO>() {
+            @Override
+            public void ok(InstitutionEmailWhitelistTO to) {
+                for (String domain : to.getDomains()) {
+                    simpleMultipleSelect.addItem(domain, domain);
+                }
+                bus.fireEvent(new ShowPacifierEvent(false));
+            }
+        });
+        simpleMultipleSelect = new SimpleMultipleSelect();
+        fieldPanelWrapper.add(simpleMultipleSelect.asWidget());
+
+        adminsFields.add(fieldPanelWrapper);
+    }
+
+    @UiHandler("btnOK")
+    void doOK(ClickEvent e) {
+        if (session.isInstitutionAdmin()) {
+            InstitutionEmailWhitelistTO institutionEmailWhitelistTO = toFactory.newInstitutionEmailWhitelistTO().as();
+            List<String> domains = new ArrayList<String>();
+            ListBox multipleSelect = simpleMultipleSelect.getMultipleSelect();
+            for (int i = 0; i < multipleSelect.getItemCount(); i++) {
+                domains.add(multipleSelect.getValue(i));
+            }
+            institutionEmailWhitelistTO.setDomains(domains);
+            session.institution(institution.getUUID()).updateEmailWhitelist(institutionEmailWhitelistTO,
+                    new Callback<InstitutionEmailWhitelistTO>() {
+                        @Override
+                        public void ok(InstitutionEmailWhitelistTO to) {
+                            KornellNotification.show(
+                                    "Os domínios de email permitidos da instituição foram atualizados com sucesso.");
+                        }
+                    });
+        }
+
+    }
+
+    @UiHandler("btnCancel")
+    void doCancel(ClickEvent e) {
+        initData();
+    }
 
 }

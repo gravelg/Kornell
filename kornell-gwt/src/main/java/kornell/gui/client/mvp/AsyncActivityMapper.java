@@ -2,9 +2,8 @@ package kornell.gui.client.mvp;
 
 import com.google.gwt.place.shared.Place;
 
+public interface AsyncActivityMapper {
 
-public interface AsyncActivityMapper{
-	
-	void getActivity(Place place, ActivityCallbackHandler activityCallbackHandler);
+    void getActivity(Place place, ActivityCallbackHandler activityCallbackHandler);
 
 }

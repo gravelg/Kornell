@@ -19,130 +19,129 @@ import com.google.gwt.user.client.ui.FlowPanel;
 
 import kornell.gui.client.util.AsciiUtils;
 
-public class KornellTableTools<T> extends FlowPanel{
-	
-	private PaginationPresenter<T> presenter;
-	private Timer updateTimer;
-	private TextBox txtSearch;
-	private Button btnSearch;
-	private ListBox pageSizeListBox;
+public class KornellTableTools<T> extends FlowPanel {
 
+    private PaginationPresenter<T> presenter;
+    private Timer updateTimer;
+    private TextBox txtSearch;
+    private Button btnSearch;
+    private ListBox pageSizeListBox;
 
-	public KornellTableTools(PaginationPresenter<T> presenter) {
-		this.presenter = presenter;
+    public KornellTableTools(PaginationPresenter<T> presenter) {
+        this.presenter = presenter;
 
-		updateTimer = new Timer() {
-			@Override
-			public void run() {
-				filter();
-			}
-		};
+        updateTimer = new Timer() {
+            @Override
+            public void run() {
+                filter();
+            }
+        };
 
-		this.addStyleName("marginTop25");
-		initSearch();
-		initPageSizeListBox();
-		refresh();
-	}
+        this.addStyleName("marginTop25");
+        initSearch();
+        initPageSizeListBox();
+        refresh();
+    }
 
-	private void initPageSizeListBox() {
-		this.pageSizeListBox = new ListBox();
-		pageSizeListBox.addStyleName("pageSizeListBox");
-		pageSizeListBox.addItem("20");
-		pageSizeListBox.addItem("50");
-		pageSizeListBox.addItem("100");
-		pageSizeListBox.setSelectedValue(presenter.getPageSize());
-		pageSizeListBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				if (pageSizeListBox.getValue().matches("[0-9]*")){
-					presenter.setPageNumber("1");
-					presenter.setPageSize(pageSizeListBox.getValue());
-					presenter.updateData();
-				}
-			}
-		});
-		this.add(pageSizeListBox);
-	}
+    private void initPageSizeListBox() {
+        this.pageSizeListBox = new ListBox();
+        pageSizeListBox.addStyleName("pageSizeListBox");
+        pageSizeListBox.addItem("20");
+        pageSizeListBox.addItem("50");
+        pageSizeListBox.addItem("100");
+        pageSizeListBox.setSelectedValue(presenter.getPageSize());
+        pageSizeListBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                if (pageSizeListBox.getValue().matches("[0-9]*")) {
+                    presenter.setPageNumber("1");
+                    presenter.setPageSize(pageSizeListBox.getValue());
+                    presenter.updateData();
+                }
+            }
+        });
+        this.add(pageSizeListBox);
+    }
 
-	private TextBox initSearch() {
-		if (txtSearch == null) {
-			txtSearch = new TextBox();
-			txtSearch.addStyleName("txtSearch");
-			txtSearch.addChangeHandler(new ChangeHandler() {
-				@Override
-				public void onChange(ChangeEvent event) {
-					scheduleFilter();
-				}
-			});
-			txtSearch.addKeyUpHandler(new KeyUpHandler() {
-				@Override
-				public void onKeyUp(KeyUpEvent event) {
-					scheduleFilter();
-				}
-			});
-			txtSearch.addValueChangeHandler(new ValueChangeHandler<String>() {
+    private TextBox initSearch() {
+        if (txtSearch == null) {
+            txtSearch = new TextBox();
+            txtSearch.addStyleName("txtSearch");
+            txtSearch.addChangeHandler(new ChangeHandler() {
+                @Override
+                public void onChange(ChangeEvent event) {
+                    scheduleFilter();
+                }
+            });
+            txtSearch.addKeyUpHandler(new KeyUpHandler() {
+                @Override
+                public void onKeyUp(KeyUpEvent event) {
+                    scheduleFilter();
+                }
+            });
+            txtSearch.addValueChangeHandler(new ValueChangeHandler<String>() {
 
-				@Override
-				public void onValueChange(ValueChangeEvent<String> event) {
-					scheduleFilter();
+                @Override
+                public void onValueChange(ValueChangeEvent<String> event) {
+                    scheduleFilter();
 
-				}
-			});
-			btnSearch = new Button("Pesquisar");
-			btnSearch.setSize(ButtonSize.MINI);
-			btnSearch.setIcon(IconType.SEARCH);
-			btnSearch.addStyleName("btnNotSelected btnSearch");
-			btnSearch.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					scheduleFilter();
-				}
-			});
-			
-			this.add(txtSearch);
-			this.add(btnSearch);
-		}
+                }
+            });
+            btnSearch = new Button("Pesquisar");
+            btnSearch.setSize(ButtonSize.MINI);
+            btnSearch.setIcon(IconType.SEARCH);
+            btnSearch.addStyleName("btnNotSelected btnSearch");
+            btnSearch.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    scheduleFilter();
+                }
+            });
 
-		txtSearch.setValue(presenter.getSearchTerm());
-		txtSearch.setTitle("insira o nome ou o código do curso");
-		return txtSearch;
-	}
+            this.add(txtSearch);
+            this.add(btnSearch);
+        }
 
-	private void scheduleFilter() {
-		updateTimer.cancel();
-		updateTimer.schedule(500);
-	}
+        txtSearch.setValue(presenter.getSearchTerm());
+        txtSearch.setTitle("insira o nome ou o código do curso");
+        return txtSearch;
+    }
 
-	private void filter() {
-		String newSearchTerm = AsciiUtils.convertNonAscii(txtSearch.getText().trim()).toLowerCase();
-		if(!presenter.getSearchTerm().equals(newSearchTerm)){
-			presenter.setPageNumber("1");
-			presenter.setSearchTerm(newSearchTerm);
-			presenter.updateData();
-		}
-	}
+    private void scheduleFilter() {
+        updateTimer.cancel();
+        updateTimer.schedule(500);
+    }
 
-	public String getSearchTerm() {
-		return txtSearch.getText();
-	}
+    private void filter() {
+        String newSearchTerm = AsciiUtils.convertNonAscii(txtSearch.getText().trim()).toLowerCase();
+        if (!presenter.getSearchTerm().equals(newSearchTerm)) {
+            presenter.setPageNumber("1");
+            presenter.setSearchTerm(newSearchTerm);
+            presenter.updateData();
+        }
+    }
 
-	public void refresh() {		
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				txtSearch.setFocus(true);
-			}
-		});
-		
-		pageSizeListBox.setVisible(presenter.getTotalRowCount() > 20);
-		txtSearch.setText(presenter.getSearchTerm());
-	}
+    public String getSearchTerm() {
+        return txtSearch.getText();
+    }
 
-	public void resetSearchTerm() {
-		if(txtSearch != null){
-			txtSearch.setText("");
-			presenter.setSearchTerm("");
-		}
-	}
-	
+    public void refresh() {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                txtSearch.setFocus(true);
+            }
+        });
+
+        pageSizeListBox.setVisible(presenter.getTotalRowCount() > 20);
+        txtSearch.setText(presenter.getSearchTerm());
+    }
+
+    public void resetSearchTerm() {
+        if (txtSearch != null) {
+            txtSearch.setText("");
+            presenter.setSearchTerm("");
+        }
+    }
+
 }

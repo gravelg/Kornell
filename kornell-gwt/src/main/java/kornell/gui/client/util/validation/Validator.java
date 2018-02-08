@@ -8,6 +8,6 @@ import kornell.api.client.Callback;
 
 public interface Validator {
 
-	void getErrors(Widget widget,Callback<List<String>> cb);
+    void getErrors(Widget widget, Callback<List<String>> cb);
 
 }

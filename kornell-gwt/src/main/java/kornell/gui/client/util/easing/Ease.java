@@ -10,7 +10,7 @@ public class Ease {
             protected void onUpdate(double progress) {
                 updater.update(progress);
             }
-            
+
             @Override
             protected double interpolate(double p) {
                 return t.transition(p);
@@ -24,7 +24,7 @@ public class Ease {
             protected void onUpdate(double progress) {
                 updater.update(progress);
             }
-            
+
             @Override
             protected double interpolate(double p) {
                 return 1 - t.transition(1 - p);
@@ -38,7 +38,7 @@ public class Ease {
             protected void onUpdate(double progress) {
                 updater.update(progress);
             }
-            
+
             @Override
             protected double interpolate(double p) {
                 return (p <= 0.5) ? t.transition(2 * p) / 2 : (2 - t.transition(2 * (1 - p))) / 2;

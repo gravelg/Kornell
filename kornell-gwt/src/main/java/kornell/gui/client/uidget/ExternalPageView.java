@@ -23,92 +23,93 @@ import kornell.gui.client.event.ShowChatDockEvent;
 import kornell.gui.client.event.ShowChatDockEventHandler;
 import kornell.gui.client.util.view.Positioning;
 
-public class ExternalPageView extends Uidget implements ShowChatDockEventHandler{
-	private static final Logger logger = Logger.getLogger(ExternalPageView.class.getName()); 
-	private IFrameElement iframe;
-	
-	FlowPanel panel = new FlowPanel();
-	private KornellSession session;
+public class ExternalPageView extends Uidget implements ShowChatDockEventHandler {
+    private static final Logger logger = Logger.getLogger(ExternalPageView.class.getName());
+    private IFrameElement iframe;
 
-	public ExternalPageView(ExternalPage page) {
-		GenericClientFactoryImpl.EVENT_BUS.addHandler(ShowChatDockEvent.TYPE,this);
-		session = GenericClientFactoryImpl.KORNELL_SESSION;
-		createIFrame();
-		panel.setStyleName("contentWrapper");
-		panel.getElement().appendChild(iframe);
-		String url = page.getURL();
-		String key = page.getKey();
-		setSrc(url,key);
-		initWidget(panel);
+    FlowPanel panel = new FlowPanel();
+    private KornellSession session;
 
-		GenericClientFactoryImpl.EVENT_BUS.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
-			@Override
-			public void onPlaceChange(PlaceChangeEvent event) {
-				placeIframe();
-			}
-		});
-	}
+    public ExternalPageView(ExternalPage page) {
+        GenericClientFactoryImpl.EVENT_BUS.addHandler(ShowChatDockEvent.TYPE, this);
+        session = GenericClientFactoryImpl.KORNELL_SESSION;
+        createIFrame();
+        panel.setStyleName("contentWrapper");
+        panel.getElement().appendChild(iframe);
+        String url = page.getURL();
+        String key = page.getKey();
+        setSrc(url, key);
+        initWidget(panel);
 
-	private void createIFrame() {
-		if (iframe == null) {
-			iframe = Document.get().createIFrameElement();
-			iframe.addClassName("externalContent");
-			iframe.setAttribute("allowtransparency", "true");
-			iframe.setAttribute("style", "background-color: transparent;");
-			//allowing html5 video player to work on fullscreen inside the iframe
-			iframe.setAttribute("allowFullScreen", "true");
-			iframe.setAttribute("webkitallowfullscreen", "true");
-			iframe.setAttribute("mozallowfullscreen", "true");
-			Event.sinkEvents(iframe, Event.ONLOAD);
-			Event.setEventListener(iframe, new EventListener() {
+        GenericClientFactoryImpl.EVENT_BUS.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
+            @Override
+            public void onPlaceChange(PlaceChangeEvent event) {
+                placeIframe();
+            }
+        });
+    }
 
-				@Override
-				public void onBrowserEvent(Event event) {
-					fireViewReady();
+    private void createIFrame() {
+        if (iframe == null) {
+            iframe = Document.get().createIFrameElement();
+            iframe.addClassName("externalContent");
+            iframe.setAttribute("allowtransparency", "true");
+            iframe.setAttribute("style", "background-color: transparent;");
+            // allowing html5 video player to work on fullscreen inside the iframe
+            iframe.setAttribute("allowFullScreen", "true");
+            iframe.setAttribute("webkitallowfullscreen", "true");
+            iframe.setAttribute("mozallowfullscreen", "true");
+            Event.sinkEvents(iframe, Event.ONLOAD);
+            Event.setEventListener(iframe, new EventListener() {
 
-				}
-			});
-		}
-		placeIframe();
+                @Override
+                public void onBrowserEvent(Event event) {
+                    fireViewReady();
 
-		// Weird yet simple way of solving FF's weird behavior
-		Window.addResizeHandler(new ResizeHandler() {
-			@Override
-			public void onResize(ResizeEvent event) {
-				Scheduler.get().scheduleDeferred(new Command() {
-					@Override
-					public void execute() {
-						placeIframe();
-					}
-				});
-			}
-		});
-	}
+                }
+            });
+        }
+        placeIframe();
 
-	private void placeIframe() {
-		iframe.setPropertyString("width", "100%");
-		int h = (Window.getClientHeight() - Positioning.NORTH_BAR);
-		if(session.getCurrentCourseClass() != null && !(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()))){
-			h -= Positioning.SOUTH_BAR;
-		}
-		String height = h + "px";
-		iframe.setPropertyString("height", height);
-	}
+        // Weird yet simple way of solving FF's weird behavior
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                Scheduler.get().scheduleDeferred(new Command() {
+                    @Override
+                    public void execute() {
+                        placeIframe();
+                    }
+                });
+            }
+        });
+    }
 
-	public void setSrc(final String src, final String actomKey) {
-		// TODO: Check if src exists
-		String mkurl = StringUtils.mkurl("/", src);
-		logger.info("Iframe source set to ["+mkurl+"]");
-		iframe.setSrc(mkurl);
-	}
+    private void placeIframe() {
+        iframe.setPropertyString("width", "100%");
+        int h = (Window.getClientHeight() - Positioning.NORTH_BAR);
+        if (session.getCurrentCourseClass() != null
+                && !(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType()))) {
+            h -= Positioning.SOUTH_BAR;
+        }
+        String height = h + "px";
+        iframe.setPropertyString("height", height);
+    }
 
-	@Override
-	public void onShowChatDock(ShowChatDockEvent event) {
-		if(event.isShowChatDock()){
-			panel.addStyleName("chatDocked");
-		} else {
-			panel.removeStyleName("chatDocked");
-		}
-	}
+    public void setSrc(final String src, final String actomKey) {
+        // TODO: Check if src exists
+        String mkurl = StringUtils.mkurl("/", src);
+        logger.info("Iframe source set to [" + mkurl + "]");
+        iframe.setSrc(mkurl);
+    }
+
+    @Override
+    public void onShowChatDock(ShowChatDockEvent event) {
+        if (event.isShowChatDock()) {
+            panel.addStyleName("chatDocked");
+        } else {
+            panel.removeStyleName("chatDocked");
+        }
+    }
 
 }

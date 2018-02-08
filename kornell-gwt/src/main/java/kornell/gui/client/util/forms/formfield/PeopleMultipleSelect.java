@@ -27,155 +27,153 @@ import kornell.core.util.StringUtils;
 import kornell.gui.client.util.forms.FormHelper;
 
 public class PeopleMultipleSelect extends Composite {
-	private FormHelper formHelper = GWT.create(FormHelper.class);
+    private FormHelper formHelper = GWT.create(FormHelper.class);
 
-	private KornellSession session;
-	private TextBox search;
-	private MultiWordSuggestOracle oracle;
-	private ListBox multipleSelect;
-	private Map<String, Person> oraclePeople;
+    private KornellSession session;
+    private TextBox search;
+    private MultiWordSuggestOracle oracle;
+    private ListBox multipleSelect;
+    private Map<String, Person> oraclePeople;
 
-	public PeopleMultipleSelect(KornellSession session) {
-		this.session = session;
-	}
+    public PeopleMultipleSelect(KornellSession session) {
+        this.session = session;
+    }
 
-	@Override
-	public Widget asWidget() {
-		return getPeopleMultipleSelectPanel();
-	}
+    @Override
+    public Widget asWidget() {
+        return getPeopleMultipleSelectPanel();
+    }
 
-	private FlowPanel getPeopleMultipleSelectPanel() {
-		FlowPanel courseClassAdminsPanel = new FlowPanel();
-		courseClassAdminsPanel.addStyleName("fieldPanel");
+    private FlowPanel getPeopleMultipleSelectPanel() {
+        FlowPanel courseClassAdminsPanel = new FlowPanel();
+        courseClassAdminsPanel.addStyleName("fieldPanel");
 
-		courseClassAdminsPanel.add(getTypeAheadPanel());
-		FlowPanel multipleSelectPanel = getMultipleSelectPanel();
-		courseClassAdminsPanel.add(multipleSelectPanel);
+        courseClassAdminsPanel.add(getTypeAheadPanel());
+        FlowPanel multipleSelectPanel = getMultipleSelectPanel();
+        courseClassAdminsPanel.add(multipleSelectPanel);
 
-		return courseClassAdminsPanel;
-	}
+        return courseClassAdminsPanel;
+    }
 
-	private FlowPanel getMultipleSelectPanel() {
-		FlowPanel multipleSelectPanel = new FlowPanel();
-		multipleSelect = new ListBox(true);
-		multipleSelect.addStyleName("selectField");
+    private FlowPanel getMultipleSelectPanel() {
+        FlowPanel multipleSelectPanel = new FlowPanel();
+        multipleSelect = new ListBox(true);
+        multipleSelect.addStyleName("selectField");
 
-		multipleSelectPanel.add(multipleSelect);
+        multipleSelectPanel.add(multipleSelect);
 
-		Button btnRemove = new Button("Remover");
-		btnRemove.addStyleName("btnSelected btnStandard");
+        Button btnRemove = new Button("Remover");
+        btnRemove.addStyleName("btnSelected btnStandard");
 
-		btnRemove.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				while (multipleSelect.getSelectedIndex() != -1) {
-					multipleSelect.removeItem(multipleSelect.getSelectedIndex());
-				}
-			}
-		});
-		multipleSelectPanel.add(btnRemove);
+        btnRemove.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                while (multipleSelect.getSelectedIndex() != -1) {
+                    multipleSelect.removeItem(multipleSelect.getSelectedIndex());
+                }
+            }
+        });
+        multipleSelectPanel.add(btnRemove);
 
-		return multipleSelectPanel;
-	}
+        return multipleSelectPanel;
+    }
 
-	private FlowPanel getTypeAheadPanel() {
-		FlowPanel typeaheadPanel = new FlowPanel();
-		Typeahead typeahead = new Typeahead();
-		search = new TextBox();
-		search.addStyleName("textField");
-		search.setPlaceholder("Digite o nome de usuário a adicionar");
+    private FlowPanel getTypeAheadPanel() {
+        FlowPanel typeaheadPanel = new FlowPanel();
+        Typeahead typeahead = new Typeahead();
+        search = new TextBox();
+        search.addStyleName("textField");
+        search.setPlaceholder("Digite o nome de usuário a adicionar");
 
-		search.addKeyUpHandler(new KeyUpHandler() {
-			String currentSearch = "";
-			String previousSearch = "";
+        search.addKeyUpHandler(new KeyUpHandler() {
+            String currentSearch = "";
+            String previousSearch = "";
 
-			Timer searchChangesTimer = new Timer() {
-				@Override
-				public void run() {
-					searchChanged(currentSearch);
-				}
-			};
+            Timer searchChangesTimer = new Timer() {
+                @Override
+                public void run() {
+                    searchChanged(currentSearch);
+                }
+            };
 
-			@Override
-			public void onKeyUp(KeyUpEvent event) {
-				currentSearch = search.getText();
-				if (currentSearch.length() >= 1
-						&& (!currentSearch.equals(previousSearch) || event.getNativeKeyCode() == 86 || event.getNativeKeyCode() == 17)) {
-					searchChangesTimer.cancel();
-					searchChangesTimer.schedule(100);
-				}
-				previousSearch = currentSearch;
-			}
-		});
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
+                currentSearch = search.getText();
+                if (currentSearch.length() >= 1 && (!currentSearch.equals(previousSearch)
+                        || event.getNativeKeyCode() == 86 || event.getNativeKeyCode() == 17)) {
+                    searchChangesTimer.cancel();
+                    searchChangesTimer.schedule(100);
+                }
+                previousSearch = currentSearch;
+            }
+        });
 
-		typeahead.add(search);
+        typeahead.add(search);
 
-		oracle = (MultiWordSuggestOracle) typeahead.getSuggestOracle();
+        oracle = (MultiWordSuggestOracle) typeahead.getSuggestOracle();
 
-		typeaheadPanel.add(typeahead);
+        typeaheadPanel.add(typeahead);
 
-		Button btnAdd = new Button("Adicionar");
-		btnAdd.addStyleName("btnAction btnStandard");
+        Button btnAdd = new Button("Adicionar");
+        btnAdd.addStyleName("btnAction btnStandard");
 
-		btnAdd.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				addAdmin();
-			}
-		});
+        btnAdd.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                addAdmin();
+            }
+        });
 
-		typeaheadPanel.add(btnAdd);
+        typeaheadPanel.add(btnAdd);
 
-		return typeaheadPanel;
-	}
+        return typeaheadPanel;
+    }
 
-	private void searchChanged(final String searchStr) {
-		session.people().findBySearchTerm(searchStr, session.getInstitution().getUUID(),
-				new Callback<PeopleTO>() {
-					@Override
-					public void ok(PeopleTO to) {
-						oraclePeople = new HashMap<String, Person>();
-						oracle.clear();
-						String username, oracleStr = "";
-						Person person;
-						int i = 0;
-						for (PersonTO personTO : to.getPeopleTO()) {
-							person = personTO.getPerson();
-							username = personTO.getUsername();
-							oracleStr = username
-									+ (StringUtils.isSome(person.getFullName()) ? 
-											" (" + person.getFullName() + ")" : "");
-							oracle.add(oracleStr);
-							oraclePeople.put(username, person);
-							if (++i == 10)
-								break;
-						}
-						if(to.getPeopleTO().size() == 1){
-							Person p = oraclePeople.get(searchStr);
-							if(p != null){
-								search.setText(oracleStr);
-							}
-						}					
-					}
-				});
-	}
+    private void searchChanged(final String searchStr) {
+        session.people().findBySearchTerm(searchStr, session.getInstitution().getUUID(), new Callback<PeopleTO>() {
+            @Override
+            public void ok(PeopleTO to) {
+                oraclePeople = new HashMap<String, Person>();
+                oracle.clear();
+                String username, oracleStr = "";
+                Person person;
+                int i = 0;
+                for (PersonTO personTO : to.getPeopleTO()) {
+                    person = personTO.getPerson();
+                    username = personTO.getUsername();
+                    oracleStr = username
+                            + (StringUtils.isSome(person.getFullName()) ? " (" + person.getFullName() + ")" : "");
+                    oracle.add(oracleStr);
+                    oraclePeople.put(username, person);
+                    if (++i == 10)
+                        break;
+                }
+                if (to.getPeopleTO().size() == 1) {
+                    Person p = oraclePeople.get(searchStr);
+                    if (p != null) {
+                        search.setText(oracleStr);
+                    }
+                }
+            }
+        });
+    }
 
-	private void addAdmin() {
-		String item = search.getText().split(" \\(")[0];
-		if (oraclePeople != null && oraclePeople.containsKey(item)) {
-			if (!formHelper.isItemInListBox(search.getText(), multipleSelect)) {
-				Person person = (Person) oraclePeople.get(item);
-				multipleSelect.addItem(search.getText(), person.getUUID());
-			}
-			search.setText("");
-		}
-	}
+    private void addAdmin() {
+        String item = search.getText().split(" \\(")[0];
+        if (oraclePeople != null && oraclePeople.containsKey(item)) {
+            if (!formHelper.isItemInListBox(search.getText(), multipleSelect)) {
+                Person person = (Person) oraclePeople.get(item);
+                multipleSelect.addItem(search.getText(), person.getUUID());
+            }
+            search.setText("");
+        }
+    }
 
-	public ListBox getMultipleSelect() {
-		return multipleSelect;
-	}
+    public ListBox getMultipleSelect() {
+        return multipleSelect;
+    }
 
-	public void addItem(String item, String uuid) {
-		multipleSelect.addItem(item, uuid);
-	}
+    public void addItem(String item, String uuid) {
+        multipleSelect.addItem(item, uuid);
+    }
 }

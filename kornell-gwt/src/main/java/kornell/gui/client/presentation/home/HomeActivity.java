@@ -7,17 +7,18 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import kornell.gui.client.ClientFactory;
 
 public class HomeActivity extends AbstractActivity {
-	
-	static HomePresenter presenter;
-	public HomeActivity(HomePlace place, ClientFactory clientFactory) {
-	    if(presenter == null){
-	    	presenter = new HomePresenter(clientFactory);
-	    }
-	  }
 
-	@Override
-	public void start(AcceptsOneWidget panel, EventBus eventBus) { 
-		panel.setWidget(presenter);
-		
-	}
+    static HomePresenter presenter;
+
+    public HomeActivity(HomePlace place, ClientFactory clientFactory) {
+        if (presenter == null) {
+            presenter = new HomePresenter(clientFactory);
+        }
+    }
+
+    @Override
+    public void start(AcceptsOneWidget panel, EventBus eventBus) {
+        panel.setWidget(presenter);
+
+    }
 }

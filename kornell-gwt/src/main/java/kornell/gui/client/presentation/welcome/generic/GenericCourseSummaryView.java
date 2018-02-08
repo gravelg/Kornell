@@ -45,203 +45,205 @@ import kornell.gui.client.util.ClientConstants;
 import kornell.gui.client.util.EnumTranslator;
 
 public class GenericCourseSummaryView extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, GenericCourseSummaryView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericCourseSummaryView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	private KornellConstants constants = GWT.create(KornellConstants.class);
-	
-	@UiField
-	Heading hTitle;
-	
-	@UiField
-	Label lblSubTitle;
+    private KornellConstants constants = GWT.create(KornellConstants.class);
 
-	@UiField
-	Paragraph pDescription;
+    @UiField
+    Heading hTitle;
 
-	@UiField
-	Paragraph pStatus;
-	
-	@UiField
-	Paragraph pStatusInfo;
-	
-	@UiField
-	Paragraph pStatusErr;
+    @UiField
+    Label lblSubTitle;
 
-	@UiField
-	Paragraph pStatus2;
-	
-	@UiField
-	Paragraph pStatusInfo2;
-	
-	@UiField
-	ProgressBar progressBar;
+    @UiField
+    Paragraph pDescription;
 
-	@UiField
-	Image imgThumb;
+    @UiField
+    Paragraph pStatus;
 
-	@UiField
-	Image imgIconCourse;
+    @UiField
+    Paragraph pStatusInfo;
 
-	@UiField
-	FlowPanel pnlCourseSummaryBar;
+    @UiField
+    Paragraph pStatusErr;
 
-	String ICON_COURSE_URL = mkurl(ClientConstants.IMAGES_PATH, "welcomeCourses");
-	String iconCourseURL;
+    @UiField
+    Paragraph pStatus2;
 
-	private CourseClassTO courseClassTO;
-	private PlaceController placeCtrl;
-	private KornellSession session;
+    @UiField
+    Paragraph pStatusInfo2;
 
-	public GenericCourseSummaryView(final PlaceController placeCtrl,
-			final CourseClassTO courseClassTO, final KornellSession session) {
-		initWidget(uiBinder.createAndBindUi(this));
+    @UiField
+    ProgressBar progressBar;
 
-		this.courseClassTO = courseClassTO;
-		this.placeCtrl = placeCtrl;
-		this.session = session;
-		Course course = courseClassTO.getCourseVersionTO().getCourseTO().getCourse();
-		hTitle.setText(course.getName());
-		lblSubTitle.setText(constants.courseClass() + ": " + courseClassTO.getCourseClass().getName());
-		pDescription.setText(course.getDescription());
+    @UiField
+    Image imgThumb;
 
-		final Teacher teacher = Teachers.of(courseClassTO);
-		Student student = teacher.student(session.getCurrentUser());
-		if(courseClassTO.getEnrollment() != null && EnrollmentState.cancelled.equals(courseClassTO.getEnrollment().getState())){
-			pStatusErr.setText(constants.cancelledClassLabel());
-			pStatusErr.removeStyleName("shy");
-		}
-		if(!EntityState.active.equals(courseClassTO.getCourseClass().getState())){
-			pStatus.setText(constants.inactiveClassLabel());
-			iconCourseURL = mkurl(ICON_COURSE_URL, "iconNotStarted.png");
-		} else if (student.isEnrolled()) {
-			onEnrolled(student);
-		} else {
-			onNotEnrolled();
-		}
-		onEnrolledOrNot();
-	}
+    @UiField
+    Image imgIconCourse;
 
-	private void onEnrolledOrNot() {
-		String thumbURL = courseClassTO.getCourseClass().getThumbUrl();
-		thumbURL = thumbURL != null ? thumbURL : courseClassTO.getCourseVersionTO().getCourseVersion().getThumbUrl();
-		thumbURL = thumbURL != null ? thumbURL : courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getThumbUrl();
-		thumbURL = thumbURL != null ? thumbURL : mkurl(ICON_COURSE_URL, "thumb.png");
-		imgThumb.setUrl(thumbURL);
-		imgIconCourse.setUrl(iconCourseURL);
+    @UiField
+    FlowPanel pnlCourseSummaryBar;
 
-		sinkEvents(Event.ONCLICK);
-		addHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				if(courseClassTO.getEnrollment() == null && courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically()){
-					requestEnrollment();
-					return;
-				} else if (courseClassTO.getEnrollment() != null){
-					session.setCurrentCourseClass(courseClassTO);
-					placeCtrl.goTo(new ClassroomPlace(courseClassTO
-							.getEnrollment().getUUID()));
-				}
-			}
-		}, ClickEvent.getType());
+    String ICON_COURSE_URL = mkurl(ClientConstants.IMAGES_PATH, "welcomeCourses");
+    String iconCourseURL;
 
-	}
+    private CourseClassTO courseClassTO;
+    private PlaceController placeCtrl;
+    private KornellSession session;
 
-	private void onNotEnrolled() {
-		Button requestEnrollmentBtn = new Button(courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically() ? constants.startCourseLabel() : constants.requestEnrollmentLabel());
-		requestEnrollmentBtn.addStyleName("right btnAction");
-		pnlCourseSummaryBar.add(requestEnrollmentBtn);
+    public GenericCourseSummaryView(final PlaceController placeCtrl, final CourseClassTO courseClassTO,
+            final KornellSession session) {
+        initWidget(uiBinder.createAndBindUi(this));
 
-		pStatus.setText(constants.availableClassLabel());
-		iconCourseURL = mkurl(ICON_COURSE_URL, "iconAcquire.png");
-	}
+        this.courseClassTO = courseClassTO;
+        this.placeCtrl = placeCtrl;
+        this.session = session;
+        Course course = courseClassTO.getCourseVersionTO().getCourseTO().getCourse();
+        hTitle.setText(course.getName());
+        lblSubTitle.setText(constants.courseClass() + ": " + courseClassTO.getCourseClass().getName());
+        pDescription.setText(course.getDescription());
 
-	private void onEnrolled(Student student) {
-		EnrollmentProgress progress = student.getEnrollmentProgress();
-		switch (progress.getDescription()) {
-		case notStarted:
-			onCourseNotStarted();
-			break;
-		case completed:
-			onCourseCompleted(progress.getCertifiedAt());
-			break;
-		case inProgress:
-			onCourseInProgress(progress.getProgress());
-			break;
-		}
-	}
+        final Teacher teacher = Teachers.of(courseClassTO);
+        Student student = teacher.student(session.getCurrentUser());
+        if (courseClassTO.getEnrollment() != null
+                && EnrollmentState.cancelled.equals(courseClassTO.getEnrollment().getState())) {
+            pStatusErr.setText(constants.cancelledClassLabel());
+            pStatusErr.removeStyleName("shy");
+        }
+        if (!EntityState.active.equals(courseClassTO.getCourseClass().getState())) {
+            pStatus.setText(constants.inactiveClassLabel());
+            iconCourseURL = mkurl(ICON_COURSE_URL, "iconNotStarted.png");
+        } else if (student.isEnrolled()) {
+            onEnrolled(student);
+        } else {
+            onNotEnrolled();
+        }
+        onEnrolledOrNot();
+    }
 
-	private void onCourseInProgress(Integer progress) {
-		if(progress >= 100){
-			pStatus.setText(constants.pendingGradeLabel());
-		} else {
-			pStatus.setText(EnumTranslator.translateEnum(EnrollmentProgressDescription.inProgress));
-			if(ContentSpec.KNL.equals(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getContentSpec())){
-				progressBar.removeStyleName("shy");
-				progressBar.setPercent(progress);
-				pStatusInfo.setText(progress + "% ");
-				pStatus.setText(pStatus.getText() + ": ");
-			}
-		}
-		iconCourseURL = mkurl(ICON_COURSE_URL, "iconInProgress.png");
-		
-	}
+    private void onEnrolledOrNot() {
+        String thumbURL = courseClassTO.getCourseClass().getThumbUrl();
+        thumbURL = thumbURL != null ? thumbURL : courseClassTO.getCourseVersionTO().getCourseVersion().getThumbUrl();
+        thumbURL = thumbURL != null ? thumbURL
+                : courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getThumbUrl();
+        thumbURL = thumbURL != null ? thumbURL : mkurl(ICON_COURSE_URL, "thumb.png");
+        imgThumb.setUrl(thumbURL);
+        imgIconCourse.setUrl(iconCourseURL);
 
-	private void onCourseNotStarted() {
-		if(courseClassTO.getEnrollment() != null &&
-				EnrollmentState.requested.equals(courseClassTO.getEnrollment().getState())){
-			pStatus.setText(constants.pendingEnrollmentApproval());
-			iconCourseURL = mkurl(ICON_COURSE_URL, "iconWaiting.png");
-		} else {
-			pStatus.setText(constants.toStart());
-			iconCourseURL = mkurl(ICON_COURSE_URL, "iconNotStarted.png");
-		}
-	}
+        sinkEvents(Event.ONCLICK);
+        addHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if (courseClassTO.getEnrollment() == null
+                        && courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically()) {
+                    requestEnrollment();
+                    return;
+                } else if (courseClassTO.getEnrollment() != null) {
+                    session.setCurrentCourseClass(courseClassTO);
+                    placeCtrl.goTo(new ClassroomPlace(courseClassTO.getEnrollment().getUUID()));
+                }
+            }
+        }, ClickEvent.getType());
 
-	private void onCourseCompleted(Date certifiedAt) {
-		String statusText = EnumTranslator.translateEnum(EnrollmentProgressDescription.completed);
-		if(certifiedAt != null) {
-			statusText += " " + constants.completedOnToken() + ": ";
-			pStatusInfo.setText(DateTimeFormat.getFormat("yyyy-MM-dd").format(certifiedAt));
-		}
-		if(courseClassTO.getCourseClass().getRequiredScore() != null && 
-				courseClassTO.getCourseClass().getRequiredScore().intValue() != 0 &&
-				courseClassTO.getEnrollment().getAssessmentScore() != null){
-			pStatus2.setText(" - " + constants.completedCourseGradeLabel() + ":");
-			pStatusInfo2.setText(""+courseClassTO.getEnrollment().getAssessmentScore().intValue());
-		}
-		pStatus.setText(statusText);
-		iconCourseURL = mkurl(ICON_COURSE_URL, "iconFinished.png");
-	}
+    }
 
-	private void requestEnrollment() {
-		EntityFactory entityFactory = GWT.create(EntityFactory.class);
-		Enrollment enrollment = entityFactory.enrollment().as();
-		enrollment.setCourseClassUUID(courseClassTO.getCourseClass()
-				.getUUID());
-		enrollment.setPersonUUID(session.getCurrentUser().getPerson().getUUID());
-		enrollment.setState(courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically() ? EnrollmentState.enrolled : EnrollmentState.requested);
-		enrollment.setEnrollmentSource(EnrollmentSource.WEBSITE);
-		session.enrollments().createEnrollment(enrollment,
-				new Callback<Enrollment>() {
-					@Override
-					public void ok(Enrollment enrollment) {
-						updateEnrollmentOnCourseClassTO(enrollment);
-						placeCtrl.goTo(new ClassroomPlace(enrollment.getUUID()));
-					}
-				});
-	}
+    private void onNotEnrolled() {
+        Button requestEnrollmentBtn = new Button(courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically()
+                ? constants.startCourseLabel() : constants.requestEnrollmentLabel());
+        requestEnrollmentBtn.addStyleName("right btnAction");
+        pnlCourseSummaryBar.add(requestEnrollmentBtn);
 
-	private void updateEnrollmentOnCourseClassTO(Enrollment enrollment) {
-		TOFactory toFactory = GWT.create(TOFactory.class);
-		EnrollmentTO enrollmentTO = toFactory.newEnrollmentTO().as();
-		enrollmentTO.setEnrollment(enrollment);
-		enrollmentTO.setPersonUUID(session.getCurrentUser().getPerson().getUUID());
-		enrollmentTO.setFullName(session.getCurrentUser().getPerson().getFullName());
-		enrollmentTO.setUsername(session.getCurrentUser().getUsername());
-		courseClassTO.setEnrollment(enrollment);
-		session.setCurrentCourseClass(courseClassTO);
-	}
+        pStatus.setText(constants.availableClassLabel());
+        iconCourseURL = mkurl(ICON_COURSE_URL, "iconAcquire.png");
+    }
+
+    private void onEnrolled(Student student) {
+        EnrollmentProgress progress = student.getEnrollmentProgress();
+        switch (progress.getDescription()) {
+        case notStarted:
+            onCourseNotStarted();
+            break;
+        case completed:
+            onCourseCompleted(progress.getCertifiedAt());
+            break;
+        case inProgress:
+            onCourseInProgress(progress.getProgress());
+            break;
+        }
+    }
+
+    private void onCourseInProgress(Integer progress) {
+        if (progress >= 100) {
+            pStatus.setText(constants.pendingGradeLabel());
+        } else {
+            pStatus.setText(EnumTranslator.translateEnum(EnrollmentProgressDescription.inProgress));
+            if (ContentSpec.KNL.equals(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getContentSpec())) {
+                progressBar.removeStyleName("shy");
+                progressBar.setPercent(progress);
+                pStatusInfo.setText(progress + "% ");
+                pStatus.setText(pStatus.getText() + ": ");
+            }
+        }
+        iconCourseURL = mkurl(ICON_COURSE_URL, "iconInProgress.png");
+
+    }
+
+    private void onCourseNotStarted() {
+        if (courseClassTO.getEnrollment() != null
+                && EnrollmentState.requested.equals(courseClassTO.getEnrollment().getState())) {
+            pStatus.setText(constants.pendingEnrollmentApproval());
+            iconCourseURL = mkurl(ICON_COURSE_URL, "iconWaiting.png");
+        } else {
+            pStatus.setText(constants.toStart());
+            iconCourseURL = mkurl(ICON_COURSE_URL, "iconNotStarted.png");
+        }
+    }
+
+    private void onCourseCompleted(Date certifiedAt) {
+        String statusText = EnumTranslator.translateEnum(EnrollmentProgressDescription.completed);
+        if (certifiedAt != null) {
+            statusText += " " + constants.completedOnToken() + ": ";
+            pStatusInfo.setText(DateTimeFormat.getFormat("yyyy-MM-dd").format(certifiedAt));
+        }
+        if (courseClassTO.getCourseClass().getRequiredScore() != null
+                && courseClassTO.getCourseClass().getRequiredScore().intValue() != 0
+                && courseClassTO.getEnrollment().getAssessmentScore() != null) {
+            pStatus2.setText(" - " + constants.completedCourseGradeLabel() + ":");
+            pStatusInfo2.setText("" + courseClassTO.getEnrollment().getAssessmentScore().intValue());
+        }
+        pStatus.setText(statusText);
+        iconCourseURL = mkurl(ICON_COURSE_URL, "iconFinished.png");
+    }
+
+    private void requestEnrollment() {
+        EntityFactory entityFactory = GWT.create(EntityFactory.class);
+        Enrollment enrollment = entityFactory.enrollment().as();
+        enrollment.setCourseClassUUID(courseClassTO.getCourseClass().getUUID());
+        enrollment.setPersonUUID(session.getCurrentUser().getPerson().getUUID());
+        enrollment.setState(courseClassTO.getCourseClass().isApproveEnrollmentsAutomatically()
+                ? EnrollmentState.enrolled : EnrollmentState.requested);
+        enrollment.setEnrollmentSource(EnrollmentSource.WEBSITE);
+        session.enrollments().createEnrollment(enrollment, new Callback<Enrollment>() {
+            @Override
+            public void ok(Enrollment enrollment) {
+                updateEnrollmentOnCourseClassTO(enrollment);
+                placeCtrl.goTo(new ClassroomPlace(enrollment.getUUID()));
+            }
+        });
+    }
+
+    private void updateEnrollmentOnCourseClassTO(Enrollment enrollment) {
+        TOFactory toFactory = GWT.create(TOFactory.class);
+        EnrollmentTO enrollmentTO = toFactory.newEnrollmentTO().as();
+        enrollmentTO.setEnrollment(enrollment);
+        enrollmentTO.setPersonUUID(session.getCurrentUser().getPerson().getUUID());
+        enrollmentTO.setFullName(session.getCurrentUser().getPerson().getFullName());
+        enrollmentTO.setUsername(session.getCurrentUser().getUsername());
+        courseClassTO.setEnrollment(enrollment);
+        session.setCurrentCourseClass(courseClassTO);
+    }
 }

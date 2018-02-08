@@ -4,32 +4,37 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.IsWidget;
 
-public interface PaginationPresenter<E> extends IsWidget{
-	
-	String getPageSize();
-	void setPageSize(String pageSize);
-	
-	String getPageNumber();
-	void setPageNumber(String pageNumber);
-	
-	String getSearchTerm();
-	void setSearchTerm(String searchTerm);
-	
-	String getOrderBy();
-	void setOrderBy(String dataStoreName);
-	
-	String getAsc();
-	void setAsc(String ascending);
+public interface PaginationPresenter<E> extends IsWidget {
 
-	void initializeProperties(String defaultOrderBy);
+    String getPageSize();
 
-	void updateProperties();
-	
-	String getClientPropertyName(String string);
-	
-	int getTotalRowCount();
-	
-	List<E> getRowData();
+    void setPageSize(String pageSize);
 
-	void updateData();
+    String getPageNumber();
+
+    void setPageNumber(String pageNumber);
+
+    String getSearchTerm();
+
+    void setSearchTerm(String searchTerm);
+
+    String getOrderBy();
+
+    void setOrderBy(String dataStoreName);
+
+    String getAsc();
+
+    void setAsc(String ascending);
+
+    void initializeProperties(String defaultOrderBy);
+
+    void updateProperties();
+
+    String getClientPropertyName(String string);
+
+    int getTotalRowCount();
+
+    List<E> getRowData();
+
+    void updateData();
 }

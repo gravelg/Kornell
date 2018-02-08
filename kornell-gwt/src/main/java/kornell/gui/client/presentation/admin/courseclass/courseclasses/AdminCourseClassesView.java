@@ -8,11 +8,15 @@ import kornell.core.to.CourseClassTO;
 import kornell.gui.client.util.view.table.PaginationPresenter;
 
 public interface AdminCourseClassesView extends IsWidget {
-	public interface Presenter extends PaginationPresenter<CourseClassTO> {
-		void updateCourseClass(String courseClassUUID);
-		void deleteCourseClass(CourseClassTO courseClassTO);
-		void duplicateCourseClass(CourseClassTO courseClassTO);
-	}
-	void setPresenter(AdminCourseClassesView.Presenter presenter);
-	void setCourseClasses(List<CourseClassTO> courseClasses);
+    public interface Presenter extends PaginationPresenter<CourseClassTO> {
+        void updateCourseClass(String courseClassUUID);
+
+        void deleteCourseClass(CourseClassTO courseClassTO);
+
+        void duplicateCourseClass(CourseClassTO courseClassTO);
+    }
+
+    void setPresenter(AdminCourseClassesView.Presenter presenter);
+
+    void setCourseClasses(List<CourseClassTO> courseClasses);
 }
