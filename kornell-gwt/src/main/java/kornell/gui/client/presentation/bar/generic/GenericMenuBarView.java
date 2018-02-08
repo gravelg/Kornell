@@ -58,374 +58,356 @@ import kornell.gui.client.util.easing.Transitions;
 import kornell.gui.client.util.easing.Updater;
 import kornell.gui.client.util.view.Positioning;
 
-public class GenericMenuBarView extends Composite implements MenuBarView,
-		UnreadMessagesPerThreadFetchedEventHandler,
-		UnreadMessagesCountChangedEventHandler,
-		CourseClassesFetchedEventHandler,
-		ShowPacifierEventHandler {
+public class GenericMenuBarView extends Composite implements MenuBarView, UnreadMessagesPerThreadFetchedEventHandler,
+        UnreadMessagesCountChangedEventHandler, CourseClassesFetchedEventHandler, ShowPacifierEventHandler {
 
-	Logger logger = Logger.getLogger(GenericMenuBarView.class.getName());
+    Logger logger = Logger.getLogger(GenericMenuBarView.class.getName());
 
-	interface MyUiBinder extends UiBinder<Widget, GenericMenuBarView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericMenuBarView> {
+    }
 
-	// TODO: Dependency Injection
-	ClientFactory clientFactory;
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    // TODO: Dependency Injection
+    ClientFactory clientFactory;
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	private boolean visible = false;
+    private boolean visible = false;
 
-	@UiField
-	Label testEnvWarning;
-	@UiField
-	HTMLPanel knlPacifier;
-	@UiField
-	FlowPanel menuBar;
-	@UiField
-	Button btnFullScreen;
-	@UiField
-	Button btnProfile;
-	@UiField
-	Button btnHome;
-	@UiField
-	Button btnAdmin;
-	@UiField
-	Button btnNotifications;
-	@UiField
-	Button btnMessages;
-	@UiField
-	Button btnHelp;
-	@UiField
-	Button btnMenu;
-	@UiField
-	Button btnExit;
-	@UiField
-	Image imgMenuBar;
-	@UiField
-	GenericPlaceBarView placeBar;
+    @UiField
+    Label testEnvWarning;
+    @UiField
+    HTMLPanel knlPacifier;
+    @UiField
+    FlowPanel menuBar;
+    @UiField
+    Button btnFullScreen;
+    @UiField
+    Button btnProfile;
+    @UiField
+    Button btnHome;
+    @UiField
+    Button btnAdmin;
+    @UiField
+    Button btnNotifications;
+    @UiField
+    Button btnMessages;
+    @UiField
+    Button btnHelp;
+    @UiField
+    Button btnMenu;
+    @UiField
+    Button btnExit;
+    @UiField
+    Image imgMenuBar;
+    @UiField
+    GenericPlaceBarView placeBar;
 
-	private KornellSession session;
-	private EventBus bus;
-	private boolean hasEmail;
-	private Label messagesCount;
-	private int totalCount;
-	private String imgMenuBarUrl;
-	private boolean isLoaded;
-	private boolean showingPlacePanel;
-	private CourseClassesTO courseClassesTO;
+    private KornellSession session;
+    private EventBus bus;
+    private boolean hasEmail;
+    private Label messagesCount;
+    private int totalCount;
+    private String imgMenuBarUrl;
+    private boolean isLoaded;
+    private boolean showingPlacePanel;
+    private CourseClassesTO courseClassesTO;
 
-	public GenericMenuBarView(final ClientFactory clientFactory,
-			final ScrollPanel scrollPanel, CourseClassesTO courseClassesTO) {
-		this.clientFactory = clientFactory;
-		this.session = clientFactory.getKornellSession();
-		this.bus = clientFactory.getEventBus();
-		this.courseClassesTO = courseClassesTO;
-		bus.addHandler(UnreadMessagesPerThreadFetchedEvent.TYPE, this);
-		bus.addHandler(UnreadMessagesCountChangedEvent.TYPE, this);
-		bus.addHandler(CourseClassesFetchedEvent.TYPE, this);
-		bus.addHandler(ShowPacifierEvent.TYPE, this);
-		
-		initWidget(uiBinder.createAndBindUi(this));
-		display();
-		// TODO: Consider anonynous
-		if (session != null) {
-			String assetsURL = session.getInstitutionAssetsURL();
-			String skin = session.getInstitution().getSkin();
-			boolean isLightSkin = skin == null || !skin.contains("_light");
-			String barLogoFileName = "logo250x45"
-					+ (isLightSkin ? "_light" : "") + ".png";
-			imgMenuBarUrl = StringUtils.mkurl(assetsURL, barLogoFileName);
-		}
-		addOffsets(scrollPanel, clientFactory.getPlaceController().getWhere());
-		clientFactory.getEventBus().addHandler(PlaceChangeEvent.TYPE,
-				new PlaceChangeEvent.Handler() {
-					@Override
-					public void onPlaceChange(PlaceChangeEvent event) {
-						Place newPlace = event.getNewPlace();
-						addOffsets(scrollPanel, newPlace);
-					}
-				});
-	}
+    public GenericMenuBarView(final ClientFactory clientFactory, final ScrollPanel scrollPanel,
+            CourseClassesTO courseClassesTO) {
+        this.clientFactory = clientFactory;
+        this.session = clientFactory.getKornellSession();
+        this.bus = clientFactory.getEventBus();
+        this.courseClassesTO = courseClassesTO;
+        bus.addHandler(UnreadMessagesPerThreadFetchedEvent.TYPE, this);
+        bus.addHandler(UnreadMessagesCountChangedEvent.TYPE, this);
+        bus.addHandler(CourseClassesFetchedEvent.TYPE, this);
+        bus.addHandler(ShowPacifierEvent.TYPE, this);
 
-	private void addOffsets(final ScrollPanel scrollPanel, Place place) {
-		showingPlacePanel = !(place instanceof VitrinePlace || place instanceof ClassroomPlace || place instanceof AdminPlace);
-		if (place instanceof VitrinePlace) {
-			setVisible(false);
-			addStyleName("shy");
-			scrollPanel.removeStyleName("offsetNorthBar");
-			scrollPanel.removeStyleName("offsetNorthBarPlus");
-			placeBar.setVisible(false);
-			placeBar.clear();
-		} else {
-			loadAssets();
-			if (showingPlacePanel) {
-				scrollPanel.addStyleName("offsetNorthBarPlus");
-				scrollPanel.removeStyleName("offsetNorthBar");
-				placeBar.setVisible(true);
-			} else {
-				scrollPanel.addStyleName("offsetNorthBar");
-				scrollPanel.removeStyleName("offsetNorthBarPlus");
-				placeBar.setVisible(false);
-				placeBar.clear();
-			}
-			showButtons(place);
-            if(isVisible())
+        initWidget(uiBinder.createAndBindUi(this));
+        display();
+        // TODO: Consider anonynous
+        if (session != null) {
+            String assetsURL = session.getInstitutionAssetsURL();
+            String skin = session.getInstitution().getSkin();
+            boolean isLightSkin = skin == null || !skin.contains("_light");
+            String barLogoFileName = "logo250x45" + (isLightSkin ? "_light" : "") + ".png";
+            imgMenuBarUrl = StringUtils.mkurl(assetsURL, barLogoFileName);
+        }
+        addOffsets(scrollPanel, clientFactory.getPlaceController().getWhere());
+        clientFactory.getEventBus().addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
+            @Override
+            public void onPlaceChange(PlaceChangeEvent event) {
+                Place newPlace = event.getNewPlace();
+                addOffsets(scrollPanel, newPlace);
+            }
+        });
+    }
+
+    private void addOffsets(final ScrollPanel scrollPanel, Place place) {
+        showingPlacePanel = !(place instanceof VitrinePlace || place instanceof ClassroomPlace
+                || place instanceof AdminPlace);
+        if (place instanceof VitrinePlace) {
+            setVisible(false);
+            addStyleName("shy");
+            scrollPanel.removeStyleName("offsetNorthBar");
+            scrollPanel.removeStyleName("offsetNorthBarPlus");
+            placeBar.setVisible(false);
+            placeBar.clear();
+        } else {
+            loadAssets();
+            if (showingPlacePanel) {
+                scrollPanel.addStyleName("offsetNorthBarPlus");
+                scrollPanel.removeStyleName("offsetNorthBar");
+                placeBar.setVisible(true);
+            } else {
+                scrollPanel.addStyleName("offsetNorthBar");
+                scrollPanel.removeStyleName("offsetNorthBarPlus");
+                placeBar.setVisible(false);
+                placeBar.clear();
+            }
+            showButtons(place);
+            if (isVisible())
                 return;
-			final Widget widget = this.asWidget();
-			final int point = (showingPlacePanel ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR);
-			widget.getElement().getStyle().setProperty("top", (point * -1) + "px");
-			setVisible(true);
-			removeStyleName("shy");
-		
-			Ease.out(Transitions.QUAD, new Updater() {
-				@Override
-				public void update(double progress) {
-					int position = ((int) (point * progress)) - point;
-					widget.getElement().getStyle().setProperty("top", position + "px");
-				}
-			}).run(Positioning.BAR_ANIMATION_LENGTH);
-			
-		}
-	}
+            final Widget widget = this.asWidget();
+            final int point = (showingPlacePanel ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR);
+            widget.getElement().getStyle().setProperty("top", (point * -1) + "px");
+            setVisible(true);
+            removeStyleName("shy");
 
-	private void loadAssets() {
-		if (isLoaded)
-			return;
+            Ease.out(Transitions.QUAD, new Updater() {
+                @Override
+                public void update(double progress) {
+                    int position = ((int) (point * progress)) - point;
+                    widget.getElement().getStyle().setProperty("top", position + "px");
+                }
+            }).run(Positioning.BAR_ANIMATION_LENGTH);
 
-		if (StringUtils.isNone(imgMenuBar.getUrl())) {
-			imgMenuBar.setUrl(imgMenuBarUrl);
-		}
+        }
+    }
 
-		Timer screenfulJsTimer = new Timer() {
-			public void run() {
-				ScriptInjector
-						.fromUrl(mkurl(ClientConstants.JS_PATH, "screenfull.min.js"))
-						.setCallback(
-								new com.google.gwt.core.client.Callback<Void, Exception>() {
-									public void onFailure(Exception reason) {
-										logger.severe("Screeenful script load failed.");
-									}
+    private void loadAssets() {
+        if (isLoaded)
+            return;
 
-									public void onSuccess(Void result) {
-										isLoaded = true;
-									}
-								}).setWindow(ScriptInjector.TOP_WINDOW)
-						.inject();
-			}
-		};
+        if (StringUtils.isNone(imgMenuBar.getUrl())) {
+            imgMenuBar.setUrl(imgMenuBarUrl);
+        }
 
-		// wait 2 secs before loading the javascript file
-		screenfulJsTimer.schedule((int) (2 * 1000));
-	}
+        Timer screenfulJsTimer = new Timer() {
+            public void run() {
+                ScriptInjector.fromUrl(mkurl(ClientConstants.JS_PATH, "screenfull.min.js"))
+                        .setCallback(new com.google.gwt.core.client.Callback<Void, Exception>() {
+                            public void onFailure(Exception reason) {
+                                logger.severe("Screeenful script load failed.");
+                            }
 
-	private void showButtons(Place newPlace) {
-		boolean isRegistrationCompleted = !(newPlace instanceof TermsPlace || ((newPlace instanceof ProfilePlace || newPlace instanceof MessagePlace) && isProfileIncomplete()));
+                            public void onSuccess(Void result) {
+                                isLoaded = true;
+                            }
+                        }).setWindow(ScriptInjector.TOP_WINDOW).inject();
+            }
+        };
 
-		boolean showHelp = hasHelpCourseClasses() && !(newPlace instanceof TermsPlace);
+        // wait 2 secs before loading the javascript file
+        screenfulJsTimer.schedule((int) (2 * 1000));
+    }
 
-		showButton(btnHelp, showHelp);
-		showButton(btnMessages, showHelp);
-		showButton(btnProfile, !(newPlace instanceof TermsPlace));
+    private void showButtons(Place newPlace) {
+        boolean isRegistrationCompleted = !(newPlace instanceof TermsPlace
+                || ((newPlace instanceof ProfilePlace || newPlace instanceof MessagePlace) && isProfileIncomplete()));
 
-		showButton(btnHome, isRegistrationCompleted);
-		showButton(btnFullScreen, isRegistrationCompleted);
-		showButton(btnAdmin, isRegistrationCompleted && clientFactory.getKornellSession().hasAnyAdminRole());
-		showButton(btnNotifications, false);
-		showButton(btnMenu, false);
-		showButton(btnExit, true);
+        boolean showHelp = hasHelpCourseClasses() && !(newPlace instanceof TermsPlace);
 
-		if (showingPlacePanel) {
-			menuBar.addStyleName("menuBarPlus");
-		} else {
-			menuBar.removeStyleName("menuBarPlus");
-		}
-	}
+        showButton(btnHelp, showHelp);
+        showButton(btnMessages, showHelp);
+        showButton(btnProfile, !(newPlace instanceof TermsPlace));
 
-	private boolean hasHelpCourseClasses() {
-		if(courseClassesTO != null){
-			for (CourseClassTO courseClassTO : courseClassesTO.getCourseClasses()) {
-				if ((courseClassTO.getEnrollment() != null || courseClassTO.getCourseClass().isPublicClass()) 
-						&& !courseClassTO.getCourseClass().isInvisible()) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+        showButton(btnHome, isRegistrationCompleted);
+        showButton(btnFullScreen, isRegistrationCompleted);
+        showButton(btnAdmin, isRegistrationCompleted && clientFactory.getKornellSession().hasAnyAdminRole());
+        showButton(btnNotifications, false);
+        showButton(btnMenu, false);
+        showButton(btnExit, true);
 
-	private void showButton(Button btn, boolean show) {
-		if (show) {
-			btn.removeStyleName("shy");
-		} else {
-			btn.addStyleName("shy");
-		}
-	}
+        if (showingPlacePanel) {
+            menuBar.addStyleName("menuBarPlus");
+        } else {
+            menuBar.removeStyleName("menuBarPlus");
+        }
+    }
 
-	public void display() {
-		if (Window.Location.getHostName().indexOf("-test.ed") >= 0
-				|| Window.Location.getHostName().indexOf("-homolog.ed") >= 0) {
-			testEnvWarning.removeStyleName("shy");
-			testEnvWarning.setText("HOMOLOG");
-		} else if (Window.Location.getHostName().indexOf("-develop.ed") >= 0) {
-			testEnvWarning.removeStyleName("shy");
-			testEnvWarning.setText("DEVELOP");
-		}
-		btnFullScreen.removeStyleName("btn");
-		btnProfile.removeStyleName("btn");
-		btnHome.removeStyleName("btn");
-		btnAdmin.removeStyleName("btn");
-		btnHelp.removeStyleName("btn");
-		btnExit.removeStyleName("btn");
+    private boolean hasHelpCourseClasses() {
+        if (courseClassesTO != null) {
+            for (CourseClassTO courseClassTO : courseClassesTO.getCourseClasses()) {
+                if ((courseClassTO.getEnrollment() != null || courseClassTO.getCourseClass().isPublicClass())
+                        && !courseClassTO.getCourseClass().isInvisible()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-		btnNotifications.removeStyleName("btn");
-		btnMessages.removeStyleName("btn");
-		btnMenu.removeStyleName("btn");
-	}
+    private void showButton(Button btn, boolean show) {
+        if (show) {
+            btn.removeStyleName("shy");
+        } else {
+            btn.addStyleName("shy");
+        }
+    }
 
-	private boolean isProfileIncomplete() {
-		return (session.getCurrentUser().getInstitutionRegistrationPrefix() == null || session
-				.getCurrentUser().getInstitutionRegistrationPrefix()
-				.isShowContactInformationOnProfile())
-				&& session.getInstitution()
-						.isDemandsPersonContactDetails()
-				&& session.getInstitution()
-						.isValidatePersonContactDetails()
-				&& StringUtils.isNone(clientFactory.getKornellSession()
-						.getCurrentUser().getPerson().getCity());
-	}
+    public void display() {
+        if (Window.Location.getHostName().indexOf("-test.ed") >= 0
+                || Window.Location.getHostName().indexOf("-homolog.ed") >= 0) {
+            testEnvWarning.removeStyleName("shy");
+            testEnvWarning.setText("HOMOLOG");
+        } else if (Window.Location.getHostName().indexOf("-develop.ed") >= 0) {
+            testEnvWarning.removeStyleName("shy");
+            testEnvWarning.setText("DEVELOP");
+        }
+        btnFullScreen.removeStyleName("btn");
+        btnProfile.removeStyleName("btn");
+        btnHome.removeStyleName("btn");
+        btnAdmin.removeStyleName("btn");
+        btnHelp.removeStyleName("btn");
+        btnExit.removeStyleName("btn");
 
-	static native void requestFullscreen() /*-{
-		if ($wnd.screenfull.enabled)
-			if (!$wnd.screenfull.isFullscreen)
-				$wnd.screenfull.request();
-			else
-				$wnd.screenfull.exit();
-	}-*/;
+        btnNotifications.removeStyleName("btn");
+        btnMessages.removeStyleName("btn");
+        btnMenu.removeStyleName("btn");
+    }
 
-	@UiHandler("btnFullScreen")
-	void handleFullScreen(ClickEvent e) {
-		requestFullscreen();
-	}
+    private boolean isProfileIncomplete() {
+        return (session.getCurrentUser().getInstitutionRegistrationPrefix() == null
+                || session.getCurrentUser().getInstitutionRegistrationPrefix().isShowContactInformationOnProfile())
+                && session.getInstitution().isDemandsPersonContactDetails()
+                && session.getInstitution().isValidatePersonContactDetails()
+                && StringUtils.isNone(clientFactory.getKornellSession().getCurrentUser().getPerson().getCity());
+    }
 
-	@UiHandler("btnProfile")
-	void handleProfile(ClickEvent e) {
-		clientFactory.getPlaceController().goTo(
-				new ProfilePlace(clientFactory.getKornellSession()
-						.getCurrentUser().getPerson().getUUID(),
-						isProfileIncomplete()));
-	}
+    static native void requestFullscreen() /*-{
+        if ($wnd.screenfull.enabled)
+            if (!$wnd.screenfull.isFullscreen)
+                $wnd.screenfull.request();
+            else
+                $wnd.screenfull.exit();
+    }-*/;
 
-	@UiHandler("btnHome")
-	void handleHome(ClickEvent e) {
-		if(clientFactory.getPlaceController().getWhere().toString().equals(clientFactory.getHomePlace().toString())){
-			PlaceUtils.reloadCurrentPlace(clientFactory.getEventBus(), clientFactory.getPlaceController());	
-		} else {
-			clientFactory.getPlaceController().goTo(clientFactory.getHomePlace());
-		}
-	}
+    @UiHandler("btnFullScreen")
+    void handleFullScreen(ClickEvent e) {
+        requestFullscreen();
+    }
 
-	@UiHandler("btnAdmin")
-	void handleAdmin(ClickEvent e) {
-		clientFactory.getPlaceController().goTo(new AdminCourseClassesPlace());
-	}
+    @UiHandler("btnProfile")
+    void handleProfile(ClickEvent e) {
+        clientFactory.getPlaceController().goTo(new ProfilePlace(
+                clientFactory.getKornellSession().getCurrentUser().getPerson().getUUID(), isProfileIncomplete()));
+    }
 
-	@UiHandler("btnExit")
-	void handleExit(ClickEvent e) {
-		clientFactory.getEventBus().fireEvent(new LogoutEvent());
-	}
+    @UiHandler("btnHome")
+    void handleHome(ClickEvent e) {
+        if (clientFactory.getPlaceController().getWhere().toString().equals(clientFactory.getHomePlace().toString())) {
+            PlaceUtils.reloadCurrentPlace(clientFactory.getEventBus(), clientFactory.getPlaceController());
+        } else {
+            clientFactory.getPlaceController().goTo(clientFactory.getHomePlace());
+        }
+    }
 
-	@UiHandler("btnHelp")
-	void handleHelp(ClickEvent e) {
-		bus.fireEvent(new ComposeMessageEvent(showingPlacePanel));
-	}
+    @UiHandler("btnAdmin")
+    void handleAdmin(ClickEvent e) {
+        clientFactory.getPlaceController().goTo(new AdminCourseClassesPlace());
+    }
 
-	@UiHandler("btnMessages")
-	void handleMessages(ClickEvent e) {
-		clientFactory.getPlaceController().goTo(new MessagePlace());
-	}
+    @UiHandler("btnExit")
+    void handleExit(ClickEvent e) {
+        clientFactory.getEventBus().fireEvent(new LogoutEvent());
+    }
 
-	@Override
-	public void setPresenter(Presenter presenter) {
-	}
+    @UiHandler("btnHelp")
+    void handleHelp(ClickEvent e) {
+        bus.fireEvent(new ComposeMessageEvent(showingPlacePanel));
+    }
 
-	@Override
-	public boolean isVisible() {
-		return visible;
-	}
+    @UiHandler("btnMessages")
+    void handleMessages(ClickEvent e) {
+        clientFactory.getPlaceController().goTo(new MessagePlace());
+    }
 
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
+    @Override
+    public void setPresenter(Presenter presenter) {
+    }
 
-	private void updateUnreadCount() {
-		String labelText = totalCount > 0 ? "" + totalCount : "";
-		if (btnMessages.getWidgetCount() == 3) {
-			btnMessages.remove(2);
-		}
-		this.messagesCount = new Label(labelText);
-		messagesCount.addStyleName("count");
-		messagesCount.addStyleName("countMessages");
-		btnMessages.add(messagesCount);
-		showButtons(clientFactory.getPlaceController().getWhere());
-	}
+    @Override
+    public boolean isVisible() {
+        return visible;
+    }
 
-	@Override
-	public void onUnreadMessagesPerThreadFetched(
-			UnreadMessagesPerThreadFetchedEvent event) {
-		if (event.getUnreadChatThreadTOs().size() > 0
-				&& !btnMessages.isVisible())
-			btnMessages.setVisible(true);
-		int count = 0;
-		for (UnreadChatThreadTO unreadChatThreadTO : event
-				.getUnreadChatThreadTOs()) {
-			count = count
-					+ Integer.parseInt(unreadChatThreadTO.getUnreadMessages());
-		}
-		totalCount = count;
-		updateUnreadCount();
-	}
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
-	@Override
-	public void onUnreadMessagesCountChanged(
-			UnreadMessagesCountChangedEvent event) {
-		totalCount = event.isIncrement() ? totalCount + event.getCountChange()
-				: totalCount - event.getCountChange();
-		updateUnreadCount();
-	}
+    private void updateUnreadCount() {
+        String labelText = totalCount > 0 ? "" + totalCount : "";
+        if (btnMessages.getWidgetCount() == 3) {
+            btnMessages.remove(2);
+        }
+        this.messagesCount = new Label(labelText);
+        messagesCount.addStyleName("count");
+        messagesCount.addStyleName("countMessages");
+        btnMessages.add(messagesCount);
+        showButtons(clientFactory.getPlaceController().getWhere());
+    }
 
-	@Override
-	public void onCourseClassesFetched(CourseClassesFetchedEvent event) {
-		this.courseClassesTO = event.getCourseClassesTO();		
-		showButtons(clientFactory.getPlaceController().getWhere());
-	}
-	
-	@Override
-	public void clearPlaceBar() {
-		placeBar.clear();
-	}
+    @Override
+    public void onUnreadMessagesPerThreadFetched(UnreadMessagesPerThreadFetchedEvent event) {
+        if (event.getUnreadChatThreadTOs().size() > 0 && !btnMessages.isVisible())
+            btnMessages.setVisible(true);
+        int count = 0;
+        for (UnreadChatThreadTO unreadChatThreadTO : event.getUnreadChatThreadTOs()) {
+            count = count + Integer.parseInt(unreadChatThreadTO.getUnreadMessages());
+        }
+        totalCount = count;
+        updateUnreadCount();
+    }
 
-	@Override
-	public void initPlaceBar(IconType iconType, String titleStr, String subtitleStr) {
-		placeBar.init(iconType, titleStr, subtitleStr);
-	}
+    @Override
+    public void onUnreadMessagesCountChanged(UnreadMessagesCountChangedEvent event) {
+        totalCount = event.isIncrement() ? totalCount + event.getCountChange() : totalCount - event.getCountChange();
+        updateUnreadCount();
+    }
 
-	@Override
-	public void setPlaceBarWidgets(List<IsWidget> widgets) {
-		placeBar.setWidgets(widgets, false);
-	}
+    @Override
+    public void onCourseClassesFetched(CourseClassesFetchedEvent event) {
+        this.courseClassesTO = event.getCourseClassesTO();
+        showButtons(clientFactory.getPlaceController().getWhere());
+    }
 
-	@Override
-	public void setPlaceBarWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets) {
-		placeBar.setWidgets(widgets, alwaysShowWidgets);
-	}
+    @Override
+    public void clearPlaceBar() {
+        placeBar.clear();
+    }
 
-	@Override
-	public void onShowPacifier(ShowPacifierEvent event) {
-		if(event.isShowPacifier()){
-			knlPacifier.removeStyleName("shy");
-		} else {
-			knlPacifier.addStyleName("shy");
-		}
-	}
+    @Override
+    public void initPlaceBar(IconType iconType, String titleStr, String subtitleStr) {
+        placeBar.init(iconType, titleStr, subtitleStr);
+    }
+
+    @Override
+    public void setPlaceBarWidgets(List<IsWidget> widgets) {
+        placeBar.setWidgets(widgets, false);
+    }
+
+    @Override
+    public void setPlaceBarWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets) {
+        placeBar.setWidgets(widgets, alwaysShowWidgets);
+    }
+
+    @Override
+    public void onShowPacifier(ShowPacifierEvent event) {
+        if (event.isShowPacifier()) {
+            knlPacifier.removeStyleName("shy");
+        } else {
+            knlPacifier.addStyleName("shy");
+        }
+    }
 
 }

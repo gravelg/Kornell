@@ -27,163 +27,158 @@ import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.table.PaginationPresenterImpl;
 
 public class AdminCoursesPresenter extends PaginationPresenterImpl<CourseTO> implements AdminCoursesView.Presenter {
-	Logger logger = Logger.getLogger(AdminCoursesPresenter.class.getName());
-	private AdminCoursesView view;
-	FormHelper formHelper;
-	private KornellSession session;
-	private PlaceController placeController;
-	private Place defaultPlace;
-	TOFactory toFactory;
-	private ViewFactory viewFactory;
-	private CoursesTO coursesTO;
-	private EventBus bus;
-	private boolean blockActions;
-	private ConfirmModalView confirmModal;
+    Logger logger = Logger.getLogger(AdminCoursesPresenter.class.getName());
+    private AdminCoursesView view;
+    FormHelper formHelper;
+    private KornellSession session;
+    private PlaceController placeController;
+    private Place defaultPlace;
+    TOFactory toFactory;
+    private ViewFactory viewFactory;
+    private CoursesTO coursesTO;
+    private EventBus bus;
+    private boolean blockActions;
+    private ConfirmModalView confirmModal;
 
+    public AdminCoursesPresenter(KornellSession session, EventBus bus, PlaceController placeController,
+            TOFactory toFactory, ViewFactory viewFactory) {
+        this.session = session;
+        this.bus = bus;
+        this.placeController = placeController;
+        this.toFactory = toFactory;
+        this.viewFactory = viewFactory;
+        this.confirmModal = viewFactory.getConfirmModalView();
+        formHelper = new FormHelper();
+        init();
+    }
 
-	public AdminCoursesPresenter(KornellSession session, EventBus bus,
-			PlaceController placeController,
-			TOFactory toFactory, ViewFactory viewFactory) {
-		this.session = session;
-		this.bus = bus;
-		this.placeController = placeController;
-		this.toFactory = toFactory;
-		this.viewFactory = viewFactory;
-		this.confirmModal = viewFactory.getConfirmModalView();
-		formHelper = new FormHelper();
-		init();
-	}
+    private void init() {
+        if (session.isInstitutionAdmin()) {
+            initializeProperties("c.name");
+            view = getView();
+            view.setPresenter(this);
+            bus.fireEvent(new ShowPacifierEvent(true));
+            getCourses();
+        } else {
+            logger.warning("Hey, only admins are allowed to see this! " + this.getClass().getName());
+            placeController.goTo(defaultPlace);
+        }
+    }
 
-	private void init() {
-		if (session.isInstitutionAdmin()) {
-			initializeProperties("c.name");
-			view = getView();
-			view.setPresenter(this);
-			bus.fireEvent(new ShowPacifierEvent(true));
-			getCourses();      
-		} else {
-			logger.warning("Hey, only admins are allowed to see this! "
-					+ this.getClass().getName());
-			placeController.goTo(defaultPlace);
-		}
-	}
+    private void getCourses() {
+        bus.fireEvent(new ShowPacifierEvent(true));
+        session.courses().get(true, pageSize, pageNumber, searchTerm, orderBy, asc, new Callback<CoursesTO>() {
+            @Override
+            public void ok(CoursesTO to) {
+                coursesTO = to;
+                view.setCourses(coursesTO.getCourses());
+                bus.fireEvent(new ShowPacifierEvent(false));
+                updateProperties();
+            }
+        });
+    }
 
-	private void getCourses() {
-		bus.fireEvent(new ShowPacifierEvent(true));
-		session.courses().get(true, pageSize, pageNumber, searchTerm, orderBy, asc, new Callback<CoursesTO>() {
-  			@Override
-  			public void ok(CoursesTO to) {
-  				coursesTO = to;
-  				view.setCourses(coursesTO.getCourses());
-  				bus.fireEvent(new ShowPacifierEvent(false));
-				updateProperties();
-  			}
-  		});
-	}
-	
-	@Override
-	public Widget asWidget() {
-		return view.asWidget();
-	}
+    @Override
+    public Widget asWidget() {
+        return view.asWidget();
+    }
 
-	private AdminCoursesView getView() {
-		return viewFactory.getAdminCoursesView();
-	}
+    private AdminCoursesView getView() {
+        return viewFactory.getAdminCoursesView();
+    }
 
-	@Override
-	public void updateData() {
-		getCourses();
-	}
-	
-	@Override
-	public String getClientPropertyName(String property){
-		return session.getAdminHomePropertyPrefix() +
-				"courses" + ClientProperties.SEPARATOR +
-				property;
-	}
+    @Override
+    public void updateData() {
+        getCourses();
+    }
 
-	@Override
-	public int getTotalRowCount() {
-		return StringUtils.isNone(getSearchTerm()) ? coursesTO.getCount() : coursesTO.getSearchCount();
-	}
-	
-	@Override
-	public List<CourseTO> getRowData(){
-		return coursesTO.getCourses();
-	}
+    @Override
+    public String getClientPropertyName(String property) {
+        return session.getAdminHomePropertyPrefix() + "courses" + ClientProperties.SEPARATOR + property;
+    }
 
-	@Override
-	public void deleteCourse(CourseTO courseTO) {
-		if(!blockActions){
-			blockActions = true;
+    @Override
+    public int getTotalRowCount() {
+        return StringUtils.isNone(getSearchTerm()) ? coursesTO.getCount() : coursesTO.getSearchCount();
+    }
 
-			confirmModal.showModal(
-					"Tem certeza que deseja excluir o curso \"" + courseTO.getCourse().getName() + "\"?", 
-					new com.google.gwt.core.client.Callback<Void, Void>() {
-				@Override
-				public void onSuccess(Void result) {
-					bus.fireEvent(new ShowPacifierEvent(true));
-					session.course(courseTO.getCourse().getUUID()).delete(new Callback<Course>() {	
-						@Override
-						public void ok(Course to) {
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Curso excluído com sucesso.");
-							updateData();
-						}
-						
-						@Override
-						public void internalServerError(KornellErrorTO error){
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Erro ao tentar excluir o curso.", AlertType.ERROR);
-						}
-					});
-				}
-				
-				@Override
-				public void onFailure(Void reason) {
-					blockActions = false;
-				}
-			});
-		}
-	}
+    @Override
+    public List<CourseTO> getRowData() {
+        return coursesTO.getCourses();
+    }
 
-	@Override
-	public void duplicateCourse(CourseTO courseTO) {
-		if(!blockActions){
-			blockActions = true;
+    @Override
+    public void deleteCourse(CourseTO courseTO) {
+        if (!blockActions) {
+            blockActions = true;
 
-			confirmModal.showModal(
-					"Tem certeza que deseja duplicar o curso \"" + courseTO.getCourse().getName() + "\"?", 
-					new com.google.gwt.core.client.Callback<Void, Void>() {
-				@Override
-				public void onSuccess(Void result) {
+            confirmModal.showModal("Tem certeza que deseja excluir o curso \"" + courseTO.getCourse().getName() + "\"?",
+                    new com.google.gwt.core.client.Callback<Void, Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            bus.fireEvent(new ShowPacifierEvent(true));
+                            session.course(courseTO.getCourse().getUUID()).delete(new Callback<Course>() {
+                                @Override
+                                public void ok(Course to) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Curso excluído com sucesso.");
+                                    updateData();
+                                }
 
-					bus.fireEvent(new ShowPacifierEvent(true));
-					session.course(courseTO.getCourse().getUUID()).copy(new Callback<Course>() {	
-						@Override
-						public void ok(Course course) {
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Curso duplicado com sucesso.");
-							placeController.goTo(new AdminCoursePlace(course.getUUID()));
-						}
-						
-						@Override
-						public void internalServerError(KornellErrorTO error){
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Erro ao tentar duplicar o curso.", AlertType.ERROR);
-						}
-					});
-				}
-				@Override
-				public void onFailure(Void reason) {
-					blockActions = false;
-				}
-			});
-		}
-	}
-	
+                                @Override
+                                public void internalServerError(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Erro ao tentar excluir o curso.", AlertType.ERROR);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Void reason) {
+                            blockActions = false;
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public void duplicateCourse(CourseTO courseTO) {
+        if (!blockActions) {
+            blockActions = true;
+
+            confirmModal.showModal(
+                    "Tem certeza que deseja duplicar o curso \"" + courseTO.getCourse().getName() + "\"?",
+                    new com.google.gwt.core.client.Callback<Void, Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+
+                            bus.fireEvent(new ShowPacifierEvent(true));
+                            session.course(courseTO.getCourse().getUUID()).copy(new Callback<Course>() {
+                                @Override
+                                public void ok(Course course) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Curso duplicado com sucesso.");
+                                    placeController.goTo(new AdminCoursePlace(course.getUUID()));
+                                }
+
+                                @Override
+                                public void internalServerError(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Erro ao tentar duplicar o curso.", AlertType.ERROR);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Void reason) {
+                            blockActions = false;
+                        }
+                    });
+        }
+    }
+
 }

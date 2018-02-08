@@ -34,46 +34,74 @@ import kornell.gui.client.presentation.vitrine.VitrineView;
 import kornell.gui.client.presentation.welcome.WelcomeView;
 
 public interface ViewFactory {
-	
-	void initGUI();
-	
-	SimplePanel getShell();
-	ScrollPanel getScrollPanel();
-	
-	MenuBarView getMenuBarView();
-	SouthBarView getSouthBarView(); 
-	
-	HomeView getHomeView();
-	VitrineView getVitrineView();
-	TermsView getTermsView();
-	WelcomeView getWelcomeView();
-	ProfileView getProfileView();
-	MessageView getMessageView();
-	MessageComposeView getMessageComposeView();
-	MessagePresenter getMessagePresenter();
-	MessagePresenter getMessagePresenterCourseClass();
-	MessagePresenter getMessagePresenterClassroomGlobalChat();
-	MessagePresenter getMessagePresenterClassroomTutorChat();
 
-	ClassroomView getClassroomView();
-	ClassroomPresenter getClassroomPresenter();
-	SandboxView getSandboxView();
-	SandboxPresenter getSandboxPresenter();
-	ConfirmModalView getConfirmModalView();
-	
-	//admin
-	AdminInstitutionView getAdminInstitutionView();
-	AdminCoursesView getAdminCoursesView();
-	AdminCourseView getAdminCourseView();
-	AdminCoursePresenter getAdminCoursePresenter();
-	AdminCourseVersionsView getAdminCourseVersionsView();
-	AdminCourseVersionView getAdminCourseVersionView();
-	AdminCourseVersionContentView getAdminCourseVersionContentView();
-	AdminCourseVersionPresenter getAdminCourseVersionPresenter();
-	AdminCourseClassesView getAdminCourseClassesView();
-	AdminCourseClassView getAdminCourseClassView();
-	AdminCourseClassPresenter getAdminCourseClassPresenter();
-	AdminAssetsView getAdminAssetsView();
-	AdminAuditView getAdminAuditView();
+    void initGUI();
+
+    SimplePanel getShell();
+
+    ScrollPanel getScrollPanel();
+
+    MenuBarView getMenuBarView();
+
+    SouthBarView getSouthBarView();
+
+    HomeView getHomeView();
+
+    VitrineView getVitrineView();
+
+    TermsView getTermsView();
+
+    WelcomeView getWelcomeView();
+
+    ProfileView getProfileView();
+
+    MessageView getMessageView();
+
+    MessageComposeView getMessageComposeView();
+
+    MessagePresenter getMessagePresenter();
+
+    MessagePresenter getMessagePresenterCourseClass();
+
+    MessagePresenter getMessagePresenterClassroomGlobalChat();
+
+    MessagePresenter getMessagePresenterClassroomTutorChat();
+
+    ClassroomView getClassroomView();
+
+    ClassroomPresenter getClassroomPresenter();
+
+    SandboxView getSandboxView();
+
+    SandboxPresenter getSandboxPresenter();
+
+    ConfirmModalView getConfirmModalView();
+
+    // admin
+    AdminInstitutionView getAdminInstitutionView();
+
+    AdminCoursesView getAdminCoursesView();
+
+    AdminCourseView getAdminCourseView();
+
+    AdminCoursePresenter getAdminCoursePresenter();
+
+    AdminCourseVersionsView getAdminCourseVersionsView();
+
+    AdminCourseVersionView getAdminCourseVersionView();
+
+    AdminCourseVersionContentView getAdminCourseVersionContentView();
+
+    AdminCourseVersionPresenter getAdminCourseVersionPresenter();
+
+    AdminCourseClassesView getAdminCourseClassesView();
+
+    AdminCourseClassView getAdminCourseClassView();
+
+    AdminCourseClassPresenter getAdminCourseClassPresenter();
+
+    AdminAssetsView getAdminAssetsView();
+
+    AdminAuditView getAdminAuditView();
 
 }

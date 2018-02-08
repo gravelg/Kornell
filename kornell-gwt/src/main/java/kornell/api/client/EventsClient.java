@@ -15,61 +15,64 @@ import kornell.core.to.EntityChangedEventsTO;
 import kornell.core.util.UUID;
 
 public class EventsClient extends RESTClient {
-	// TODO: Move all object creation to client factory
-	static final EventFactory factory = GWT.create(EventFactory.class);
+    // TODO: Move all object creation to client factory
+    static final EventFactory factory = GWT.create(EventFactory.class);
 
-	public EventClient actomEntered(String enrollmentUUID, final String actomKey) {
-		ActomEntered actomEntered = factory.newActomEntered().as();
-		actomEntered.setEnrollmentUUID(enrollmentUUID);
-		actomEntered.setActomKey(actomKey);		
-		actomEntered.setUUID(UUID.random());
-		return withEvent("/events/actomEntered",ActomEntered.TYPE,actomEntered);
-	}
+    public EventClient actomEntered(String enrollmentUUID, final String actomKey) {
+        ActomEntered actomEntered = factory.newActomEntered().as();
+        actomEntered.setEnrollmentUUID(enrollmentUUID);
+        actomEntered.setActomKey(actomKey);
+        actomEntered.setUUID(UUID.random());
+        return withEvent("/events/actomEntered", ActomEntered.TYPE, actomEntered);
+    }
 
-	public EventClient attendanceSheetSigned(String institutionUUID, String personUUID) {
-		AttendanceSheetSigned attendanceSheetSigned = factory.newAttendanceSheetSigned().as();
-		attendanceSheetSigned.setInstitutionUUID(institutionUUID);
-		attendanceSheetSigned.setPersonUUID(personUUID);	
-		attendanceSheetSigned.setUUID(UUID.random());
-		return withEvent("/events/attendanceSheetSigned",AttendanceSheetSigned.TYPE,attendanceSheetSigned);
-	}
+    public EventClient attendanceSheetSigned(String institutionUUID, String personUUID) {
+        AttendanceSheetSigned attendanceSheetSigned = factory.newAttendanceSheetSigned().as();
+        attendanceSheetSigned.setInstitutionUUID(institutionUUID);
+        attendanceSheetSigned.setPersonUUID(personUUID);
+        attendanceSheetSigned.setUUID(UUID.random());
+        return withEvent("/events/attendanceSheetSigned", AttendanceSheetSigned.TYPE, attendanceSheetSigned);
+    }
 
-	public EventClient enrollmentStateChanged(String enrollmentUUID, String personUUID, EnrollmentState fromState, EnrollmentState toState) {
-		EnrollmentStateChanged enrollmentStateChanged = factory.newEnrollmentStateChanged().as();
-		enrollmentStateChanged.setEnrollmentUUID(enrollmentUUID);
-		enrollmentStateChanged.setFromPersonUUID(personUUID);
-		enrollmentStateChanged.setFromState(fromState);
-		enrollmentStateChanged.setToState(toState);
-		enrollmentStateChanged.setUUID(UUID.random());
-		return withEvent("/events/enrollmentStateChanged",EnrollmentStateChanged.TYPE,enrollmentStateChanged);
-	}
+    public EventClient enrollmentStateChanged(String enrollmentUUID, String personUUID, EnrollmentState fromState,
+            EnrollmentState toState) {
+        EnrollmentStateChanged enrollmentStateChanged = factory.newEnrollmentStateChanged().as();
+        enrollmentStateChanged.setEnrollmentUUID(enrollmentUUID);
+        enrollmentStateChanged.setFromPersonUUID(personUUID);
+        enrollmentStateChanged.setFromState(fromState);
+        enrollmentStateChanged.setToState(toState);
+        enrollmentStateChanged.setUUID(UUID.random());
+        return withEvent("/events/enrollmentStateChanged", EnrollmentStateChanged.TYPE, enrollmentStateChanged);
+    }
 
-	public EventClient courseClassStateChanged(String courseClassUUID, String personUUID, EntityState fromState, EntityState toState) {
-		CourseClassStateChanged courseClassStateChanged = factory.newCourseClassStateChanged().as();
-		courseClassStateChanged.setCourseClassUUID(courseClassUUID);
-		courseClassStateChanged.setFromPersonUUID(personUUID);
-		courseClassStateChanged.setFromState(fromState);
-		courseClassStateChanged.setToState(toState);
-		courseClassStateChanged.setUUID(UUID.random());
-		return withEvent("/events/courseClassStateChanged",CourseClassStateChanged.TYPE,courseClassStateChanged);
-	}
-	
-    public EventClient enrollmentTransfered(String enrollmentUUID, String toCourseClassUUID, String fromCourseClassUUID, String personUUID) {
+    public EventClient courseClassStateChanged(String courseClassUUID, String personUUID, EntityState fromState,
+            EntityState toState) {
+        CourseClassStateChanged courseClassStateChanged = factory.newCourseClassStateChanged().as();
+        courseClassStateChanged.setCourseClassUUID(courseClassUUID);
+        courseClassStateChanged.setFromPersonUUID(personUUID);
+        courseClassStateChanged.setFromState(fromState);
+        courseClassStateChanged.setToState(toState);
+        courseClassStateChanged.setUUID(UUID.random());
+        return withEvent("/events/courseClassStateChanged", CourseClassStateChanged.TYPE, courseClassStateChanged);
+    }
+
+    public EventClient enrollmentTransfered(String enrollmentUUID, String toCourseClassUUID, String fromCourseClassUUID,
+            String personUUID) {
         EnrollmentTransferred enrollmentTransferred = factory.newEnrollmentTransferred().as();
         enrollmentTransferred.setFromPersonUUID(personUUID);
         enrollmentTransferred.setEnrollmentUUID(enrollmentUUID);
         enrollmentTransferred.setFromCourseClassUUID(fromCourseClassUUID);
         enrollmentTransferred.setToCourseClassUUID(toCourseClassUUID);
         enrollmentTransferred.setUUID(UUID.random());
-        return withEvent("/events/enrollmentTransferred",EnrollmentTransferred.TYPE,enrollmentTransferred);
+        return withEvent("/events/enrollmentTransferred", EnrollmentTransferred.TYPE, enrollmentTransferred);
     }
-	
-	public void getEntityChangedEvents(String entityType, String ps, String pn, Callback<EntityChangedEventsTO> cb) {
-		GET("/events/entityChanged/?entityType=" + entityType + "&ps=" + ps + "&pn=" + pn).sendRequest(null, cb);
-	}
 
-	private EventClient withEvent(String path, String contentType, Event event) {
-		return new EventClient(path,contentType,event);
-	}
+    public void getEntityChangedEvents(String entityType, String ps, String pn, Callback<EntityChangedEventsTO> cb) {
+        GET("/events/entityChanged/?entityType=" + entityType + "&ps=" + ps + "&pn=" + pn).sendRequest(null, cb);
+    }
+
+    private EventClient withEvent(String path, String contentType, Event event) {
+        return new EventClient(path, contentType, event);
+    }
 
 }

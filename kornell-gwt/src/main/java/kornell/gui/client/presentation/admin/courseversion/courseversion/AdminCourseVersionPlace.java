@@ -5,34 +5,34 @@ import com.google.gwt.place.shared.Prefix;
 
 import kornell.gui.client.presentation.admin.courseversion.CourseVersionPlace;
 
-public class AdminCourseVersionPlace extends CourseVersionPlace{
-	private String courseVersionUUID;
+public class AdminCourseVersionPlace extends CourseVersionPlace {
+    private String courseVersionUUID;
 
-	public AdminCourseVersionPlace(String courseVersionUUID) {
-		this.setCourseVersionUUID(courseVersionUUID);
-	}
+    public AdminCourseVersionPlace(String courseVersionUUID) {
+        this.setCourseVersionUUID(courseVersionUUID);
+    }
 
-	@Prefix("a.courseVersion")
-	public static class Tokenizer implements PlaceTokenizer<AdminCourseVersionPlace> {
-		public AdminCourseVersionPlace getPlace(String token) {
-			return new AdminCourseVersionPlace(token);
-		}
+    @Prefix("a.courseVersion")
+    public static class Tokenizer implements PlaceTokenizer<AdminCourseVersionPlace> {
+        public AdminCourseVersionPlace getPlace(String token) {
+            return new AdminCourseVersionPlace(token);
+        }
 
-		public String getToken(AdminCourseVersionPlace place) {
-			return place.getCourseVersionUUID();
-		}
-	}
+        public String getToken(AdminCourseVersionPlace place) {
+            return place.getCourseVersionUUID();
+        }
+    }
 
-	@Override
-	public String toString() {		
-		return getClass().getSimpleName() + ":" + new Tokenizer().getToken(this);
-	}
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ":" + new Tokenizer().getToken(this);
+    }
 
-	public String getCourseVersionUUID() {
-	  return courseVersionUUID;
-  }
+    public String getCourseVersionUUID() {
+        return courseVersionUUID;
+    }
 
-	public void setCourseVersionUUID(String courseVersionUUID) {
-	  this.courseVersionUUID = courseVersionUUID;
-  }
+    public void setCourseVersionUUID(String courseVersionUUID) {
+        this.courseVersionUUID = courseVersionUUID;
+    }
 }

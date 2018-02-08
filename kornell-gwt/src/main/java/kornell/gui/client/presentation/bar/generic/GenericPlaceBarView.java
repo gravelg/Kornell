@@ -16,53 +16,53 @@ import com.google.gwt.user.client.ui.Widget;
 import kornell.gui.client.presentation.bar.PlaceBarView;
 
 public class GenericPlaceBarView extends Composite implements PlaceBarView {
-	interface MyUiBinder extends UiBinder<Widget, GenericPlaceBarView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericPlaceBarView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	@UiField
-	Icon icon;
-	@UiField
-	Label title;
-	@UiField
-	Label subtitle;
-	@UiField
-	FlowPanel btnPanel;
-	
-	public GenericPlaceBarView() {
+    @UiField
+    Icon icon;
+    @UiField
+    Label title;
+    @UiField
+    Label subtitle;
+    @UiField
+    FlowPanel btnPanel;
 
-		//if(placeCtrl)
-		initWidget(uiBinder.createAndBindUi(this));
-	}
+    public GenericPlaceBarView() {
 
-	public void clear(){
-		this.icon.setVisible(false);
-		this.title.setVisible(false);
-		this.subtitle.setVisible(false);
-		btnPanel.clear();
-	}
+        // if(placeCtrl)
+        initWidget(uiBinder.createAndBindUi(this));
+    }
 
-	public void init(IconType iconType, String titleStr, String subtitleStr){
-		this.icon.setIcon(iconType);
-		this.title.setText(titleStr);
-		this.subtitle.setText(subtitleStr);
-		this.icon.setVisible(true);
-		this.title.setVisible(true);
-		this.subtitle.setVisible(true);
-		btnPanel.clear();
-	}
-	
-	public void setWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets){
-		btnPanel.clear();
-		for (IsWidget widget : widgets) {
-			btnPanel.add(widget);
-		}
-		if(alwaysShowWidgets){
-			btnPanel.setStyleName("btnPanel");
-		} else {
-			btnPanel.setStyleName("btnPanel hideOnSmallerScreens");
-		}
-	}
+    public void clear() {
+        this.icon.setVisible(false);
+        this.title.setVisible(false);
+        this.subtitle.setVisible(false);
+        btnPanel.clear();
+    }
+
+    public void init(IconType iconType, String titleStr, String subtitleStr) {
+        this.icon.setIcon(iconType);
+        this.title.setText(titleStr);
+        this.subtitle.setText(subtitleStr);
+        this.icon.setVisible(true);
+        this.title.setVisible(true);
+        this.subtitle.setVisible(true);
+        btnPanel.clear();
+    }
+
+    public void setWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets) {
+        btnPanel.clear();
+        for (IsWidget widget : widgets) {
+            btnPanel.add(widget);
+        }
+        if (alwaysShowWidgets) {
+            btnPanel.setStyleName("btnPanel");
+        } else {
+            btnPanel.setStyleName("btnPanel hideOnSmallerScreens");
+        }
+    }
 
 }

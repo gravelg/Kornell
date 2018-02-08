@@ -6,17 +6,20 @@ import com.github.gwtbootstrap.client.ui.constants.IconType;
 import com.google.gwt.user.client.ui.IsWidget;
 
 public interface MenuBarView extends IsWidget {
-	public interface Presenter extends IsWidget {
-	}
+    public interface Presenter extends IsWidget {
+    }
 
-	void setPresenter(Presenter presenter);
+    void setPresenter(Presenter presenter);
 
-	void display();
+    void display();
 
-	boolean isVisible();
+    boolean isVisible();
 
-	void initPlaceBar(IconType iconType, String titleStr, String subtitleStr);
-	void clearPlaceBar();
-	void setPlaceBarWidgets(List<IsWidget> widgets);
-	void setPlaceBarWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets);
+    void initPlaceBar(IconType iconType, String titleStr, String subtitleStr);
+
+    void clearPlaceBar();
+
+    void setPlaceBarWidgets(List<IsWidget> widgets);
+
+    void setPlaceBarWidgets(List<IsWidget> widgets, boolean alwaysShowWidgets);
 }

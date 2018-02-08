@@ -8,41 +8,41 @@ import kornell.gui.client.util.forms.FormHelper;
 
 public class TextBoxFormField implements KornellFormField<TextBox> {
 
-	private final FormHelper formHelper = GWT.create(FormHelper.class);
-	
-	public static final String CPF = "cpf";
-	
-	TextBox field;
-	String textBoxFormFieldType;
-	
-	public TextBoxFormField(TextBox field, String textBoxFormFieldType) {
-		this.field = field;
-		this.textBoxFormFieldType = textBoxFormFieldType;
-		field.addStyleName("field");
-		field.addStyleName("textField");
-		
-	}
-	
-	public TextBoxFormField(TextBox field) {
-		this(field, null);
-	}
+    private final FormHelper formHelper = GWT.create(FormHelper.class);
 
-	@Override
-	public Widget getFieldWidget() {
-		return field;
-	}
+    public static final String CPF = "cpf";
 
-	@Override
-	public String getDisplayText() {
-		if(CPF.equals(textBoxFormFieldType))
-			return formHelper.formatCPF(field.getValue());
-		else
-			return field.getValue();
-	}
+    TextBox field;
+    String textBoxFormFieldType;
 
-	@Override
-	public String getPersistText() {
-		return field.getValue();
-	}
+    public TextBoxFormField(TextBox field, String textBoxFormFieldType) {
+        this.field = field;
+        this.textBoxFormFieldType = textBoxFormFieldType;
+        field.addStyleName("field");
+        field.addStyleName("textField");
+
+    }
+
+    public TextBoxFormField(TextBox field) {
+        this(field, null);
+    }
+
+    @Override
+    public Widget getFieldWidget() {
+        return field;
+    }
+
+    @Override
+    public String getDisplayText() {
+        if (CPF.equals(textBoxFormFieldType))
+            return formHelper.formatCPF(field.getValue());
+        else
+            return field.getValue();
+    }
+
+    @Override
+    public String getPersistText() {
+        return field.getValue();
+    }
 
 }

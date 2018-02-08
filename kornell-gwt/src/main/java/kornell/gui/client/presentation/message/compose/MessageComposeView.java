@@ -7,23 +7,25 @@ import com.google.gwt.user.client.ui.IsWidget;
 import kornell.core.to.CourseClassTO;
 import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 
-public interface MessageComposeView  extends IsWidget {
-	public interface Presenter extends IsWidget {
-		void okButtonClicked();
-		void init(ArrayList<CourseClassTO> helpCourseClasses);
-		void cancelButtonClicked();
-	}
+public interface MessageComposeView extends IsWidget {
+    public interface Presenter extends IsWidget {
+        void okButtonClicked();
 
-	void setPresenter(Presenter presenter);
+        void init(ArrayList<CourseClassTO> helpCourseClasses);
 
-	KornellFormFieldWrapper getMessageText();
+        void cancelButtonClicked();
+    }
 
-	KornellFormFieldWrapper getRecipient();
+    void setPresenter(Presenter presenter);
 
-	void show(ArrayList<CourseClassTO> helpCourseClasses, String courseClassUUID);
+    KornellFormFieldWrapper getMessageText();
 
-	boolean checkErrors();
+    KornellFormFieldWrapper getRecipient();
 
-	void clearErrors();
+    void show(ArrayList<CourseClassTO> helpCourseClasses, String courseClassUUID);
+
+    boolean checkErrors();
+
+    void clearErrors();
 
 }

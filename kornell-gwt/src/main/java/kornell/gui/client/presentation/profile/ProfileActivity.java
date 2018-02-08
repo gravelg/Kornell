@@ -6,18 +6,18 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 import kornell.gui.client.ClientFactory;
 
-public class ProfileActivity extends AbstractActivity{
-	private static ProfilePresenter presenter;
-	
-	public ProfileActivity(ClientFactory clientFactory) {
-	    if(presenter == null){
-	    	presenter = new ProfilePresenter(clientFactory);
-	    }
-	 }
-	
-	@Override
-	public void start(AcceptsOneWidget panel, EventBus eventBus) {
-		panel.setWidget(presenter);		
-	}
+public class ProfileActivity extends AbstractActivity {
+    private static ProfilePresenter presenter;
+
+    public ProfileActivity(ClientFactory clientFactory) {
+        if (presenter == null) {
+            presenter = new ProfilePresenter(clientFactory);
+        }
+    }
+
+    @Override
+    public void start(AcceptsOneWidget panel, EventBus eventBus) {
+        panel.setWidget(presenter);
+    }
 
 }

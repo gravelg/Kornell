@@ -4,8 +4,6 @@ import kornell.core.to.UserInfoTO;
 
 public interface Teacher {
 
-	
-
-	Student student(UserInfoTO userInfoTO);
+    Student student(UserInfoTO userInfoTO);
 
 }

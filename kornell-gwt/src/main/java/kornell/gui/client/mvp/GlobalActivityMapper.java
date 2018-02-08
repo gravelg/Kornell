@@ -41,164 +41,177 @@ import kornell.gui.client.presentation.vitrine.VitrinePlace;
 import kornell.gui.client.presentation.welcome.WelcomeActivity;
 import kornell.gui.client.presentation.welcome.WelcomePlace;
 
-
-
 /**
  * A mapping of places to activities used by this application.
  */
 public class GlobalActivityMapper implements AsyncActivityMapper {
-	private ClientFactory clientFactory;
+    private ClientFactory clientFactory;
 
-	public GlobalActivityMapper(ClientFactory clientFactory) {
-		this.clientFactory = clientFactory;
-	}
+    public GlobalActivityMapper(ClientFactory clientFactory) {
+        this.clientFactory = clientFactory;
+    }
 
-	/** TODO: This may suck fast */
-	public void getActivity(final Place place, final ActivityCallbackHandler activityCallbackHandler) {
-		if(!clientFactory.getKornellSession().isAuthenticated() || place instanceof VitrinePlace){
-			activityCallbackHandler.onReceiveActivity(new VitrineActivity((VitrinePlace) place, clientFactory));
-		} else if (place instanceof HomePlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new HomeActivity((HomePlace) place, clientFactory));
-				}
-			});
-		} else if (place instanceof TermsPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new TermsActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof WelcomePlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new WelcomeActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof ProfilePlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new ProfileActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof MessagePlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new MessageActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof ClassroomPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					ClassroomPresenter coursePresenter = clientFactory.getViewFactory().getClassroomPresenter();
-					coursePresenter.setPlace((ClassroomPlace) place);
-					activityCallbackHandler.onReceiveActivity(new ClassroomActivity(coursePresenter));
-				}
-			});
-		} else if (place instanceof SandboxPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					SandboxPresenter sandboxPresenter = clientFactory.getViewFactory().getSandboxPresenter();
-					sandboxPresenter.setPlace((SandboxPlace) place);
-					activityCallbackHandler.onReceiveActivity(new SandboxActivity(sandboxPresenter));
-				}
-			});
-		} else if (place instanceof AdminInstitutionPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new AdminInstitutionActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof AdminCoursesPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new AdminCoursesActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof AdminCoursePlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new AdminCourseActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof AdminCourseVersionsPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new AdminCourseVersionsActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof AdminCourseVersionPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new AdminCourseVersionActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof AdminCourseClassesPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new AdminCourseClassesActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof AdminCourseClassPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new AdminCourseClassActivity(clientFactory));
-				}
-			});
-		} else if (place instanceof AdminAuditPlace) {
-			GWT.runAsync(new RunAsyncCallback() {
-				public void onFailure(Throwable err) {
-					Window.Location.reload();
-				}
-				public void onSuccess() {
-					activityCallbackHandler.onReceiveActivity(new AdminAuditActivity(clientFactory));
-				}
-			});
-		} else {
-			activityCallbackHandler.onReceiveActivity(null);
-		}
-	}
+    /** TODO: This may suck fast */
+    public void getActivity(final Place place, final ActivityCallbackHandler activityCallbackHandler) {
+        if (!clientFactory.getKornellSession().isAuthenticated() || place instanceof VitrinePlace) {
+            activityCallbackHandler.onReceiveActivity(new VitrineActivity((VitrinePlace) place, clientFactory));
+        } else if (place instanceof HomePlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new HomeActivity((HomePlace) place, clientFactory));
+                }
+            });
+        } else if (place instanceof TermsPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new TermsActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof WelcomePlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new WelcomeActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof ProfilePlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new ProfileActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof MessagePlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new MessageActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof ClassroomPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    ClassroomPresenter coursePresenter = clientFactory.getViewFactory().getClassroomPresenter();
+                    coursePresenter.setPlace((ClassroomPlace) place);
+                    activityCallbackHandler.onReceiveActivity(new ClassroomActivity(coursePresenter));
+                }
+            });
+        } else if (place instanceof SandboxPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    SandboxPresenter sandboxPresenter = clientFactory.getViewFactory().getSandboxPresenter();
+                    sandboxPresenter.setPlace((SandboxPlace) place);
+                    activityCallbackHandler.onReceiveActivity(new SandboxActivity(sandboxPresenter));
+                }
+            });
+        } else if (place instanceof AdminInstitutionPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new AdminInstitutionActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof AdminCoursesPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new AdminCoursesActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof AdminCoursePlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new AdminCourseActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof AdminCourseVersionsPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new AdminCourseVersionsActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof AdminCourseVersionPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new AdminCourseVersionActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof AdminCourseClassesPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new AdminCourseClassesActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof AdminCourseClassPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new AdminCourseClassActivity(clientFactory));
+                }
+            });
+        } else if (place instanceof AdminAuditPlace) {
+            GWT.runAsync(new RunAsyncCallback() {
+                public void onFailure(Throwable err) {
+                    Window.Location.reload();
+                }
+
+                public void onSuccess() {
+                    activityCallbackHandler.onReceiveActivity(new AdminAuditActivity(clientFactory));
+                }
+            });
+        } else {
+            activityCallbackHandler.onReceiveActivity(null);
+        }
+    }
 
 }

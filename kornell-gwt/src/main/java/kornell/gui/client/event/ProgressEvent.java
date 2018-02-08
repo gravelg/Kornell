@@ -2,66 +2,66 @@ package kornell.gui.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class ProgressEvent extends GwtEvent<ProgressEventHandler>{
+public class ProgressEvent extends GwtEvent<ProgressEventHandler> {
 
-	public static final Type<ProgressEventHandler> TYPE = new Type<ProgressEventHandler>();
-	
-	private Integer totalPages;
-	private Integer currentPage;
-	private Integer pagesVisitedCount;
-	private String enrollmentUUID;
-	
-	@Override
-	public Type<ProgressEventHandler> getAssociatedType() {
-		return TYPE;
-	}
+    public static final Type<ProgressEventHandler> TYPE = new Type<ProgressEventHandler>();
 
-	@Override
-	protected void dispatch(ProgressEventHandler handler) {
-		handler.onProgress(this);		
-	}
-	
-	public boolean hasNext(){
-		return currentPage < totalPages;
-	}
-	
-	public boolean hasPrevious(){
-		return currentPage > 1;
-	}
+    private Integer totalPages;
+    private Integer currentPage;
+    private Integer pagesVisitedCount;
+    private String enrollmentUUID;
 
-	public Integer getTotalPages() {
-		return totalPages;
-	}
+    @Override
+    public Type<ProgressEventHandler> getAssociatedType() {
+        return TYPE;
+    }
 
-	public void setTotalPages(Integer totalPages) {
-		this.totalPages = totalPages;
-	}
+    @Override
+    protected void dispatch(ProgressEventHandler handler) {
+        handler.onProgress(this);
+    }
 
-	public Integer getCurrentPage() {
-		return currentPage;
-	}
+    public boolean hasNext() {
+        return currentPage < totalPages;
+    }
 
-	public void setCurrentPage(Integer currentPage) {
-		this.currentPage = currentPage;
-	}
+    public boolean hasPrevious() {
+        return currentPage > 1;
+    }
 
-	public Integer getProgressPercent() {
-		return (pagesVisitedCount * 100)/totalPages;
-	}
+    public Integer getTotalPages() {
+        return totalPages;
+    }
 
-	public void setPagesVisitedCount(int pagesVisitedCount) {
-		this.pagesVisitedCount = pagesVisitedCount;
-	}
+    public void setTotalPages(Integer totalPages) {
+        this.totalPages = totalPages;
+    }
 
-	public Integer getPagesVisitedCount() {
-		return this.pagesVisitedCount;
-	}
+    public Integer getCurrentPage() {
+        return currentPage;
+    }
 
-	public String getEnrollmentUUID() {
-		return enrollmentUUID;
-	}
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
+    }
 
-	public void setEnrollmentUUID(String enrollmentUUID) {
-		this.enrollmentUUID = enrollmentUUID;
-	}
+    public Integer getProgressPercent() {
+        return (pagesVisitedCount * 100) / totalPages;
+    }
+
+    public void setPagesVisitedCount(int pagesVisitedCount) {
+        this.pagesVisitedCount = pagesVisitedCount;
+    }
+
+    public Integer getPagesVisitedCount() {
+        return this.pagesVisitedCount;
+    }
+
+    public String getEnrollmentUUID() {
+        return enrollmentUUID;
+    }
+
+    public void setEnrollmentUUID(String enrollmentUUID) {
+        this.enrollmentUUID = enrollmentUUID;
+    }
 }

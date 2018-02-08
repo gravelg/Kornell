@@ -28,176 +28,182 @@ import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.table.PaginationPresenterImpl;
 
-public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseClassTO> implements AdminCourseClassesView.Presenter {
-	Logger logger = Logger.getLogger(AdminCourseClassesPresenter.class.getName());
-	private AdminCourseClassesView view;
-	FormHelper formHelper;
-	private KornellSession session;
-	private PlaceController placeController;
-	private Place defaultPlace;
-	TOFactory toFactory;
-	private ViewFactory viewFactory;
-	private CourseClassesTO courseClassesTO;
-	private EventBus bus;
-	private boolean blockActions;
-	private ConfirmModalView confirmModal;
+public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseClassTO>
+        implements AdminCourseClassesView.Presenter {
+    Logger logger = Logger.getLogger(AdminCourseClassesPresenter.class.getName());
+    private AdminCourseClassesView view;
+    FormHelper formHelper;
+    private KornellSession session;
+    private PlaceController placeController;
+    private Place defaultPlace;
+    TOFactory toFactory;
+    private ViewFactory viewFactory;
+    private CourseClassesTO courseClassesTO;
+    private EventBus bus;
+    private boolean blockActions;
+    private ConfirmModalView confirmModal;
 
-	public AdminCourseClassesPresenter(KornellSession session, EventBus bus,
-			PlaceController placeController, Place defaultPlace,
-			TOFactory toFactory, ViewFactory viewFactory) {
-		this.session = session;
-		this.bus = bus;
-		this.placeController = placeController;
-		this.defaultPlace = defaultPlace;
-		this.toFactory = toFactory;
-		this.viewFactory = viewFactory;
-		this.confirmModal = viewFactory.getConfirmModalView();
-		formHelper = new FormHelper();
+    public AdminCourseClassesPresenter(KornellSession session, EventBus bus, PlaceController placeController,
+            Place defaultPlace, TOFactory toFactory, ViewFactory viewFactory) {
+        this.session = session;
+        this.bus = bus;
+        this.placeController = placeController;
+        this.defaultPlace = defaultPlace;
+        this.toFactory = toFactory;
+        this.viewFactory = viewFactory;
+        this.confirmModal = viewFactory.getConfirmModalView();
+        formHelper = new FormHelper();
 
-		init();
-	}
+        init();
+    }
 
-	private void init() {
-		if (RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassAdmin)
-				|| RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
-				|| RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
-				|| session.isInstitutionAdmin()) {
-			initializeProperties("cc.name");
-			view = getView();
-			view.setPresenter(this);			
-			String selectedCourseClass = "";
-			updateCourseClass(selectedCourseClass);      
-		} else {
-			logger.warning("Hey, only admins are allowed to see this! "
-					+ this.getClass().getName());
-			placeController.goTo(defaultPlace);
-		}
-	}
+    private void init() {
+        if (RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassAdmin)
+                || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
+                || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
+                || session.isInstitutionAdmin()) {
+            initializeProperties("cc.name");
+            view = getView();
+            view.setPresenter(this);
+            String selectedCourseClass = "";
+            updateCourseClass(selectedCourseClass);
+        } else {
+            logger.warning("Hey, only admins are allowed to see this! " + this.getClass().getName());
+            placeController.goTo(defaultPlace);
+        }
+    }
 
-	@Override
-	public void updateCourseClass(final String courseClassUUID) {
-		bus.fireEvent(new ShowPacifierEvent(true));
-		session.courseClasses().getAdministratedCourseClassesTOPaged(pageSize, pageNumber, searchTerm, orderBy, asc,
-				new Callback<CourseClassesTO>() {
-			@Override
-			public void ok(CourseClassesTO to) {
-				courseClassesTO = to;
-				view.setCourseClasses(courseClassesTO.getCourseClasses());
-				bus.fireEvent(new ShowPacifierEvent(false));
-				updateProperties();
-			}
-		});
-	}
-	
-	@Override
-	public Widget asWidget() {
-		return view.asWidget();
-	}
+    @Override
+    public void updateCourseClass(final String courseClassUUID) {
+        bus.fireEvent(new ShowPacifierEvent(true));
+        session.courseClasses().getAdministratedCourseClassesTOPaged(pageSize, pageNumber, searchTerm, orderBy, asc,
+                new Callback<CourseClassesTO>() {
+                    @Override
+                    public void ok(CourseClassesTO to) {
+                        courseClassesTO = to;
+                        view.setCourseClasses(courseClassesTO.getCourseClasses());
+                        bus.fireEvent(new ShowPacifierEvent(false));
+                        updateProperties();
+                    }
+                });
+    }
 
-	private AdminCourseClassesView getView() {
-		return viewFactory.getAdminCourseClassesView();
-	}
+    @Override
+    public Widget asWidget() {
+        return view.asWidget();
+    }
 
-	@Override
-	public void updateData() {
-    	updateCourseClass("");
-	}
+    private AdminCourseClassesView getView() {
+        return viewFactory.getAdminCourseClassesView();
+    }
 
-	@Override
-	public String getClientPropertyName(String property){
-		return session.getAdminHomePropertyPrefix() +
-				"courseClasses" + ClientProperties.SEPARATOR +
-				property;
-	}
+    @Override
+    public void updateData() {
+        updateCourseClass("");
+    }
 
-	@Override
-	public int getTotalRowCount() {
-		return StringUtils.isNone(getSearchTerm()) ? courseClassesTO.getCount() : courseClassesTO.getSearchCount();
-	}
+    @Override
+    public String getClientPropertyName(String property) {
+        return session.getAdminHomePropertyPrefix() + "courseClasses" + ClientProperties.SEPARATOR + property;
+    }
 
-	@Override
-	public List<CourseClassTO> getRowData() {
-		return courseClassesTO.getCourseClasses();
-	}
+    @Override
+    public int getTotalRowCount() {
+        return StringUtils.isNone(getSearchTerm()) ? courseClassesTO.getCount() : courseClassesTO.getSearchCount();
+    }
 
-	@Override
-	public void deleteCourseClass(CourseClassTO courseClassTO) {
-		if(!blockActions){
-			blockActions = true;
+    @Override
+    public List<CourseClassTO> getRowData() {
+        return courseClassesTO.getCourseClasses();
+    }
 
-			confirmModal.showModal(
-					"Tem certeza que deseja excluir a turma \"" + courseClassTO.getCourseClass().getName() + "\"?", 
-					new com.google.gwt.core.client.Callback<Void, Void>() {
-				@Override
-				public void onSuccess(Void result) {
-					bus.fireEvent(new ShowPacifierEvent(true));
-					session.courseClass(courseClassTO.getCourseClass().getUUID()).delete(new Callback<CourseClass>() {	
-						@Override
-						public void ok(CourseClass to) {
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Turma excluída com sucesso.");
-							updateData();
-						}
-						
-						@Override
-						public void internalServerError(KornellErrorTO error){
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Erro ao tentar excluir a turma.", AlertType.ERROR);
-						}
-					});
-				}
-				@Override
-				public void onFailure(Void reason) {
-					blockActions = false;
-				}
-			});
-		}
+    @Override
+    public void deleteCourseClass(CourseClassTO courseClassTO) {
+        if (!blockActions) {
+            blockActions = true;
 
-	}
+            confirmModal.showModal(
+                    "Tem certeza que deseja excluir a turma \"" + courseClassTO.getCourseClass().getName() + "\"?",
+                    new com.google.gwt.core.client.Callback<Void, Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            bus.fireEvent(new ShowPacifierEvent(true));
+                            session.courseClass(courseClassTO.getCourseClass().getUUID())
+                                    .delete(new Callback<CourseClass>() {
+                                        @Override
+                                        public void ok(CourseClass to) {
+                                            blockActions = false;
+                                            bus.fireEvent(new ShowPacifierEvent(false));
+                                            KornellNotification.show("Turma excluída com sucesso.");
+                                            updateData();
+                                        }
 
-	@Override
-	public void duplicateCourseClass(CourseClassTO courseClassTO) {
-		if(!blockActions){
-			blockActions = false;
+                                        @Override
+                                        public void internalServerError(KornellErrorTO error) {
+                                            blockActions = false;
+                                            bus.fireEvent(new ShowPacifierEvent(false));
+                                            KornellNotification.show("Erro ao tentar excluir a turma.",
+                                                    AlertType.ERROR);
+                                        }
+                                    });
+                        }
 
-			confirmModal.showModal(
-					"Tem certeza que deseja duplicar a turma \"" + courseClassTO.getCourseClass().getName() + "\"?", 
-					new com.google.gwt.core.client.Callback<Void, Void>() {
-				@Override
-				public void onSuccess(Void result) {
-					bus.fireEvent(new ShowPacifierEvent(true));
-					session.courseClass(courseClassTO.getCourseClass().getUUID()).copy(new Callback<CourseClass>() {	
-						@Override
-						public void ok(CourseClass courseClass) {
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Turma duplicada com sucesso.");
-							placeController.goTo(new AdminCourseClassPlace(courseClass.getUUID()));
-						}
-						
-						@Override
-						public void internalServerError(KornellErrorTO error){
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Erro ao tentar duplicar a turma.", AlertType.ERROR);
-						}
-						
-						@Override
-						public void conflict(KornellErrorTO error){
-							blockActions = false;
-							bus.fireEvent(new ShowPacifierEvent(false));
-							KornellNotification.show("Erro ao tentar duplicar a turma. Verifique se já existe uma turma com o nome \"" + courseClassTO.getCourseClass().getName() + "\" (2).", AlertType.ERROR, 5000);
-						}
-					});
-				}
-				@Override
-				public void onFailure(Void reason) {
-					blockActions = false;
-				}
-			});
-		}
+                        @Override
+                        public void onFailure(Void reason) {
+                            blockActions = false;
+                        }
+                    });
+        }
 
-	}
+    }
+
+    @Override
+    public void duplicateCourseClass(CourseClassTO courseClassTO) {
+        if (!blockActions) {
+            blockActions = false;
+
+            confirmModal.showModal(
+                    "Tem certeza que deseja duplicar a turma \"" + courseClassTO.getCourseClass().getName() + "\"?",
+                    new com.google.gwt.core.client.Callback<Void, Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            bus.fireEvent(new ShowPacifierEvent(true));
+                            session.courseClass(courseClassTO.getCourseClass().getUUID())
+                                    .copy(new Callback<CourseClass>() {
+                                        @Override
+                                        public void ok(CourseClass courseClass) {
+                                            blockActions = false;
+                                            bus.fireEvent(new ShowPacifierEvent(false));
+                                            KornellNotification.show("Turma duplicada com sucesso.");
+                                            placeController.goTo(new AdminCourseClassPlace(courseClass.getUUID()));
+                                        }
+
+                                        @Override
+                                        public void internalServerError(KornellErrorTO error) {
+                                            blockActions = false;
+                                            bus.fireEvent(new ShowPacifierEvent(false));
+                                            KornellNotification.show("Erro ao tentar duplicar a turma.",
+                                                    AlertType.ERROR);
+                                        }
+
+                                        @Override
+                                        public void conflict(KornellErrorTO error) {
+                                            blockActions = false;
+                                            bus.fireEvent(new ShowPacifierEvent(false));
+                                            KornellNotification.show(
+                                                    "Erro ao tentar duplicar a turma. Verifique se já existe uma turma com o nome \""
+                                                            + courseClassTO.getCourseClass().getName() + "\" (2).",
+                                                    AlertType.ERROR, 5000);
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onFailure(Void reason) {
+                            blockActions = false;
+                        }
+                    });
+        }
+
+    }
 }

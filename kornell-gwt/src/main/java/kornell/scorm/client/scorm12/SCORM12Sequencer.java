@@ -18,118 +18,118 @@ import kornell.gui.client.uidget.Uidget;
 
 public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
 
-	private ClassroomPlace place;
-	private FlowPanel contentPanel;
-	private Uidget currentUidget;
-	private boolean isActive;
+    private ClassroomPlace place;
+    private FlowPanel contentPanel;
+    private Uidget currentUidget;
+    private boolean isActive;
 
-	public SCORM12Sequencer(EventBus bus, KornellSession session) {
-		super(bus, session);
-	}
+    public SCORM12Sequencer(EventBus bus, KornellSession session) {
+        super(bus, session);
+    }
 
-	@Override
-	public void onContinue(NavigationRequest event) {
-		if (!isActive)
-			return;
-		if(currentIndex < (actoms.size() - 1)){
-			currentIndex++;
-			paintCurrent();
-		} else {
-			bus.fireEvent(NavigationAuthorizationEvent.next(false));
-		}
-	}
+    @Override
+    public void onContinue(NavigationRequest event) {
+        if (!isActive)
+            return;
+        if (currentIndex < (actoms.size() - 1)) {
+            currentIndex++;
+            paintCurrent();
+        } else {
+            bus.fireEvent(NavigationAuthorizationEvent.next(false));
+        }
+    }
 
-	private void makeCurrentVisible() {
-		currentUidget.setVisible(true);
-	}
+    private void makeCurrentVisible() {
+        currentUidget.setVisible(true);
+    }
 
-	@Override
-	public void onPrevious(NavigationRequest event) {
-		if (!isActive)
-			return;
-		if(currentIndex > 0){
-			currentIndex--;
-			paintCurrent();
-		} else {
-			bus.fireEvent(NavigationAuthorizationEvent.prev(false));
-		}
-	}
+    @Override
+    public void onPrevious(NavigationRequest event) {
+        if (!isActive)
+            return;
+        if (currentIndex > 0) {
+            currentIndex--;
+            paintCurrent();
+        } else {
+            bus.fireEvent(NavigationAuthorizationEvent.prev(false));
+        }
+    }
 
-	@Override
-	public void onDirect(NavigationRequest event) {
-		launch(event.getDestination());
-	}
+    @Override
+    public void onDirect(NavigationRequest event) {
+        launch(event.getDestination());
+    }
 
-	private void launch(String key) {
-		isActive = true;
-		currentIndex = StringUtils.isSome(key) ? lookupCurrentIndex(key) : 0;
-		currentActom = actoms.get(currentIndex);
-		paintCurrent();
-	}
+    private void launch(String key) {
+        isActive = true;
+        currentIndex = StringUtils.isSome(key) ? lookupCurrentIndex(key) : 0;
+        currentActom = actoms.get(currentIndex);
+        paintCurrent();
+    }
 
-	@Override
-	public Sequencer withPanel(FlowPanel contentPanel) {
-		this.contentPanel = contentPanel;
-		return this;
-	}
+    @Override
+    public Sequencer withPanel(FlowPanel contentPanel) {
+        this.contentPanel = contentPanel;
+        return this;
+    }
 
-	@Override
-	public Sequencer withPlace(ClassroomPlace place) {
-		this.place = place;
-		setEnrollmentUUID(place.getEnrollmentUUID());
-		return this;
-	}
+    @Override
+    public Sequencer withPlace(ClassroomPlace place) {
+        this.place = place;
+        setEnrollmentUUID(place.getEnrollmentUUID());
+        return this;
+    }
 
-	@Override
-	public void go(Contents contents) {
-		setContents(contents);
-		String currentKey = session.getItem(getBreadcrumbKey());
-		launch(currentKey);
-	}
+    @Override
+    public void go(Contents contents) {
+        setContents(contents);
+        String currentKey = session.getItem(getBreadcrumbKey());
+        launch(currentKey);
+    }
 
-	private void paintCurrent() {
-		if (!isActive)
-			return;
-		if (contentPanel != null)
-			contentPanel.clear();
-		currentActom = actoms.get(currentIndex);
-		currentUidget = Uidget.forActom(currentActom);
-		currentUidget.setVisible(false);
-		contentPanel.add(currentUidget);
-		dropBreadcrumb();
-		makeCurrentVisible();
-	}
+    private void paintCurrent() {
+        if (!isActive)
+            return;
+        if (contentPanel != null)
+            contentPanel.clear();
+        currentActom = actoms.get(currentIndex);
+        currentUidget = Uidget.forActom(currentActom);
+        currentUidget.setVisible(false);
+        contentPanel.add(currentUidget);
+        dropBreadcrumb();
+        makeCurrentVisible();
+    }
 
-	private void setContents(Contents contents) {
-		this.actoms = ContentsOps.collectActoms(contents);
-	}
+    private void setContents(Contents contents) {
+        this.actoms = ContentsOps.collectActoms(contents);
+    }
 
-	@Override
-	public void stop() {
-		isActive = false;
-		contentPanel.clear();
-	}
+    @Override
+    public void stop() {
+        isActive = false;
+        contentPanel.clear();
+    }
 
-	// TODO: Smell - Activity Bar shows only after this fires.
-	@Override
-	public void fireProgressEvent() {
-		if (actoms == null)
-			return;
-		int pagesVisitedCount = 0;
-		int totalPages = actoms.size();
-		for (Actom actom : actoms) {
-			if (actom.isVisited()) {
-				pagesVisitedCount++;
-				continue;
-			}
-			break;
-		}
-		ProgressEvent progressEvent = new ProgressEvent();
-		progressEvent.setCurrentPage(currentIndex + 1);
-		progressEvent.setTotalPages(totalPages);
-		progressEvent.setPagesVisitedCount(pagesVisitedCount);
-		progressEvent.setEnrollmentUUID(place.getEnrollmentUUID());
-		bus.fireEvent(progressEvent);
-	}
+    // TODO: Smell - Activity Bar shows only after this fires.
+    @Override
+    public void fireProgressEvent() {
+        if (actoms == null)
+            return;
+        int pagesVisitedCount = 0;
+        int totalPages = actoms.size();
+        for (Actom actom : actoms) {
+            if (actom.isVisited()) {
+                pagesVisitedCount++;
+                continue;
+            }
+            break;
+        }
+        ProgressEvent progressEvent = new ProgressEvent();
+        progressEvent.setCurrentPage(currentIndex + 1);
+        progressEvent.setTotalPages(totalPages);
+        progressEvent.setPagesVisitedCount(pagesVisitedCount);
+        progressEvent.setEnrollmentUUID(place.getEnrollmentUUID());
+        bus.fireEvent(progressEvent);
+    }
 
 }

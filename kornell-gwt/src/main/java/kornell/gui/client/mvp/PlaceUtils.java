@@ -8,16 +8,16 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class PlaceUtils {
 
-  public static void reloadCurrentPlace(EventBus eventBus, PlaceController placeController) {
-    Place where = placeController.getWhere();
-    //Taken from PlaceController.maybeGoTo()
-    PlaceChangeRequestEvent willChange = new PlaceChangeRequestEvent(where);
-    eventBus.fireEvent(willChange);
-    String warning = willChange.getWarning();
-    //Taken from PlaceController.goTo()
-    if(warning == null) {
-      eventBus.fireEvent(new PlaceChangeEvent(where));
+    public static void reloadCurrentPlace(EventBus eventBus, PlaceController placeController) {
+        Place where = placeController.getWhere();
+        // Taken from PlaceController.maybeGoTo()
+        PlaceChangeRequestEvent willChange = new PlaceChangeRequestEvent(where);
+        eventBus.fireEvent(willChange);
+        String warning = willChange.getWarning();
+        // Taken from PlaceController.goTo()
+        if (warning == null) {
+            eventBus.fireEvent(new PlaceChangeEvent(where));
+        }
     }
-  }
 
 }

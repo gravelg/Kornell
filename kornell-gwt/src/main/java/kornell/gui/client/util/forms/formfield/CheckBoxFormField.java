@@ -7,29 +7,29 @@ import com.google.gwt.user.client.ui.Widget;
 import kornell.gui.client.KornellConstants;
 
 public class CheckBoxFormField implements KornellFormField<CheckBox> {
-	
-	private static KornellConstants constants = GWT.create(KornellConstants.class);
 
-	CheckBox field;
-	
-	public CheckBoxFormField(CheckBox field) {
-		this.field = field;
-		field.addStyleName("input-switch");
-	}
+    private static KornellConstants constants = GWT.create(KornellConstants.class);
 
-	@Override
-	public Widget getFieldWidget() {
-		return field;
-	}
+    CheckBox field;
 
-	@Override
-	public String getDisplayText() {
-		return field.getValue() ? constants.yes() : constants.no();
-	}
+    public CheckBoxFormField(CheckBox field) {
+        this.field = field;
+        field.addStyleName("input-switch");
+    }
 
-	@Override
-	public String getPersistText() {
-		return field.getValue().toString();
-	}
+    @Override
+    public Widget getFieldWidget() {
+        return field;
+    }
+
+    @Override
+    public String getDisplayText() {
+        return field.getValue() ? constants.yes() : constants.no();
+    }
+
+    @Override
+    public String getPersistText() {
+        return field.getValue().toString();
+    }
 
 }

@@ -8,17 +8,17 @@ import kornell.gui.client.ClientFactory;
 import kornell.gui.client.ViewFactory;
 
 public class AdminCourseClassActivity extends AbstractActivity {
-	private ClientFactory clientFactory;
+    private ClientFactory clientFactory;
 
-	public AdminCourseClassActivity(ClientFactory clientFactory) {
-	    this.clientFactory = clientFactory;
-	  }
+    public AdminCourseClassActivity(ClientFactory clientFactory) {
+        this.clientFactory = clientFactory;
+    }
 
-	@Override
-	public void start(AcceptsOneWidget panel, EventBus eventBus) {
-		ViewFactory viewFactory = clientFactory.getViewFactory();
-		AdminCourseClassPresenter presenter = viewFactory.getAdminCourseClassPresenter();
-		panel.setWidget(presenter);
-	}
+    @Override
+    public void start(AcceptsOneWidget panel, EventBus eventBus) {
+        ViewFactory viewFactory = clientFactory.getViewFactory();
+        AdminCourseClassPresenter presenter = viewFactory.getAdminCourseClassPresenter();
+        panel.setWidget(presenter);
+    }
 
 }

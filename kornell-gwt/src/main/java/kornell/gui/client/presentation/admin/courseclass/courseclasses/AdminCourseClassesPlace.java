@@ -5,25 +5,25 @@ import com.google.gwt.place.shared.Prefix;
 
 import kornell.gui.client.presentation.admin.courseclass.CourseClassPlace;
 
-public class AdminCourseClassesPlace extends CourseClassPlace{
-	public static final AdminCourseClassesPlace instance = new AdminCourseClassesPlace();
+public class AdminCourseClassesPlace extends CourseClassPlace {
+    public static final AdminCourseClassesPlace instance = new AdminCourseClassesPlace();
 
-	public AdminCourseClassesPlace() {
-	}
+    public AdminCourseClassesPlace() {
+    }
 
-	@Prefix("a.courseClasses")
-	public static class Tokenizer implements PlaceTokenizer<AdminCourseClassesPlace> {
-		public AdminCourseClassesPlace getPlace(String token) {
-			return new AdminCourseClassesPlace();
-		}
+    @Prefix("a.courseClasses")
+    public static class Tokenizer implements PlaceTokenizer<AdminCourseClassesPlace> {
+        public AdminCourseClassesPlace getPlace(String token) {
+            return new AdminCourseClassesPlace();
+        }
 
-		public String getToken(AdminCourseClassesPlace place) {
-			return "";
-		}
-	}
+        public String getToken(AdminCourseClassesPlace place) {
+            return "";
+        }
+    }
 
-	@Override
-	public String toString() {		
-		return getClass().getSimpleName() + ":" + new Tokenizer().getToken(this);
-	}
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ":" + new Tokenizer().getToken(this);
+    }
 }

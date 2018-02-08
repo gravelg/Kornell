@@ -10,23 +10,19 @@ import kornell.api.client.KornellClient;
 import kornell.gui.client.ClientFactory;
 import kornell.gui.client.presentation.home.HomeView;
 
-public class GenericHomeView  extends Composite implements HomeView {
-	interface MyUiBinder extends UiBinder<Widget, GenericHomeView> {}
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-		
-	public GenericHomeView(
-			ClientFactory factory,
-			EventBus eventBus,
-			KornellClient client) {
-	    initWidget(uiBinder.createAndBindUi(this));
-	}
-	
+public class GenericHomeView extends Composite implements HomeView {
+    interface MyUiBinder extends UiBinder<Widget, GenericHomeView> {
+    }
 
-	@Override
-	public void setPresenter(Presenter presenter) {
-		
-	}
-	
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	
+    public GenericHomeView(ClientFactory factory, EventBus eventBus, KornellClient client) {
+        initWidget(uiBinder.createAndBindUi(this));
+    }
+
+    @Override
+    public void setPresenter(Presenter presenter) {
+
+    }
+
 }
