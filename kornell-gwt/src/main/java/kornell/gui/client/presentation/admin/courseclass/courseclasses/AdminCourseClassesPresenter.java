@@ -61,6 +61,7 @@ public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseC
         if (RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassAdmin)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
+                || session.isPublisher()
                 || session.isInstitutionAdmin()) {
             initializeProperties("cc.name");
             view = getView();

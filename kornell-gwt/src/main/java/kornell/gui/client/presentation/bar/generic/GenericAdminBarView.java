@@ -68,22 +68,33 @@ public class GenericAdminBarView extends Composite implements AdminBarView {
     }
 
     private void updateButtonByPlace(Place place) {
-        if (place instanceof AdminInstitutionPlace)
+        if (place instanceof AdminInstitutionPlace) {
             updateSelection(BUTTON_INSTITUTION);
-        else if (place instanceof CoursePlace)
+        } else if (place instanceof CoursePlace) {
             updateSelection(BUTTON_COURSE);
-        else if (place instanceof CourseVersionPlace)
+        } else if (place instanceof CourseVersionPlace) {
             updateSelection(BUTTON_COURSE_VERSION);
-        else
+        } else {
             updateSelection(BUTTON_COURSE_CLASS);
+        }
     }
 
     private void display() {
-        displayButton(btnInstitution, BUTTON_INSTITUTION, new Icon(IconType.BUILDING));
+        if (clientFactory.getKornellSession().isInstitutionAdmin()) {
+            displayButton(btnInstitution, BUTTON_INSTITUTION, new Icon(IconType.BUILDING));
+        }
         displayButton(btnCourse, BUTTON_COURSE, new Icon(IconType.FOLDER_OPEN));
         displayButton(btnCourseVersion, BUTTON_COURSE_VERSION, new Icon(IconType.TAGS));
-        displayButton(btnCourseClass, BUTTON_COURSE_CLASS, new Icon(IconType.BOOK));
-        updateSelection(BUTTON_COURSE_CLASS);
+        if (clientFactory.getKornellSession().isInstitutionAdmin()) {
+            displayButton(btnCourseClass, BUTTON_COURSE_CLASS, new Icon(IconType.BOOK));
+        }
+        if (clientFactory.getKornellSession().isInstitutionAdmin()) {
+            updateSelection(BUTTON_COURSE_CLASS);
+        } else {
+            this.btnCourseClass.setVisible(false);
+            this.btnInstitution.setVisible(false);
+            updateSelection(BUTTON_COURSE);
+        }
     }
 
     private void displayButton(final Button btn, final String buttonType, Icon icon) {

@@ -61,7 +61,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
     private PlaceController placeCtrl;
     private EventBus bus;
     private FormHelper formHelper = GWT.create(FormHelper.class);
-    private boolean isCreationMode, isInstitutionAdmin, isPlatformAdmin, isAdvancedMode;
+    private boolean isCreationMode, hasPublishingRole, isPlatformAdmin, isAdvancedMode;
     boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
     private Presenter presenter;
@@ -119,7 +119,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
         this.placeCtrl = placeCtrl;
         this.viewFactory = viewFactory;
         this.isPlatformAdmin = session.isPlatformAdmin();
-        this.isInstitutionAdmin = session.isInstitutionAdmin();
+        this.hasPublishingRole = session.hasPublishingRole();
         isAdvancedMode = session.getInstitution().isAdvancedMode();
         this.bus = bus;
         initWidget(uiBinder.createAndBindUi(this));
@@ -200,8 +200,8 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
         titleEdit.setVisible(!isCreationMode);
         titleCreate.setVisible(isCreationMode);
 
-        btnOK.setVisible(isInstitutionAdmin || isCreationMode);
-        btnCancel.setVisible(isInstitutionAdmin);
+        btnOK.setVisible(hasPublishingRole || isCreationMode);
+        btnCancel.setVisible(hasPublishingRole);
 
         session.courses().get(new Callback<CoursesTO>() {
             @Override
@@ -214,19 +214,19 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
         });
 
         distributionPrefix = new KornellFormFieldWrapper("Código",
-                formHelper.createTextBoxFormField(courseVersion.getDistributionPrefix()), isInstitutionAdmin);
-        if (isPlatformAdmin || (isInstitutionAdmin && isAdvancedMode)) {
+                formHelper.createTextBoxFormField(courseVersion.getDistributionPrefix()), hasPublishingRole);
+        if (isPlatformAdmin || (hasPublishingRole && isAdvancedMode)) {
             fields.add(distributionPrefix);
             courseVersionFields.add(distributionPrefix);
         }
 
         name = new KornellFormFieldWrapper("Nome", formHelper.createTextBoxFormField(courseVersion.getName()),
-                isInstitutionAdmin);
+                hasPublishingRole);
         fields.add(name);
         courseVersionFields.add(name);
 
         disabled = new KornellFormFieldWrapper("Desabilitar?",
-                formHelper.createCheckBoxFormField(courseVersion.isDisabled()), isInstitutionAdmin);
+                formHelper.createCheckBoxFormField(courseVersion.isDisabled()), hasPublishingRole);
         if (!isCreationMode) {
             fields.add(disabled);
             courseVersionFields.add(disabled);
@@ -235,7 +235,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
         courseVersionFields.add(formHelper.getImageSeparator());
 
         if (InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())) {
-            if (isCreationMode || isInstitutionAdmin) {
+            if (isCreationMode || hasPublishingRole) {
                 session.courseVersions().get(new Callback<CourseVersionsTO>() {
                     @Override
                     public void ok(CourseVersionsTO to) {
@@ -291,19 +291,19 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
                     courseVersion.getParentVersionUUID() == null ? "null" : courseVersion.getParentVersionUUID());
         }
         parentCourseVersion = new KornellFormFieldWrapper("Versão Pai do Curso", new ListBoxFormField(courseVersions),
-                (isCreationMode || isInstitutionAdmin));
+                (isCreationMode || hasPublishingRole));
         fields.add(parentCourseVersion);
         courseVersionFields.add(parentCourseVersion);
 
         String instanceCountStr = courseVersion.getInstanceCount() == null ? ""
                 : courseVersion.getInstanceCount().toString();
         instanceCount = new KornellFormFieldWrapper("Quantidade de Instâncias",
-                formHelper.createTextBoxFormField(instanceCountStr), isInstitutionAdmin);
+                formHelper.createTextBoxFormField(instanceCountStr), hasPublishingRole);
         fields.add(instanceCount);
         courseVersionFields.add(instanceCount);
 
         label = new KornellFormFieldWrapper("Rótulo", formHelper.createTextBoxFormField(courseVersion.getLabel()),
-                isInstitutionAdmin);
+                hasPublishingRole);
         fields.add(label);
         courseVersionFields.add(label);
 
@@ -330,7 +330,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
         if (!isCreationMode) {
             courses.setSelectedValue(courseVersion.getCourseUUID());
         }
-        course = new KornellFormFieldWrapper("Curso", new ListBoxFormField(courses), isInstitutionAdmin);
+        course = new KornellFormFieldWrapper("Curso", new ListBoxFormField(courses), hasPublishingRole);
 
         if (course != null && courseVersionFields.getElement().isOrHasChild(course.getElement())) {
             fields.remove(course);
@@ -365,7 +365,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
     @UiHandler("btnOK")
     void doOK(ClickEvent e) {
         formHelper.clearErrors(fields);
-        if (isInstitutionAdmin && validateFields()) {
+        if (hasPublishingRole && validateFields()) {
             bus.fireEvent(new ShowPacifierEvent(true));
             CourseVersion courseVersion = getCourseVersionInfoFromForm();
             presenter.upsertCourseVersion(courseVersion);

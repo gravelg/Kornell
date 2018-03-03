@@ -42,7 +42,7 @@ public class AdminCoursePresenter implements AdminCourseView.Presenter {
     }
 
     private void init() {
-        if (session.isInstitutionAdmin()) {
+        if (session.hasPublishingRole()) {
             view = getView();
             view.setPresenter(this);
             view.init();
