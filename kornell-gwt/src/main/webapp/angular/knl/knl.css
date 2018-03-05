@@ -3,6 +3,10 @@ body {
     margin-top: 0;
 }
 
+table, .table {
+    color: #BDBDBD;
+}
+
 .panel-default {
     margin-top: 6px;
 }
@@ -104,6 +108,10 @@ body {
 .changedFlagIcon {
     margin-right: 5px;
     color: #2a9fd6;
+}
+
+.my-drop-zone {
+    margin-top: 22px;
 }
 
 .nav-tabs > li {

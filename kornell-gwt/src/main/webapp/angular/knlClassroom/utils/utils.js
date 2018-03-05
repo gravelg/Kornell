@@ -42,13 +42,22 @@ app.factory('knlUtils', [
         };
 
         knlUtils.doLMSGetValueSanitized = function(key){
-            var value = doLMSGetValue(key);
-            return value && value != 'null' ? value : null;
+            try {
+                var value = doLMSGetValue(key);
+                return value && value != 'null' ? value : null;
+            } catch(err) {
+                console.log("Error attempting to save SCORM attribute.");
+                return null;
+            }
         };
 
         knlUtils.setAttribute = function(key, value){
             $rootScope.isDebug && console.log('setAttribute', key, value);
-            doLMSSetValue(key, value);
+            try {
+                doLMSSetValue(key, value);
+            } catch(err) {
+                console.log("Error attempting to save SCORM attribute.");
+            }
         };
 
         knlUtils.doLMSSetBooleanValueSanitized = function(key, value){

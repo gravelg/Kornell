@@ -14,6 +14,6 @@
 	}
 </style>
 <div class="innerDiv container imageInnerDiv" ng-controller="ImageSlideController">
-    <img ng-src="{{slide.id.indexOf('//') >= 0 ? slide.id : classroomPath+'images/'+slide.id}}"/>
+    <img ng-src="{{(prefixURL ? prefixURL : '') + slide.id}}"/>
     <p class="contentText" ng-bind-html="sce.trustAsHtml(slide.text)"></p>
 </div>

@@ -11,16 +11,62 @@ app.controller('WizardController', [
   '$location',
   '$uibModal',
   'toaster',
+  'FileUploader',
   'SLIDE_TYPES',
-  function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, toaster, SLIDE_TYPES) {
+  function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, toaster, FileUploader, SLIDE_TYPES) {
+
+    $scope.domain = window.location.host.indexOf('localhost:') >= 0 ? '*' : parent.location;
+
+    parent.postMessage({type: "wizardReady", message: ""}, $scope.domain);
     
-    var getDomain = function(){
-      if(window.location.host.indexOf('localhost:') >= 0){
-        return '*';
+    var uploader = $scope.uploader = new FileUploader();
+
+    uploader.onAfterAddingFile = function(fileItem) {
+      fileItem.disableMultipart = true;
+
+      var allowedExtensions = $scope.selectedNode.type === 'video' ? 'mpg, mpeg, mp4, mov' : 'jpg, jpeg, gif, png',
+        fileName = fileItem.file && fileItem.file.name,
+        fileParts = fileName && fileName.split('.'),
+        fileExtension = fileParts && fileParts.length > 1 && fileParts[1],
+        isAllowedExtension = fileExtension && allowedExtensions.indexOf(fileExtension) >= 0;
+
+      if(isAllowedExtension){
+        if(uploader.queue.length > 1){
+          uploader.queue.splice(0, 1);
+        }
+        uploader.requestUploadPath = false;
+        fileItem.file.name = $rootScope.uuid() + '.' + fileExtension;
+        parent.postMessage({type: "requestUploadPath", message: fileItem.file.name}, $scope.domain);
+      } else {
+        toaster.pop("error", "Erro", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
       }
-      return parent.location;;
-    }
-    parent.postMessage({type: "wizardReady", message: ""}, getDomain());
+    };
+
+    uploader.onBeforeUploadItem = function(item) {
+      if(!uploader.requestUploadPath) {
+        toaster.pop("error", "Erro", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+        return;
+      }
+      if(uploader.queue.length == 1){
+        uploader.queue[0].url = uploader.requestUploadPath;
+        uploader.queue[0].uploader.url = uploader.requestUploadPath;
+        uploader.queue[0].method = 'PUT';
+        uploader.queue[0].fullURL = uploader.requestUploadPath.split('.s3.amazonaws.com')[1].split('?AWS')[0];
+        //item.removeAfterUpload = true;
+
+      }
+      console.info('onBeforeUploadItem', uploader.queue);
+    };
+
+    uploader.onSuccessItem = function(fileItem, response, status, headers) {
+      toaster.pop("success", "Sucesso", "Upload concluído com sucesso.");
+      $scope.selectedNode.id = fileItem.fullURL;
+      uploader.queue = [];
+    };
+
+    uploader.onErrorItem = function(fileItem, response, status, headers) {
+      toaster.pop("error", "Erro", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+    };
 
     window.addEventListener('message',function(event) {
       if(event.data.type === 'classroomJsonLoad'){
@@ -29,6 +75,9 @@ app.controller('WizardController', [
       } else if(event.data.type === 'classroomJsonNew') {
         $scope.newTree(event.data.message);
         $scope.initWizard();
+      } else if(event.data.type === 'responseUploadPath') {
+        console.log(event.data);
+          uploader.requestUploadPath = event.data.message;
       }
     },false);
     
@@ -119,7 +168,7 @@ app.controller('WizardController', [
       $scope.savedRoot = angular.copy($scope.root);
       $scope.verifyTree();
       var contents = decodeURI(Base64.decode(localStorage.KNLwp));
-      parent.postMessage({type: "wizardSave", message: contents}, getDomain());
+      parent.postMessage({type: "wizardSave", message: contents}, $scope.domain);
     };
 
     $scope.discardTree = function() {
@@ -484,6 +533,8 @@ app.controller('WizardController', [
       $scope.innerWidth = $window.innerWidth;
     };
 
+//$scope.root = {"title":"KNL","availableVideoSizes":"144,360,720","colorBackground":"EBEBEB","colorFont":"0284B5","colorTheme":"0284B5","colorTitle":"EBEBEB","itemType":"root","paddingTopIframe":56,"topics":[{"itemType":"topic","title":"Tópico 1","uuid":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","slides":[{"itemType":"slide","title":"Slide 1.1: Imagem","type":"image","uuid":"ca10d6da-1952-4830-9f9a-2c34a3485146","id":"https://static.pexels.com/photos/355988/pexels-photo-355988.jpeg","$$hashKey":"object:57","parentUUID":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","count":0,"totalSlidesCount":0}],"parentUUID":"4849e1fc-ea88-4247-be80-155052f0fb0e","count":0,"$$hashKey":"object:19"}],"uuid":"4849e1fc-ea88-4247-be80-155052f0fb0e","$$hashKey":"object:13"};
+//$scope.initWizard();
   }
 ]);
 

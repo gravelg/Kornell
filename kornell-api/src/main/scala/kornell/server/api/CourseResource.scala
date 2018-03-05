@@ -63,6 +63,15 @@ class CourseResource(uuid: String) {
     .or(isInstitutionAdmin(), AccessDeniedErr())
     .get
 
+  @GET
+  @Path("wizardContentUploadUrl")
+  @Produces(Array("text/plain"))
+  def getUploadUrl(@QueryParam("filename") filename: String): String = {
+    S3Service.getCourseWizardContentUploadUrl(uuid, filename)
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .get
+
 }
 
 object CourseResource {

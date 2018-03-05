@@ -50,7 +50,7 @@ app.controller('SlideController', [
 			$rootScope.evaluateTimer(true);
 
 			var key = 'knl.slide.'+$scope.slideUUID+'.type';
-        var slideType = doLMSGetValue(key);
+        var slideType = knlUtils.doLMSGetValueSanitized(key);
       if(!slideType){
         knlUtils.setAttribute(key, $scope.slide.type);
       }

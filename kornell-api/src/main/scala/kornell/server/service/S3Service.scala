@@ -18,6 +18,7 @@ import kornell.server.jdbc.repository.CoursesRepo
 import kornell.core.entity.RepositoryType
 import java.net.URL
 import kornell.core.util.StringUtils
+import kornell.core.util.UUID
 
 object S3Service {
 
@@ -38,14 +39,9 @@ object S3Service {
     getUploadUrl(CourseRepo(courseVersion.getCourseUUID).get.getInstitutionUUID, fullPath, "application/zip")
   }
 
-  def getContentType(fileName: String) = {
-    fileName.split('.')(1) match {
-      case "png" => "image/png"
-      case "jpg" => "image/jpg"
-      case "jpeg" => "image/jpg"
-      case "ico" => "image/x-icon"
-      case _ => "application/octet-stream"
-    }
+  def getCourseWizardContentUploadUrl(courseUUID: String, fileName: String) = {
+    val course = CourseRepo(courseUUID).get
+    getCourseUploadUrl(course.getUUID, fileName, "__wizard")
   }
 
   def getCourseAssetUrl(institutionUUID: String, courseUUID: String, fileName: String, path: String) = {
@@ -128,6 +124,24 @@ object S3Service {
   def getRepo(institutionUUID: String) = {
     val institution = InstitutionRepo(institutionUUID).get
     ContentRepositoriesRepo.firstRepository(institution.getAssetsRepositoryUUID).get
+  }
+
+  def getContentType(fileName: String) = {
+    getFileExtension(fileName) match {
+      case "png" => "image/png"
+      case "jpg" => "image/jpg"
+      case "jpeg" => "image/jpg"
+      case "ico" => "image/x-icon"
+      case _ => "application/octet-stream"
+    }
+  }
+
+  def getFileExtension(fileName: String) = {
+    val fileNameSplit = fileName.split('.')
+    if (fileNameSplit.length > 1)
+      fileNameSplit(1)
+    else
+      fileNameSplit(0)
   }
 
 }
