@@ -47,273 +47,278 @@ import kornell.gui.client.util.forms.formfield.ListBoxFormField;
 
 public class GenericAdminCourseView extends Composite implements AdminCourseView {
 
-	interface MyUiBinder extends UiBinder<Widget, GenericAdminCourseView> {
-	}
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
+    interface MyUiBinder extends UiBinder<Widget, GenericAdminCourseView> {
+    }
 
-	private KornellSession session;
-	private PlaceController placeCtrl;
-	private FormHelper formHelper = GWT.create(FormHelper.class);
-	private boolean isCreationMode, isInstitutionAdmin, isPlatformAdmin, isAdvancedMode;
-	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
 
-	private Presenter presenter;
+    private KornellSession session;
+    private PlaceController placeCtrl;
+    private FormHelper formHelper = GWT.create(FormHelper.class);
+    private boolean isCreationMode, isInstitutionAdmin, isPlatformAdmin, isAdvancedMode;
+    boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
+    private Presenter presenter;
 
-	@UiField
-	TabPanel tabsPanel;
-	@UiField
-	Tab editTab;
-	@UiField
-	Tab reportsTab;
-	@UiField
-	FlowPanel reportsPanel;
-	@UiField
-	Tab assetsTab;
-	@UiField
-	FlowPanel assetsPanel;
+    @UiField
+    TabPanel tabsPanel;
+    @UiField
+    Tab editTab;
+    @UiField
+    Tab reportsTab;
+    @UiField
+    FlowPanel reportsPanel;
+    @UiField
+    Tab assetsTab;
+    @UiField
+    FlowPanel assetsPanel;
 
-	@UiField
-	HTMLPanel titleEdit;
-	@UiField
-	HTMLPanel titleCreate;
-	@UiField
-	Form form;
-	@UiField
-	FlowPanel courseFields;
-	@UiField
-	Button btnOK;
-	@UiField
-	Button btnCancel;
+    @UiField
+    HTMLPanel titleEdit;
+    @UiField
+    HTMLPanel titleCreate;
+    @UiField
+    Form form;
+    @UiField
+    FlowPanel courseFields;
+    @UiField
+    Button btnOK;
+    @UiField
+    Button btnCancel;
 
-	@UiField
-	Modal confirmModal;
-	@UiField
-	Label confirmText;
-	@UiField
-	Button btnModalOK;
-	@UiField
-	Button btnModalCancel;
+    @UiField
+    Modal confirmModal;
+    @UiField
+    Label confirmText;
+    @UiField
+    Button btnModalOK;
+    @UiField
+    Button btnModalCancel;
 
-	private Course course;
+    private Course course;
 
-	private KornellFormFieldWrapper code, title, description, contentSpec, childCourse;
-	
-	private List<KornellFormFieldWrapper> fields;
-	private String courseUUID;
-	private GenericCourseReportsView reportsView;
-	private AdminAssetsPresenter adminAssetsPresenter;
-	private EventBus bus;
-	private boolean initializing = false;
-	private ViewFactory viewFactory;
-	
-	public GenericAdminCourseView(final KornellSession session, EventBus bus, PlaceController placeCtrl, ViewFactory viewFactory) {
-		this.session = session;
-		this.placeCtrl = placeCtrl;
-		this.bus = bus;
-		this.viewFactory = viewFactory;
-		isInstitutionAdmin = session.isInstitutionAdmin();
-		isPlatformAdmin = session.isPlatformAdmin();
-		isAdvancedMode = session.getInstitution().isAdvancedMode();
-		initWidget(uiBinder.createAndBindUi(this));
+    private KornellFormFieldWrapper code, title, description, contentSpec, childCourse;
 
-		// i18n
-		btnOK.setText("Salvar".toUpperCase());
-		btnCancel.setText("Cancelar".toUpperCase());	
+    private List<KornellFormFieldWrapper> fields;
+    private String courseUUID;
+    private GenericCourseReportsView reportsView;
+    private AdminAssetsPresenter adminAssetsPresenter;
+    private EventBus bus;
+    private boolean initializing = false;
+    private ViewFactory viewFactory;
 
-		btnModalOK.setText("OK".toUpperCase());
-		btnModalCancel.setText("Cancelar".toUpperCase());
-		
-		bus.addHandler(PlaceChangeEvent.TYPE,
-				new PlaceChangeEvent.Handler() {
-					@Override
-					public void onPlaceChange(PlaceChangeEvent event) {
-						if(event.getNewPlace() instanceof AdminCoursePlace && !initializing)
-							init();
-					}
-				});
-	}
-	
-	@Override
-	public void init(){
-		editTab.setActive(true);
-		reportsTab.setActive(false);
-		assetsTab.setActive(false);
-		
-		if(placeCtrl.getWhere() instanceof AdminCoursePlace && ((AdminCoursePlace)placeCtrl.getWhere()).getCourseUUID() != null){
-			this.courseUUID = ((AdminCoursePlace)placeCtrl.getWhere()).getCourseUUID();
-			isCreationMode = false;
-		} else {
-			isCreationMode = true;
-		}
-		
-		if(isCreationMode){
-			course = presenter.getNewCourse();
-			initData();	
-		} else {	
-			session.course(courseUUID).get(new Callback<Course>() {
-				@Override
-				public void ok(Course to) {
-					course = to;
-					initData();
-				}
-			});
-		}
-	}
+    public GenericAdminCourseView(final KornellSession session, EventBus bus, PlaceController placeCtrl,
+            ViewFactory viewFactory) {
+        this.session = session;
+        this.placeCtrl = placeCtrl;
+        this.bus = bus;
+        this.viewFactory = viewFactory;
+        isInstitutionAdmin = session.isInstitutionAdmin();
+        isPlatformAdmin = session.isPlatformAdmin();
+        isAdvancedMode = session.getInstitution().isAdvancedMode();
+        initWidget(uiBinder.createAndBindUi(this));
 
-	private static native void showNavBar(boolean show) /*-{
-		if($wnd.document.getElementsByClassName("nav-tabs") && $wnd.document.getElementsByClassName("nav-tabs")[0]){
-			$wnd.document.getElementsByClassName("nav-tabs")[0].style.display = (show?"block":"none");
-		}
-	}-*/;
+        // i18n
+        btnOK.setText("Salvar".toUpperCase());
+        btnCancel.setText("Cancelar".toUpperCase());
 
-	public void initData() {
+        btnModalOK.setText("OK".toUpperCase());
+        btnModalCancel.setText("Cancelar".toUpperCase());
 
-		titleEdit.setVisible(!isCreationMode);
-		titleCreate.setVisible(isCreationMode);
+        bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
+            @Override
+            public void onPlaceChange(PlaceChangeEvent event) {
+                if (event.getNewPlace() instanceof AdminCoursePlace && !initializing)
+                    init();
+            }
+        });
+    }
 
-		buildReportsView();
-		reportsTab.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				buildReportsView();
-			}
-		});
-		
-		assetsTab.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				buildAssetsView();
-			}
-		});
-		
-		courseFields.setVisible(false);
-		this.fields = new ArrayList<KornellFormFieldWrapper>();
+    @Override
+    public void init() {
+        editTab.setActive(true);
+        reportsTab.setActive(false);
+        assetsTab.setActive(false);
 
-		courseFields.clear();
-		
-		btnOK.setVisible(isInstitutionAdmin|| isCreationMode);
-		btnCancel.setVisible(isInstitutionAdmin);		
+        if (placeCtrl.getWhere() instanceof AdminCoursePlace
+                && ((AdminCoursePlace) placeCtrl.getWhere()).getCourseUUID() != null) {
+            this.courseUUID = ((AdminCoursePlace) placeCtrl.getWhere()).getCourseUUID();
+            isCreationMode = false;
+        } else {
+            isCreationMode = true;
+        }
 
-		code = new KornellFormFieldWrapper("Código", formHelper.createTextBoxFormField(course.getCode()), isInstitutionAdmin);
-		if(isPlatformAdmin || (isInstitutionAdmin && isAdvancedMode)){
-			fields.add(code);
-			courseFields.add(code);
-		}
-		
-		title = new KornellFormFieldWrapper("Nome", formHelper.createTextBoxFormField(course.getName()), isInstitutionAdmin);
-		fields.add(title);
-		courseFields.add(title);
+        if (isCreationMode) {
+            course = presenter.getNewCourse();
+            initData();
+        } else {
+            session.course(courseUUID).get(new Callback<Course>() {
+                @Override
+                public void ok(Course to) {
+                    course = to;
+                    initData();
+                }
+            });
+        }
+    }
 
-		description = new KornellFormFieldWrapper("Descrição", formHelper.createTextAreaFormField(course.getDescription(), 6), isInstitutionAdmin);
-		description.addStyleName("heightAuto");
-		description.addStyleName("marginBottom25");
-		fields.add(description);
-		courseFields.add(description);
-		
-		final ListBox contentSpecTypes = new ListBox();
-		contentSpecTypes.addItem("KNL", ContentSpec.KNL.toString());
-		contentSpecTypes.addItem("SCORM12", ContentSpec.SCORM12.toString());
-		//contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
-		if (!isCreationMode) {
-			contentSpecTypes.setSelectedValue(course.getContentSpec().toString());
-		}
-		contentSpec = new KornellFormFieldWrapper("Tipo", new ListBoxFormField(contentSpecTypes), isInstitutionAdmin);
-		fields.add(contentSpec);
-		courseFields.add(contentSpec);
+    private static native void showNavBar(boolean show) /*-{
+        if($wnd.document.getElementsByClassName("nav-tabs") && $wnd.document.getElementsByClassName("nav-tabs")[0]){
+            $wnd.document.getElementsByClassName("nav-tabs")[0].style.display = (show?"block":"none");
+        }
+    }-*/;
 
-		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
-			childCourse = new KornellFormFieldWrapper("Curso Filho?", formHelper.createCheckBoxFormField(course.isChildCourse()), isInstitutionAdmin);
-			fields.add(childCourse);
-			courseFields.add(childCourse);
-			((CheckBox)childCourse.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-				@Override
-				public void onValueChange(ValueChangeEvent<Boolean> event) {
-					if(event.getValue()){
-					}
-				}
-			});
-		}
-		
-		courseFields.add(formHelper.getImageSeparator());
+    public void initData() {
 
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				showNavBar(!isCreationMode);
-				courseFields.setVisible(true);
-			}
-		});
-		initializing = false;
-	}
+        titleEdit.setVisible(!isCreationMode);
+        titleCreate.setVisible(isCreationMode);
 
-	public void buildReportsView() {
-		reportsView = new GenericCourseReportsView(session, bus, null, course);
-		reportsPanel.clear();
-		reportsPanel.add(reportsView);
-	}
+        buildReportsView();
+        reportsTab.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                buildReportsView();
+            }
+        });
 
-	public void buildAssetsView() {
-		adminAssetsPresenter = new AdminAssetsPresenter(session,bus,viewFactory);
-		assetsPanel.clear();
-		adminAssetsPresenter.init(CourseDetailsEntityType.COURSE, course);
-		assetsPanel.add(adminAssetsPresenter.asWidget());
-	}
-	
-	private boolean validateFields() {		
-		if (!formHelper.isLengthValid(code.getFieldPersistText(), 2, 255)) {
-			code.setError("O código deve ter entre 2 e 255 caracteres");
-		}		
-		if (!formHelper.isLengthValid(title.getFieldPersistText(), 2, 100)) {
-			title.setError("Insira o título do curso");
-		}
-		if (!formHelper.isLengthValid(description.getFieldPersistText(), 2, 200)) {
-			description.setError("Insira a descrição");
-		}
-		if (!formHelper.isLengthValid(contentSpec.getFieldPersistText(), 2, 20)) {
-			contentSpec.setError("Insira o tipo");
-		} else {
-			try {
-				ContentSpec.valueOf(contentSpec.getFieldPersistText());
-		    } catch (Exception e) {
-					contentSpec.setError("Tipo inválido.");
-		    }
-		}
-		
-		return !formHelper.checkErrors(fields);
-	}
+        assetsTab.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                buildAssetsView();
+            }
+        });
 
-	@UiHandler("btnOK")
-	void doOK(ClickEvent e) {
-		formHelper.clearErrors(fields);
-		if (isInstitutionAdmin && validateFields()) {
-			bus.fireEvent(new ShowPacifierEvent(true));
-			Course course = getCourseInfoFromForm();
-			presenter.upsertCourse(course);
-		}
-	}
+        courseFields.setVisible(false);
+        this.fields = new ArrayList<KornellFormFieldWrapper>();
 
-	private Course getCourseInfoFromForm() {
-		course.setCode(code.getFieldPersistText());
-		course.setName(title.getFieldPersistText());
-		course.setDescription(description.getFieldPersistText());
-		course.setContentSpec(ContentSpec.valueOf(contentSpec.getFieldPersistText()));
-		if(InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())){
-			course.setChildCourse(childCourse.getFieldPersistText().equals("true"));
-		}
-		course.setInstitutionUUID(session.getInstitution().getUUID());
-		return course;
-	}
+        courseFields.clear();
 
-	@UiHandler("btnCancel")
-	void doCancel(ClickEvent e) {
-		this.placeCtrl.goTo(new AdminCoursesPlace());
-	}
-	
-	@Override
-  public void setPresenter(Presenter presenter) {
-	  this.presenter = presenter;
-  }
+        btnOK.setVisible(isInstitutionAdmin || isCreationMode);
+        btnCancel.setVisible(isInstitutionAdmin);
+
+        code = new KornellFormFieldWrapper("Código", formHelper.createTextBoxFormField(course.getCode()),
+                isInstitutionAdmin);
+        if (isPlatformAdmin || (isInstitutionAdmin && isAdvancedMode)) {
+            fields.add(code);
+            courseFields.add(code);
+        }
+
+        title = new KornellFormFieldWrapper("Nome", formHelper.createTextBoxFormField(course.getName()),
+                isInstitutionAdmin);
+        fields.add(title);
+        courseFields.add(title);
+
+        description = new KornellFormFieldWrapper("Descrição",
+                formHelper.createTextAreaFormField(course.getDescription(), 6), isInstitutionAdmin);
+        description.addStyleName("heightAuto");
+        description.addStyleName("marginBottom25");
+        fields.add(description);
+        courseFields.add(description);
+
+        final ListBox contentSpecTypes = new ListBox();
+        contentSpecTypes.addItem("KNL", ContentSpec.KNL.toString());
+        contentSpecTypes.addItem("SCORM12", ContentSpec.SCORM12.toString());
+        // contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
+        if (!isCreationMode) {
+            contentSpecTypes.setSelectedValue(course.getContentSpec().toString());
+        }
+        contentSpec = new KornellFormFieldWrapper("Tipo", new ListBoxFormField(contentSpecTypes), isInstitutionAdmin);
+        fields.add(contentSpec);
+        courseFields.add(contentSpec);
+
+        if (InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())) {
+            childCourse = new KornellFormFieldWrapper("Curso Filho?",
+                    formHelper.createCheckBoxFormField(course.isChildCourse()), isInstitutionAdmin);
+            fields.add(childCourse);
+            courseFields.add(childCourse);
+            ((CheckBox) childCourse.getFieldWidget()).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                @Override
+                public void onValueChange(ValueChangeEvent<Boolean> event) {
+                    if (event.getValue()) {
+                    }
+                }
+            });
+        }
+
+        courseFields.add(formHelper.getImageSeparator());
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                showNavBar(!isCreationMode);
+                courseFields.setVisible(true);
+            }
+        });
+        initializing = false;
+    }
+
+    public void buildReportsView() {
+        reportsView = new GenericCourseReportsView(session, bus, null, course);
+        reportsPanel.clear();
+        reportsPanel.add(reportsView);
+    }
+
+    public void buildAssetsView() {
+        adminAssetsPresenter = new AdminAssetsPresenter(session, bus, viewFactory);
+        assetsPanel.clear();
+        adminAssetsPresenter.init(CourseDetailsEntityType.COURSE, course);
+        assetsPanel.add(adminAssetsPresenter.asWidget());
+    }
+
+    private boolean validateFields() {
+        if (!formHelper.isLengthValid(code.getFieldPersistText(), 2, 255)) {
+            code.setError("O código deve ter entre 2 e 255 caracteres");
+        }
+        if (!formHelper.isLengthValid(title.getFieldPersistText(), 2, 100)) {
+            title.setError("Insira o título do curso");
+        }
+        if (!formHelper.isLengthValid(description.getFieldPersistText(), 2, 200)) {
+            description.setError("Insira a descrição");
+        }
+        if (!formHelper.isLengthValid(contentSpec.getFieldPersistText(), 2, 20)) {
+            contentSpec.setError("Insira o tipo");
+        } else {
+            try {
+                ContentSpec.valueOf(contentSpec.getFieldPersistText());
+            } catch (Exception e) {
+                contentSpec.setError("Tipo inválido.");
+            }
+        }
+
+        return !formHelper.checkErrors(fields);
+    }
+
+    @UiHandler("btnOK")
+    void doOK(ClickEvent e) {
+        formHelper.clearErrors(fields);
+        if (isInstitutionAdmin && validateFields()) {
+            bus.fireEvent(new ShowPacifierEvent(true));
+            Course course = getCourseInfoFromForm();
+            presenter.upsertCourse(course);
+        }
+    }
+
+    private Course getCourseInfoFromForm() {
+        course.setCode(code.getFieldPersistText());
+        course.setName(title.getFieldPersistText());
+        course.setDescription(description.getFieldPersistText());
+        course.setContentSpec(ContentSpec.valueOf(contentSpec.getFieldPersistText()));
+        if (InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())) {
+            course.setChildCourse(childCourse.getFieldPersistText().equals("true"));
+        }
+        course.setInstitutionUUID(session.getInstitution().getUUID());
+        return course;
+    }
+
+    @UiHandler("btnCancel")
+    void doCancel(ClickEvent e) {
+        this.placeCtrl.goTo(new AdminCoursesPlace());
+    }
+
+    @Override
+    public void setPresenter(Presenter presenter) {
+        this.presenter = presenter;
+    }
 
 }

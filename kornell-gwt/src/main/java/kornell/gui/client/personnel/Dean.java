@@ -19,124 +19,123 @@ import kornell.gui.client.util.CSSInjector;
 import kornell.gui.client.util.view.KornellMaintenance;
 
 public class Dean implements LogoutEventHandler, UnreadMessagesPerThreadFetchedEventHandler,
-		UnreadMessagesCountChangedEventHandler {
+        UnreadMessagesCountChangedEventHandler {
 
-	private String ICON_NAME = "favicon.ico";
-	private String DEFAULT_SITE_TITLE = "Kornell";
-	private EventBus bus;
-	private KornellSession session;
-	private int totalCount;
+    private String ICON_NAME = "favicon.ico";
+    private String DEFAULT_SITE_TITLE = "Kornell";
+    private EventBus bus;
+    private KornellSession session;
+    private int totalCount;
 
-	public Dean(EventBus bus, KornellSession session) {
-		this.bus = bus;
-		this.session = session;
+    public Dean(EventBus bus, KornellSession session) {
+        this.bus = bus;
+        this.session = session;
 
-		bus.addHandler(LogoutEvent.TYPE, this);
-		bus.addHandler(UnreadMessagesPerThreadFetchedEvent.TYPE, this);
-		bus.addHandler(UnreadMessagesCountChangedEvent.TYPE, this);
+        bus.addHandler(LogoutEvent.TYPE, this);
+        bus.addHandler(UnreadMessagesPerThreadFetchedEvent.TYPE, this);
+        bus.addHandler(UnreadMessagesCountChangedEvent.TYPE, this);
 
-		initInstitutionAssets();
-	}
+        initInstitutionAssets();
+    }
 
-	private void initInstitutionAssets() {
-		showContentNative(false);
-		
-		setFavicon();
-		setPageTitle();
-		setSkin();
-	}
-	
-	private void setFavicon(){
-		String url = session.getInstitutionAssetsURL();
-		if (url != null) {
-			updateFaviconNative(mkurl(url, ICON_NAME));
-		} else {
-			updateFaviconNative(ICON_NAME);
-		}
-	}
+    private void initInstitutionAssets() {
+        showContentNative(false);
 
-	private void setSkin() {
-		Callback<Void, Exception> callback = new Callback<Void, Exception>() {
-			public void onFailure(Exception reason) {
-				KornellMaintenance.show();
-			}
+        setFavicon();
+        setPageTitle();
+        setSkin();
+    }
 
-			public void onSuccess(Void result) {
-				showContentNative(true);
-			}
-		};
+    private void setFavicon() {
+        String url = session.getInstitutionAssetsURL();
+        if (url != null) {
+            updateFaviconNative(mkurl(url, ICON_NAME));
+        } else {
+            updateFaviconNative(ICON_NAME);
+        }
+    }
 
-		String skinName = isSome(session.getInstitution().getSkin()) ? session.getInstitution().getSkin() : "";
-		
-		CSSInjector.updateSkin(skinName, callback);
-	}
-	
+    private void setSkin() {
+        Callback<Void, Exception> callback = new Callback<Void, Exception>() {
+            public void onFailure(Exception reason) {
+                KornellMaintenance.show();
+            }
 
-	private void setPageTitle() {
-		String name = session.getInstitution().getFullName();
-		String title = DEFAULT_SITE_TITLE;
-		if (name != null) {
-			title = name;
-			if (totalCount > 0)
-				title = "(" + totalCount + ") " + name;
-		}
-		Document.get().setTitle(title);
-	}
+            public void onSuccess(Void result) {
+                showContentNative(true);
+            }
+        };
 
-	@Override
-	public void onUnreadMessagesPerThreadFetched(UnreadMessagesPerThreadFetchedEvent event) {
-		int count = 0;
-		for (UnreadChatThreadTO unreadChatThreadTO : event.getUnreadChatThreadTOs()) {
-			count = count + Integer.parseInt(unreadChatThreadTO.getUnreadMessages());
-		}
-		totalCount = count;
-		setPageTitle();
-	}
+        String skinName = isSome(session.getInstitution().getSkin()) ? session.getInstitution().getSkin() : "";
 
-	@Override
-	public void onUnreadMessagesCountChanged(UnreadMessagesCountChangedEvent event) {
-		totalCount = event.isIncrement() ? totalCount + event.getCountChange() : totalCount - event.getCountChange();
-		setPageTitle();
-	}
+        CSSInjector.updateSkin(skinName, callback);
+    }
 
-	@Override
-	public void onLogout() {
-		showBodyNative(false);
-	}
+    private void setPageTitle() {
+        String name = session.getInstitution().getFullName();
+        String title = DEFAULT_SITE_TITLE;
+        if (name != null) {
+            title = name;
+            if (totalCount > 0)
+                title = "(" + totalCount + ") " + name;
+        }
+        Document.get().setTitle(title);
+    }
 
-	private static native void updateFaviconNative(String url) /*-{
-		var link = $wnd.document.createElement('link'), oldLink = $wnd.document
-				.getElementById('icon');
-		link.id = 'icon';
-		link.rel = 'shortcut icon';
-		link.type = 'image/x-icon';
-		link.href = url + "?v=" + new Date().getTime();
-		if (oldLink) {
-			$wnd.document.head.removeChild(oldLink);
-		}
+    @Override
+    public void onUnreadMessagesPerThreadFetched(UnreadMessagesPerThreadFetchedEvent event) {
+        int count = 0;
+        for (UnreadChatThreadTO unreadChatThreadTO : event.getUnreadChatThreadTOs()) {
+            count = count + Integer.parseInt(unreadChatThreadTO.getUnreadMessages());
+        }
+        totalCount = count;
+        setPageTitle();
+    }
 
-		$wnd.document.getElementsByTagName('head')[0].appendChild(link);
-	}-*/;
+    @Override
+    public void onUnreadMessagesCountChanged(UnreadMessagesCountChangedEvent event) {
+        totalCount = event.isIncrement() ? totalCount + event.getCountChange() : totalCount - event.getCountChange();
+        setPageTitle();
+    }
 
-	public static native void showContentNative(boolean show) /*-{
-		var menuBar = $wnd.document.getElementsByClassName('menuBar'),
-			vScrollBar = $wnd.document.getElementsByClassName('vScrollBar'),
-			activityBarWrapper = $wnd.document.getElementsByClassName('activityBarWrapper'),
-			style = 'display: ' + (show ? 'block' : 'none');
-		if(menuBar && menuBar.length){
-			menuBar[0].setAttribute('style', style);
-		}
-		if(vScrollBar && vScrollBar.length){
-			vScrollBar[0].setAttribute('style', style);
-		}
-		if(activityBarWrapper && activityBarWrapper.length){
-			activityBarWrapper[0].setAttribute('style', style);
-		}
-	}-*/;
+    @Override
+    public void onLogout() {
+        showBodyNative(false);
+    }
 
-	public static native void showBodyNative(boolean show) /*-{
-		$wnd.document.getElementsByTagName('body')[0].setAttribute('style',
-				'display: ' + (show ? 'block' : 'none'));
-	}-*/;
+    private static native void updateFaviconNative(String url) /*-{
+        var link = $wnd.document.createElement('link'), oldLink = $wnd.document
+            .getElementById('icon');
+        link.id = 'icon';
+        link.rel = 'shortcut icon';
+        link.type = 'image/x-icon';
+        link.href = url + "?v=" + new Date().getTime();
+        if (oldLink) {
+            $wnd.document.head.removeChild(oldLink);
+        }
+        
+        $wnd.document.getElementsByTagName('head')[0].appendChild(link);
+    }-*/;
+
+    public static native void showContentNative(boolean show) /*-{
+        var menuBar = $wnd.document.getElementsByClassName('menuBar'),
+            vScrollBar = $wnd.document.getElementsByClassName('vScrollBar'),
+            activityBarWrapper = $wnd.document.getElementsByClassName('activityBarWrapper'),
+            style = 'display: ' + (show ? 'block' : 'none');
+        if(menuBar && menuBar.length){
+            menuBar[0].setAttribute('style', style);
+        }
+        if(vScrollBar && vScrollBar.length){
+            vScrollBar[0].setAttribute('style', style);
+        }
+        if(activityBarWrapper && activityBarWrapper.length){
+            activityBarWrapper[0].setAttribute('style', style);
+        }
+    }-*/;
+
+    public static native void showBodyNative(boolean show) /*-{
+        $wnd.document.getElementsByTagName('body')[0].setAttribute('style',
+            'display: ' + (show ? 'block' : 'none'));
+    }-*/;
 
 }

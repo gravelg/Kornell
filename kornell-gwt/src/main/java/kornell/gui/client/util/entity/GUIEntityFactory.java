@@ -5,7 +5,8 @@ import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 
 public interface GUIEntityFactory extends AutoBeanFactory {
 
-	AutoBean<TermsLanguageItems> newTermsLanguageItems();	
-	AutoBean<TermsLanguageItem> newTermsLanguageItem();	
-	
+    AutoBean<TermsLanguageItems> newTermsLanguageItems();
+
+    AutoBean<TermsLanguageItem> newTermsLanguageItem();
+
 }

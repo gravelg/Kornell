@@ -29,144 +29,147 @@ import kornell.gui.client.util.forms.formfield.ListBoxFormField;
 
 public class GenericMessageComposeView extends Composite implements MessageComposeView {
 
-	interface GenericMessageComposeUiBinder extends UiBinder<Widget, GenericMessageComposeView> {
-	}
+    interface GenericMessageComposeUiBinder extends UiBinder<Widget, GenericMessageComposeView> {
+    }
 
-	private static GenericMessageComposeUiBinder uiBinder = GWT.create(GenericMessageComposeUiBinder.class);
-	private static FormHelper formHelper = GWT.create(FormHelper.class);
-	private static KornellConstants constants = GWT.create(KornellConstants.class);
-	private MessageComposeView.Presenter presenter;
+    private static GenericMessageComposeUiBinder uiBinder = GWT.create(GenericMessageComposeUiBinder.class);
+    private static FormHelper formHelper = GWT.create(FormHelper.class);
+    private static KornellConstants constants = GWT.create(KornellConstants.class);
+    private MessageComposeView.Presenter presenter;
 
-	KornellFormFieldWrapper recipient, messageText;
-	private List<KornellFormFieldWrapper> fields;
-	private KornellSession session;
+    KornellFormFieldWrapper recipient, messageText;
+    private List<KornellFormFieldWrapper> fields;
+    private KornellSession session;
 
-	@UiField
-	Anchor helpFilePanel;
-	@UiField
-	Label lblTitle;
-	@UiField
-	Label lblSubTitle;
-	@UiField
-	Image separatorBar;
-	@UiField
-	FlowPanel fieldsPanel;
-	@UiField
-	Button btnOK;
-	@UiField
-	Button btnCancel;
+    @UiField
+    Anchor helpFilePanel;
+    @UiField
+    Label lblTitle;
+    @UiField
+    Label lblSubTitle;
+    @UiField
+    Image separatorBar;
+    @UiField
+    FlowPanel fieldsPanel;
+    @UiField
+    Button btnOK;
+    @UiField
+    Button btnCancel;
 
-	public GenericMessageComposeView(KornellSession session) {
-		this.session = session;
-		initWidget(uiBinder.createAndBindUi(this));
-		ensureDebugId("genericMessageComposeView");
-	}
+    public GenericMessageComposeView(KornellSession session) {
+        this.session = session;
+        initWidget(uiBinder.createAndBindUi(this));
+        ensureDebugId("genericMessageComposeView");
+    }
 
-	@Override
-	public void show(ArrayList<CourseClassTO> helpCourseClasses, String courseClassUUID) {
-		lblTitle.setText(constants.composeTitle());
-		lblSubTitle.setText(constants.composeSubTitle());
-		separatorBar.setUrl(FormHelper.SEPARATOR_BAR_IMG_PATH);
-		separatorBar.addStyleName(FormHelper.SEPARATOR_BAR_CLASS);
-		buildHelpFilePanel();
+    @Override
+    public void show(ArrayList<CourseClassTO> helpCourseClasses, String courseClassUUID) {
+        lblTitle.setText(constants.composeTitle());
+        lblSubTitle.setText(constants.composeSubTitle());
+        separatorBar.setUrl(FormHelper.SEPARATOR_BAR_IMG_PATH);
+        separatorBar.addStyleName(FormHelper.SEPARATOR_BAR_CLASS);
+        buildHelpFilePanel();
 
-		this.fields = new ArrayList<KornellFormFieldWrapper>();
-		fieldsPanel.clear();
+        this.fields = new ArrayList<KornellFormFieldWrapper>();
+        fieldsPanel.clear();
 
-		boolean hasPlatformThreadAccess = false;
-		boolean hasInstitutionThreadAccess = false;
-		
-		final ListBox recipients = new ListBox();
-		
-		for (RoleTO roleTO : session.getCurrentUser().getRoles()) {
-			if(RoleType.institutionAdmin.equals(roleTO.getRole().getRoleType())){
-				hasPlatformThreadAccess = true;
-			} else if(RoleType.courseClassAdmin.equals(roleTO.getRole().getRoleType())){
-				hasInstitutionThreadAccess = true;
-			}
-		}
-		
-		if(hasPlatformThreadAccess){
-			recipients.addItem(constants.platformAdminLabel(), "platformSupport");
-		}
-		
-		if(hasInstitutionThreadAccess){
-			recipients.addItem(constants.institutionAdmin() + ": " + session.getInstitution().getName(), "institutionSupport");
-		}
+        boolean hasPlatformThreadAccess = false;
+        boolean hasInstitutionThreadAccess = false;
 
-		for (CourseClassTO courseClassTO : helpCourseClasses) {
-			recipients.addItem(constants.courseClassAdmin() + ": " + courseClassTO.getCourseClass().getName(), courseClassTO.getCourseClass().getUUID());
-		}
+        final ListBox recipients = new ListBox();
 
-		if (courseClassUUID == null && recipients.getItemCount() <= 0)
-			this.setVisible(false);
+        for (RoleTO roleTO : session.getCurrentUser().getRoles()) {
+            if (RoleType.institutionAdmin.equals(roleTO.getRole().getRoleType())) {
+                hasPlatformThreadAccess = true;
+            } else if (RoleType.courseClassAdmin.equals(roleTO.getRole().getRoleType())) {
+                hasInstitutionThreadAccess = true;
+            }
+        }
 
-		recipients.setSelectedValue(courseClassUUID);
-		recipient = new KornellFormFieldWrapper(constants.recipient(), new ListBoxFormField(recipients), recipients.getItemCount() > 1 && (hasPlatformThreadAccess || courseClassUUID == null));
-		fields.add(recipient);
-		fieldsPanel.add(recipient);
+        if (hasPlatformThreadAccess) {
+            recipients.addItem(constants.platformAdminLabel(), "platformSupport");
+        }
 
-		messageText = new KornellFormFieldWrapper(constants.message(), formHelper.createTextAreaFormField(""), true);
-		fields.add(messageText);
-		fieldsPanel.add(messageText);
-	}
+        if (hasInstitutionThreadAccess) {
+            recipients.addItem(constants.institutionAdmin() + ": " + session.getInstitution().getName(),
+                    "institutionSupport");
+        }
 
-	private void buildHelpFilePanel() {
-		FlowPanel panel = new FlowPanel();
-		
-		Icon iconFile = new Icon();
-		iconFile.setStyleName("fa fa-file-pdf-o fileIcon");
-		panel.add(iconFile);
-		
-		Label helpFileLabel = new Label(constants.helpFileCaption());
-		helpFileLabel.addStyleName("fileCaption");
-		panel.add(helpFileLabel);
-		
-		helpFilePanel.setHTML(panel.getElement().getInnerHTML());
-		helpFilePanel.setHref("http://eduvem.com/help/" + constants.helpFileName());
-		helpFilePanel.setTarget("_blank");
-	}
+        for (CourseClassTO courseClassTO : helpCourseClasses) {
+            recipients.addItem(constants.courseClassAdmin() + ": " + courseClassTO.getCourseClass().getName(),
+                    courseClassTO.getCourseClass().getUUID());
+        }
 
-	@Override
-	protected void onEnsureDebugId(String baseID) {
-		recipient.ensureDebugId(baseID + "-recipient");
-		messageText.ensureDebugId(baseID + "-messageText");
-		btnOK.ensureDebugId(baseID + "-btnOK");
-		btnCancel.ensureDebugId(baseID + "-btnCancel");
-	}
+        if (courseClassUUID == null && recipients.getItemCount() <= 0)
+            this.setVisible(false);
 
-	@UiHandler("btnOK")
-	void onOkButtonClicked(ClickEvent e) {
-		presenter.okButtonClicked();
-	}
+        recipients.setSelectedValue(courseClassUUID);
+        recipient = new KornellFormFieldWrapper(constants.recipient(), new ListBoxFormField(recipients),
+                recipients.getItemCount() > 1 && (hasPlatformThreadAccess || courseClassUUID == null));
+        fields.add(recipient);
+        fieldsPanel.add(recipient);
 
-	@UiHandler("btnCancel")
-	void onCancelButtonClicked(ClickEvent e) {
-		presenter.cancelButtonClicked();
-	}
+        messageText = new KornellFormFieldWrapper(constants.message(), formHelper.createTextAreaFormField(""), true);
+        fields.add(messageText);
+        fieldsPanel.add(messageText);
+    }
 
-	@Override
-	public void setPresenter(Presenter p) {
-		presenter = p;
-	}
+    private void buildHelpFilePanel() {
+        FlowPanel panel = new FlowPanel();
 
-	@Override
-	public KornellFormFieldWrapper getRecipient() {
-		return recipient;
-	}
+        Icon iconFile = new Icon();
+        iconFile.setStyleName("fa fa-file-pdf-o fileIcon");
+        panel.add(iconFile);
 
-	@Override
-	public KornellFormFieldWrapper getMessageText() {
-		return messageText;
-	}
+        Label helpFileLabel = new Label(constants.helpFileCaption());
+        helpFileLabel.addStyleName("fileCaption");
+        panel.add(helpFileLabel);
 
-	@Override
-	public boolean checkErrors() {
-		return formHelper.checkErrors(fields);
-	}
+        helpFilePanel.setHTML(panel.getElement().getInnerHTML());
+        helpFilePanel.setHref("http://eduvem.com/help/" + constants.helpFileName());
+        helpFilePanel.setTarget("_blank");
+    }
 
-	@Override
-	public void clearErrors() {
-		formHelper.clearErrors(fields);
-	}
+    @Override
+    protected void onEnsureDebugId(String baseID) {
+        recipient.ensureDebugId(baseID + "-recipient");
+        messageText.ensureDebugId(baseID + "-messageText");
+        btnOK.ensureDebugId(baseID + "-btnOK");
+        btnCancel.ensureDebugId(baseID + "-btnCancel");
+    }
+
+    @UiHandler("btnOK")
+    void onOkButtonClicked(ClickEvent e) {
+        presenter.okButtonClicked();
+    }
+
+    @UiHandler("btnCancel")
+    void onCancelButtonClicked(ClickEvent e) {
+        presenter.cancelButtonClicked();
+    }
+
+    @Override
+    public void setPresenter(Presenter p) {
+        presenter = p;
+    }
+
+    @Override
+    public KornellFormFieldWrapper getRecipient() {
+        return recipient;
+    }
+
+    @Override
+    public KornellFormFieldWrapper getMessageText() {
+        return messageText;
+    }
+
+    @Override
+    public boolean checkErrors() {
+        return formHelper.checkErrors(fields);
+    }
+
+    @Override
+    public void clearErrors() {
+        formHelper.clearErrors(fields);
+    }
 }

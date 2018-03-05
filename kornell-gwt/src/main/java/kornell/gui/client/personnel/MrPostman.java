@@ -39,188 +39,188 @@ import kornell.gui.client.util.view.Positioning;
 
 public class MrPostman implements ComposeMessageEventHandler, LoginEventHandler, CourseClassesFetchedEventHandler {
 
-	private static PopupPanel popup;
-	private EventBus bus;
-	private KornellSession session;
-	private ViewFactory viewFactory;
-	private EntityFactory entityFactory;
-	private ChatThreadsClient chatThreadsClient;
-	private PlaceController placeCtrl;
-	private MessageComposeView.Presenter messageComposePresenter;
-	private Timer unreadMessagesCountTimer;
-	private Timer unreadMessagesCountPerThreadTimer;
-	private ArrayList<CourseClassTO> helpCourseClasses;
+    private static PopupPanel popup;
+    private EventBus bus;
+    private KornellSession session;
+    private ViewFactory viewFactory;
+    private EntityFactory entityFactory;
+    private ChatThreadsClient chatThreadsClient;
+    private PlaceController placeCtrl;
+    private MessageComposeView.Presenter messageComposePresenter;
+    private Timer unreadMessagesCountTimer;
+    private Timer unreadMessagesCountPerThreadTimer;
+    private ArrayList<CourseClassTO> helpCourseClasses;
 
-	public MrPostman(ViewFactory viewFactory, EventBus bus, KornellSession session, PlaceController placeCtrl,
-			EntityFactory entityFactory, CourseClassesTO courseClassesTO) {
-		this.viewFactory = viewFactory;
-		this.bus = bus;
-		this.session = session;
-		this.entityFactory = entityFactory;
-		this.chatThreadsClient = session.chatThreads();
-		this.placeCtrl = placeCtrl;
+    public MrPostman(ViewFactory viewFactory, EventBus bus, KornellSession session, PlaceController placeCtrl,
+            EntityFactory entityFactory, CourseClassesTO courseClassesTO) {
+        this.viewFactory = viewFactory;
+        this.bus = bus;
+        this.session = session;
+        this.entityFactory = entityFactory;
+        this.chatThreadsClient = session.chatThreads();
+        this.placeCtrl = placeCtrl;
 
-		filterHelpCourseClasses(courseClassesTO);
+        filterHelpCourseClasses(courseClassesTO);
 
-		initializeMessagePresenters();
+        initializeMessagePresenters();
 
-		// initializeUnreadMessagesCountTimer();
-		initializeUnreadMessagesCountPerThreadTimer();
-		this.bus.addHandler(ComposeMessageEvent.TYPE, this);
-		this.bus.addHandler(LoginEvent.TYPE, this);
-		this.bus.addHandler(CourseClassesFetchedEvent.TYPE, this);
-	}
+        // initializeUnreadMessagesCountTimer();
+        initializeUnreadMessagesCountPerThreadTimer();
+        this.bus.addHandler(ComposeMessageEvent.TYPE, this);
+        this.bus.addHandler(LoginEvent.TYPE, this);
+        this.bus.addHandler(CourseClassesFetchedEvent.TYPE, this);
+    }
 
-	private void initializeMessagePresenters() {
-		viewFactory.getMessagePresenter();
-		viewFactory.getMessagePresenterClassroomGlobalChat();
-		viewFactory.getMessagePresenterClassroomTutorChat();
-		if (session.hasAnyAdminRole()) {
-			viewFactory.getMessagePresenterCourseClass();
-		}
-		this.messageComposePresenter = new MessageComposePresenter(placeCtrl, session, viewFactory, entityFactory);
-	}
+    private void initializeMessagePresenters() {
+        viewFactory.getMessagePresenter();
+        viewFactory.getMessagePresenterClassroomGlobalChat();
+        viewFactory.getMessagePresenterClassroomTutorChat();
+        if (session.hasAnyAdminRole()) {
+            viewFactory.getMessagePresenterCourseClass();
+        }
+        this.messageComposePresenter = new MessageComposePresenter(placeCtrl, session, viewFactory, entityFactory);
+    }
 
-	private void initializeUnreadMessagesCountPerThreadTimer() {
+    private void initializeUnreadMessagesCountPerThreadTimer() {
 
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				getUnreadMessagesPerThread();
-			}
-		});
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                getUnreadMessagesPerThread();
+            }
+        });
 
-		unreadMessagesCountPerThreadTimer = new Timer() {
-			public void run() {
-				getUnreadMessagesPerThread();
-			}
-		};
+        unreadMessagesCountPerThreadTimer = new Timer() {
+            public void run() {
+                getUnreadMessagesPerThread();
+            }
+        };
 
-		// Schedule the timer to run every 30 seconds
-		unreadMessagesCountPerThreadTimer.scheduleRepeating(30 * 1000);
+        // Schedule the timer to run every 30 seconds
+        unreadMessagesCountPerThreadTimer.scheduleRepeating(30 * 1000);
 
-		bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
+        bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
 
-			@Override
-			public void onPlaceChange(PlaceChangeEvent event) {
-				Place place = event.getNewPlace();
-				if (place instanceof MessagePlace || place instanceof AdminCourseClassPlace
-						|| place instanceof ClassroomPlace) {
-					getUnreadMessagesPerThread(true);
-				}
-				if (popup != null && popup.isShowing()) {
-					boolean showingPlacePanel = !(place instanceof VitrinePlace || place instanceof ClassroomPlace || place instanceof AdminPlace);
-					int popupPosition = showingPlacePanel ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR;
-					popup.setPopupPosition(popup.getAbsoluteLeft(), popupPosition);
-				}
-			}
-		});
-	}
+            @Override
+            public void onPlaceChange(PlaceChangeEvent event) {
+                Place place = event.getNewPlace();
+                if (place instanceof MessagePlace || place instanceof AdminCourseClassPlace
+                        || place instanceof ClassroomPlace) {
+                    getUnreadMessagesPerThread(true);
+                }
+                if (popup != null && popup.isShowing()) {
+                    boolean showingPlacePanel = !(place instanceof VitrinePlace || place instanceof ClassroomPlace
+                            || place instanceof AdminPlace);
+                    int popupPosition = showingPlacePanel ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR;
+                    popup.setPopupPosition(popup.getAbsoluteLeft(), popupPosition);
+                }
+            }
+        });
+    }
 
-	private void getUnreadMessagesPerThread() {
-		getUnreadMessagesPerThread(false);
-	}
+    private void getUnreadMessagesPerThread() {
+        getUnreadMessagesPerThread(false);
+    }
 
-	private void getUnreadMessagesPerThread(boolean forceFetch) {
-		if (forceFetch || !(placeCtrl.getWhere() instanceof VitrinePlace)) {
-			chatThreadsClient.getTotalUnreadCountsPerThread(
-					new Callback<UnreadChatThreadsTO>() {
-						@Override
-						public void ok(UnreadChatThreadsTO unreadChatThreadsTO) {
-							bus.fireEvent(new UnreadMessagesPerThreadFetchedEvent(unreadChatThreadsTO
-									.getUnreadChatThreadTOs()));
-						}
-					});
-		}
-	}
+    private void getUnreadMessagesPerThread(boolean forceFetch) {
+        if (forceFetch || !(placeCtrl.getWhere() instanceof VitrinePlace)) {
+            chatThreadsClient.getTotalUnreadCountsPerThread(new Callback<UnreadChatThreadsTO>() {
+                @Override
+                public void ok(UnreadChatThreadsTO unreadChatThreadsTO) {
+                    bus.fireEvent(
+                            new UnreadMessagesPerThreadFetchedEvent(unreadChatThreadsTO.getUnreadChatThreadTOs()));
+                }
+            });
+        }
+    }
 
-	@Override
-	public void onLogin(UserInfoTO user) {
-		// Fetch all messages after 2 seconds
-		new Timer() {
-			public void run() {
-				getUnreadMessagesPerThread(true);
-			}
-		}.schedule(2 * 1000);
-	}
+    @Override
+    public void onLogin(UserInfoTO user) {
+        // Fetch all messages after 2 seconds
+        new Timer() {
+            public void run() {
+                getUnreadMessagesPerThread(true);
+            }
+        }.schedule(2 * 1000);
+    }
 
-	@Override
-	public void onCourseClassesFetched(CourseClassesFetchedEvent event) {
-		filterHelpCourseClasses(event.getCourseClassesTO());
-	}
+    @Override
+    public void onCourseClassesFetched(CourseClassesFetchedEvent event) {
+        filterHelpCourseClasses(event.getCourseClassesTO());
+    }
 
-	private void filterHelpCourseClasses(CourseClassesTO courseClassesTO) {
-		this.helpCourseClasses = new ArrayList<CourseClassTO>();
-		if (courseClassesTO != null) {
-			for (CourseClassTO courseClassTO : courseClassesTO.getCourseClasses()) {
-				if ((courseClassTO.getEnrollment() != null || courseClassTO.getCourseClass().isPublicClass()) 
-						&& !courseClassTO.getCourseClass().isInvisible()) {
-					this.helpCourseClasses.add(courseClassTO);
-				}
-			}
-		}
-	}
+    private void filterHelpCourseClasses(CourseClassesTO courseClassesTO) {
+        this.helpCourseClasses = new ArrayList<CourseClassTO>();
+        if (courseClassesTO != null) {
+            for (CourseClassTO courseClassTO : courseClassesTO.getCourseClasses()) {
+                if ((courseClassTO.getEnrollment() != null || courseClassTO.getCourseClass().isPublicClass())
+                        && !courseClassTO.getCourseClass().isInvisible()) {
+                    this.helpCourseClasses.add(courseClassTO);
+                }
+            }
+        }
+    }
 
-	@Override
-	public void onComposeMessage(ComposeMessageEvent event) {
-		if (popup == null || !popup.isShowing()) {
-			messageComposePresenter.init(helpCourseClasses);
-			show(event.isShowingPlacePanel());
-		} else {
-			hide();
-		}
-	}
+    @Override
+    public void onComposeMessage(ComposeMessageEvent event) {
+        if (popup == null || !popup.isShowing()) {
+            messageComposePresenter.init(helpCourseClasses);
+            show(event.isShowingPlacePanel());
+        } else {
+            hide();
+        }
+    }
 
-	@SuppressWarnings("unused")
-	private void initializeUnreadMessagesCountTimer() {
-		Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-			@Override
-			public void execute() {
-				getUnreadMessages();
-			}
-		});
+    @SuppressWarnings("unused")
+    private void initializeUnreadMessagesCountTimer() {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                getUnreadMessages();
+            }
+        });
 
-		unreadMessagesCountTimer = new Timer() {
-			public void run() {
-				getUnreadMessages();
-			}
-		};
+        unreadMessagesCountTimer = new Timer() {
+            public void run() {
+                getUnreadMessages();
+            }
+        };
 
-		// Schedule the timer to run every 2 minutes
-		unreadMessagesCountTimer.scheduleRepeating(2 * 60 * 1000);
-	}
+        // Schedule the timer to run every 2 minutes
+        unreadMessagesCountTimer.scheduleRepeating(2 * 60 * 1000);
+    }
 
-	private void getUnreadMessages() {
-		if (!(placeCtrl.getWhere() instanceof VitrinePlace)) {
-			chatThreadsClient.getTotalUnreadCount(new Callback<String>() {
-				@Override
-				public void ok(String unreadMessagesCount) {
-					bus.fireEvent(new UnreadMessagesFetchedEvent(unreadMessagesCount));
-				}
-			});
-		}
-	}
+    private void getUnreadMessages() {
+        if (!(placeCtrl.getWhere() instanceof VitrinePlace)) {
+            chatThreadsClient.getTotalUnreadCount(new Callback<String>() {
+                @Override
+                public void ok(String unreadMessagesCount) {
+                    bus.fireEvent(new UnreadMessagesFetchedEvent(unreadMessagesCount));
+                }
+            });
+        }
+    }
 
-	public void show(boolean showingPlacePanel) {
-		if (popup == null) {
-			popup = new PopupPanel(false, false);
-			popup.addStyleName("messagesPopup");
-			FlowPanel panel = new FlowPanel();
-			if (messageComposePresenter != null) {
-				panel.add(messageComposePresenter.asWidget());
-			}
-			popup.setGlassEnabled(false);
-			popup.add(panel);
-			popup.center();
-		}
-		popup.show();
-		popup.setPopupPosition(popup.getAbsoluteLeft(), showingPlacePanel ? Positioning.NORTH_BAR_PLUS
-				: Positioning.NORTH_BAR);
-	}
+    public void show(boolean showingPlacePanel) {
+        if (popup == null) {
+            popup = new PopupPanel(false, false);
+            popup.addStyleName("messagesPopup");
+            FlowPanel panel = new FlowPanel();
+            if (messageComposePresenter != null) {
+                panel.add(messageComposePresenter.asWidget());
+            }
+            popup.setGlassEnabled(false);
+            popup.add(panel);
+            popup.center();
+        }
+        popup.show();
+        popup.setPopupPosition(popup.getAbsoluteLeft(),
+                showingPlacePanel ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR);
+    }
 
-	public static void hide() {
-		if (popup != null) {
-			popup.hide();
-		}
-	}
+    public static void hide() {
+        if (popup != null) {
+            popup.hide();
+        }
+    }
 }

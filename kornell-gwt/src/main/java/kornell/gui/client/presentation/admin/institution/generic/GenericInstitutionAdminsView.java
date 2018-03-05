@@ -33,106 +33,105 @@ import kornell.gui.client.util.forms.formfield.PeopleMultipleSelect;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class GenericInstitutionAdminsView extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, GenericInstitutionAdminsView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericInstitutionAdminsView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
 
-	private KornellSession session;
-	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
-	
-	PeopleMultipleSelect peopleMultipleSelect;
+    private KornellSession session;
+    boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
-	@UiField
-	Form form;
-	@UiField
-	FlowPanel adminsFields;
-	@UiField
-	Button btnOK;
-	@UiField
-	Button btnCancel;
+    PeopleMultipleSelect peopleMultipleSelect;
 
-	private Institution institution;
-	private EventBus bus;
-	
-	public GenericInstitutionAdminsView(final KornellSession session, EventBus bus,
-			kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter, Institution institution) {
-		this.session = session;
-		this.bus = bus;
-		this.institution = institution;
-		initWidget(uiBinder.createAndBindUi(this));
+    @UiField
+    Form form;
+    @UiField
+    FlowPanel adminsFields;
+    @UiField
+    Button btnOK;
+    @UiField
+    Button btnCancel;
 
-		// i18n
-		btnOK.setText("Salvar Alterações");
-		btnCancel.setText("Cancelar Alterações");
-		
-		initData();
-	}
+    private Institution institution;
+    private EventBus bus;
 
-	public void initData() {
-		adminsFields.clear();
-		FlowPanel fieldPanelWrapper = new FlowPanel();
-		fieldPanelWrapper.addStyleName("fieldPanelWrapper");
-		
-		FlowPanel labelPanel = new FlowPanel();
-		labelPanel.addStyleName("labelPanel");
-		Label lblLabel = new Label("Administradores da Instituição");
-		lblLabel.addStyleName("lblLabel");
-		labelPanel.add(lblLabel);
-		fieldPanelWrapper.add(labelPanel);
-		
+    public GenericInstitutionAdminsView(final KornellSession session, EventBus bus,
+            kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter,
+            Institution institution) {
+        this.session = session;
+        this.bus = bus;
+        this.institution = institution;
+        initWidget(uiBinder.createAndBindUi(this));
 
-		bus.fireEvent(new ShowPacifierEvent(true));
-		session.institution(institution.getUUID()).getAdmins(RoleCategory.BIND_WITH_PERSON,
-				new Callback<RolesTO>() {
-			@Override
-			public void ok(RolesTO to) {
-				for (RoleTO roleTO : to.getRoleTOs()) {
-					String item = roleTO.getUsername();
-					if(roleTO.getPerson().getFullName() != null && !"".equals(roleTO.getPerson().getFullName())){
-						item += " (" +roleTO.getPerson().getFullName()+")";
-					}
-					peopleMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
-				}
-				bus.fireEvent(new ShowPacifierEvent(false));
-			}
-		});
-		peopleMultipleSelect = new PeopleMultipleSelect(session);
-		fieldPanelWrapper.add(peopleMultipleSelect.asWidget());
-		adminsFields.add(fieldPanelWrapper);
-	}
+        // i18n
+        btnOK.setText("Salvar Alterações");
+        btnCancel.setText("Cancelar Alterações");
 
-	@UiHandler("btnOK")
-	void doOK(ClickEvent e) {
-		if(session.isInstitutionAdmin()){
-			Roles roles = entityFactory.newRoles().as();
-			List<Role> rolesList = new ArrayList<Role>();
-			ListBox multipleSelect = peopleMultipleSelect.getMultipleSelect();
-			for (int i = 0; i < multipleSelect.getItemCount(); i++) {
-				String personUUID = multipleSelect.getValue(i);
-				Role role = entityFactory.newRole().as();
-				InstitutionAdminRole institutionAdminRole = entityFactory.newInstitutionAdminRole().as();
-				role.setPersonUUID(personUUID);
-				role.setRoleType(RoleType.institutionAdmin);
-				institutionAdminRole.setInstitutionUUID(institution.getUUID());
-				role.setInstitutionAdminRole(institutionAdminRole);
-				rolesList.add(role);  
-			}
-			roles.setRoles(rolesList);
-			session.institution(institution.getUUID()).updateAdmins(roles, new Callback<Roles>() {
-				@Override
-				public void ok(Roles to) {
-					KornellNotification.show("Os administradores da instituição foram atualizados com sucesso.");
-				}
-			});
-		}
-		
-	}
+        initData();
+    }
 
-	@UiHandler("btnCancel")
-	void doCancel(ClickEvent e) {
-		initData();
-	}
+    public void initData() {
+        adminsFields.clear();
+        FlowPanel fieldPanelWrapper = new FlowPanel();
+        fieldPanelWrapper.addStyleName("fieldPanelWrapper");
+
+        FlowPanel labelPanel = new FlowPanel();
+        labelPanel.addStyleName("labelPanel");
+        Label lblLabel = new Label("Administradores da Instituição");
+        lblLabel.addStyleName("lblLabel");
+        labelPanel.add(lblLabel);
+        fieldPanelWrapper.add(labelPanel);
+
+        bus.fireEvent(new ShowPacifierEvent(true));
+        session.institution(institution.getUUID()).getAdmins(RoleCategory.BIND_WITH_PERSON, new Callback<RolesTO>() {
+            @Override
+            public void ok(RolesTO to) {
+                for (RoleTO roleTO : to.getRoleTOs()) {
+                    String item = roleTO.getUsername();
+                    if (roleTO.getPerson().getFullName() != null && !"".equals(roleTO.getPerson().getFullName())) {
+                        item += " (" + roleTO.getPerson().getFullName() + ")";
+                    }
+                    peopleMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                }
+                bus.fireEvent(new ShowPacifierEvent(false));
+            }
+        });
+        peopleMultipleSelect = new PeopleMultipleSelect(session);
+        fieldPanelWrapper.add(peopleMultipleSelect.asWidget());
+        adminsFields.add(fieldPanelWrapper);
+    }
+
+    @UiHandler("btnOK")
+    void doOK(ClickEvent e) {
+        if (session.isInstitutionAdmin()) {
+            Roles roles = entityFactory.newRoles().as();
+            List<Role> rolesList = new ArrayList<Role>();
+            ListBox multipleSelect = peopleMultipleSelect.getMultipleSelect();
+            for (int i = 0; i < multipleSelect.getItemCount(); i++) {
+                String personUUID = multipleSelect.getValue(i);
+                Role role = entityFactory.newRole().as();
+                InstitutionAdminRole institutionAdminRole = entityFactory.newInstitutionAdminRole().as();
+                role.setPersonUUID(personUUID);
+                role.setRoleType(RoleType.institutionAdmin);
+                institutionAdminRole.setInstitutionUUID(institution.getUUID());
+                role.setInstitutionAdminRole(institutionAdminRole);
+                rolesList.add(role);
+            }
+            roles.setRoles(rolesList);
+            session.institution(institution.getUUID()).updateAdmins(roles, new Callback<Roles>() {
+                @Override
+                public void ok(Roles to) {
+                    KornellNotification.show("Os administradores da instituição foram atualizados com sucesso.");
+                }
+            });
+        }
+
+    }
+
+    @UiHandler("btnCancel")
+    void doCancel(ClickEvent e) {
+        initData();
+    }
 
 }

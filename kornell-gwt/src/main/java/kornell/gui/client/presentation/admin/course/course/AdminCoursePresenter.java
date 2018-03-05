@@ -22,99 +22,99 @@ import kornell.gui.client.presentation.admin.course.courses.AdminCoursesPlace;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class AdminCoursePresenter implements AdminCourseView.Presenter {
-	Logger logger = Logger.getLogger(AdminCoursePresenter.class.getName());
-	private AdminCourseView view;
-	private KornellSession session;
-	private PlaceController placeController;
-	private EventBus bus;
-	Place defaultPlace;
-	private ViewFactory viewFactory;
+    Logger logger = Logger.getLogger(AdminCoursePresenter.class.getName());
+    private AdminCourseView view;
+    private KornellSession session;
+    private PlaceController placeController;
+    private EventBus bus;
+    Place defaultPlace;
+    private ViewFactory viewFactory;
 
-	public AdminCoursePresenter(KornellSession session,
-			PlaceController placeController, EventBus bus, Place defaultPlace, ViewFactory viewFactory) {
-		this.session = session;
-		this.placeController = placeController;
-		this.bus = bus;
-		this.defaultPlace = defaultPlace;
-		this.viewFactory = viewFactory;
+    public AdminCoursePresenter(KornellSession session, PlaceController placeController, EventBus bus,
+            Place defaultPlace, ViewFactory viewFactory) {
+        this.session = session;
+        this.placeController = placeController;
+        this.bus = bus;
+        this.defaultPlace = defaultPlace;
+        this.viewFactory = viewFactory;
 
-		init();
-	}
+        init();
+    }
 
-	private void init() {
-		if (session.isInstitutionAdmin()) {
-			view = getView();
-			view.setPresenter(this);      
-			view.init();
-		} else {
-			logger.warning("Hey, only admins are allowed to see this! "
-					+ this.getClass().getName());
-			placeController.goTo(defaultPlace);
-		}
-	}
-	
-	@Override
-	public Course getNewCourse() {
-		return GenericClientFactoryImpl.ENTITY_FACTORY.newCourse().as();
-	}
+    private void init() {
+        if (session.isInstitutionAdmin()) {
+            view = getView();
+            view.setPresenter(this);
+            view.init();
+        } else {
+            logger.warning("Hey, only admins are allowed to see this! " + this.getClass().getName());
+            placeController.goTo(defaultPlace);
+        }
+    }
 
-	
-	@Override
-	public Widget asWidget() {
-		return view.asWidget();
-	}
+    @Override
+    public Course getNewCourse() {
+        return GenericClientFactoryImpl.ENTITY_FACTORY.newCourse().as();
+    }
 
-	private AdminCourseView getView() {
-		return viewFactory.getAdminCourseView();
-	}
+    @Override
+    public Widget asWidget() {
+        return view.asWidget();
+    }
 
-	@Override
-  public void upsertCourse(Course course) {
-		bus.fireEvent(new ShowPacifierEvent(true));
-		if(course.getUUID() == null){
-			session.courses().create(course, new Callback<CourseClassTO>() {
-				@Override
-				public void ok(CourseClassTO courseClassTO) {
-						bus.fireEvent(new ShowPacifierEvent(false));
-						KornellNotification.show("Curso criado com sucesso!");
-						PlaceUtils.reloadCurrentPlace(bus, placeController);
-				}		
-				
-				@Override
-				public void unauthorized(KornellErrorTO kornellErrorTO){
-					bus.fireEvent(new ShowPacifierEvent(false));
-					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR, 2500);
-				}
+    private AdminCourseView getView() {
+        return viewFactory.getAdminCourseView();
+    }
 
-				@Override
-				public void conflict(KornellErrorTO kornellErrorTO) {
-					bus.fireEvent(new ShowPacifierEvent(false));
-					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
-							2500);
-				}
-			});
-		} else {
-			session.course(course.getUUID()).update(course, new Callback<Course>() {
-				@Override
-				public void ok(Course course) {
-						bus.fireEvent(new ShowPacifierEvent(false));
-						KornellNotification.show("Alterações salvas com sucesso!");
-						placeController.goTo(new AdminCoursesPlace());
-				}		
-				
-				@Override
-				public void unauthorized(KornellErrorTO kornellErrorTO){
-					bus.fireEvent(new ShowPacifierEvent(false));
-					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR, 2500);
-				}
+    @Override
+    public void upsertCourse(Course course) {
+        bus.fireEvent(new ShowPacifierEvent(true));
+        if (course.getUUID() == null) {
+            session.courses().create(course, new Callback<CourseClassTO>() {
+                @Override
+                public void ok(CourseClassTO courseClassTO) {
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                    KornellNotification.show("Curso criado com sucesso!");
+                    PlaceUtils.reloadCurrentPlace(bus, placeController);
+                }
 
-				@Override
-				public void conflict(KornellErrorTO kornellErrorTO) {
-					bus.fireEvent(new ShowPacifierEvent(false));
-					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
-							2500);
-				}
-			});
-		}
-  }
+                @Override
+                public void unauthorized(KornellErrorTO kornellErrorTO) {
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                    KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
+                            2500);
+                }
+
+                @Override
+                public void conflict(KornellErrorTO kornellErrorTO) {
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                    KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
+                            2500);
+                }
+            });
+        } else {
+            session.course(course.getUUID()).update(course, new Callback<Course>() {
+                @Override
+                public void ok(Course course) {
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                    KornellNotification.show("Alterações salvas com sucesso!");
+                    placeController.goTo(new AdminCoursesPlace());
+                }
+
+                @Override
+                public void unauthorized(KornellErrorTO kornellErrorTO) {
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                    KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
+                            2500);
+                }
+
+                @Override
+                public void conflict(KornellErrorTO kornellErrorTO) {
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                    KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR,
+                            2500);
+                }
+            });
+        }
+    }
 }

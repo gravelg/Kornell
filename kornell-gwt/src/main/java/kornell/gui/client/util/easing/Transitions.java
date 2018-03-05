@@ -4,8 +4,8 @@ public class Transitions {
     public static Transition BOUNCE = new Transition() {
         public double transition(double p) {
             double value;
-            for (double a = 0, b = 1; true; a += b, b /= 2){
-                if (p >= (7 - 4 * a) / 11){
+            for (double a = 0, b = 1; true; a += b, b /= 2) {
+                if (p >= (7 - 4 * a) / 11) {
                     value = b * b - Math.pow((11 - 6 * a - 11 * p) / 4, 2);
                     break;
                 }
@@ -16,7 +16,7 @@ public class Transitions {
 
     public static Transition ELASTIC = new Transition() {
         public double transition(double p) {
-            return Math.pow(2, 10 * --p) * Math.cos(20 * p * Math.PI * 1/3);
+            return Math.pow(2, 10 * --p) * Math.cos(20 * p * Math.PI * 1 / 3);
         }
     };
 
@@ -25,7 +25,7 @@ public class Transitions {
             return Math.pow(p, 2) * ((1.618 + 1) * p - 1.618);
         }
     };
-    
+
     public static Transition SINE = new Transition() {
         public double transition(double p) {
             return 1 - Math.sin((1 - p) * Math.PI / 2);

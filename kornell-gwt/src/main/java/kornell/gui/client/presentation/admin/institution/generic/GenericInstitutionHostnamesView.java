@@ -27,95 +27,96 @@ import kornell.gui.client.util.forms.formfield.SimpleMultipleSelect;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class GenericInstitutionHostnamesView extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, GenericInstitutionHostnamesView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericInstitutionHostnamesView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	public static final TOFactory toFactory = GWT.create(TOFactory.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    public static final TOFactory toFactory = GWT.create(TOFactory.class);
 
-	private KornellSession session;
-	private EventBus bus;
-	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
-	
-	SimpleMultipleSelect simpleMultipleSelect;
+    private KornellSession session;
+    private EventBus bus;
+    boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
-	@UiField
-	Form form;
-	@UiField
-	FlowPanel adminsFields;
-	@UiField
-	Button btnOK;
-	@UiField
-	Button btnCancel;
+    SimpleMultipleSelect simpleMultipleSelect;
 
-	private Institution institution;
-	
-	public GenericInstitutionHostnamesView(final KornellSession session, EventBus bus,
-			kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter, Institution institution) {
-		this.session = session;
-		this.bus = bus;
-		this.institution = institution;
-		initWidget(uiBinder.createAndBindUi(this));
+    @UiField
+    Form form;
+    @UiField
+    FlowPanel adminsFields;
+    @UiField
+    Button btnOK;
+    @UiField
+    Button btnCancel;
 
-		// i18n
-		btnOK.setText("Salvar Alterações");
-		btnCancel.setText("Cancelar Alterações");
-		
-		initData();
-	}
+    private Institution institution;
 
-	public void initData() {
-		adminsFields.clear();
-		FlowPanel fieldPanelWrapper = new FlowPanel();
-		fieldPanelWrapper.addStyleName("fieldPanelWrapper");
-		
-		FlowPanel labelPanel = new FlowPanel();
-		labelPanel.addStyleName("labelPanel");
-		Label lblLabel = new Label("Domínios da Instituição");
-		lblLabel.addStyleName("lblLabel");
-		labelPanel.add(lblLabel);
-		fieldPanelWrapper.add(labelPanel);
-		
+    public GenericInstitutionHostnamesView(final KornellSession session, EventBus bus,
+            kornell.gui.client.presentation.admin.institution.AdminInstitutionView.Presenter presenter,
+            Institution institution) {
+        this.session = session;
+        this.bus = bus;
+        this.institution = institution;
+        initWidget(uiBinder.createAndBindUi(this));
 
-		bus.fireEvent(new ShowPacifierEvent(true));
-		session.institution(institution.getUUID()).getHostnames(new Callback<InstitutionHostNamesTO>() {
-			@Override
-			public void ok(InstitutionHostNamesTO to) {
-				for (String institutionHostName : to.getInstitutionHostNames()) {
-					simpleMultipleSelect.addItem(institutionHostName, institutionHostName);
-				}
-				bus.fireEvent(new ShowPacifierEvent(false));
-			}
-		});
-		simpleMultipleSelect = new SimpleMultipleSelect();
-		fieldPanelWrapper.add(simpleMultipleSelect.asWidget());
-		
-		adminsFields.add(fieldPanelWrapper);
-	}
+        // i18n
+        btnOK.setText("Salvar Alterações");
+        btnCancel.setText("Cancelar Alterações");
 
-	@UiHandler("btnOK")
-	void doOK(ClickEvent e) {
-		if(session.isInstitutionAdmin()){
-			InstitutionHostNamesTO institutionHostNamesTO = toFactory.newInstitutionHostNamesTO().as();
-			List<String> institutionHostNames = new ArrayList<String>();
-			ListBox multipleSelect = simpleMultipleSelect.getMultipleSelect();
-			for (int i = 0; i < multipleSelect.getItemCount(); i++) {
-				institutionHostNames.add(multipleSelect.getValue(i));  
-			}
-			institutionHostNamesTO.setInstitutionHostNames(institutionHostNames);
-			session.institution(institution.getUUID()).updateHostnames(institutionHostNamesTO, new Callback<InstitutionHostNamesTO>() {
-				@Override
-				public void ok(InstitutionHostNamesTO to) {
-					KornellNotification.show("Os domínios da instituição foram atualizados com sucesso.");
-				}
-			});
-		}
-		
-	}
+        initData();
+    }
 
-	@UiHandler("btnCancel")
-	void doCancel(ClickEvent e) {
-		initData();
-	}
+    public void initData() {
+        adminsFields.clear();
+        FlowPanel fieldPanelWrapper = new FlowPanel();
+        fieldPanelWrapper.addStyleName("fieldPanelWrapper");
+
+        FlowPanel labelPanel = new FlowPanel();
+        labelPanel.addStyleName("labelPanel");
+        Label lblLabel = new Label("Domínios da Instituição");
+        lblLabel.addStyleName("lblLabel");
+        labelPanel.add(lblLabel);
+        fieldPanelWrapper.add(labelPanel);
+
+        bus.fireEvent(new ShowPacifierEvent(true));
+        session.institution(institution.getUUID()).getHostnames(new Callback<InstitutionHostNamesTO>() {
+            @Override
+            public void ok(InstitutionHostNamesTO to) {
+                for (String institutionHostName : to.getInstitutionHostNames()) {
+                    simpleMultipleSelect.addItem(institutionHostName, institutionHostName);
+                }
+                bus.fireEvent(new ShowPacifierEvent(false));
+            }
+        });
+        simpleMultipleSelect = new SimpleMultipleSelect();
+        fieldPanelWrapper.add(simpleMultipleSelect.asWidget());
+
+        adminsFields.add(fieldPanelWrapper);
+    }
+
+    @UiHandler("btnOK")
+    void doOK(ClickEvent e) {
+        if (session.isInstitutionAdmin()) {
+            InstitutionHostNamesTO institutionHostNamesTO = toFactory.newInstitutionHostNamesTO().as();
+            List<String> institutionHostNames = new ArrayList<String>();
+            ListBox multipleSelect = simpleMultipleSelect.getMultipleSelect();
+            for (int i = 0; i < multipleSelect.getItemCount(); i++) {
+                institutionHostNames.add(multipleSelect.getValue(i));
+            }
+            institutionHostNamesTO.setInstitutionHostNames(institutionHostNames);
+            session.institution(institution.getUUID()).updateHostnames(institutionHostNamesTO,
+                    new Callback<InstitutionHostNamesTO>() {
+                        @Override
+                        public void ok(InstitutionHostNamesTO to) {
+                            KornellNotification.show("Os domínios da instituição foram atualizados com sucesso.");
+                        }
+                    });
+        }
+
+    }
+
+    @UiHandler("btnCancel")
+    void doCancel(ClickEvent e) {
+        initData();
+    }
 
 }

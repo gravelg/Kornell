@@ -13,22 +13,23 @@ import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.ViewFactory;
 
 public class AdminInstitutionActivity extends AbstractActivity {
-	private ClientFactory clientFactory;
+    private ClientFactory clientFactory;
 
-	public AdminInstitutionActivity(ClientFactory clientFactory) {
-	    this.clientFactory = clientFactory;
-	  }
+    public AdminInstitutionActivity(ClientFactory clientFactory) {
+        this.clientFactory = clientFactory;
+    }
 
-	@Override
-	public void start(AcceptsOneWidget panel, EventBus eventBus) {
-		//TODO: unrefernce client factory
-		TOFactory toFactory = GenericClientFactoryImpl.TO_FACTORY;
-		KornellSession session = clientFactory.getKornellSession();
-		PlaceController placeController = clientFactory.getPlaceController();
-		Place defaultPlace = clientFactory.getDefaultPlace();
-		ViewFactory viewFactory = clientFactory.getViewFactory();
-		AdminInstitutionPresenter presenter = new AdminInstitutionPresenter(session,clientFactory.getEventBus(),placeController,defaultPlace,toFactory,viewFactory);
-		panel.setWidget(presenter);
-	}
+    @Override
+    public void start(AcceptsOneWidget panel, EventBus eventBus) {
+        // TODO: unrefernce client factory
+        TOFactory toFactory = GenericClientFactoryImpl.TO_FACTORY;
+        KornellSession session = clientFactory.getKornellSession();
+        PlaceController placeController = clientFactory.getPlaceController();
+        Place defaultPlace = clientFactory.getDefaultPlace();
+        ViewFactory viewFactory = clientFactory.getViewFactory();
+        AdminInstitutionPresenter presenter = new AdminInstitutionPresenter(session, clientFactory.getEventBus(),
+                placeController, defaultPlace, toFactory, viewFactory);
+        panel.setWidget(presenter);
+    }
 
 }

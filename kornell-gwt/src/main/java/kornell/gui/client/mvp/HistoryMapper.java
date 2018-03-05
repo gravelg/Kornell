@@ -20,22 +20,11 @@ import kornell.gui.client.presentation.terms.TermsPlace;
 import kornell.gui.client.presentation.vitrine.VitrinePlace;
 import kornell.gui.client.presentation.welcome.WelcomePlace;
 
-
-@WithTokenizers({HomePlace.Tokenizer.class,
-	VitrinePlace.Tokenizer.class,
-	TermsPlace.Tokenizer.class,
-	WelcomePlace.Tokenizer.class,
-	ProfilePlace.Tokenizer.class,
-	MessagePlace.Tokenizer.class,
-	ClassroomPlace.Tokenizer.class,
-	SandboxPlace.Tokenizer.class,
-	AdminInstitutionPlace.Tokenizer.class,
-	AdminCoursesPlace.Tokenizer.class,
-	AdminCoursePlace.Tokenizer.class,
-	AdminCourseVersionsPlace.Tokenizer.class,
-	AdminCourseVersionPlace.Tokenizer.class,
-	AdminCourseClassPlace.Tokenizer.class,
-	AdminCourseClassesPlace.Tokenizer.class,
-	AdminAuditPlace.Tokenizer.class})
+@WithTokenizers({ HomePlace.Tokenizer.class, VitrinePlace.Tokenizer.class, TermsPlace.Tokenizer.class,
+        WelcomePlace.Tokenizer.class, ProfilePlace.Tokenizer.class, MessagePlace.Tokenizer.class,
+        ClassroomPlace.Tokenizer.class, SandboxPlace.Tokenizer.class, AdminInstitutionPlace.Tokenizer.class,
+        AdminCoursesPlace.Tokenizer.class, AdminCoursePlace.Tokenizer.class, AdminCourseVersionsPlace.Tokenizer.class,
+        AdminCourseVersionPlace.Tokenizer.class, AdminCourseClassPlace.Tokenizer.class,
+        AdminCourseClassesPlace.Tokenizer.class, AdminAuditPlace.Tokenizer.class })
 public interface HistoryMapper extends PlaceHistoryMapper {
 }

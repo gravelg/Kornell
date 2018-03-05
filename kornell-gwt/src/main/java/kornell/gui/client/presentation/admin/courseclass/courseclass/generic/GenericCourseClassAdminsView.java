@@ -37,30 +37,30 @@ import kornell.gui.client.util.forms.formfield.PeopleMultipleSelect;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class GenericCourseClassAdminsView extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, GenericCourseClassAdminsView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericCourseClassAdminsView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
-	private EventBus bus;
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    public static final EntityFactory entityFactory = GWT.create(EntityFactory.class);
+    private EventBus bus;
 
-	private KornellSession session;
-	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
-	
-	PeopleMultipleSelect courseClassAdminsMultipleSelect;
-	PeopleMultipleSelect tutorsMultipleSelect;
-	PeopleMultipleSelect observersMultipleSelect;
+    private KornellSession session;
+    boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
-	@UiField
-	Form courseClassAdminsForm;
-	@UiField
-	FlowPanel courseClassAdminsFields;
-	@UiField
-	Button courseClassAdminsBtnOK;
-	@UiField
-	Button courseClassAdminsBtnCancel;
-	
-	@UiField
+    PeopleMultipleSelect courseClassAdminsMultipleSelect;
+    PeopleMultipleSelect tutorsMultipleSelect;
+    PeopleMultipleSelect observersMultipleSelect;
+
+    @UiField
+    Form courseClassAdminsForm;
+    @UiField
+    FlowPanel courseClassAdminsFields;
+    @UiField
+    Button courseClassAdminsBtnOK;
+    @UiField
+    Button courseClassAdminsBtnCancel;
+
+    @UiField
     Form tutorsForm;
     @UiField
     FlowPanel tutorsFields;
@@ -68,7 +68,7 @@ public class GenericCourseClassAdminsView extends Composite {
     Button tutorsBtnOK;
     @UiField
     Button tutorsBtnCancel;
-    
+
     @UiField
     Form observersForm;
     @UiField
@@ -78,164 +78,169 @@ public class GenericCourseClassAdminsView extends Composite {
     @UiField
     Button observersBtnCancel;
 
-	private CourseClassTO courseClassTO;
-	
-	public GenericCourseClassAdminsView(final KornellSession session, EventBus bus,
-			Presenter presenter, CourseClassTO courseClassTO) {
-		this.session = session;
-		this.bus = bus;
-		this.courseClassTO = courseClassTO;
-		initWidget(uiBinder.createAndBindUi(this));
+    private CourseClassTO courseClassTO;
 
-		// i18n
-		courseClassAdminsBtnOK.setText("Salvar Alterações");
-		courseClassAdminsBtnCancel.setText("Cancelar Alterações");
-		tutorsBtnOK.setText("Salvar Alterações");
-		tutorsBtnCancel.setText("Cancelar Alterações");
+    public GenericCourseClassAdminsView(final KornellSession session, EventBus bus, Presenter presenter,
+            CourseClassTO courseClassTO) {
+        this.session = session;
+        this.bus = bus;
+        this.courseClassTO = courseClassTO;
+        initWidget(uiBinder.createAndBindUi(this));
+
+        // i18n
+        courseClassAdminsBtnOK.setText("Salvar Alterações");
+        courseClassAdminsBtnCancel.setText("Cancelar Alterações");
+        tutorsBtnOK.setText("Salvar Alterações");
+        tutorsBtnCancel.setText("Cancelar Alterações");
         observersBtnOK.setText("Salvar Alterações");
         observersBtnCancel.setText("Cancelar Alterações");
 
-		this.courseClassTO = courseClassTO;
-		
-		initCourseClassAdminsData();
-		initTutorsData();
-		initObserversData();
-	}
+        this.courseClassTO = courseClassTO;
 
-	public void initCourseClassAdminsData() {
-	    courseClassAdminsFields.clear();
-		FlowPanel fieldPanelWrapper = new FlowPanel();
-		fieldPanelWrapper.addStyleName("fieldPanelWrapper");
-		
-		FlowPanel labelPanel = new FlowPanel();
-		labelPanel.addStyleName("labelPanel");
-		Label lblLabel = new Label("Administradores da Turma");
-		lblLabel.addStyleName("lblLabel");
-		labelPanel.add(lblLabel);
-		fieldPanelWrapper.add(labelPanel);
-		
-		bus.fireEvent(new ShowPacifierEvent(true));
-		session.courseClass(courseClassTO.getCourseClass().getUUID()).getAdmins(RoleCategory.BIND_WITH_PERSON,
-				new Callback<RolesTO>() {
-			@Override
-			public void ok(RolesTO to) {
-				for (RoleTO roleTO : to.getRoleTOs()) {
-					String item = roleTO.getUsername();
-					if(roleTO.getPerson().getFullName() != null && !"".equals(roleTO.getPerson().getFullName())){
-						item += " (" +roleTO.getPerson().getFullName()+")";
-					}
-					courseClassAdminsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
-				}
-				bus.fireEvent(new ShowPacifierEvent(false));
-			}
-		});
-		courseClassAdminsMultipleSelect = new PeopleMultipleSelect(session);
-		fieldPanelWrapper.add(courseClassAdminsMultipleSelect.asWidget());
-		
-		courseClassAdminsFields.add(fieldPanelWrapper);
-	}
-	
-	public void initTutorsData() {
+        initCourseClassAdminsData();
+        initTutorsData();
+        initObserversData();
+    }
+
+    public void initCourseClassAdminsData() {
+        courseClassAdminsFields.clear();
+        FlowPanel fieldPanelWrapper = new FlowPanel();
+        fieldPanelWrapper.addStyleName("fieldPanelWrapper");
+
+        FlowPanel labelPanel = new FlowPanel();
+        labelPanel.addStyleName("labelPanel");
+        Label lblLabel = new Label("Administradores da Turma");
+        lblLabel.addStyleName("lblLabel");
+        labelPanel.add(lblLabel);
+        fieldPanelWrapper.add(labelPanel);
+
+        bus.fireEvent(new ShowPacifierEvent(true));
+        session.courseClass(courseClassTO.getCourseClass().getUUID()).getAdmins(RoleCategory.BIND_WITH_PERSON,
+                new Callback<RolesTO>() {
+                    @Override
+                    public void ok(RolesTO to) {
+                        for (RoleTO roleTO : to.getRoleTOs()) {
+                            String item = roleTO.getUsername();
+                            if (roleTO.getPerson().getFullName() != null
+                                    && !"".equals(roleTO.getPerson().getFullName())) {
+                                item += " (" + roleTO.getPerson().getFullName() + ")";
+                            }
+                            courseClassAdminsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                        }
+                        bus.fireEvent(new ShowPacifierEvent(false));
+                    }
+                });
+        courseClassAdminsMultipleSelect = new PeopleMultipleSelect(session);
+        fieldPanelWrapper.add(courseClassAdminsMultipleSelect.asWidget());
+
+        courseClassAdminsFields.add(fieldPanelWrapper);
+    }
+
+    public void initTutorsData() {
         tutorsFields.clear();
         FlowPanel fieldPanelWrapper = new FlowPanel();
         fieldPanelWrapper.addStyleName("fieldPanelWrapper");
-        
+
         FlowPanel labelPanel = new FlowPanel();
         labelPanel.addStyleName("labelPanel");
         Label lblLabel = new Label("Tutores da Turma");
         lblLabel.addStyleName("lblLabel");
         labelPanel.add(lblLabel);
         fieldPanelWrapper.add(labelPanel);
-        
+
         bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClass(courseClassTO.getCourseClass().getUUID()).getTutors(RoleCategory.BIND_WITH_PERSON,
                 new Callback<RolesTO>() {
-            @Override
-            public void ok(RolesTO to) {
-                for (RoleTO roleTO : to.getRoleTOs()) {
-                    String item = roleTO.getUsername();
-                    if(roleTO.getPerson().getFullName() != null && !"".equals(roleTO.getPerson().getFullName())){
-                        item += " (" +roleTO.getPerson().getFullName()+")";
+                    @Override
+                    public void ok(RolesTO to) {
+                        for (RoleTO roleTO : to.getRoleTOs()) {
+                            String item = roleTO.getUsername();
+                            if (roleTO.getPerson().getFullName() != null
+                                    && !"".equals(roleTO.getPerson().getFullName())) {
+                                item += " (" + roleTO.getPerson().getFullName() + ")";
+                            }
+                            tutorsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                        }
+                        bus.fireEvent(new ShowPacifierEvent(false));
                     }
-                    tutorsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
-                }
-                bus.fireEvent(new ShowPacifierEvent(false));
-            }
-        });
+                });
         tutorsMultipleSelect = new PeopleMultipleSelect(session);
         fieldPanelWrapper.add(tutorsMultipleSelect.asWidget());
-        
+
         tutorsFields.add(fieldPanelWrapper);
     }
-	
-	public void initObserversData() {
+
+    public void initObserversData() {
         observersFields.clear();
         FlowPanel fieldPanelWrapper = new FlowPanel();
         fieldPanelWrapper.addStyleName("fieldPanelWrapper");
-        
+
         FlowPanel labelPanel = new FlowPanel();
         labelPanel.addStyleName("labelPanel");
         Label lblLabel = new Label("Observadores da Turma");
         lblLabel.addStyleName("lblLabel");
         labelPanel.add(lblLabel);
         fieldPanelWrapper.add(labelPanel);
-        
+
         bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClass(courseClassTO.getCourseClass().getUUID()).getObservers(RoleCategory.BIND_WITH_PERSON,
                 new Callback<RolesTO>() {
-            @Override
-            public void ok(RolesTO to) {
-                for (RoleTO roleTO : to.getRoleTOs()) {
-                    String item = roleTO.getUsername();
-                    if(roleTO.getPerson().getFullName() != null && !"".equals(roleTO.getPerson().getFullName())){
-                        item += " (" +roleTO.getPerson().getFullName()+")";
+                    @Override
+                    public void ok(RolesTO to) {
+                        for (RoleTO roleTO : to.getRoleTOs()) {
+                            String item = roleTO.getUsername();
+                            if (roleTO.getPerson().getFullName() != null
+                                    && !"".equals(roleTO.getPerson().getFullName())) {
+                                item += " (" + roleTO.getPerson().getFullName() + ")";
+                            }
+                            observersMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                        }
+                        bus.fireEvent(new ShowPacifierEvent(false));
                     }
-                    observersMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
-                }
-                bus.fireEvent(new ShowPacifierEvent(false));
-            }
-        });
+                });
         observersMultipleSelect = new PeopleMultipleSelect(session);
         fieldPanelWrapper.add(observersMultipleSelect.asWidget());
-        
+
         observersFields.add(fieldPanelWrapper);
     }
 
-	@UiHandler("courseClassAdminsBtnOK")
-	void doOKCourseClassAdmins(ClickEvent e) {
-		if(session.isInstitutionAdmin()){
-			Roles roles = entityFactory.newRoles().as();
-			List<Role> rolesList = new ArrayList<Role>();
-			ListBox multipleSelect = courseClassAdminsMultipleSelect.getMultipleSelect();
-			for (int i = 0; i < multipleSelect.getItemCount(); i++) {
-				String personUUID = multipleSelect.getValue(i);
-				Role role = entityFactory.newRole().as();
-				CourseClassAdminRole courseClassAdminRole = entityFactory.newCourseClassAdminRole().as();
-				role.setPersonUUID(personUUID);
-				role.setRoleType(RoleType.courseClassAdmin);
-				courseClassAdminRole.setCourseClassUUID(courseClassTO.getCourseClass().getUUID());
-				role.setCourseClassAdminRole(courseClassAdminRole);
-				rolesList.add(role);  
-			}
-			roles.setRoles(rolesList);
-			session.courseClass(courseClassTO.getCourseClass().getUUID()).updateAdmins(roles, new Callback<Roles>() {
-				@Override
-				public void ok(Roles to) {
-					KornellNotification.show("Os administradores da turma foram atualizados com sucesso.");
-				}
-			});
-		}
-	}
-	
-	@UiHandler("tutorsBtnOK")
+    @UiHandler("courseClassAdminsBtnOK")
+    void doOKCourseClassAdmins(ClickEvent e) {
+        if (session.isInstitutionAdmin()) {
+            Roles roles = entityFactory.newRoles().as();
+            List<Role> rolesList = new ArrayList<Role>();
+            ListBox multipleSelect = courseClassAdminsMultipleSelect.getMultipleSelect();
+            for (int i = 0; i < multipleSelect.getItemCount(); i++) {
+                String personUUID = multipleSelect.getValue(i);
+                Role role = entityFactory.newRole().as();
+                CourseClassAdminRole courseClassAdminRole = entityFactory.newCourseClassAdminRole().as();
+                role.setPersonUUID(personUUID);
+                role.setRoleType(RoleType.courseClassAdmin);
+                courseClassAdminRole.setCourseClassUUID(courseClassTO.getCourseClass().getUUID());
+                role.setCourseClassAdminRole(courseClassAdminRole);
+                rolesList.add(role);
+            }
+            roles.setRoles(rolesList);
+            session.courseClass(courseClassTO.getCourseClass().getUUID()).updateAdmins(roles, new Callback<Roles>() {
+                @Override
+                public void ok(Roles to) {
+                    KornellNotification.show("Os administradores da turma foram atualizados com sucesso.");
+                }
+            });
+        }
+    }
+
+    @UiHandler("tutorsBtnOK")
     void doOKTutors(ClickEvent e) {
-        if(session.isInstitutionAdmin()){
+        if (session.isInstitutionAdmin()) {
             Roles roles = entityFactory.newRoles().as();
             List<Role> rolesList = new ArrayList<Role>();
             ListBox multipleSelect = tutorsMultipleSelect.getMultipleSelect();
-            if(multipleSelect.getItemCount() == 0 && courseClassTO.getCourseClass().isTutorChatEnabled()){
-            	KornellNotification.show("Você não pode remover todos os tutores desta turma. Desabilite a opção \"Permitir tutoria da turma\" na aba Configurações.", AlertType.WARNING, 4000);
-            	return;
+            if (multipleSelect.getItemCount() == 0 && courseClassTO.getCourseClass().isTutorChatEnabled()) {
+                KornellNotification.show(
+                        "Você não pode remover todos os tutores desta turma. Desabilite a opção \"Permitir tutoria da turma\" na aba Configurações.",
+                        AlertType.WARNING, 4000);
+                return;
             }
             for (int i = 0; i < multipleSelect.getItemCount(); i++) {
                 String personUUID = multipleSelect.getValue(i);
@@ -245,9 +250,9 @@ public class GenericCourseClassAdminsView extends Composite {
                 role.setRoleType(RoleType.tutor);
                 tutorRole.setCourseClassUUID(courseClassTO.getCourseClass().getUUID());
                 role.setTutorRole(tutorRole);
-                rolesList.add(role);  
+                rolesList.add(role);
             }
-			roles.setRoles(rolesList);
+            roles.setRoles(rolesList);
             session.courseClass(courseClassTO.getCourseClass().getUUID()).updateTutors(roles, new Callback<Roles>() {
                 @Override
                 public void ok(Roles to) {
@@ -256,10 +261,10 @@ public class GenericCourseClassAdminsView extends Composite {
             });
         }
     }
-	
-	@UiHandler("observersBtnOK")
+
+    @UiHandler("observersBtnOK")
     void doOKObservers(ClickEvent e) {
-        if(session.isInstitutionAdmin()){
+        if (session.isInstitutionAdmin()) {
             Roles roles = entityFactory.newRoles().as();
             List<Role> rolesList = new ArrayList<Role>();
             ListBox multipleSelect = observersMultipleSelect.getMultipleSelect();
@@ -271,9 +276,9 @@ public class GenericCourseClassAdminsView extends Composite {
                 role.setRoleType(RoleType.observer);
                 observerRole.setCourseClassUUID(courseClassTO.getCourseClass().getUUID());
                 role.setObserverRole(observerRole);
-                rolesList.add(role);  
+                rolesList.add(role);
             }
-			roles.setRoles(rolesList);
+            roles.setRoles(rolesList);
             session.courseClass(courseClassTO.getCourseClass().getUUID()).updateObservers(roles, new Callback<Roles>() {
                 @Override
                 public void ok(Roles to) {
@@ -283,17 +288,17 @@ public class GenericCourseClassAdminsView extends Composite {
         }
     }
 
-	@UiHandler("courseClassAdminsBtnCancel")
-	void doCancelCourseClassAdmins(ClickEvent e) {
-		initCourseClassAdminsData();
-	}
-	
-	@UiHandler("tutorsBtnCancel")
+    @UiHandler("courseClassAdminsBtnCancel")
+    void doCancelCourseClassAdmins(ClickEvent e) {
+        initCourseClassAdminsData();
+    }
+
+    @UiHandler("tutorsBtnCancel")
     void doCancelTutors(ClickEvent e) {
         initTutorsData();
     }
-	
-	@UiHandler("observersBtnCancel")
+
+    @UiHandler("observersBtnCancel")
     void doCancelObservers(ClickEvent e) {
         initObserversData();
     }

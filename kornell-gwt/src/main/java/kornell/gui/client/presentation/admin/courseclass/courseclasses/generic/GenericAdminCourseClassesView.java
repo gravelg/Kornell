@@ -54,338 +54,344 @@ import kornell.gui.client.util.view.table.KornellTable;
 
 public class GenericAdminCourseClassesView extends Composite implements AdminCourseClassesView {
 
-	interface MyUiBinder extends UiBinder<Widget, GenericAdminCourseClassesView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericAdminCourseClassesView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
-	private PlaceController placeCtrl;
-	private KornellTable<CourseClassTO> table;
-	private AdminCourseClassesView.Presenter presenter;
-	private FormHelper formHelper = GWT.create(FormHelper.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private PlaceController placeCtrl;
+    private KornellTable<CourseClassTO> table;
+    private AdminCourseClassesView.Presenter presenter;
+    private FormHelper formHelper = GWT.create(FormHelper.class);
 
-	@UiField
-	FlowPanel adminHomePanel;
-	@UiField
-	Label title;
-	@UiField
-	FlowPanel courseClassesPanel;
-	@UiField
-	FlowPanel courseClassesWrapper;
-	@UiField
-	FlowPanel createClassPanel;
-	@UiField
-	Button btnAddCourseClass;
-	
-	ConfirmModalView confirmModal;
+    @UiField
+    FlowPanel adminHomePanel;
+    @UiField
+    Label title;
+    @UiField
+    FlowPanel courseClassesPanel;
+    @UiField
+    FlowPanel courseClassesWrapper;
+    @UiField
+    FlowPanel createClassPanel;
+    @UiField
+    Button btnAddCourseClass;
 
-	Tab adminsTab;
-	FlowPanel adminsPanel;
+    ConfirmModalView confirmModal;
 
-	public GenericAdminCourseClassesView(final KornellSession session, final EventBus bus, final PlaceController placeCtrl, final ViewFactory viewFactory) {
-		this.placeCtrl = placeCtrl;
-		initWidget(uiBinder.createAndBindUi(this));
-		btnAddCourseClass.setText("Criar Nova Turma");
+    Tab adminsTab;
+    FlowPanel adminsPanel;
 
+    public GenericAdminCourseClassesView(final KornellSession session, final EventBus bus,
+            final PlaceController placeCtrl, final ViewFactory viewFactory) {
+        this.placeCtrl = placeCtrl;
+        initWidget(uiBinder.createAndBindUi(this));
+        btnAddCourseClass.setText("Criar Nova Turma");
 
-		bus.addHandler(PlaceChangeEvent.TYPE,
-				new PlaceChangeEvent.Handler() {
-					@Override
-					public void onPlaceChange(PlaceChangeEvent event) {
-						if(createClassPanel.getWidgetCount() > 0){
-							createClassPanel.clear();
-							courseClassesPanel.setVisible(true);
-							courseClassesWrapper.setVisible(true);
-						}
-					}
-				});
+        bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
+            @Override
+            public void onPlaceChange(PlaceChangeEvent event) {
+                if (createClassPanel.getWidgetCount() > 0) {
+                    createClassPanel.clear();
+                    courseClassesPanel.setVisible(true);
+                    courseClassesWrapper.setVisible(true);
+                }
+            }
+        });
 
-		btnAddCourseClass.setVisible(session.isInstitutionAdmin());
-		btnAddCourseClass.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				if (session.isInstitutionAdmin()) {
-					courseClassesPanel.setVisible(false);
-					courseClassesWrapper.setVisible(false);
-					createClassPanel.add(new GenericCourseClassConfigView(session, bus, placeCtrl, viewFactory.getAdminCourseClassPresenter(), null));
-				}
-			}
-		});
-	}
+        btnAddCourseClass.setVisible(session.isInstitutionAdmin());
+        btnAddCourseClass.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if (session.isInstitutionAdmin()) {
+                    courseClassesPanel.setVisible(false);
+                    courseClassesWrapper.setVisible(false);
+                    createClassPanel.add(new GenericCourseClassConfigView(session, bus, placeCtrl,
+                            viewFactory.getAdminCourseClassPresenter(), null));
+                }
+            }
+        });
+    }
 
-	private void initTable() {		
-		table = new KornellTable<>(presenter, "courseClassesCellTable");
-		
-		table.initColumn("Curso", 20, "c.name", new Column<CourseClassTO, CourseClassTO>(buildCourseCell()) {
-			@Override
-			public CourseClassTO getValue(CourseClassTO courseClassTO) {
-				return courseClassTO;
-			}
-		});
+    private void initTable() {
+        table = new KornellTable<>(presenter, "courseClassesCellTable");
 
-		table.initColumn("Versão", 15, "cv.name", new Column<CourseClassTO, CourseClassTO>(buildCourseVersionCell()) {
-			@Override
-			public CourseClassTO getValue(CourseClassTO courseClassTO) {
-				return courseClassTO;
-			}
-		});
+        table.initColumn("Curso", 20, "c.name", new Column<CourseClassTO, CourseClassTO>(buildCourseCell()) {
+            @Override
+            public CourseClassTO getValue(CourseClassTO courseClassTO) {
+                return courseClassTO;
+            }
+        });
 
-		table.initColumn("Turma", 25, "cc.name", new Column<CourseClassTO, CourseClassTO>(buildCourseClassCell()) {
-			@Override
-			public CourseClassTO getValue(CourseClassTO courseClassTO) {
-				return courseClassTO;
-			}
-		});
+        table.initColumn("Versão", 15, "cv.name", new Column<CourseClassTO, CourseClassTO>(buildCourseVersionCell()) {
+            @Override
+            public CourseClassTO getValue(CourseClassTO courseClassTO) {
+                return courseClassTO;
+            }
+        });
 
-		table.initColumn("Status", 10, "cc.state", new TextColumn<CourseClassTO>() {
-			@Override
-			public String getValue(CourseClassTO courseClassTO) {
-				String value = EnumTranslator.translateEnum(courseClassTO.getCourseClass().getState());
-				value += courseClassTO.getCourseClass().isInvisible() ? " / Invísivel" : "";
-				value += courseClassTO.getCourseClass().isPublicClass() ? " / Pública" : "";
-				return value;
-			}
-		});
+        table.initColumn("Turma", 25, "cc.name", new Column<CourseClassTO, CourseClassTO>(buildCourseClassCell()) {
+            @Override
+            public CourseClassTO getValue(CourseClassTO courseClassTO) {
+                return courseClassTO;
+            }
+        });
 
-		table.initColumn("Criada em", 10, "cc.createdAt", false, new TextColumn<CourseClassTO>() {
-			@Override
-			public String getValue(CourseClassTO courseClassTO) {
-				return formHelper.dateToString(courseClassTO.getCourseClass().getCreatedAt());
-			}
-		});
+        table.initColumn("Status", 10, "cc.state", new TextColumn<CourseClassTO>() {
+            @Override
+            public String getValue(CourseClassTO courseClassTO) {
+                String value = EnumTranslator.translateEnum(courseClassTO.getCourseClass().getState());
+                value += courseClassTO.getCourseClass().isInvisible() ? " / Invísivel" : "";
+                value += courseClassTO.getCourseClass().isPublicClass() ? " / Pública" : "";
+                return value;
+            }
+        });
 
-		table.initColumn("Matrículas", 10, new TextColumn<CourseClassTO>() {
-			@Override
-			public String getValue(CourseClassTO courseClassTO) {
-				String text = courseClassTO.getEnrollmentCount() + " (por ";
-				text += EnumTranslator.translateEnum(courseClassTO.getCourseClass().getRegistrationType()) + ")";
-				return text;
-			}
-		});
+        table.initColumn("Criada em", 10, "cc.createdAt", false, new TextColumn<CourseClassTO>() {
+            @Override
+            public String getValue(CourseClassTO courseClassTO) {
+                return formHelper.dateToString(courseClassTO.getCourseClass().getCreatedAt());
+            }
+        });
 
-		table.initColumn("Ações", 10, new Column<CourseClassTO, CourseClassTO>(buildActionsCell()) {
-			@Override
-			public CourseClassTO getValue(CourseClassTO courseTO) {
-				return courseTO;
-			}
-		});
-		
-		table.onColumnSetupFinished();
-	}
+        table.initColumn("Matrículas", 10, new TextColumn<CourseClassTO>() {
+            @Override
+            public String getValue(CourseClassTO courseClassTO) {
+                String text = courseClassTO.getEnrollmentCount() + " (por ";
+                text += EnumTranslator.translateEnum(courseClassTO.getCourseClass().getRegistrationType()) + ")";
+                return text;
+            }
+        });
 
-	private CompositeCell<CourseClassTO> buildCourseClassCell() {
-		List<HasCell<CourseClassTO, ?>> cellsCC = new LinkedList<HasCell<CourseClassTO, ?>>();
-		cellsCC.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE_CLASS.toString(), getGoToCourseClassDelegate()));
-		CompositeCell<CourseClassTO> cellCC = new CompositeCell<CourseClassTO>(cellsCC);
-		return cellCC;
-	}
+        table.initColumn("Ações", 10, new Column<CourseClassTO, CourseClassTO>(buildActionsCell()) {
+            @Override
+            public CourseClassTO getValue(CourseClassTO courseTO) {
+                return courseTO;
+            }
+        });
 
-	private CompositeCell<CourseClassTO> buildCourseVersionCell() {
-		List<HasCell<CourseClassTO, ?>> cellsCV = new LinkedList<HasCell<CourseClassTO, ?>>();
-		cellsCV.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE_VERSION.toString(), getGoToCourseVersionDelegate()));
-		CompositeCell<CourseClassTO> cellCV = new CompositeCell<CourseClassTO>(cellsCV);
-		return cellCV;
-	}
+        table.onColumnSetupFinished();
+    }
 
-	private CompositeCell<CourseClassTO> buildCourseCell() {
-		List<HasCell<CourseClassTO, ?>> cellsC = new LinkedList<HasCell<CourseClassTO, ?>>();
-		cellsC.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
-		CompositeCell<CourseClassTO> cellC = new CompositeCell<CourseClassTO>(cellsC);
-		return cellC;
-	}
+    private CompositeCell<CourseClassTO> buildCourseClassCell() {
+        List<HasCell<CourseClassTO, ?>> cellsCC = new LinkedList<HasCell<CourseClassTO, ?>>();
+        cellsCC.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE_CLASS.toString(),
+                getGoToCourseClassDelegate()));
+        CompositeCell<CourseClassTO> cellCC = new CompositeCell<CourseClassTO>(cellsCC);
+        return cellCC;
+    }
 
-	private CompositeCell<CourseClassTO> buildActionsCell() {
-		List<HasCell<CourseClassTO, ?>> cells = new LinkedList<HasCell<CourseClassTO, ?>>();
-		cells.add(new CourseClassActionsHasCell("Gerenciar", getGoToCourseClassDelegate()));
-		cells.add(new CourseClassActionsHasCell("Duplicar", getDuplicateCourseClassDelegate()));
-		cells.add(new CourseClassActionsHasCell("Excluir", getDeleteCourseClassDelegate()));
-		CompositeCell<CourseClassTO> cell = new CompositeCell<CourseClassTO>(cells);
-		return cell;
-	}
+    private CompositeCell<CourseClassTO> buildCourseVersionCell() {
+        List<HasCell<CourseClassTO, ?>> cellsCV = new LinkedList<HasCell<CourseClassTO, ?>>();
+        cellsCV.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE_VERSION.toString(),
+                getGoToCourseVersionDelegate()));
+        CompositeCell<CourseClassTO> cellCV = new CompositeCell<CourseClassTO>(cellsCV);
+        return cellCV;
+    }
 
-	@Override
-	public void setPresenter(Presenter presenter) {
-		this.presenter = presenter;
-		if(table != null){
-			table.resetSearchTerm();
-		}
-	}
+    private CompositeCell<CourseClassTO> buildCourseCell() {
+        List<HasCell<CourseClassTO, ?>> cellsC = new LinkedList<HasCell<CourseClassTO, ?>>();
+        cellsC.add(new CourseClassLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
+        CompositeCell<CourseClassTO> cellC = new CompositeCell<CourseClassTO>(cellsC);
+        return cellC;
+    }
 
-	@Override
-	public void setCourseClasses(List<CourseClassTO> courseClassTOs) {
-		courseClassesWrapper.clear();
+    private CompositeCell<CourseClassTO> buildActionsCell() {
+        List<HasCell<CourseClassTO, ?>> cells = new LinkedList<HasCell<CourseClassTO, ?>>();
+        cells.add(new CourseClassActionsHasCell("Gerenciar", getGoToCourseClassDelegate()));
+        cells.add(new CourseClassActionsHasCell("Duplicar", getDuplicateCourseClassDelegate()));
+        cells.add(new CourseClassActionsHasCell("Excluir", getDeleteCourseClassDelegate()));
+        CompositeCell<CourseClassTO> cell = new CompositeCell<CourseClassTO>(cells);
+        return cell;
+    }
 
-		if(table == null){
-			initTable();		
-		}
-		table.build(courseClassesWrapper, courseClassTOs);
-	
-		title.setText("Gerenciar Turmas (" + presenter.getTotalRowCount() + ")");
-		adminHomePanel.setVisible(true);
-	}
+    @Override
+    public void setPresenter(Presenter presenter) {
+        this.presenter = presenter;
+        if (table != null) {
+            table.resetSearchTerm();
+        }
+    }
 
-	private Delegate<CourseClassTO> getGoToCourseDelegate() {
-		return new Delegate<CourseClassTO>() {
-			@Override
-			public void execute(CourseClassTO courseClassTO) {
-				placeCtrl.goTo(new AdminCoursePlace(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getUUID()));
-			}
-		};
-	}
+    @Override
+    public void setCourseClasses(List<CourseClassTO> courseClassTOs) {
+        courseClassesWrapper.clear();
 
-	private Delegate<CourseClassTO> getGoToCourseVersionDelegate() {
-		return new Delegate<CourseClassTO>() {
-			@Override
-			public void execute(CourseClassTO courseClassTO) {
-				placeCtrl.goTo(new AdminCourseVersionPlace(courseClassTO.getCourseVersionTO().getCourseVersion().getUUID()));
-			}
-		};
-	}
+        if (table == null) {
+            initTable();
+        }
+        table.build(courseClassesWrapper, courseClassTOs);
 
-	private Delegate<CourseClassTO> getGoToCourseClassDelegate() {
-		return new Delegate<CourseClassTO>() {
-			@Override
-			public void execute(CourseClassTO courseClassTO) {
-				placeCtrl.goTo(new AdminCourseClassPlace(courseClassTO.getCourseClass().getUUID()));
-			}
-		};
-	}
+        title.setText("Gerenciar Turmas (" + presenter.getTotalRowCount() + ")");
+        adminHomePanel.setVisible(true);
+    }
 
-	private Delegate<CourseClassTO> getDeleteCourseClassDelegate() {
-		return new Delegate<CourseClassTO>() {
+    private Delegate<CourseClassTO> getGoToCourseDelegate() {
+        return new Delegate<CourseClassTO>() {
+            @Override
+            public void execute(CourseClassTO courseClassTO) {
+                placeCtrl.goTo(
+                        new AdminCoursePlace(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getUUID()));
+            }
+        };
+    }
 
-			@Override
-			public void execute(CourseClassTO courseClassTO) {
-				presenter.deleteCourseClass(courseClassTO);
-			}
-		};
-	}
+    private Delegate<CourseClassTO> getGoToCourseVersionDelegate() {
+        return new Delegate<CourseClassTO>() {
+            @Override
+            public void execute(CourseClassTO courseClassTO) {
+                placeCtrl.goTo(
+                        new AdminCourseVersionPlace(courseClassTO.getCourseVersionTO().getCourseVersion().getUUID()));
+            }
+        };
+    }
 
-	private Delegate<CourseClassTO> getDuplicateCourseClassDelegate() {
-		return new Delegate<CourseClassTO>() {
+    private Delegate<CourseClassTO> getGoToCourseClassDelegate() {
+        return new Delegate<CourseClassTO>() {
+            @Override
+            public void execute(CourseClassTO courseClassTO) {
+                placeCtrl.goTo(new AdminCourseClassPlace(courseClassTO.getCourseClass().getUUID()));
+            }
+        };
+    }
 
-			@Override
-			public void execute(CourseClassTO courseClassTO) {
-				presenter.duplicateCourseClass(courseClassTO);
-			}
-		};
-	}
+    private Delegate<CourseClassTO> getDeleteCourseClassDelegate() {
+        return new Delegate<CourseClassTO>() {
 
-	@SuppressWarnings("hiding")
-	private class CourseClassActionsActionCell<CourseClassTO> extends ActionCell<CourseClassTO> {
-		public CourseClassActionsActionCell(String message, Delegate<CourseClassTO> delegate) {
-			super(message, delegate);
-		}
-		@Override
-		public void onBrowserEvent(Context context, Element parent, CourseClassTO value, NativeEvent event,
-				ValueUpdater<CourseClassTO> valueUpdater) {
-			event.stopPropagation();
-			event.preventDefault();
-			super.onBrowserEvent(context, parent, value, event, valueUpdater);
-			if (CLICK.equals(event.getType())) {
-				EventTarget eventTarget = event.getEventTarget();
-				if (!Element.is(eventTarget)) {
-					return;
-				}
-				if (parent.getFirstChildElement().isOrHasChild(Element.as(eventTarget))) {
-					// Ignore clicks that occur outside of the main element.
-					onEnterKeyDown(context, parent, value, event, valueUpdater);
-				}
-			}
-		}
-	}
+            @Override
+            public void execute(CourseClassTO courseClassTO) {
+                presenter.deleteCourseClass(courseClassTO);
+            }
+        };
+    }
 
-	private class CourseClassActionsHasCell implements HasCell<CourseClassTO, CourseClassTO> {
-		private CourseClassActionsActionCell<CourseClassTO> cell;
+    private Delegate<CourseClassTO> getDuplicateCourseClassDelegate() {
+        return new Delegate<CourseClassTO>() {
 
-		public CourseClassActionsHasCell(String text, Delegate<CourseClassTO> delegate) {
-			final String actionName = text;
-			cell = new CourseClassActionsActionCell<CourseClassTO>(text, delegate) {
-				@Override
-				public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO object, SafeHtmlBuilder sb) {
-					if(!"Excluir".equals(actionName) || object.getEnrollmentCount() == 0){
-						SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(actionName));
-						sb.append(html);
-					} else {
-						sb.appendEscaped("");
-					}
-				}
-				
-				private String buildButtonHTML(String actionName){
-					Button btn = new Button();
-					btn.setSize(ButtonSize.SMALL);
-					btn.setTitle(actionName);
-					if("Gerenciar".equals(actionName)){
-						btn.setIcon(IconType.COG);
-						btn.addStyleName("btnAction");
-					} else if ("Excluir".equals(actionName)){
-						btn.setIcon(IconType.TRASH);
-						btn.addStyleName("btnNotSelected");
-					} else if ("Duplicar".equals(actionName)){
-						btn.setIcon(IconType.COPY);
-						btn.addStyleName("btnNotSelected");
-					}
-					btn.addStyleName("btnIconSolo");
-					return btn.toString();
-				}
-			};
-		}
+            @Override
+            public void execute(CourseClassTO courseClassTO) {
+                presenter.duplicateCourseClass(courseClassTO);
+            }
+        };
+    }
 
-		@Override
-		public Cell<CourseClassTO> getCell() {
-			return cell;
-		}
+    @SuppressWarnings("hiding")
+    private class CourseClassActionsActionCell<CourseClassTO> extends ActionCell<CourseClassTO> {
+        public CourseClassActionsActionCell(String message, Delegate<CourseClassTO> delegate) {
+            super(message, delegate);
+        }
 
-		@Override
-		public FieldUpdater<CourseClassTO, CourseClassTO> getFieldUpdater() {
-			return null;
-		}
+        @Override
+        public void onBrowserEvent(Context context, Element parent, CourseClassTO value, NativeEvent event,
+                ValueUpdater<CourseClassTO> valueUpdater) {
+            event.stopPropagation();
+            event.preventDefault();
+            super.onBrowserEvent(context, parent, value, event, valueUpdater);
+            if (CLICK.equals(event.getType())) {
+                EventTarget eventTarget = event.getEventTarget();
+                if (!Element.is(eventTarget)) {
+                    return;
+                }
+                if (parent.getFirstChildElement().isOrHasChild(Element.as(eventTarget))) {
+                    // Ignore clicks that occur outside of the main element.
+                    onEnterKeyDown(context, parent, value, event, valueUpdater);
+                }
+            }
+        }
+    }
 
-		@Override
-		public CourseClassTO getValue(CourseClassTO object) {
-			return object;
-		}
-	}
+    private class CourseClassActionsHasCell implements HasCell<CourseClassTO, CourseClassTO> {
+        private CourseClassActionsActionCell<CourseClassTO> cell;
 
+        public CourseClassActionsHasCell(String text, Delegate<CourseClassTO> delegate) {
+            final String actionName = text;
+            cell = new CourseClassActionsActionCell<CourseClassTO>(text, delegate) {
+                @Override
+                public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO object,
+                        SafeHtmlBuilder sb) {
+                    if (!"Excluir".equals(actionName) || object.getEnrollmentCount() == 0) {
+                        SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(actionName));
+                        sb.append(html);
+                    } else {
+                        sb.appendEscaped("");
+                    }
+                }
 
-	private class CourseClassLinkHasCell implements HasCell<CourseClassTO, CourseClassTO> {
-		private CourseClassActionsActionCell<CourseClassTO> cell;
+                private String buildButtonHTML(String actionName) {
+                    Button btn = new Button();
+                    btn.setSize(ButtonSize.SMALL);
+                    btn.setTitle(actionName);
+                    if ("Gerenciar".equals(actionName)) {
+                        btn.setIcon(IconType.COG);
+                        btn.addStyleName("btnAction");
+                    } else if ("Excluir".equals(actionName)) {
+                        btn.setIcon(IconType.TRASH);
+                        btn.addStyleName("btnNotSelected");
+                    } else if ("Duplicar".equals(actionName)) {
+                        btn.setIcon(IconType.COPY);
+                        btn.addStyleName("btnNotSelected");
+                    }
+                    btn.addStyleName("btnIconSolo");
+                    return btn.toString();
+                }
+            };
+        }
 
-		public CourseClassLinkHasCell(String text, Delegate<CourseClassTO> delegate) {
-			cell = new CourseClassActionsActionCell<CourseClassTO>(text, delegate) {
-				@Override
-				public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO courseClassTO, SafeHtmlBuilder sb) {
-					SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(text, courseClassTO));
-					sb.append(html);
-				}
-				
-				private String buildButtonHTML(String text, CourseClassTO courseClassTO) {
-					Anchor anchor = new Anchor();
-					if(CourseDetailsEntityType.COURSE.toString().equals(text)){
-						anchor.setText(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getName());
-					} else if(CourseDetailsEntityType.COURSE_VERSION.toString().equals(text)){
-						anchor.setText(courseClassTO.getCourseVersionTO().getCourseVersion().getName());
-					} else if(CourseDetailsEntityType.COURSE_CLASS.toString().equals(text)){
-						anchor.setText(courseClassTO.getCourseClass().getName());
-					}
-					return anchor.toString();
-				}
-			};
-		}
+        @Override
+        public Cell<CourseClassTO> getCell() {
+            return cell;
+        }
 
-		@Override
-		public Cell<CourseClassTO> getCell() {
-			return cell;
-		}
+        @Override
+        public FieldUpdater<CourseClassTO, CourseClassTO> getFieldUpdater() {
+            return null;
+        }
 
-		@Override
-		public FieldUpdater<CourseClassTO, CourseClassTO> getFieldUpdater() {
-			return null;
-		}
+        @Override
+        public CourseClassTO getValue(CourseClassTO object) {
+            return object;
+        }
+    }
 
-		@Override
-		public CourseClassTO getValue(CourseClassTO object) {
-			return object;
-		}
-	}
+    private class CourseClassLinkHasCell implements HasCell<CourseClassTO, CourseClassTO> {
+        private CourseClassActionsActionCell<CourseClassTO> cell;
+
+        public CourseClassLinkHasCell(String text, Delegate<CourseClassTO> delegate) {
+            cell = new CourseClassActionsActionCell<CourseClassTO>(text, delegate) {
+                @Override
+                public void render(com.google.gwt.cell.client.Cell.Context context, CourseClassTO courseClassTO,
+                        SafeHtmlBuilder sb) {
+                    SafeHtml html = SafeHtmlUtils.fromTrustedString(buildButtonHTML(text, courseClassTO));
+                    sb.append(html);
+                }
+
+                private String buildButtonHTML(String text, CourseClassTO courseClassTO) {
+                    Anchor anchor = new Anchor();
+                    if (CourseDetailsEntityType.COURSE.toString().equals(text)) {
+                        anchor.setText(courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getName());
+                    } else if (CourseDetailsEntityType.COURSE_VERSION.toString().equals(text)) {
+                        anchor.setText(courseClassTO.getCourseVersionTO().getCourseVersion().getName());
+                    } else if (CourseDetailsEntityType.COURSE_CLASS.toString().equals(text)) {
+                        anchor.setText(courseClassTO.getCourseClass().getName());
+                    }
+                    return anchor.toString();
+                }
+            };
+        }
+
+        @Override
+        public Cell<CourseClassTO> getCell() {
+            return cell;
+        }
+
+        @Override
+        public FieldUpdater<CourseClassTO, CourseClassTO> getFieldUpdater() {
+            return null;
+        }
+
+        @Override
+        public CourseClassTO getValue(CourseClassTO object) {
+            return object;
+        }
+    }
 
 }

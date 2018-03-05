@@ -17,65 +17,65 @@ import kornell.gui.client.presentation.admin.courseclass.courseclass.AdminCourse
 import kornell.gui.client.presentation.message.MessagePresenter;
 
 public class GenericCourseClassMessagesView extends Composite {
-	interface MyUiBinder extends UiBinder<Widget, GenericCourseClassMessagesView> {
-	}
+    interface MyUiBinder extends UiBinder<Widget, GenericCourseClassMessagesView> {
+    }
 
-	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
-	PlaceController placeCtrl;
-	ViewFactory viewFactory;
-	boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
+    PlaceController placeCtrl;
+    ViewFactory viewFactory;
+    boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
-	private MessagePresenter presenter;
+    private MessagePresenter presenter;
 
-	@UiField
-	FlowPanel messagesPanel;
-	
-	public GenericCourseClassMessagesView(final KornellSession session, EventBus bus, PlaceController placeCtrl, ViewFactory viewFactory,
-			MessagePresenter presenter, CourseClassTO courseClassTO) {
-		this.placeCtrl = placeCtrl;
-		this.viewFactory = viewFactory;
-		this.presenter = presenter;
-		initWidget(uiBinder.createAndBindUi(this));		
-		initData();
-	}
+    @UiField
+    FlowPanel messagesPanel;
 
-	public void initData() {
-		messagesPanel.clear();
-		messagesPanel.setVisible(false);
-		messagesPanel.add(getPanel());
-		messagesPanel.setVisible(true);
+    public GenericCourseClassMessagesView(final KornellSession session, EventBus bus, PlaceController placeCtrl,
+            ViewFactory viewFactory, MessagePresenter presenter, CourseClassTO courseClassTO) {
+        this.placeCtrl = placeCtrl;
+        this.viewFactory = viewFactory;
+        this.presenter = presenter;
+        initWidget(uiBinder.createAndBindUi(this));
+        initData();
+    }
 
-	}
+    public void initData() {
+        messagesPanel.clear();
+        messagesPanel.setVisible(false);
+        messagesPanel.add(getPanel());
+        messagesPanel.setVisible(true);
 
-	private FlowPanel getPanel() {
-		FlowPanel panel = new FlowPanel();
-		panel.addStyleName("reportPanel");
-		if(placeCtrl.getWhere() instanceof AdminCourseClassPlace)
-			panel.add(getMessagesInfo());
-		panel.add(getMessagesContent());
-		return panel;
-	}
+    }
 
-	private FlowPanel getMessagesInfo() {
-		FlowPanel messagesInfo = new FlowPanel();
-		messagesInfo.addStyleName("titlePanel");
+    private FlowPanel getPanel() {
+        FlowPanel panel = new FlowPanel();
+        panel.addStyleName("reportPanel");
+        if (placeCtrl.getWhere() instanceof AdminCourseClassPlace)
+            panel.add(getMessagesInfo());
+        panel.add(getMessagesContent());
+        return panel;
+    }
 
-		Label infoTitle = new Label("Mensagens");
-		infoTitle.addStyleName("title");
-		messagesInfo.add(infoTitle);
+    private FlowPanel getMessagesInfo() {
+        FlowPanel messagesInfo = new FlowPanel();
+        messagesInfo.addStyleName("titlePanel");
 
-		Label infoText = new Label("Mensagens entre os alunos e os responsáveis pela turma.");
-		infoText.addStyleName("subTitle");
-		messagesInfo.add(infoText);
+        Label infoTitle = new Label("Mensagens");
+        infoTitle.addStyleName("title");
+        messagesInfo.add(infoTitle);
 
-		return messagesInfo;
-	}
+        Label infoText = new Label("Mensagens entre os alunos e os responsáveis pela turma.");
+        infoText.addStyleName("subTitle");
+        messagesInfo.add(infoText);
 
-	private FlowPanel getMessagesContent() {
-		FlowPanel reportContentPanel = new FlowPanel();
-		reportContentPanel.add(presenter.asWidget());
-		return reportContentPanel;
-	}
+        return messagesInfo;
+    }
+
+    private FlowPanel getMessagesContent() {
+        FlowPanel reportContentPanel = new FlowPanel();
+        reportContentPanel.add(presenter.asWidget());
+        return reportContentPanel;
+    }
 
 }

@@ -21,65 +21,63 @@ import kornell.gui.client.util.forms.FormHelper;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class AdminInstitutionPresenter implements AdminInstitutionView.Presenter {
-	Logger logger = Logger.getLogger(AdminInstitutionPresenter.class.getName());
-	private AdminInstitutionView view;
-	FormHelper formHelper;
-	private KornellSession session;
-	private EventBus bus;
-	private PlaceController placeController;
-	private Place defaultPlace;
-	TOFactory toFactory;
-	private ViewFactory viewFactory;
+    Logger logger = Logger.getLogger(AdminInstitutionPresenter.class.getName());
+    private AdminInstitutionView view;
+    FormHelper formHelper;
+    private KornellSession session;
+    private EventBus bus;
+    private PlaceController placeController;
+    private Place defaultPlace;
+    TOFactory toFactory;
+    private ViewFactory viewFactory;
 
-	public AdminInstitutionPresenter(KornellSession session, EventBus bus,
-			PlaceController placeController, Place defaultPlace,
-			TOFactory toFactory, ViewFactory viewFactory) {
-		this.session = session;
-		this.bus = bus;
-		this.placeController = placeController;
-		this.defaultPlace = defaultPlace;
-		this.toFactory = toFactory;
-		this.viewFactory = viewFactory;
-		formHelper = new FormHelper();
-		
-		init();
-	}
+    public AdminInstitutionPresenter(KornellSession session, EventBus bus, PlaceController placeController,
+            Place defaultPlace, TOFactory toFactory, ViewFactory viewFactory) {
+        this.session = session;
+        this.bus = bus;
+        this.placeController = placeController;
+        this.defaultPlace = defaultPlace;
+        this.toFactory = toFactory;
+        this.viewFactory = viewFactory;
+        formHelper = new FormHelper();
 
-	private void init() {
-		if (session.isInstitutionAdmin()) {
-			view = getView();
-			view.setPresenter(this);      
-		} else {
-			logger.warning("Hey, only admins are allowed to see this! "
-					+ this.getClass().getName());
-			placeController.goTo(defaultPlace);
-		}
-	}
-	
-	@Override
-	public Widget asWidget() {
-		return view.asWidget();
-	}
+        init();
+    }
 
-	private AdminInstitutionView getView() {
-		return viewFactory.getAdminInstitutionView();
-	}
+    private void init() {
+        if (session.isInstitutionAdmin()) {
+            view = getView();
+            view.setPresenter(this);
+        } else {
+            logger.warning("Hey, only admins are allowed to see this! " + this.getClass().getName());
+            placeController.goTo(defaultPlace);
+        }
+    }
 
-	@Override
-  public void updateInstitution(Institution institution) {
-			session.institution(institution.getUUID()).update(institution, new Callback<Institution>() {
-				@Override
-				public void ok(Institution institution) {
-						bus.fireEvent(new ShowPacifierEvent(false));
-						KornellNotification.show("Alterações salvas com sucesso!");
-						Window.Location.reload();
-				}		
-				
-				@Override
-				public void conflict(KornellErrorTO kornellErrorTO){
-					bus.fireEvent(new ShowPacifierEvent(false));
-					KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR, 2500);
-				}
-			});
-  }
+    @Override
+    public Widget asWidget() {
+        return view.asWidget();
+    }
+
+    private AdminInstitutionView getView() {
+        return viewFactory.getAdminInstitutionView();
+    }
+
+    @Override
+    public void updateInstitution(Institution institution) {
+        session.institution(institution.getUUID()).update(institution, new Callback<Institution>() {
+            @Override
+            public void ok(Institution institution) {
+                bus.fireEvent(new ShowPacifierEvent(false));
+                KornellNotification.show("Alterações salvas com sucesso!");
+                Window.Location.reload();
+            }
+
+            @Override
+            public void conflict(KornellErrorTO kornellErrorTO) {
+                bus.fireEvent(new ShowPacifierEvent(false));
+                KornellNotification.show(KornellConstantsHelper.getErrorMessage(kornellErrorTO), AlertType.ERROR, 2500);
+            }
+        });
+    }
 }

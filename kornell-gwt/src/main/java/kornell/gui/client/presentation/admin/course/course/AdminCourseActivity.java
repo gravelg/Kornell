@@ -6,17 +6,17 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import kornell.gui.client.ClientFactory;
 
 public class AdminCourseActivity extends AbstractActivity {
-	private ClientFactory clientFactory;
+    private ClientFactory clientFactory;
 
-	public AdminCourseActivity(ClientFactory clientFactory) {
-	    this.clientFactory = clientFactory;
-	  }
+    public AdminCourseActivity(ClientFactory clientFactory) {
+        this.clientFactory = clientFactory;
+    }
 
-	@Override
-	public void start(AcceptsOneWidget panel, com.google.gwt.event.shared.EventBus eventBus) {
-		AdminCoursePresenter presenter = clientFactory.getViewFactory().getAdminCoursePresenter();
-		panel.setWidget(presenter);
-		
-	}
+    @Override
+    public void start(AcceptsOneWidget panel, com.google.gwt.event.shared.EventBus eventBus) {
+        AdminCoursePresenter presenter = clientFactory.getViewFactory().getAdminCoursePresenter();
+        panel.setWidget(presenter);
+
+    }
 
 }
