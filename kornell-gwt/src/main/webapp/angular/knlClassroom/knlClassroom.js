@@ -9,12 +9,12 @@ app.config([
     '$routeProvider', 
     '$locationProvider', 
     function($routeProvider, $locationProvider) {
-        $routeProvider.when('/slide', {
-            templateUrl: 'modules/slide/slide.html',
-            controller: 'SlideController'
+        $routeProvider.when('/lecture', {
+            templateUrl: 'modules/lecture/lecture.html',
+            controller: 'LectureController'
         })
         .otherwise({
-            redirectTo: '/slide'
+            redirectTo: '/lecture'
         });
 }]);
 

@@ -2,12 +2,11 @@
 
 var app = angular.module('knlClassroom');
 
-app.controller('TextSlideController', [
+app.controller('ImageLectureController', [
 	'$scope',
 	'$sce',
 	function($scope, $sce) {
 
 		$scope.sce = $sce;
-
 	}
 ]);

@@ -12,8 +12,8 @@ app.controller('WizardController', [
   '$uibModal',
   'toaster',
   'FileUploader',
-  'SLIDE_TYPES',
-  function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, toaster, FileUploader, SLIDE_TYPES) {
+  'LECTURE_TYPES',
+  function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, toaster, FileUploader, LECTURE_TYPES) {
 
     $scope.domain = window.location.host.indexOf('localhost:') >= 0 ? '*' : parent.location;
 
@@ -87,9 +87,9 @@ app.controller('WizardController', [
         accept: function (src, dest, destIndex) {
           switch(dest.depth()){
             case 1:
-              return (src.$modelValue.itemType === 'topic');
+              return (src.$modelValue.itemType === 'module');
             case 2:
-              return (src.$modelValue.itemType === 'slide');
+              return (src.$modelValue.itemType === 'lecture');
             default:
               return false;
           }
@@ -159,7 +159,7 @@ app.controller('WizardController', [
       }, true);
 
       $timeout(function(){
-        $scope.goToNode($scope.lastSlideUUID || $scope.lastTopicUUID);
+        $scope.goToNode($scope.lastLectureUUID || $scope.lastModuleUUID);
       });
       
     };
@@ -202,14 +202,14 @@ app.controller('WizardController', [
               delete o1.isUnsaved;
               delete o2.isUnsaved;
               if(o1.itemType === 'root'){
-                o1.topics = concatenateUUIDs(o1.topics);
-                o2.topics = concatenateUUIDs(o2.topics);
-              } else if(o1.itemType === 'topic'){
-                o1.slides = concatenateUUIDs(o1.slides);
-                o2.slides = concatenateUUIDs(o2.slides);
+                o1.modules = concatenateUUIDs(o1.modules);
+                o2.modules = concatenateUUIDs(o2.modules);
+              } else if(o1.itemType === 'module'){
+                o1.lectures = concatenateUUIDs(o1.lectures);
+                o2.lectures = concatenateUUIDs(o2.lectures);
                 o1.count = o2.count = 0;
-              } else if(o1.itemType === 'slide'){
-                o1.count = o2.count = o1.totalSlidesCount = o2.totalSlidesCount = 0;
+              } else if(o1.itemType === 'lecture'){
+                o1.count = o2.count = o1.totalLecturesCount = o2.totalLecturesCount = 0;
               }
             }
             if(!angular.equals(o1, o2)){
@@ -222,42 +222,52 @@ app.controller('WizardController', [
         };
 
         $scope.treeIsUnsaved = false;
-        $scope.hasVimeoSlides = false;
-        $scope.hasYoutubeSlides = false;
-        $scope.hasVideoSlides = false;
-        $scope.hasFinalExamSlide = false;
-        var tCount = 0, totalSlidesCount = 0;
+        $scope.hasVimeoLectures = false;
+        $scope.hasYoutubeLectures = false;
+        $scope.hasVideoLectures = false;
+        $scope.hasFinalExamLecture = false;
+        var tCount = 0, totalLecturesCount = 0;
         $scope.root.uuid = $scope.root.uuid || $rootScope.uuid();
-        angular.forEach($scope.root.topics, function(topic){
-          topic.uuid = topic.uuid || $rootScope.uuid();
-          $scope.lastTopicUUID = topic.uuid;
-          topic.parentUUID = $scope.root.uuid;
-          topic.count = tCount++;
+        //ensure backwards compatibility
+        $scope.root.modules = $scope.root.modules || $scope.root.topics;
+        delete $scope.root.topics;
+        angular.forEach($scope.root.modules, function(module){
+          module.uuid = module.uuid || $rootScope.uuid();
+          //ensure backwards compatibility
+          module.itemType = "module";
+          $scope.lastModuleUUID = module.uuid;
+          module.parentUUID = $scope.root.uuid;
+          module.count = tCount++;
           var sCount = 0;
-          angular.forEach(topic.slides, function(slide){
-            slide.uuid = slide.uuid || $rootScope.uuid();
-            $scope.lastSlideUUID = slide.uuid;
-            slide.parentUUID = topic.uuid;
-            slide.count = sCount++;
-            slide.totalSlidesCount = totalSlidesCount++;
-            if(slide.type === 'vimeo'){
-              $scope.hasVimeoSlides = true;
+          console.log(module.lectures);
+          //ensure backwards compatibility
+          module.lectures = module.lectures || module.slides; delete module.slides;
+          angular.forEach(module.lectures, function(lecture){
+            lecture.uuid = lecture.uuid || $rootScope.uuid();
+            //ensure backwards compatibility
+            lecture.itemType = "lecture";
+            $scope.lastLectureUUID = lecture.uuid;
+            lecture.parentUUID = module.uuid;
+            lecture.count = sCount++;
+            lecture.totalLecturesCount = totalLecturesCount++;
+            if(lecture.type === 'vimeo'){
+              $scope.hasVimeoLectures = true;
             }
-            if(slide.type === 'video'){
-              $scope.hasVideoSlides = true;
+            if(lecture.type === 'video'){
+              $scope.hasVideoLectures = true;
             }
-            if(slide.type === 'youtube'){
-              $scope.hasYoutubeSlides = true;
+            if(lecture.type === 'youtube'){
+              $scope.hasYoutubeLectures = true;
             }
-            if(slide.type === 'bubble'){
-              $scope.lastBubbleColor2 = (slide.color2 && slide.color2.length) ? slide.color2 : $scope.lastBubbleColor2;
+            if(lecture.type === 'bubble'){
+              $scope.lastBubbleColor2 = (lecture.color2 && lecture.color2.length) ? lecture.color2 : $scope.lastBubbleColor2;
             }
-            if(slide.type === 'finalExam'){
-              $scope.hasFinalExamSlide = true;
+            if(lecture.type === 'finalExam'){
+              $scope.hasFinalExamLecture = true;
             }
-            verifySavedStatus(slide);
+            verifySavedStatus(lecture);
           });
-          verifySavedStatus(topic);
+          verifySavedStatus(module);
         });
         verifySavedStatus($scope.root);
         localStorage.KNLwp = Base64.encode(encodeURI(JSON.stringify($scope.root)));
@@ -267,71 +277,71 @@ app.controller('WizardController', [
       var found;
       var tree = getFromSavedRoot ? $scope.savedRoot : $scope.root;
       if(tree.uuid === uuid) found = tree;
-      angular.forEach(tree.topics, function(topic){
-        if(topic.uuid === uuid) found = topic;
-        angular.forEach(topic.slides, function(slide){
-          if(slide.uuid === uuid) found = slide;      
+      angular.forEach(tree.modules, function(module){
+        if(module.uuid === uuid) found = module;
+        angular.forEach(module.lectures, function(lecture){
+          if(lecture.uuid === uuid) found = lecture;      
         });
       });
       return found;
     };
 
-    $scope.getSlideNameByType = function(type){
-      for(var i = 0; i < SLIDE_TYPES.length; i++){
-        if(SLIDE_TYPES[i].type == type){
-          return SLIDE_TYPES[i].name;
+    $scope.getLectureNameByType = function(type){
+      for(var i = 0; i < LECTURE_TYPES.length; i++){
+        if(LECTURE_TYPES[i].type == type){
+          return LECTURE_TYPES[i].name;
         }
       }
     };
 
-    $scope.newSlide = function(scope){
+    $scope.newLecture = function(scope){
       var nodeData = scope.$modelValue;
       var modalInstance = $uibModal.open({
         animation: true,
-        component: 'addSlideModal',
+        component: 'addLectureModal',
         resolve: {
-          hasFinalExamSlide: function() {
-            return $scope.hasFinalExamSlide
+          hasFinalExamLecture: function() {
+            return $scope.hasFinalExamLecture
           }
         }
       });
 
       modalInstance.result.then(
         function (selectedType) {
-          var slideName = 'Slide ' + (nodeData.count + 1) + '.' + (nodeData.slides.length + 1) + ': ' + $scope.getSlideNameByType(selectedType);
-          var slide = {
-            itemType: 'slide',
-            title: slideName,
+          var lectureName = 'Aula ' + (nodeData.count + 1) + '.' + (nodeData.lectures.length + 1) + ': ' + $scope.getLectureNameByType(selectedType);
+          var lecture = {
+            itemType: 'lecture',
+            title: lectureName,
             type: selectedType,
             uuid: $rootScope.uuid()
           }
-          if(slide.type == 'bubble') {
-            slide.text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
-            slide.id = 'goncaloprado.png';
-            slide.text2 = 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
-            slide.id2 = 'goncaloprado.png';
-            slide.color2 = $scope.lastBubbleColor2 || '3D3D40';
-          } else if(slide.type == 'youtube') {
-            slide.id = 's1mczCFXcSY';
-          } else if(slide.type == 'vimeo') {
-            slide.id = '242792908';
-          } else if(slide.type == 'video') {
+          if(lecture.type == 'bubble') {
+            lecture.text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
+            lecture.id = 'goncaloprado.png';
+            lecture.text2 = 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+            lecture.id2 = 'goncaloprado.png';
+            lecture.color2 = $scope.lastBubbleColor2 || '3D3D40';
+          } else if(lecture.type == 'youtube') {
+            lecture.id = 's1mczCFXcSY';
+          } else if(lecture.type == 'vimeo') {
+            lecture.id = '242792908';
+          } else if(lecture.type == 'video') {
 
-          } else if(slide.type == 'question') {
-            slide.text = $scope.blankQuestion.text;;
-            slide.isMultiple = false;
-            slide.shuffleQuestions = false;
-            slide.options = angular.copy($scope.blankQuestion.options);
-          } else if(slide.type == 'finalExam') {
-            slide.questions = [angular.copy($scope.blankQuestion), angular.copy($scope.blankQuestion), angular.copy($scope.blankQuestion)];
-          } else if(slide.type == 'text') {
-            slide.text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
-            slide.showWell = true;
-          } else if(slide.type == 'image') {
-            slide.id = 'https://static.pexels.com/photos/355988/pexels-photo-355988.jpeg';
+          } else if(lecture.type == 'question') {
+            lecture.text = $scope.blankQuestion.text;;
+            lecture.isMultiple = false;
+            lecture.shuffleQuestions = false;
+            lecture.options = angular.copy($scope.blankQuestion.options);
+          } else if(lecture.type == 'finalExam') {
+            lecture.questions = [angular.copy($scope.blankQuestion), angular.copy($scope.blankQuestion), angular.copy($scope.blankQuestion)];
+          } else if(lecture.type == 'text') {
+            lecture.text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+            lecture.showWell = true;
+          } else if(lecture.type == 'image') {
+            lecture.id = 'https://static.pexels.com/photos/355988/pexels-photo-355988.jpeg';
           }          
-          nodeData.slides.push(slide);
-          $scope.goToNode(slide.uuid);
+          nodeData.lectures.push(lecture);
+          $scope.goToNode(lecture.uuid);
         },
         function(){
 
@@ -363,32 +373,34 @@ app.controller('WizardController', [
         colorTitle: "EBEBEB",
         itemType: "root",
         paddingTopIframe: 56,
-        topics: [],
+        modules: [],
         uuid: $rootScope.uuid()
       };
-      $scope.newTopic();
+      $scope.newModule();
     }
 
-    $scope.newTopic = function(goToTopic){
-      var newTopic = {
-        itemType: 'topic',
-        title: 'Tópico ' + ($scope.root.topics.length + 1),
+    $scope.newModule = function(goToModule){
+      var newModule = {
+        itemType: 'module',
+        title: 'Módulo ' + ($scope.root.modules.length + 1),
         uuid: $rootScope.uuid(),
-        slides: []
+        lectures: []
       };
-      $scope.root.topics.push(newTopic);
-      if(goToTopic){
-        $scope.goToNode(newTopic.uuid);
+      $scope.root.modules.push(newModule);
+      if(goToModule){
+        $scope.goToNode(newModule.uuid);
       }
     };
 
     $scope.edit = function (scope) {
+      console.log(scope);
       $scope.selectedNode = scope.$modelValue;
       $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, true);
+      console.log($scope.selectedNodeSaved);
       $scope.selectedNodeScope = scope;
       $rootScope.selectedTab = 'edit';
       $scope.previewURL = $sce.trustAsResourceUrl(
-        "knlClassroom/index.html#!/slide" + 
+        "knlClassroom/index.html#!/lecture" + 
         "?preview=1" + 
         "&uuid=" + $scope.selectedNode.uuid +
         "&classroomPath=/../knl/classroom");
@@ -400,7 +412,7 @@ app.controller('WizardController', [
       if($scope.selectedNodeScope){
         var node = $scope.selectedNode,
             parentUUID = node.parentUUID,
-            parentArrayAttribute = node.itemType + 's', //topics or slides
+            parentArrayAttribute = node.itemType + 's', //modules or lectures
             parentArray = $scope.getNodeByUUID(parentUUID)[parentArrayAttribute];
         if(node.count == 0 && parentArray.length == 1){
           // go to parent if it's the last
@@ -423,13 +435,13 @@ app.controller('WizardController', [
       });
     };
 
-    $scope.isMultipleClicked = function(slide){
-      if(!slide.isMultiple){
-        angular.forEach(slide.options, function(option, i){
+    $scope.isMultipleClicked = function(lecture){
+      if(!lecture.isMultiple){
+        angular.forEach(lecture.options, function(option, i){
           if(option.expected){
-            $scope.optionClicked(slide, option, i);
-          } else if (i === (slide.options.length - 1)) {
-            $scope.optionClicked(slide, slide.options[0], 0);
+            $scope.optionClicked(lecture, option, i);
+          } else if (i === (lecture.options.length - 1)) {
+            $scope.optionClicked(lecture, lecture.options[0], 0);
           } else {
             option.expected = false;
           }
@@ -437,15 +449,15 @@ app.controller('WizardController', [
       }
     };
 
-    $scope.optionClicked = function(slide, option, index){
-      if(!slide.isMultiple && option.expected){
-        angular.forEach(slide.options, function(o, i){
+    $scope.optionClicked = function(lecture, option, index){
+      if(!lecture.isMultiple && option.expected){
+        angular.forEach(lecture.options, function(o, i){
           if(i != index){
             o.expected = false;
           }
         });
       } else {
-        slide.options[index].expected = false;
+        lecture.options[index].expected = false;
       }
     };
 
@@ -533,34 +545,34 @@ app.controller('WizardController', [
       $scope.innerWidth = $window.innerWidth;
     };
 
-//$scope.root = {"title":"KNL","availableVideoSizes":"144,360,720","colorBackground":"EBEBEB","colorFont":"0284B5","colorTheme":"0284B5","colorTitle":"EBEBEB","itemType":"root","paddingTopIframe":56,"topics":[{"itemType":"topic","title":"Tópico 1","uuid":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","slides":[{"itemType":"slide","title":"Slide 1.1: Imagem","type":"image","uuid":"ca10d6da-1952-4830-9f9a-2c34a3485146","id":"https://static.pexels.com/photos/355988/pexels-photo-355988.jpeg","$$hashKey":"object:57","parentUUID":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","count":0,"totalSlidesCount":0}],"parentUUID":"4849e1fc-ea88-4247-be80-155052f0fb0e","count":0,"$$hashKey":"object:19"}],"uuid":"4849e1fc-ea88-4247-be80-155052f0fb0e","$$hashKey":"object:13"};
+//$scope.root = {"title":"KNL","availableVideoSizes":"144,360,720","colorBackground":"EBEBEB","colorFont":"0284B5","colorTheme":"0284B5","colorTitle":"EBEBEB","itemType":"root","paddingTopIframe":56,"modules":[{"itemType":"module","title":"Módulo 1","uuid":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","lectures":[{"itemType":"lecture","title":"Lecture 1.1: Imagem","type":"image","uuid":"ca10d6da-1952-4830-9f9a-2c34a3485146","id":"https://static.pexels.com/photos/355988/pexels-photo-355988.jpeg","$$hashKey":"object:57","parentUUID":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","count":0,"totalLecturesCount":0}],"parentUUID":"4849e1fc-ea88-4247-be80-155052f0fb0e","count":0,"$$hashKey":"object:19"}],"uuid":"4849e1fc-ea88-4247-be80-155052f0fb0e","$$hashKey":"object:13"};
 //$scope.initWizard();
   }
 ]);
 
 
-app.component('addSlideModal', {
-  templateUrl: 'addSlideModal.html',
+app.component('addLectureModal', {
+  templateUrl: 'addLectureModal.html',
   bindings: {
     resolve: '<',
     close: '&',
     dismiss: '&'
   },
   controller: [
-    'SLIDE_TYPES',
-    function (SLIDE_TYPES) {
+    'LECTURE_TYPES',
+    function (LECTURE_TYPES) {
       var $ctrl = this;
 
       $ctrl.$onInit = function () {
-          $ctrl.SLIDE_TYPES = angular.copy(SLIDE_TYPES);
-          if($ctrl.resolve.hasFinalExamSlide){
-            $ctrl.SLIDE_TYPES.splice($ctrl.SLIDE_TYPES.indexOf("finalExam"),1);
+          $ctrl.LECTURE_TYPES = angular.copy(LECTURE_TYPES);
+          if($ctrl.resolve.hasFinalExamLecture){
+            $ctrl.LECTURE_TYPES.splice($ctrl.LECTURE_TYPES.indexOf("finalExam"),1);
           }
       };
 
       $ctrl.ok = function () {
-        if($ctrl.slideType && $ctrl.slideType !== 'slideTypeSeparator'){
-          $ctrl.close({$value: $ctrl.slideType});
+        if($ctrl.lectureType && $ctrl.lectureType !== 'lectureTypeSeparator'){
+          $ctrl.close({$value: $ctrl.lectureType});
         }
       };
 

@@ -2,7 +2,7 @@
 
 var app = angular.module('knl');
 
-app.constant('SLIDE_TYPES', [
+app.constant('LECTURE_TYPES', [
   {
     type: "text",
     name: "Texto"
@@ -16,7 +16,7 @@ app.constant('SLIDE_TYPES', [
     name: "Imagem"
   },
   {
-    type: "slideTypeSeparator",
+    type: "lectureTypeSeparator",
     name: "-----------------------------------------"
   },
   {
@@ -32,7 +32,7 @@ app.constant('SLIDE_TYPES', [
     name: "Vimeo"
   },
   {
-    type: "slideTypeSeparator",
+    type: "lectureTypeSeparator",
     name: "-----------------------------------------"
   },
   {

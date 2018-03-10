@@ -1,15 +1,15 @@
 <div id="bg" style="{{bgStyle}}"></div>
-<div ng-show="!slide.hideHeader" class="header" style="background-color: #{{classroomInfo.colorTheme}};">
+<div ng-show="!lecture.hideHeader" class="header" style="background-color: #{{classroomInfo.colorTheme}};">
 	<div class="container">
 		<icon class="fa fa-align-left" style="color: #{{classroomInfo.colorTitle}};"></icon>
-		<span class="title" style="color: #{{classroomInfo.colorTitle}};">&nbsp;{{topic.title}}&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;</span>
-		<span class="subtitle" style="color: #{{classroomInfo.colorTitle}};"><b>{{slide.title}}</b></span>
+		<span class="title" style="color: #{{classroomInfo.colorTitle}};">&nbsp;{{module.title}}&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;</span>
+		<span class="subtitle" style="color: #{{classroomInfo.colorTitle}};"><b>{{lecture.title}}</b></span>
 	</div>
 </div>
 
-<div class="outerDiv" ng-if="slide">
+<div class="outerDiv" ng-if="lecture">
 	<div class="middleDiv">
-		<div ng-include="'modules/slide/slideType/' + slide.type + '.html'" class="wrapper"></div>
+		<div ng-include="'modules/lecture/lectureType/' + lecture.type + '.html'" class="wrapper"></div>
 	</div>
 </div>
 

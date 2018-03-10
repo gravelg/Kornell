@@ -17,12 +17,12 @@
 		border: 1px solid #{{classroomInfo.colorTheme}};
 	}
 </style>
-<div class="innerDiv container" ng-controller="QuestionSlideController">
+<div class="innerDiv container" ng-controller="QuestionLectureController">
     <br>
-    <span class="question-header" ng-bind-html="slide.text"></span>
+    <span class="question-header" ng-bind-html="lecture.text"></span>
     <form class="option-form" action="#">
 		<fieldset>
-			<div class="checkbox checkbox-primary" ng-repeat="option in slide.options" >
+			<div class="checkbox checkbox-primary" ng-repeat="option in lecture.options" >
 				<input ng-model="option.selected" ng-click="clear($index)" id="checkbox{{$index}}" type="checkbox">
 				<label for="checkbox{{$index}}" id="label_{{($index)}}">
 					<span class="question-option" ng-bind-html="option.text"></span>

@@ -2,7 +2,7 @@
 
 var app = angular.module('knlClassroom');
 
-app.controller('BubbleSlideController', [
+app.controller('BubbleLectureController', [
 	'$scope',
 	'$sce',
 	function($scope, $sce) {

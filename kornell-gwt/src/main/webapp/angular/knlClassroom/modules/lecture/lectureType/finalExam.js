@@ -2,7 +2,7 @@
 
 var app = angular.module('knlClassroom');
 
-app.controller('FinalExamSlideController', [
+app.controller('FinalExamLectureController', [
     '$scope',
     'knlUtils',
     function($scope, knlUtils) {
@@ -16,10 +16,10 @@ app.controller('FinalExamSlideController', [
             $scope.isApproved = initialState.isApproved;
             $scope.currentScore = initialState.currentScore;
             if($scope.isApproved !== 'true'){
-                knlUtils.setSlideAttribute('type', $scope.slide.type);
+                knlUtils.setLectureAttribute('type', $scope.lecture.type);
                 knlUtils.setActionAttribute('nextEnabled', 'false');
             }
-            if($scope.slide.shuffleQuestions){
+            if($scope.lecture.shuffleQuestions){
                 $scope.shuffleQuestions();
             }
         };      
@@ -28,7 +28,7 @@ app.controller('FinalExamSlideController', [
             if(currentQuestionIndex && !$scope.hasAccessToQuestion(currentQuestionIndex)) return;
             $scope.saveQuestionTimer();
             $scope.currentQuestionIndex = currentQuestionIndex;
-            $scope.currentQuestion = $scope.slide.questions[$scope.currentQuestionIndex];
+            $scope.currentQuestion = $scope.lecture.questions[$scope.currentQuestionIndex];
             $scope.questionTimer = (new Date()).getTime();
         };
 
@@ -52,15 +52,15 @@ app.controller('FinalExamSlideController', [
             $scope.saveQuestionTimer();
             $scope.cmiScoreRaw = 0;//cmi.score.raw
             $scope.cmiScoreMax = 100;//cmi.score.max
-            $scope.cmiScoreMin = $scope.slide.expectedGrade;//cmi.score.min
-            $scope.slide.expectedGrade = $scope.slide.expectedGrade || 0;
+            $scope.cmiScoreMin = $scope.lecture.expectedGrade;//cmi.score.min
+            $scope.lecture.expectedGrade = $scope.lecture.expectedGrade || 0;
 
             $scope.totalCorrect = 0;
-            $scope.questionCount = $scope.slide.questions.length;
+            $scope.questionCount = $scope.lecture.questions.length;
 
             var question, questionOptions, questionCorrect, optionCorrect, answersInner, option;
-            for (var i = 0; i < $scope.slide.questions.length; i++){
-                question = $scope.slide.questions[i];
+            for (var i = 0; i < $scope.lecture.questions.length; i++){
+                question = $scope.lecture.questions[i];
                 questionOptions = question.options;
                 optionCorrect = 0;
                 for (var j = 0; j < questionOptions.length; j++){
@@ -95,16 +95,16 @@ app.controller('FinalExamSlideController', [
   
             knlUtils.saveExamAttempt($scope.cmiScoreRaw);
             if($scope.isApproved && !knlUtils.isApproved()){
-                knlUtils.setSlideAttribute('currentScore', $scope.cmiScoreRaw);
-                knlUtils.setSlideAttribute('isApproved', 'true');
-                knlUtils.setSlideAttribute('attempt.correct_index', knlUtils.getLastAttemptIndex());
+                knlUtils.setLectureAttribute('currentScore', $scope.cmiScoreRaw);
+                knlUtils.setLectureAttribute('isApproved', 'true');
+                knlUtils.setLectureAttribute('attempt.correct_index', knlUtils.getLastAttemptIndex());
             }
             $scope.showPanel = 'result';
         };
 
         $scope.isQuestionAnswered = function(question){
             //questions with multiple options are always answered, since they can be all false
-            var isAnswered = $scope.slide.isMultiple;       
+            var isAnswered = $scope.lecture.isMultiple;       
             for (var i = 0; i < question.options.length; i++){
                 var option = question.options[i];
                 isAnswered = isAnswered || option.selected;
@@ -131,7 +131,7 @@ app.controller('FinalExamSlideController', [
                 } else {
                     //otherwise allow if the previous question is answered
                     $scope.blah[index] = 4;
-                    hasAccessToQuestion = $scope.isQuestionAnswered($scope.slide.questions[index - 1]);
+                    hasAccessToQuestion = $scope.isQuestionAnswered($scope.lecture.questions[index - 1]);
                 }
             }
             return hasAccessToQuestion;
@@ -141,8 +141,8 @@ app.controller('FinalExamSlideController', [
             $scope.showPanel = 'main';
             $scope.loadQuestion(0);
 
-            for (var i = 0; i < $scope.slide.questions.length; i++){
-                var question = $scope.slide.questions[i],
+            for (var i = 0; i < $scope.lecture.questions.length; i++){
+                var question = $scope.lecture.questions[i],
                     questionOptions = question.options;
                 for (var j = 0; j < questionOptions.length; j++){
                     var option = questionOptions[j];
@@ -153,7 +153,7 @@ app.controller('FinalExamSlideController', [
         };
 
         $scope.clear = function(optionClicked){
-            if(!$scope.slide.isMultiple){
+            if(!$scope.lecture.isMultiple){
                 for (var i = 0; i < $scope.currentQuestion.options.length; i++){
                     var option = $scope.currentQuestion.options[i];
                     option.selected = (optionClicked.text == option.text);
@@ -163,9 +163,9 @@ app.controller('FinalExamSlideController', [
         };
         
         $scope.shuffleQuestions = function(array) {
-            $scope.slide.questions = knlUtils.shuffleArray($scope.slide.questions);
-            for (var i = 0; i < $scope.slide.questions.length; i++){
-                var question = $scope.slide.questions[i];
+            $scope.lecture.questions = knlUtils.shuffleArray($scope.lecture.questions);
+            for (var i = 0; i < $scope.lecture.questions.length; i++){
+                var question = $scope.lecture.questions[i];
                 question.options = knlUtils.shuffleArray(question.options);
             }
         };

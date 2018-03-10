@@ -2,7 +2,7 @@
 
 var app = angular.module('knlClassroom');
 
-app.controller('SlideController', [
+app.controller('LectureController', [
 	'$scope',
 	'$rootScope',
 	'$timeout',
@@ -12,10 +12,10 @@ app.controller('SlideController', [
 
     var classroomInfo = JSON.parse(decodeURI(Base64.decode(window.isPreview ? localStorage.KNLwp : localStorage.KNLw)));
 
-    classroomInfo.slides = [];
-    angular.forEach(classroomInfo.topics, function(topic){
-        angular.forEach(topic.slides, function(slide){
-            classroomInfo.slides.push(slide);
+    classroomInfo.lectures = [];
+    angular.forEach(classroomInfo.modules, function(module){
+        angular.forEach(module.lectures, function(lecture){
+            classroomInfo.lectures.push(lecture);
         });
     });
 
@@ -24,24 +24,24 @@ app.controller('SlideController', [
     $scope.getNodeByUUID = function(uuid){
       var found;
       if($rootScope.classroomInfo.uuid === uuid) found = $rootScope.classroomInfo;
-      angular.forEach($rootScope.classroomInfo.topics, function(topic){
-        if(topic.uuid === uuid) found = topic;
-        angular.forEach(topic.slides, function(slide){
-          if(slide.uuid === uuid) found = slide;      
+      angular.forEach($rootScope.classroomInfo.modules, function(module){
+        if(module.uuid === uuid) found = module;
+        angular.forEach(module.lectures, function(lecture){
+          if(lecture.uuid === uuid) found = lecture;      
         });
       });
       return found;
     };
 
-		$scope.initSlide = function(){
+		$scope.initLecture = function(){
 			if(!$scope.classroomInfo) return;
 
-			$scope.slideUUID = $location.$$search.uuid || 0;
-			$rootScope.slideUUID = $scope.slideUUID;
+			$scope.lectureUUID = $location.$$search.uuid || 0;
+			$rootScope.lectureUUID = $scope.lectureUUID;
 
-			$scope.slide = $scope.getNodeByUUID($scope.slideUUID);
-      $scope.topic = $scope.getNodeByUUID($scope.slide.parentUUID);
-			$rootScope.slide = $scope.slide;
+			$scope.lecture = $scope.getNodeByUUID($scope.lectureUUID);
+      $scope.module = $scope.getNodeByUUID($scope.lecture.parentUUID);
+			$rootScope.lecture = $scope.lecture;
 
       if(knlUtils.isApproved()){
         knlUtils.setActionAttribute('prevEnabled', 'true');
@@ -49,21 +49,24 @@ app.controller('SlideController', [
       }
 			$rootScope.evaluateTimer(true);
 
-			var key = 'knl.slide.'+$scope.slideUUID+'.type';
-        var slideType = knlUtils.doLMSGetValueSanitized(key);
-      if(!slideType){
-        knlUtils.setAttribute(key, $scope.slide.type);
+			var key = 'knl.lecture.'+$scope.lectureUUID+'.type';
+        var lectureType = knlUtils.doLMSGetValueSanitized(key);
+      if(!lectureType){
+        knlUtils.setAttribute(key, $scope.lecture.type);
       }
 
 			if($scope.classroomInfo.colorBackground){
 				$scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
 			}
 
+      if($scope.lecture.id && $scope.lecture.id.indexOf('/') == 0 && parent.location.hostname === 'localhost'){
+        $scope.prefixURL = 'http://localhost:8888';
+      }
 
-      angular.forEach($scope.classroomInfo.topics, function(topic){
-          angular.forEach(topic.slides, function(slide){
-          	if($scope.slideUUID == slide.uuid){
-          		$scope.topic = topic;
+      angular.forEach($scope.classroomInfo.modules, function(module){
+          angular.forEach(module.lectures, function(lecture){
+          	if($scope.lectureUUID == lecture.uuid){
+          		$scope.module = module;
           	}
           });
       });
@@ -123,6 +126,6 @@ app.controller('SlideController', [
     };
     initializeHideShowControl();
 
-  	$scope.initSlide();
+  	$scope.initLecture();
 	}
 ]);

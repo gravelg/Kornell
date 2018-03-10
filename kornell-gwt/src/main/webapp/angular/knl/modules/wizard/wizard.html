@@ -47,30 +47,30 @@
 
 <script type="text/ng-template" id="edit.html">
 	<div ng-if="selectedNode.itemType == 'root'" ng-include="'editRoot.html'"></div>
-	<div ng-if="selectedNode.itemType == 'topic'" ng-include="'editTopic.html'"></div>
-	<div ng-if="selectedNode.itemType == 'slide'" ng-include="'editSlide.html'"></div>
+	<div ng-if="selectedNode.itemType == 'module'" ng-include="'editModule.html'"></div>
+	<div ng-if="selectedNode.itemType == 'lecture'" ng-include="'editLecture.html'"></div>
 </script>
 
-<script type="text/ng-template" id="editSlide.html">
+<script type="text/ng-template" id="editLecture.html">
 	<div class="panel panel-default">
     <div class="panel-body">
       <ul class="nav nav-tabs" style="margin-bottom: 15px;">
         <li class="" ng-class="{active: selectedTab === 'edit'}"><a ng-click="$root.selectedTab = 'edit'" data-toggle="tab">Editar</a></li>
         <li class="" ng-class="{active: selectedTab === 'preview'}"><a ng-click="$root.selectedTab = 'preview'" data-toggle="tab">Visualizar</a></li>
-		    <a uib-tooltip="Remover slide" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
+		    <a uib-tooltip="Remover aula" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
 		    	<i class="fa fa-trash-o"></i>
 				</a>
       </ul>
       <div id="myTabContent" class="tab-content">
         <div class="tab-pane fade" ng-class="{active: selectedTab === 'edit', in: selectedTab === 'edit'}" ng-show="selectedTab === 'edit'">
-        	<h1 class="form-title"><small>Configurações do Slide &nbsp;- &nbsp;<i>{{getSlideNameByType(selectedNode.type)}}</i></small></h1>
+        	<h1 class="form-title"><small>Configurações da Aula &nbsp;- &nbsp;<i>{{getLectureNameByType(selectedNode.type)}}</i></small></h1>
 					<form role="form">
 					  <div class="form-group">
-					      <label>Nome do slide</label>
+					      <label>Nome da aula</label>
 					      <input ng-model="selectedNode.title" class="form-control">
-					      <p class="help-block">Nome desse slide. Esse nome aparecerá no cabeçalho do slide e no painel de detalhes do curso dentro da Eduvem.</p>
+					      <p class="help-block">Nome dessa aula. Esse nome aparecerá no cabeçalho da aula e no painel de detalhes do curso dentro da Eduvem.</p>
 					  </div>
-						<div ng-include="'editSlide_'+selectedNode.type+'.html'"></div>
+						<div ng-include="'editLecture_'+selectedNode.type+'.html'"></div>
 					</form>
         </div>
         <div class="tab-pane fade" ng-class="{active: selectedTab === 'preview', in: selectedTab === 'preview'}" ng-show="selectedTab === 'preview'">
@@ -81,11 +81,11 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="editSlide_text.html">
+<script type="text/ng-template" id="editLecture_text.html">
   <div class="form-group">
       <label>Texto</label>
       <div ng-model="selectedNode.text" text-angular class="text-angular"></div>
-      <p class="help-block">Texto do slide. Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+      <p class="help-block">Texto da aula. Obs: Use shift+enter para espaçamento simples entre linhas.</p>
       <div class="checkbox checkbox-primary">
 				<input class="" ng-model="selectedNode.showWell" type="checkbox" id="checkbox_showWell">
 				<label for="checkbox_showWell" id="label_showWell">
@@ -95,7 +95,7 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="editSlide_image.html">
+<script type="text/ng-template" id="editLecture_image.html">
   <div class="form-group">
       <label>Imagem</label>
       <input ng-model="selectedNode.id" class="form-control">
@@ -109,7 +109,7 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="editSlide_bubble.html">
+<script type="text/ng-template" id="editLecture_bubble.html">
   <div class="form-group">
       <label>Texto do primeiro balão</label>
       <div ng-model="selectedNode.text" text-angular class="text-angular"></div>
@@ -137,7 +137,7 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="editSlide_youtube.html">
+<script type="text/ng-template" id="editLecture_youtube.html">
   <div class="form-group">
       <label>Id do vídeo do YouTube</label>
       <input ng-model="selectedNode.id" class="form-control" ng-change="trimYouTubeURL()">
@@ -150,7 +150,7 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="editSlide_vimeo.html">
+<script type="text/ng-template" id="editLecture_vimeo.html">
   <div class="form-group">
       <label>Id do vídeo do Vimeo</label>
       <input ng-model="selectedNode.id" class="form-control" ng-change="trimVimeoURL()">
@@ -163,11 +163,11 @@
   </div>
 </script>
 
-<script type="text/ng-template" id="editSlide_video.html">
+<script type="text/ng-template" id="editLecture_video.html">
 VIDEO
 </script>
 
-<script type="text/ng-template" id="editSlide_finalExam.html">
+<script type="text/ng-template" id="editLecture_finalExam.html">
   <div class="alert alert-dismissable alert-primary" ng-if="!selectedNode.expectedGrade">
     <p>Como a nota mínima da avaliação final não foi definida, o participante será aprovado automaticamente após fazer o teste.</p>
   </div>
@@ -186,7 +186,7 @@ VIDEO
 	<div class="checkbox checkbox-primary">
 		<input class="" ng-model="selectedNode.shuffleQuestions" id="checkbox_shuffleQuestions" type="checkbox">
 		<label for="checkbox_shuffleQuestions" id="label_shuffleQuestions">
-			<span><small>Embaralhar a ordem das alternativas cada vez que o slide for carregado (a cada tentativa de fazer a avaliação, o participante terá uma ordem aleatória de questões e alternativas)</small></span>
+			<span><small>Embaralhar a ordem das alternativas cada vez que a avaliação for carregada (a cada tentativa de fazer a avaliação, o participante terá uma ordem aleatória de questões e alternativas)</small></span>
 		</label>
 	</div>
   </div>
@@ -238,7 +238,7 @@ VIDEO
   </div>
 </script>
 
-<script type="text/ng-template" id="editSlide_question.html">
+<script type="text/ng-template" id="editLecture_question.html">
   <div class="form-group">
       <label>Enunciado da questão de aprendizado</label>
       <div ng-model="selectedNode.text" text-angular class="text-angular text-angular-sm"></div>
@@ -253,7 +253,7 @@ VIDEO
 			<div class="checkbox checkbox-primary">
 				<input class="" ng-model="selectedNode.shuffleQuestions" id="checkbox_shuffleQuestions" type="checkbox">
 				<label for="checkbox_shuffleQuestions" id="label_shuffleQuestions">
-					<span><small>Embaralhar a ordem das alternativas cada vez que o slide for carregado</small></span>
+					<span><small>Embaralhar a ordem das alternativas cada vez que a questão for carregada</small></span>
 				</label>
 			</div>
   </div>
@@ -293,7 +293,7 @@ VIDEO
 					      <p class="help-block">Nome que aparecerá no cabeçalho do curso.</p>
 					  </div>
 
-					  <!-- <div class="form-group" ng-show="hasVideoSlides">
+					  <!-- <div class="form-group" ng-show="hasVideoLectures">
 					      <label>Tamanhos disponíveis de vídeos</label>
 					      <input ng-model="selectedNode.availableVideoSizes" class="form-control">
 					      <div class="help-block">
@@ -315,7 +315,7 @@ VIDEO
 					  <div class="form-group">
 					      <label>Cor do plano de fundo</label>
 					  		<color-picker ng-model="selectedNode.colorBackground" options="colorPickeroptions"></color-picker>
-					      <p class="help-block">Essa é a cor do plano de fundo de cada slide.</p>
+					      <p class="help-block">Essa é a cor do plano de fundo de cada aula.</p>
 					  </div>
 
 					  <div class="form-group">
@@ -330,7 +330,7 @@ VIDEO
 					      <p class="help-block">Essa é a cor que será utilizada no texto dos títulos e em qualquer lugar que tenha a cor principal do tema no fundo.</p>
 					  </div>
 
-					  <!-- <div class="form-group" ng-show="hasVimeoSlides || hasYoutubeSlides">
+					  <!-- <div class="form-group" ng-show="hasVimeoLectures || hasYoutubeLectures">
 					      <label>Padding do iframe do vimeo ou youtube</label>
 					      <input ng-model="selectedNode.paddingTopIframe" type="number" class="form-control">
 					      <p class="help-block">Valor, em porcentagem, do padding do iframe do vimeo ou youtube. Isso fará com que ele fique melhor centralizado. Valor recomendado: 56%.</p>
@@ -342,8 +342,8 @@ VIDEO
     	<br><br>
     	<div class="row">
     		<div class="col-sm-12">
-			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newTopic(true)">
-			    	<span class="glyphicon glyphicon-plus"></span> Adicionar novo tópico
+			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newModule(true)">
+			    	<span class="glyphicon glyphicon-plus"></span> Adicionar novo módulo
 			    </a>
     		</div>
     	</div>
@@ -351,20 +351,20 @@ VIDEO
   </div>
 </script>
 
-<script type="text/ng-template" id="editTopic.html">
+<script type="text/ng-template" id="editModule.html">
 	<div class="panel panel-default">
     <div class="panel-body">
     	<div class="row">
     		<div class="col-sm-12">
-	    		<a ng-if="selectedNode.slides.length == 0 && root.topics.length > 1" uib-tooltip="Remover tópico" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" data-nodrag confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
+	    		<a ng-if="selectedNode.lectures.length == 0 && root.modules.length > 1" uib-tooltip="Remover módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" data-nodrag confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
 				  	<i class="fa fa-trash-o"></i>
 					</a>
 					<form role="form">
-					<h1 class="form-title"><small>Configurações do Tópico</small></h1>
+					<h1 class="form-title"><small>Configurações do Módulo</small></h1>
 					  <div class="form-group">
-					      <label>Nome do tópico</label>
+					      <label>Nome do módulo</label>
 					      <input ng-model="selectedNode.title" class="form-control">
-					      <p class="help-block">Nome desse tópico. Esse nome aparecerá no cabeçalho de cada slide e no painel de detalhes do curso dentro da Eduvem.</p>
+					      <p class="help-block">Nome desse módulo. Esse nome aparecerá no cabeçalho de cada aula e no painel de detalhes do curso dentro da Eduvem.</p>
 					  </div>
 					</form>
 				</div>
@@ -372,8 +372,8 @@ VIDEO
     	<br><br>
     	<div class="row">
     		<div class="col-sm-12">
-			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newSlide(selectedNodeScope)">
-			    	<span class="glyphicon glyphicon-plus"></span> Adicionar novo slide a esse tópico
+			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newLecture(selectedNodeScope)">
+			    	<span class="glyphicon glyphicon-plus"></span> Adicionar nova aula a esse módulo
 			    </a>
     		</div>
     	</div>
@@ -390,12 +390,12 @@ VIDEO
 		    <a id="nodeEdit_{{root.uuid}}" uib-tooltip="Editar curso" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
 		    	<span class="glyphicon glyphicon-edit"></span>
 		    </a>
-		    <a uib-tooltip="Adicionar novo tópico" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newTopic(true)" style="margin-right: 3px;">
+		    <a uib-tooltip="Adicionar novo módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newModule(true)" style="margin-right: 3px;">
 		    	<span class="glyphicon glyphicon-plus"></span>
 		    </a>
 		  </div>
-		  <ol ui-tree-nodes="" ng-model="root.topics" ng-class="{hidden: collapsed}">
-		    <li ng-repeat="topic in root.topics" ui-tree-node ng-include="'topicsRenderer.html'">
+		  <ol ui-tree-nodes="" ng-model="root.modules" ng-class="{hidden: collapsed}">
+		    <li ng-repeat="module in root.modules" ui-tree-node ng-include="'modulesRenderer.html'">
 		    </li>
 		  </ol>
       </li>
@@ -403,29 +403,29 @@ VIDEO
   </div>
 </script>
 
-<script type="text/ng-template" id="topicsRenderer.html">
-  <div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === topic.uuid}">
-    <a class="btn btn-primary btn-xxs margin-right-5" ng-if="topic.slides && topic.slides.length > 0" data-nodrag ng-click="this.toggle()">
+<script type="text/ng-template" id="modulesRenderer.html">
+  <div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === module.uuid}">
+    <a class="btn btn-primary btn-xxs margin-right-5" ng-if="module.lectures && module.lectures.length > 0" data-nodrag ng-click="this.toggle()">
     	<span class="glyphicon" ng-class="{ 'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed }"></span>
     </a>
-    <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="topic.isUnsaved"></i>{{topic.title | limitToDots: limitToDots}}</span>
-    <a id="nodeEdit_{{topic.uuid}}" uib-tooltip="Editar tópico" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
+    <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="module.isUnsaved"></i>{{module.title | limitToDots: limitToDots}}</span>
+    <a id="nodeEdit_{{module.uuid}}" uib-tooltip="Editar módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-edit"></span>
     </a>
-    <a uib-tooltip="Adicionar novo slide" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newSlide(this)" style="margin-right: 3px;">
+    <a uib-tooltip="Adicionar novo lecture" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newLecture(this)" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-plus"></span>
     </a>
   </div>
-  <ol ui-tree-nodes="" ng-model="topic.slides" ng-class="{hidden: collapsed}">
-    <li ng-repeat="slide in topic.slides" ui-tree-node ng-include="'slidesRenderer.html'">
+  <ol ui-tree-nodes="" ng-model="module.lectures" ng-class="{hidden: collapsed}">
+    <li ng-repeat="lecture in module.lectures" ui-tree-node ng-include="'lecturesRenderer.html'">
     </li>
   </ol>
 </script>
 
-<script type="text/ng-template" id="slidesRenderer.html">
-  <div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === slide.uuid}">
-    <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="slide.isUnsaved"></i>{{slide.title | limitToDots: limitToDots}}</span>
-    <a id="nodeEdit_{{slide.uuid}}" uib-tooltip="Editar slide" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs knlEditSlideButton" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
+<script type="text/ng-template" id="lecturesRenderer.html">
+  <div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === lecture.uuid}">
+    <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="lecture.isUnsaved"></i>{{lecture.title | limitToDots: limitToDots}}</span>
+    <a id="nodeEdit_{{lecture.uuid}}" uib-tooltip="Editar aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs knlEditLectureButton" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-edit"></span>
     </a>
   </div>
@@ -484,18 +484,18 @@ VIDEO
     </div>
 </script>
 
-<script type="text/ng-template" id="addSlideModal.html">
+<script type="text/ng-template" id="addLectureModal.html">
     <div class="modal-header">
-        <h3 class="modal-title" id="modal-title">Adicionar Slide</h3>
+        <h3 class="modal-title" id="modal-title">Adicionar Aula</h3>
     </div>
     <div class="modal-body" id="modal-body">
 		  <div class="form-group formGroupModal">
-	      <label>Tipo do Slide</label>
-	      <select class="form-control" ng-model="$ctrl.slideType">
-	          <option value="" disabled selected>[ Selecione o tipo do slide ]</option>
-	          <option ng-disabled="slideType.type === 'slideTypeSeparator'" ng-repeat="slideType in $ctrl.SLIDE_TYPES" value="{{slideType.type}}">{{slideType.name}}</option>
+	      <label>Tipo da Aula</label>
+	      <select class="form-control" ng-model="$ctrl.lectureType">
+	          <option value="" disabled selected>[ Selecione o tipo da aula ]</option>
+	          <option ng-disabled="lectureType.type === 'lectureTypeSeparator'" ng-repeat="lectureType in $ctrl.LECTURE_TYPES" value="{{lectureType.type}}">{{lectureType.name}}</option>
 	      </select>
-	  		<p class="help-block">Existem vários tipo de slide, cada um com sua configuração específica.</p>
+	  		<p class="help-block">Existem vários tipo de aulas, cada uma com sua configuração específica.</p>
 			</div>
     </div>
     <div class="modal-footer">

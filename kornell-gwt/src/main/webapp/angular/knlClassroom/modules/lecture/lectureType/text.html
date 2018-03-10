@@ -15,6 +15,6 @@
         color: #{{classroomInfo.colorFont}};
 	}
 </style>
-<div class="innerDiv container" ng-controller="TextSlideController">
-    <p class="{{slide.showWell ? 'well' : ''}} text" ng-bind-html="sce.trustAsHtml(slide.text)"></p>
+<div class="innerDiv container" ng-controller="TextLectureController">
+    <p class="{{lecture.showWell ? 'well' : ''}} text" ng-bind-html="sce.trustAsHtml(lecture.text)"></p>
 </div>

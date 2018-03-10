@@ -49,7 +49,7 @@
 		color: #{{classroomInfo.colorFont}} !important;
 	}
 </style>
-<div class="innerDiv container" ng-controller="FinalExamSlideController">
+<div class="innerDiv container" ng-controller="FinalExamLectureController">
 	<div id="intro" class="col-md-9" ng-show="!showPanel || showPanel == 'intro'">
 		<div id="content">
 			<h1></h1>
@@ -58,15 +58,15 @@
 		    <div class="bs-callout bs-callout-info">
 		        <h3>Avaliação do curso</h3>
 		        <h4>{{classroomInfo.title}}</h4>
-		        <p ng-show="slide.expectedGrade">A aprovação nesta avaliação é necessária para retirada do certificado.</p>
+		        <p ng-show="lecture.expectedGrade">A aprovação nesta avaliação é necessária para retirada do certificado.</p>
 		        <ul class="margin-bottom-30">
-		        	<li>Serão <span class="code">{{slide.questions.length}}</span> questões.</li>
-		        	<li ng-show="slide.isMultiple">Existem questões com mais de uma resposta correta.
-					<li ng-show="slide.expectedGrade">Valor total da avaliação: <span class="code">100</span> pontos.</li>
-					<li ng-show="slide.expectedGrade">Para ser aprovado é necessário obter <span class="code">{{slide.expectedGrade}}</span> pontos.</li>
-		        	<li ng-show="slide.expectedGrade">Caso não seja aprovado você poderá refazer a prova.</li>
+		        	<li>Serão <span class="code">{{lecture.questions.length}}</span> questões.</li>
+		        	<li ng-show="lecture.isMultiple">Existem questões com mais de uma resposta correta.
+					<li ng-show="lecture.expectedGrade">Valor total da avaliação: <span class="code">100</span> pontos.</li>
+					<li ng-show="lecture.expectedGrade">Para ser aprovado é necessário obter <span class="code">{{lecture.expectedGrade}}</span> pontos.</li>
+		        	<li ng-show="lecture.expectedGrade">Caso não seja aprovado você poderá refazer a prova.</li>
 		        </ul>
-		        <p ng-show="slide.expectedGrade && currentScore && !isApproved" class="margin-bottom-30">É necessário fazer o teste novamente.</p>
+		        <p ng-show="lecture.expectedGrade && currentScore && !isApproved" class="margin-bottom-30">É necessário fazer o teste novamente.</p>
 		        <p ng-show="currentScore && isApproved"><br>Você foi aprovado nesta avaliação. Você pode refazê-la se desejar, mas a sua nota continuará a mesma.</p>
 		    	<p ng-show="currentScore" class="">Nota atual: <span class="code">{{currentScore}}</span></p>
 		        <button ng-click="startTest()" class="btn btn-primary btn-sm margin-top-30">{{currentScore ? 'REFAZER' : 'INICIAR'}} A AVALIAÇÃO</button>
@@ -78,7 +78,7 @@
 		<div class="row">
 			<div class="text-center">
 				<ul class="pagination pagination-sm">
-					<li ng-repeat="question in slide.questions" class="{{currentQuestionIndex == ($index) ? 'active' : ''}}" >
+					<li ng-repeat="question in lecture.questions" class="{{currentQuestionIndex == ($index) ? 'active' : ''}}" >
 						<a ng-click="loadQuestion(($index))" a-disabled="!hasAccessToQuestion($index)">{{($index + 1)}}</a>
 					</li>
 				</ul>
@@ -95,8 +95,8 @@
 					</label>
 				</div>
 				<div id="resultWrapper">
-					<button type="button" ng-if="currentQuestionIndex == slide.questions.length - 1" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="finishTest()" class="btn btn-primary btn-sm">CONCLUIR</button>	
-					<button type="button" ng-if="slide.questions.length - 1 > currentQuestionIndex" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="loadNext()" class="btn btn-primary btn-sm">PRÓXIMA</button>	
+					<button type="button" ng-if="currentQuestionIndex == lecture.questions.length - 1" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="finishTest()" class="btn btn-primary btn-sm">CONCLUIR</button>	
+					<button type="button" ng-if="lecture.questions.length - 1 > currentQuestionIndex" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="loadNext()" class="btn btn-primary btn-sm">PRÓXIMA</button>	
 					<button type="button" ng-if="currentQuestionIndex >= 1" ng-click="loadPrevious()" class="btn btn-default btn-sm">ANTERIOR</button>		
 				</div>
 			</fieldset>

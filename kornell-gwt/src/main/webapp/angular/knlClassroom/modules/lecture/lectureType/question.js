@@ -2,7 +2,7 @@
 
 var app = angular.module('knlClassroom');
 
-app.controller('QuestionSlideController', [
+app.controller('QuestionLectureController', [
 	'$scope',
 	'knlUtils',
 	function($scope, knlUtils) {       
@@ -14,29 +14,29 @@ app.controller('QuestionSlideController', [
 			}
 			$scope.answerCorrect = false;
 			var questionCorrect = 0;
-			for (var i = 0; i < $scope.slide.options.length; i++){
-				var option = $scope.slide.options[i];
+			for (var i = 0; i < $scope.lecture.options.length; i++){
+				var option = $scope.lecture.options[i];
 				option.selected = option.selected || false;
 				option.expected = option.expected || false;
 				if(option.selected == option.expected){
 					questionCorrect++;
 				}
 			}
-			$scope.answerCorrect = $scope.answerCorrect || questionCorrect == $scope.slide.options.length;
+			$scope.answerCorrect = $scope.answerCorrect || questionCorrect == $scope.lecture.options.length;
 		};
 
 		$scope.clear = function(index){
-			if(!$scope.slide.isMultiple){
-				for (var i = 0; i < $scope.slide.options.length; i++){
-					var option = $scope.slide.options[i];
+			if(!$scope.lecture.isMultiple){
+				for (var i = 0; i < $scope.lecture.options.length; i++){
+					var option = $scope.lecture.options[i];
 					option.selected = (index === i);
 				}
 			}
 			$scope.answerCorrect = null;
 		};
 
-        if($scope.slide.shuffleQuestions){
-            $scope.slide.questions = knlUtils.shuffleArray($scope.slide.options);
+        if($scope.lecture.shuffleQuestions){
+            $scope.lecture.questions = knlUtils.shuffleArray($scope.lecture.options);
         }
 
 	}

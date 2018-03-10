@@ -1,0 +1,21 @@
+<style>
+	.speech-bubble {
+	    background: #{{classroomInfo.colorTheme}} !important;
+        color: #{{classroomInfo.colorTitle}} !important;
+	}
+	.speech-bubble:after {
+	    border-color: #{{classroomInfo.colorTheme}} transparent !important;
+	}
+	.speech-bubble.top-right {
+	    background: #{{lecture.color2 || classroomInfo.colorTheme}} !important;
+	}
+	.speech-bubble.top-right:after {
+	    border-color: #{{lecture.color2 || classroomInfo.colorTheme}} transparent !important;
+	}
+</style>
+<div class="innerDiv container" ng-controller="BubbleLectureController">
+    <p class="speech-bubble" ng-bind-html="sce.trustAsHtml(lecture.text)"></p>
+    <img ng-src="{{lecture.id.indexOf('//') >= 0 ? lecture.id : classroomPath+'images/'+lecture.id}}" class="speech-actor"/>
+    <img ng-if="lecture.text2 && lecture.id2" ng-src="{{lecture.id2.indexOf('//') >= 0 ? lecture.id2 : classroomPath+'images/'+lecture.id2}}" class="speech-actor right"/>
+    <p ng-if="lecture.text2" class="speech-bubble top-right" ng-bind-html="sce.trustAsHtml(lecture.text2)"></p>
+</div>

@@ -2,7 +2,7 @@
 
 var app = angular.module('knlClassroom');
 
-app.controller('VideoSlideController', [
+app.controller('VideoLectureController', [
 	'$scope',
 	'$rootScope',
 	'$timeout',
@@ -12,7 +12,7 @@ app.controller('VideoSlideController', [
 
 		var init = function(){
 			$scope.sce = $sce;	
-			$scope.contentPath = $rootScope.classroomPath + 'videos/'+$scope.slide.id;
+			$scope.contentPath = $rootScope.classroomPath + 'videos/'+$scope.lecture.id;
 
 	  		$scope.sources = [];
 	  		angular.forEach($scope.classroomInfo.availableVideoSizes || [''], function(availableVideoSize){
@@ -38,7 +38,7 @@ app.controller('VideoSlideController', [
 		    $scope.vidObj.ready(function() {
 		    	resetVideoState();
 		        setupResolutionSwitcher();
-				$scope.vidObj.remember($scope.slideUUID);
+				$scope.vidObj.remember($scope.lectureUUID);
 				$timeout(function(){
 					getVidApiElement().attr('poster',$scope.contentPath+'.png');
 				});
