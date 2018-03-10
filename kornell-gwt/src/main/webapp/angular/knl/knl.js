@@ -10,7 +10,6 @@ var app = angular.module('knl', [
     'ui.slimscroll',
     'ui.sortable',
     'textAngular',
-    'toaster',
     'angularFileUpload'
 ]);
 
@@ -41,6 +40,9 @@ app.run([
     '$http',
     '$timeout',
     function($rootScope, $location, $http, $timeout) {
+
+        $rootScope.domain = window.location.host.indexOf('localhost:') >= 0 ? '*' : parent.location;
+
         $rootScope.$on('$locationChangeSuccess', function(next, current) {
             //ga('send', 'pageview', location.hash.substring(2, location.hash.length));
             window.scrollTo(0, 0);
@@ -61,6 +63,15 @@ app.run([
             var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
           });
+        };
+
+
+        $rootScope.sendNotification = function(notificationType, message){
+            parent.postMessage({
+                type: "kornellNotification", 
+                notificationType: notificationType, 
+                message: message
+            }, $rootScope.domain);
         };
     }
 ]);

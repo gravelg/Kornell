@@ -132,6 +132,7 @@ object S3Service {
       case "jpg" => "image/jpg"
       case "jpeg" => "image/jpg"
       case "ico" => "image/x-icon"
+      case "mp4" => "video/mp4"
       case _ => "application/octet-stream"
     }
   }

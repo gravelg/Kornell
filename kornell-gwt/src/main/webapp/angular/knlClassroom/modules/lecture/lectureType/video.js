@@ -12,17 +12,27 @@ app.controller('VideoLectureController', [
 
 		var init = function(){
 			$scope.sce = $sce;	
-			$scope.contentPath = $rootScope.classroomPath + 'videos/'+$scope.lecture.id;
+			$scope.contentPath = ($scope.prefixURL ? $scope.prefixURL : '');
 
 	  		$scope.sources = [];
-	  		angular.forEach($scope.classroomInfo.availableVideoSizes || [''], function(availableVideoSize){
-	  			$scope.sources.push({
-			        src: $scope.contentPath+'_'+availableVideoSize+'p.mp4',
+  			$scope.sources.push(
+				{
+			        src: $scope.contentPath + $scope.lecture.id,
 			        type: 'video/mp4',
-			        label: availableVideoSize+'p',
-			        res: availableVideoSize
-			      });
-	  		});
+			        label: 'high',
+			        res: 'high'
+		     	}
+	      	);
+	      	if($scope.lecture.idLow){
+	  			$scope.sources.push(
+					{
+				        src: $scope.contentPath + $scope.lecture.id,
+				        type: 'video/mp4',
+				        label: 'low',
+				        res: 'low'
+			     	}
+		      	);
+	      	}
 
 			initializeVideo();
 			initializeEvents();
@@ -39,9 +49,11 @@ app.controller('VideoLectureController', [
 		    	resetVideoState();
 		        setupResolutionSwitcher();
 				$scope.vidObj.remember($scope.lectureUUID);
-				$timeout(function(){
-					getVidApiElement().attr('poster',$scope.contentPath+'.png');
-				});
+				if($scope.lecture.videoPoster){
+					$timeout(function(){
+						getVidApiElement().attr('poster',$scope.lecture.videoPoster);
+					});
+				}
 			});
 		};
 
@@ -78,8 +90,7 @@ app.controller('VideoLectureController', [
 
 		var getSource = function(){
 			var w = Math.max(parent.document.documentElement.clientWidth, parent.window.innerWidth || 0),
-				videoResIndex = (w <= 600 ? 0 : 
-					(w < 1280 ? 1 : 2));
+				videoResIndex = (w <= 720 || $scope.sources.length === 1 ? 0 : 1);
 			return $scope.sources[videoResIndex];
 		};
 

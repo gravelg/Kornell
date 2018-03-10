@@ -34,8 +34,9 @@ public class KornellNotification {
     }
 
     public static Alert show(String message, AlertType alertType, int timer) {
-        if (StringUtils.isNone(message))
+        if (StringUtils.isNone(message)) {
             return null;
+        }
         final PopupPanel popup = new PopupPanel();
 
         Alert alert = new Alert();
@@ -97,6 +98,6 @@ public class KornellNotification {
     }
 
     public static void showError(String message) {
-        show(message, AlertType.ERROR, DEFAULT_CLOSE_DELAY);
+        show(message, AlertType.ERROR, 4000);
     }
 }

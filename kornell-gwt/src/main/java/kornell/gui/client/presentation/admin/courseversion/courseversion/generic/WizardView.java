@@ -18,7 +18,6 @@ import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView.Presenter;
-import kornell.gui.client.util.view.KornellNotification;
 
 public class WizardView extends Composite {
     interface MyUiBinder extends UiBinder<Widget, WizardView> {
@@ -88,7 +87,6 @@ public class WizardView extends Composite {
         session.course(courseVersion.getCourseUUID()).getWizardContentUploadURL(filename, new Callback<String>() {
             @Override
             public void ok(String url) {
-                KornellNotification.show(url);
                 sendIFrameMessage("responseUploadPath", url);
             }
         });
@@ -113,6 +111,12 @@ public class WizardView extends Composite {
                 v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::saveWizard(Ljava/lang/String;)(e.data.message);
             } else if(e.data.type === "requestUploadPath"){
                 v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::requestUploadPath(Ljava/lang/String;)(e.data.message);
+            } else if(e.data.type === "kornellNotification"){
+                if(e.data.notificationType === "success"){
+                    @kornell.gui.client.util.view.KornellNotification::show(Ljava/lang/String;)(e.data.message);
+                } else {
+                    @kornell.gui.client.util.view.KornellNotification::showError(Ljava/lang/String;)(e.data.message);
+                }
             }
 	    }
 	    // Listen to message from child window

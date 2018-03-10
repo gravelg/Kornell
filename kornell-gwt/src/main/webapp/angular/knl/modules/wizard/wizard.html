@@ -164,7 +164,12 @@
 </script>
 
 <script type="text/ng-template" id="editLecture_video.html">
-VIDEO
+  <div class="form-group">
+      <label>Vídeo</label>
+      <input ng-model="selectedNode.id" class="form-control">
+      <p class="help-block">URL do vídeo que será mostrado. Cole acima a URL de um vídeo hospedado em outro site ou faça o upload abaixo.</p>
+      <div class="row" ng-include="'fileUpload.html'">
+  </div>
 </script>
 
 <script type="text/ng-template" id="editLecture_finalExam.html">

@@ -10,12 +10,9 @@ app.controller('WizardController', [
   '$sce',
   '$location',
   '$uibModal',
-  'toaster',
   'FileUploader',
   'LECTURE_TYPES',
-  function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, toaster, FileUploader, LECTURE_TYPES) {
-
-    $scope.domain = window.location.host.indexOf('localhost:') >= 0 ? '*' : parent.location;
+  function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, FileUploader, LECTURE_TYPES) {
 
     parent.postMessage({type: "wizardReady", message: ""}, $scope.domain);
     
@@ -23,11 +20,12 @@ app.controller('WizardController', [
 
     uploader.onAfterAddingFile = function(fileItem) {
       fileItem.disableMultipart = true;
-
-      var allowedExtensions = $scope.selectedNode.type === 'video' ? 'mpg, mpeg, mp4, mov' : 'jpg, jpeg, gif, png',
+      
+      //TODO 'mpg, mpeg, mp4, mov, mkv'
+      var allowedExtensions = $scope.selectedNode.type === 'video' ? 'mp4' : 'jpg, jpeg, gif, png',
         fileName = fileItem.file && fileItem.file.name,
         fileParts = fileName && fileName.split('.'),
-        fileExtension = fileParts && fileParts.length > 1 && fileParts[1],
+        fileExtension = fileParts && fileParts.length > 1 && fileParts[fileParts.length - 1],
         isAllowedExtension = fileExtension && allowedExtensions.indexOf(fileExtension) >= 0;
 
       if(isAllowedExtension){
@@ -38,13 +36,14 @@ app.controller('WizardController', [
         fileItem.file.name = $rootScope.uuid() + '.' + fileExtension;
         parent.postMessage({type: "requestUploadPath", message: fileItem.file.name}, $scope.domain);
       } else {
-        toaster.pop("error", "Erro", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
+        $rootScope.sendNotification("error", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
+        uploader.queue = [];
       }
     };
 
     uploader.onBeforeUploadItem = function(item) {
       if(!uploader.requestUploadPath) {
-        toaster.pop("error", "Erro", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+        $rootScope.sendNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
         return;
       }
       if(uploader.queue.length == 1){
@@ -55,17 +54,16 @@ app.controller('WizardController', [
         //item.removeAfterUpload = true;
 
       }
-      console.info('onBeforeUploadItem', uploader.queue);
     };
 
     uploader.onSuccessItem = function(fileItem, response, status, headers) {
-      toaster.pop("success", "Sucesso", "Upload concluído com sucesso.");
+      $rootScope.sendNotification("success", "Upload concluído com sucesso.");
       $scope.selectedNode.id = fileItem.fullURL;
       uploader.queue = [];
     };
 
     uploader.onErrorItem = function(fileItem, response, status, headers) {
-      toaster.pop("error", "Erro", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+      $rootScope.sendNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
     };
 
     window.addEventListener('message',function(event) {
@@ -76,7 +74,7 @@ app.controller('WizardController', [
         $scope.newTree(event.data.message);
         $scope.initWizard();
       } else if(event.data.type === 'responseUploadPath') {
-        console.log(event.data);
+
           uploader.requestUploadPath = event.data.message;
       }
     },false);
@@ -175,7 +173,7 @@ app.controller('WizardController', [
       $scope.root = angular.copy($scope.savedRoot);
       $scope.data = [$scope.root];
       $scope.goToNode($scope.selectedNode.uuid);
-      toaster.pop("success", "Sucesso", "As alterações foram descartadas com sucesso.");
+      $rootScope.sendNotification("success", "As alterações foram descartadas com sucesso.");
     };
 
     $scope.verifyTreeHelper = function() {
@@ -239,7 +237,6 @@ app.controller('WizardController', [
           module.parentUUID = $scope.root.uuid;
           module.count = tCount++;
           var sCount = 0;
-          console.log(module.lectures);
           //ensure backwards compatibility
           module.lectures = module.lectures || module.slides; delete module.slides;
           angular.forEach(module.lectures, function(lecture){
@@ -393,10 +390,8 @@ app.controller('WizardController', [
     };
 
     $scope.edit = function (scope) {
-      console.log(scope);
       $scope.selectedNode = scope.$modelValue;
       $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, true);
-      console.log($scope.selectedNodeSaved);
       $scope.selectedNodeScope = scope;
       $rootScope.selectedTab = 'edit';
       $scope.previewURL = $sce.trustAsResourceUrl(
