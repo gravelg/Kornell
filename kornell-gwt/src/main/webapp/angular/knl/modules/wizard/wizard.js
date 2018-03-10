@@ -499,17 +499,19 @@ app.controller('WizardController', [
     };
 
     $scope.trimVimeoURL = function(){
-      $scope.selectedNode.id = 
-        $scope.selectedNode.id.indexOf('vimeo.com/') >= 0 ?
-        $scope.selectedNode.id.split('vimeo.com/')[1] :
-        $scope.selectedNode.id;
+      if($scope.selectedNode.id.indexOf('vimeo.com/') >= 0){
+        $rootScope.sendNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
+        $scope.selectedNode.id = $scope.selectedNode.id.split('vimeo.com/')[1];
+      }
     };
 
     $scope.trimYouTubeURL = function(){
       var stripIdFromVideoURL = function(url){
         var r, rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
         try {
-          return url.match(rx)[1];
+          var url =  url.match(rx)[1];
+          $rootScope.sendNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
+          return url;
         } catch(err){
           return url;
         }

@@ -141,7 +141,7 @@
   <div class="form-group">
       <label>Id do vídeo do YouTube</label>
       <input ng-model="selectedNode.id" class="form-control" ng-change="trimYouTubeURL()">
-      <p class="help-block">Cole aqui o ID ou URL do vídeo do YouTube. Somente vídeos que permitam o compartilhamento podem ser mostrados pela plataforma.</p>
+      <p class="help-block">Cole aqui o ID ou URL do vídeo do YouTube. Somente vídeos que permitam o compartilhamento podem ser mostrados pela plataforma. Se colar a URL, ela será automaticamente tratada para remover somente o ID do vídeo.</p>
   </div>
   <div class="form-group">
       <label>Texto</label>
@@ -154,7 +154,7 @@
   <div class="form-group">
       <label>Id do vídeo do Vimeo</label>
       <input ng-model="selectedNode.id" class="form-control" ng-change="trimVimeoURL()">
-      <p class="help-block">Cole aqui o ID ou URL do vídeo do vimeo. Somente vídeos que permitam o compartilhamento podem ser mostrados pela plataforma.</p>
+      <p class="help-block">Cole aqui o ID ou URL do vídeo do vimeo. Somente vídeos que permitam o compartilhamento podem ser mostrados pela plataforma. Se colar a URL, ela será automaticamente tratada para remover somente o ID do vídeo.</p>
   </div>
   <div class="form-group">
       <label>Texto</label>
@@ -205,13 +205,13 @@
 	  	<a class="pull-left questionPickerButton btn btn-sm" ng-repeat="question in selectedNode.questions" ng-click="selectQuestion($index)" ng-class="{'btn-default': selectedQuestionIndex !== $index, 'btn-primary': selectedQuestionIndex === $index}">{{$index + 1}}</a>
 	  </div>
 	  <br><br>
-		<p class="help-block">Arraste e solte os itens acima para reordenar as questões. A avaliação final deve ter ao menos duas questões.</p><br>
+		<p class="help-block">Arraste e solte os itens acima para reordenar as questões. A avaliação final deve ter ao menos uma questão.</p><br>
   </div>
   <div class="form-group">
 	  <div ng-if="selectedQuestion">
 		  <div class="form-group">
 		      <label>Enunciado da questão {{selectedQuestionIndex + 1}}</label>
-			    <a ng-disabled="selectedNode.questions.length <= 2" uib-tooltip="Remover questão" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-xs removeOptionButton" data-nodrag confirm-click="removeQuestion($index)" confirm-message="Confirma?" style="margin-right: 20px;">
+			    <a ng-disabled="selectedNode.questions.length <= 1" uib-tooltip="Remover questão" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-xs removeOptionButton" data-nodrag confirm-click="removeQuestion($index)" confirm-message="Confirma?" style="margin-right: 20px;">
 			    	<i class="fa fa-trash-o"></i>
 					</a>
 		      <div ng-model="selectedQuestion.text" text-angular class="text-angular text-angular-sm"></div>
@@ -347,7 +347,7 @@
     	<br><br>
     	<div class="row">
     		<div class="col-sm-12">
-			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newModule(true)">
+			    <a class="pull-left btn btn-primary btn-md" ng-click="newModule(true)">
 			    	<span class="glyphicon glyphicon-plus"></span> Adicionar novo módulo
 			    </a>
     		</div>
@@ -361,7 +361,7 @@
     <div class="panel-body">
     	<div class="row">
     		<div class="col-sm-12">
-	    		<a ng-if="selectedNode.lectures.length == 0 && root.modules.length > 1" uib-tooltip="Remover módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" data-nodrag confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
+	    		<a ng-if="selectedNode.lectures.length == 0 && root.modules.length > 1" uib-tooltip="Remover módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
 				  	<i class="fa fa-trash-o"></i>
 					</a>
 					<form role="form">
@@ -377,7 +377,7 @@
     	<br><br>
     	<div class="row">
     		<div class="col-sm-12">
-			    <a class="pull-left btn btn-primary btn-md" data-nodrag ng-click="newLecture(selectedNodeScope)">
+			    <a class="pull-left btn btn-primary btn-md" ng-click="newLecture(selectedNodeScope)">
 			    	<span class="glyphicon glyphicon-plus"></span> Adicionar nova aula a esse módulo
 			    </a>
     		</div>
@@ -390,7 +390,7 @@
   <div ui-tree="uiTreeOptions" id="tree-root">
     <ol ui-tree-nodes ng-model="data" >
       <li ui-tree-node ng-repeat="root in data">
-      	<div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === root.uuid}">
+      	<div class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === root.uuid}" ng-click="edit(this)">
 		    <span class="tree-node-title"><b><i class="fa fa-asterisk changedFlagIcon" ng-show="root.isUnsaved"></i>{{root.title | limitToDots: limitToDots}}</b></span>
 		    <a id="nodeEdit_{{root.uuid}}" uib-tooltip="Editar curso" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
 		    	<span class="glyphicon glyphicon-edit"></span>
@@ -409,15 +409,18 @@
 </script>
 
 <script type="text/ng-template" id="modulesRenderer.html">
-  <div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === module.uuid}">
+  <div  class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === module.uuid}" ng-click="edit(this)">
     <a class="btn btn-primary btn-xxs margin-right-5" ng-if="module.lectures && module.lectures.length > 0" data-nodrag ng-click="this.toggle()">
     	<span class="glyphicon" ng-class="{ 'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed }"></span>
     </a>
     <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="module.isUnsaved"></i>{{module.title | limitToDots: limitToDots}}</span>
-    <a id="nodeEdit_{{module.uuid}}" uib-tooltip="Editar módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
+    <a id="nodeEdit_{{module.uuid}}" uib-tooltip="Editar módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" ng-click="edit(this)" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-edit"></span>
     </a>
-    <a uib-tooltip="Adicionar novo lecture" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newLecture(this)" style="margin-right: 3px;">
+    <a uib-tooltip="Mover módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ui-tree-handle style="margin-right: 3px;">
+    	<span class="glyphicon glyphicon-move"></span>
+    </a>
+    <a uib-tooltip="Adicionar nova aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ng-click="newLecture(this)" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-plus"></span>
     </a>
   </div>
@@ -428,10 +431,13 @@
 </script>
 
 <script type="text/ng-template" id="lecturesRenderer.html">
-  <div ui-tree-handle class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === lecture.uuid}">
+  <div class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === lecture.uuid}" ng-click="edit(this)">
     <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="lecture.isUnsaved"></i>{{lecture.title | limitToDots: limitToDots}}</span>
-    <a id="nodeEdit_{{lecture.uuid}}" uib-tooltip="Editar aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs knlEditLectureButton" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
+    <a id="nodeEdit_{{lecture.uuid}}" uib-tooltip="Editar aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs knlEditLectureButton" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-edit"></span>
+    </a>
+    <a uib-tooltip="Mover aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" ui-tree-handle style="margin-right: 3px;">
+    	<span class="glyphicon glyphicon-move"></span>
     </a>
   </div>
 </script>

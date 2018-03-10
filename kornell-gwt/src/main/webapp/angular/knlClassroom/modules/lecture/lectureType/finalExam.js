@@ -86,7 +86,7 @@ app.controller('FinalExamLectureController', [
             knlUtils.setAttribute('cmi.core.score.max', 100);
             knlUtils.setAttribute('cmi.core.score.min', $scope.cmiScoreMin);
 
-            $scope.isApproved = ($scope.cmiScoreRaw >= $scope.cmiScoreMin);
+            $scope.isApproved = ($scope.cmiScoreRaw >= $scope.cmiScoreMin) || !$scope.cmiScoreMin;
             if($scope.isApproved){
                 knlUtils.setActionAttribute('nextEnabled', 'true');
             } else {

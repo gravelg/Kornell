@@ -60,7 +60,7 @@
 		        <h4>{{classroomInfo.title}}</h4>
 		        <p ng-show="lecture.expectedGrade">A aprovação nesta avaliação é necessária para retirada do certificado.</p>
 		        <ul class="margin-bottom-30">
-		        	<li>Serão <span class="code">{{lecture.questions.length}}</span> questões.</li>
+		        	<li>Ser{{lecture.questions.length > 1 ? 'ão' : 'á'}} <span class="code">{{lecture.questions.length}}</span> quest{{lecture.questions.length > 1 ? 'ões' : 'ão'}}.</li>
 		        	<li ng-show="lecture.isMultiple">Existem questões com mais de uma resposta correta.
 					<li ng-show="lecture.expectedGrade">Valor total da avaliação: <span class="code">100</span> pontos.</li>
 					<li ng-show="lecture.expectedGrade">Para ser aprovado é necessário obter <span class="code">{{lecture.expectedGrade}}</span> pontos.</li>
@@ -111,7 +111,7 @@
 		        <ul class="margin-bottom-30">
 		        	<li>Sua nota: <span class="code">{{cmiScoreRaw}}</span></li>
 		            <li>Valor da avaliação: <span class="code">{{cmiScoreMax}}</span></li>
-		            <li>Você acertou <span class="code">{{totalCorrect}}</span> de <span class="code">{{questionCount}}</span> questões.</li>
+		            <li>Você acertou <span class="code">{{totalCorrect}}</span> de <span class="code">{{questionCount}}</span> quest{{lecture.questions.length > 1 ? 'ões' : 'ão'}}.</li>
 		        </ul>
 		        <button type="button" ng-if="!isApproved" ng-click="init()" class="btn btn-primary btn-sm">REFAZER A AVALIAÇÃO</button>	
 				<button type="button" ng-if="isApproved" ng-click="knlUtils.next()" class="btn btn-primary btn-sm">AVANÇAR</button>	
