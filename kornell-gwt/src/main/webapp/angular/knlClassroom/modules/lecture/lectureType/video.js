@@ -26,7 +26,7 @@ app.controller('VideoLectureController', [
 	      	if($scope.lecture.idLow){
 	  			$scope.sources.push(
 					{
-				        src: $scope.contentPath + $scope.lecture.id,
+				        src: $scope.contentPath + $scope.lecture.idLow,
 				        type: 'video/mp4',
 				        label: 'low',
 				        res: 'low'

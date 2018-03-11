@@ -15,7 +15,7 @@
 </style>
 <div class="innerDiv container" ng-controller="BubbleLectureController">
     <p class="speech-bubble" ng-bind-html="sce.trustAsHtml(lecture.text)"></p>
-    <img ng-src="{{lecture.id.indexOf('//') >= 0 ? lecture.id : classroomPath+'images/'+lecture.id}}" class="speech-actor"/>
-    <img ng-if="lecture.text2 && lecture.id2" ng-src="{{lecture.id2.indexOf('//') >= 0 ? lecture.id2 : classroomPath+'images/'+lecture.id2}}" class="speech-actor right"/>
-    <p ng-if="lecture.text2" class="speech-bubble top-right" ng-bind-html="sce.trustAsHtml(lecture.text2)"></p>
+    <img ng-src="{{(prefixURL ? prefixURL : '') + lecture.id}}" class="speech-actor"/>
+    <img ng-if="lecture.has2" ng-src="{{(prefixURL ? prefixURL : '') + lecture.id2}}" class="speech-actor right"/>
+    <p ng-if="lecture.has2" class="speech-bubble top-right" ng-bind-html="sce.trustAsHtml(lecture.text2)"></p>
 </div>

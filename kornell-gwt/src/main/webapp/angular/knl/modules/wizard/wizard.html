@@ -87,11 +87,11 @@
       <div ng-model="selectedNode.text" text-angular class="text-angular"></div>
       <p class="help-block">Texto da aula. Obs: Use shift+enter para espaçamento simples entre linhas.</p>
       <div class="checkbox checkbox-primary">
-				<input class="" ng-model="selectedNode.showWell" type="checkbox" id="checkbox_showWell">
-				<label for="checkbox_showWell" id="label_showWell">
-					<span><small>Mostrar texto dentro de uma caixa com a cor principal do tema do curso.</small></span>
-				</label>
-			</div>
+		<input class="" ng-model="selectedNode.showWell" type="checkbox" id="checkbox_showWell">
+		<label for="checkbox_showWell" id="label_showWell">
+			<span><small>Mostrar texto dentro de uma caixa com a cor principal do tema do curso.</small></span>
+		</label>
+	</div>
   </div>
 </script>
 
@@ -100,7 +100,7 @@
       <label>Imagem</label>
       <input ng-model="selectedNode.id" class="form-control">
       <p class="help-block">URL da imagem que será mostrada. Cole acima a URL de uma imagem hospedada em outro site ou faça o upload abaixo.</p>
-      <div class="row" ng-include="'fileUpload.html'">
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'">
   </div>
   <div class="form-group">
       <label>Texto</label>
@@ -119,21 +119,32 @@
       <label>Imagem do primeiro balão</label>
       <input ng-model="selectedNode.id" class="form-control">
       <p class="help-block">Imagem que aparecerá no primeiro balão.</p>
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'">
   </div>
-  <div class="form-group">
-      <label>Texto do segundo balão</label>
-      <div ng-model="selectedNode.text2" text-angular class="text-angular"></div>
-      <p class="help-block">Texto que aparecerá no primeiro balão. O segundo balão só aparecerá caso exista um valor nesse campo.</p>
-  </div>
-  <div class="form-group">
-      <label>Imagem do segundo balão</label>
-      <input ng-model="selectedNode.id2" class="form-control">
-      <p class="help-block">Imagem que aparecerá no primeiro balão.</p>
-  </div>
-  <div class="form-group">
-      <label>Cor da fonte do segundo balão</label>
-  		<color-picker ng-model="selectedNode.color2" options="colorPickeroptions"></color-picker>
-      <p class="help-block">Essa é a cor que será utilizada para o segundo balão.</p>
+  <a class="btn btn-primary btn-sm" ng-click="selectedNode.has2 = true" ng-if="!selectedNode.has2">
+    <i class="fa fa-trash-o"></i> Adicionar segundo balão
+  </a>
+  <a class="btn btn-danger btn-sm" ng-click="selectedNode.has2 = false" ng-if="selectedNode.has2">
+    <i class="fa fa-trash-o"></i> Remover segundo balão
+  </a>
+  <div ng-if="selectedNode.has2">
+  	  <br><br>
+	  <div class="form-group">
+	      <label>Texto do segundo balão</label>
+	      <div ng-model="selectedNode.text2" text-angular class="text-angular"></div>
+	      <p class="help-block">Texto que aparecerá no segundo balão. Obs: Use shift+enter para espaçamento simples entre linhas.</p>
+	  </div>
+	  <div class="form-group">
+	      <label>Imagem do segundo balão</label>
+	      <input ng-model="selectedNode.id2" class="form-control">
+	      <p class="help-block">Imagem que aparecerá no segundo balão.</p>
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'id2'">
+	  </div>
+	  <div class="form-group">
+	      <label>Cor da fonte do segundo balão</label>
+	  		<color-picker ng-model="selectedNode.color2" options="colorPickeroptions"></color-picker>
+	      <p class="help-block">Essa é a cor que será utilizada para o segundo balão.</p>
+	  </div>
   </div>
 </script>
 
@@ -168,7 +179,13 @@
       <label>Vídeo</label>
       <input ng-model="selectedNode.id" class="form-control">
       <p class="help-block">URL do vídeo que será mostrado. Cole acima a URL de um vídeo hospedado em outro site ou faça o upload abaixo.</p>
-      <div class="row" ng-include="'fileUpload.html'">
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'">
+  </div>
+  <div class="form-group">
+      <label>Vídeo em baixa qualidade (para dispositivos móveis)</label>
+      <input ng-model="selectedNode.idLow" class="form-control">
+      <p class="help-block">URL do vídeo que será mostrado. Cole acima a URL de um vídeo hospedado em outro site ou faça o upload abaixo.</p>
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'idLow'">
   </div>
 </script>
 
@@ -417,7 +434,7 @@
     <a id="nodeEdit_{{module.uuid}}" uib-tooltip="Editar módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" ng-click="edit(this)" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-edit"></span>
     </a>
-    <a uib-tooltip="Mover módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ui-tree-handle style="margin-right: 3px;">
+    <a uib-tooltip="Mover módulo (arraste e solte)" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ui-tree-handle style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-move"></span>
     </a>
     <a uib-tooltip="Adicionar nova aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ng-click="newLecture(this)" style="margin-right: 3px;">
@@ -436,7 +453,7 @@
     <a id="nodeEdit_{{lecture.uuid}}" uib-tooltip="Editar aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs knlEditLectureButton" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-edit"></span>
     </a>
-    <a uib-tooltip="Mover aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" ui-tree-handle style="margin-right: 3px;">
+    <a uib-tooltip="Mover aula (arraste e solte)" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" ui-tree-handle style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-move"></span>
     </a>
   </div>

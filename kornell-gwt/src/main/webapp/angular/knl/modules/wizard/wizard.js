@@ -15,56 +15,6 @@ app.controller('WizardController', [
   function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, FileUploader, LECTURE_TYPES) {
 
     parent.postMessage({type: "wizardReady", message: ""}, $scope.domain);
-    
-    var uploader = $scope.uploader = new FileUploader();
-
-    uploader.onAfterAddingFile = function(fileItem) {
-      fileItem.disableMultipart = true;
-      
-      //TODO 'mpg, mpeg, mp4, mov, mkv'
-      var allowedExtensions = $scope.selectedNode.type === 'video' ? 'mp4' : 'jpg, jpeg, gif, png',
-        fileName = fileItem.file && fileItem.file.name,
-        fileParts = fileName && fileName.split('.'),
-        fileExtension = fileParts && fileParts.length > 1 && fileParts[fileParts.length - 1],
-        isAllowedExtension = fileExtension && allowedExtensions.indexOf(fileExtension) >= 0;
-
-      if(isAllowedExtension){
-        if(uploader.queue.length > 1){
-          uploader.queue.splice(0, 1);
-        }
-        uploader.requestUploadPath = false;
-        fileItem.file.name = $rootScope.uuid() + '.' + fileExtension;
-        parent.postMessage({type: "requestUploadPath", message: fileItem.file.name}, $scope.domain);
-      } else {
-        $rootScope.sendNotification("error", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
-        uploader.queue = [];
-      }
-    };
-
-    uploader.onBeforeUploadItem = function(item) {
-      if(!uploader.requestUploadPath) {
-        $rootScope.sendNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
-        return;
-      }
-      if(uploader.queue.length == 1){
-        uploader.queue[0].url = uploader.requestUploadPath;
-        uploader.queue[0].uploader.url = uploader.requestUploadPath;
-        uploader.queue[0].method = 'PUT';
-        uploader.queue[0].fullURL = uploader.requestUploadPath.split('.s3.amazonaws.com')[1].split('?AWS')[0];
-        //item.removeAfterUpload = true;
-
-      }
-    };
-
-    uploader.onSuccessItem = function(fileItem, response, status, headers) {
-      $rootScope.sendNotification("success", "Upload concluído com sucesso.");
-      $scope.selectedNode.id = fileItem.fullURL;
-      uploader.queue = [];
-    };
-
-    uploader.onErrorItem = function(fileItem, response, status, headers) {
-      $rootScope.sendNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
-    };
 
     window.addEventListener('message',function(event) {
       if(event.data.type === 'classroomJsonLoad'){
@@ -73,9 +23,6 @@ app.controller('WizardController', [
       } else if(event.data.type === 'classroomJsonNew') {
         $scope.newTree(event.data.message);
         $scope.initWizard();
-      } else if(event.data.type === 'responseUploadPath') {
-
-          uploader.requestUploadPath = event.data.message;
       }
     },false);
     
@@ -390,7 +337,7 @@ app.controller('WizardController', [
     };
 
     $scope.edit = function (scope) {
-      $scope.selectedNode = scope.$modelValue;
+      $rootScope.selectedNode = scope.$modelValue;
       $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, true);
       $scope.selectedNodeScope = scope;
       $rootScope.selectedTab = 'edit';
@@ -579,3 +526,69 @@ app.component('addLectureModal', {
     }
   ]
 });
+
+
+app.controller('FileController', [
+  '$scope',
+  '$rootScope',
+  'FileUploader',
+  function($scope, $rootScope, FileUploader) {
+    
+    var uploader = $scope.uploader = new FileUploader();
+
+    uploader.onAfterAddingFile = function(fileItem) {
+      fileItem.disableMultipart = true;
+      
+      //TODO 'mpg, mpeg, mp4, mov, mkv'
+      var allowedExtensions = $rootScope.selectedNode.type === 'video' ? 'mp4' : 'jpg, jpeg, gif, png',
+        fileName = fileItem.file && fileItem.file.name,
+        fileParts = fileName && fileName.split('.'),
+        fileExtension = fileParts && fileParts.length > 1 && fileParts[fileParts.length - 1],
+        isAllowedExtension = fileExtension && allowedExtensions.indexOf(fileExtension) >= 0;
+
+      if(isAllowedExtension){
+        if(uploader.queue.length > 1){
+          uploader.queue.splice(0, 1);
+        }
+        uploader.requestUploadPath = false;
+        fileItem.file.name = $rootScope.uuid() + '.' + fileExtension;
+        parent.postMessage({type: "requestUploadPath", message: fileItem.file.name}, $rootScope.domain);
+      } else {
+        $rootScope.sendNotification("error", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
+        uploader.queue = [];
+      }
+    };
+
+    uploader.onBeforeUploadItem = function(item) {
+      if(!uploader.requestUploadPath) {
+        $rootScope.sendNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+        return;
+      }
+      if(uploader.queue.length == 1){
+        uploader.queue[0].url = uploader.requestUploadPath;
+        uploader.queue[0].uploader.url = uploader.requestUploadPath;
+        uploader.queue[0].method = 'PUT';
+        uploader.queue[0].fullURL = uploader.requestUploadPath.split('.s3.amazonaws.com')[1].split('?AWS')[0];
+        //item.removeAfterUpload = true;
+      }
+    };
+
+    uploader.onSuccessItem = function(fileItem, response, status, headers) {
+      $rootScope.sendNotification("success", "Upload concluído com sucesso.");
+      $scope.modelAttribute = $scope.modelAttribute || 'id';
+      $rootScope.selectedNode[$scope.modelAttribute] = fileItem.fullURL;
+      uploader.queue = [];
+    };
+
+    uploader.onErrorItem = function(fileItem, response, status, headers) {
+      $rootScope.sendNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+    };
+
+    window.addEventListener('message',function(event) {
+      if(event.data.type === 'responseUploadPath') {
+          uploader.requestUploadPath = event.data.message;
+      }
+    },false);
+  }
+]);
+

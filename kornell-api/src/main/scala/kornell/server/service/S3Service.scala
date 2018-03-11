@@ -41,16 +41,16 @@ object S3Service {
 
   def getCourseWizardContentUploadUrl(courseUUID: String, fileName: String) = {
     val course = CourseRepo(courseUUID).get
-    getCourseUploadUrl(course.getUUID, fileName, "__wizard")
+    getCourseUploadUrl(course.getUUID, fileName, "__wizard", true)
   }
 
   def getCourseAssetUrl(institutionUUID: String, courseUUID: String, fileName: String, path: String) = {
     mkurl(getRepositoryUrl(institutionUUID), mkurl(PREFIX, COURSES, courseUUID, path, fileName))
   }
 
-  def getCourseUploadUrl(courseUUID: String, fileName: String, path: String) = {
+  def getCourseUploadUrl(courseUUID: String, fileName: String, path: String, isAngularComponent: Boolean = false) = {
     val institutionUUID = CourseRepo(courseUUID).get.getInstitutionUUID
-    getUploadUrl(institutionUUID, getCourseAssetUrl(institutionUUID, courseUUID, fileName, path), getContentType(fileName))
+    getUploadUrl(institutionUUID, getCourseAssetUrl(institutionUUID, courseUUID, fileName, path), getContentType(fileName, isAngularComponent))
   }
 
   def getCourseVersionAssetUrl(institutionUUID: String, courseVersionUUID: String, fileName: String, path: String) = {
@@ -126,14 +126,24 @@ object S3Service {
     ContentRepositoriesRepo.firstRepository(institution.getAssetsRepositoryUUID).get
   }
 
-  def getContentType(fileName: String) = {
-    getFileExtension(fileName) match {
-      case "png" => "image/png"
-      case "jpg" => "image/jpg"
-      case "jpeg" => "image/jpg"
-      case "ico" => "image/x-icon"
-      case "mp4" => "video/mp4"
-      case _ => "application/octet-stream"
+  def getContentType(fileName: String, isAngularComponent: Boolean = false) = {
+    if (isAngularComponent) {
+      getFileExtension(fileName) match {
+        case "png" => "image/png"
+        case "jpg" => "image/jpeg"
+        case "jpeg" => "image/jpeg"
+        case "mp4" => "video/mp4"
+        case _ => "application/octet-stream"
+      }
+    } else {
+      getFileExtension(fileName) match {
+        case "png" => "image/png"
+        case "jpg" => "image/jpg"
+        case "jpeg" => "image/jpg"
+        case "ico" => "image/x-icon"
+        case "mp4" => "video/mp4"
+        case _ => "application/octet-stream"
+      }
     }
   }
 
