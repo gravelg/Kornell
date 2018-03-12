@@ -287,7 +287,8 @@ object Entities {
     uuid: String = randUUID, name: String = null,
     courseUUID: String = null, versionCreatedAt: Date = new Date, distributionPrefix: String = null,
     state: EntityState = null, disabled: Boolean = false, parentVersionUUID: String = null,
-    instanceCount: Integer = 1, classroomJson: String = null, label: String = null, thumbUrl: String = null) = {
+    instanceCount: Integer = 1, classroomJson: String = null, classroomJsonPublished: String = null,
+    label: String = null, thumbUrl: String = null) = {
     val version = factory.newCourseVersion.as
     version.setUUID(uuid);
     version.setName(name);
@@ -299,6 +300,7 @@ object Entities {
     version.setParentVersionUUID(parentVersionUUID)
     version.setInstanceCount(instanceCount)
     version.setClassroomJson(classroomJson)
+    version.setClassroomJsonPublished(classroomJsonPublished)
     version.setLabel(label)
     version.setThumbUrl(thumbUrl)
     version

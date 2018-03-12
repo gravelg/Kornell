@@ -52,7 +52,7 @@ object ContentRepository {
     val visited = getVisited(enrollment)
     if (isWizard) {
       val courseVersion = CourseVersionsRepo.byCourseClassUUID(enrollment.getCourseClassUUID).get
-      WizardParser.parse(courseVersion.getClassroomJson, visited)
+      WizardParser.parse(courseVersion.getClassroomJsonPublished, visited)
     } else {
       val prefix = getPrefix(enrollment, person)
       val structureSrc = {

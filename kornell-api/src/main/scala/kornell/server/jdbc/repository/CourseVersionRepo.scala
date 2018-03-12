@@ -50,6 +50,7 @@ class CourseVersionRepo(uuid: String) {
       | c.parentVersionUUID = ${courseVersion.getParentVersionUUID},
       | c.instanceCount = ${courseVersion.getInstanceCount},
       | c.classroomJson = ${courseVersion.getClassroomJson},
+      | c.classroomJsonPublished = ${courseVersion.getClassroomJsonPublished},
       | c.label = ${courseVersion.getLabel},
       | c.thumbUrl = ${courseVersion.getThumbUrl}
       | where c.uuid = ${courseVersion.getUUID}""".executeUpdate

@@ -71,8 +71,10 @@ public class WizardView extends Composite {
     }
 
     public void iframeIsReady(String message) {
-        if(StringUtils.isSome(courseVersion.getClassroomJson())){
+        if (StringUtils.isSome(courseVersion.getClassroomJson())){
             sendIFrameMessage("classroomJsonLoad", courseVersion.getClassroomJson());
+        } else if(StringUtils.isSome(courseVersion.getClassroomJsonPublished())){
+            sendIFrameMessage("classroomJsonLoad", courseVersion.getClassroomJsonPublished());
         } else {
             sendIFrameMessage("classroomJsonNew", course.getName());
         }

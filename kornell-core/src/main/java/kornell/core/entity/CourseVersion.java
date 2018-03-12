@@ -26,6 +26,9 @@ public interface CourseVersion extends LearningEntity {
     String getClassroomJson();
     void setClassroomJson(String classroomJson);
 
+    String getClassroomJsonPublished();
+    void setClassroomJsonPublished(String classroomJsonPublished);
+
     String getLabel();
     void setLabel(String label);
 

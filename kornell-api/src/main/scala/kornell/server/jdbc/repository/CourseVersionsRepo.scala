@@ -84,6 +84,7 @@ object CourseVersionsRepo {
       cv.parentVersionUUID as parentVersionUUID,
       cv.instanceCount as instanceCount,
       cv.classroomJson as classroomJson,
+      cv.classroomJsonPublished as classroomJsonPublished,
       cv.label as label,
       cv.thumbUrl as courseVersionThumbUrl,
       c.uuid as courseUUID,
