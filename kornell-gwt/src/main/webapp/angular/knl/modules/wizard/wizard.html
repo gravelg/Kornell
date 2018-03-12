@@ -11,10 +11,10 @@
 		  	<div class="row">
 		  		<div class="col-sm-12">
 		  			<div class="tree-control-panel">
-					  	<a ng-disabled="blockPublishButton" uib-tooltip="Salvar" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" confirm-click="publishTree()" confirm-message="Confirma?">
-					    	<i class="fa fa-floppy-o"></i>
+					  	<a ng-disabled="blockPublishButton" uib-tooltip="Publicar Curso" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" ng-click="publishTree()">
+					    	<i class="fa fa-upload"></i>
 							</a>
-					  	<a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" confirm-click="discardTree()" confirm-message="Confirma?">
+					  	<a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" ng-click="discardTree()">
 					    	<i class="fa fa-times"></i>
 							</a>
 							<span ng-show="treeIsUnsaved">&nbsp;&nbsp;&nbsp;[ <i class="fa fa-asterisk changedFlagIcon"></i>&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;Alterações pendentes ]</span>
@@ -32,6 +32,17 @@
 	</div>
 	<div ng-if="innerWidth <= 991" class="row">
 	  <div class="scroll-body" slimscroll="{}">
+  		  <div class="col-sm-12">
+  			<div class="tree-control-panel">
+			  	<a ng-disabled="blockPublishButton" uib-tooltip="Publicar Curso" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" confirm-click="publishTree()" confirm-message="Confirma?">
+			    	<i class="fa fa-upload"></i>
+					</a>
+			  	<a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" confirm-click="discardTree()" confirm-message="Confirma?">
+			    	<i class="fa fa-times"></i>
+					</a>
+					<span ng-show="treeIsUnsaved">&nbsp;&nbsp;&nbsp;[ <i class="fa fa-asterisk changedFlagIcon"></i>&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;Alterações pendentes ]</span>
+  			</div>
+  		  </div>
 		  <div class="col-sm-12">
 				<div ng-include="'tree.html'"></div><br>
 				<div ng-include="'edit.html'"></div>
@@ -509,6 +520,21 @@
 	        Selecione o arquivo
 	        <input type="file" nv-file-select="" uploader="uploader" style="width: 80px;" />
         </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="confirmModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Confirmar operação</h3>
+    </div>
+    <div class="modal-body" id="modal-body">
+		  <div class="form-group formGroupModal">
+	      	<label ng-bind-html="$ctrl.resolve.message"></label>
+		  </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" confirm-click="$ctrl.close()" confirm-message="Tem certeza?">Confirmar</button>
+        <button class="btn btn-danger" type="button" ng-click="$ctrl.dismiss()">Cancelar</button>
     </div>
 </script>
 

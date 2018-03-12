@@ -118,19 +118,16 @@ app.controller('WizardController', [
       if($scope.blockPublishButton) {
         return;
       }
-      $scope.blockPublishButton = true;
-      $scope.savedRoot = angular.copy($scope.root);
-      $scope.verifyTree();
-      var contents = decodeURI(Base64.decode(localStorage.KNLwp));
-      $rootScope.postMessageToParentFrame("wizardPublish", contents);
-    }
-
-    $scope.saveTree = function() {
-      $scope.blockPublishButton = true;
-      $scope.savedRoot = angular.copy($scope.root);
-      $scope.verifyTree();
-      var contents = decodeURI(Base64.decode(localStorage.KNLwp));
-      $rootScope.postMessageToParentFrame("wizardSave", contents);
+      var publishTreeMessage = "Suas alterações até o momento foram salvas automaticamente, mas ainda não foram publicadas.<br><br>" +
+        "Tem certeza que deseja publicá-las? O conteúdo será imediatamente acessível para todos os participantes de turmas que utilizam essa versão. Essa operação não poderá ser desfeita.";
+      var publishTreeCallback = function(){
+        $scope.blockPublishButton = true;
+        $scope.savedRoot = angular.copy($scope.root);
+        $scope.verifyTree();
+        var contents = decodeURI(Base64.decode(localStorage.KNLwp));
+        $rootScope.postMessageToParentFrame("wizardPublish", contents);
+      };
+      $scope.confirmModal(publishTreeMessage, publishTreeCallback);
     };
 
     $scope.discardTree = function() {
@@ -138,10 +135,43 @@ app.controller('WizardController', [
       if($scope.blockPublishButton) {
         return;
       }
-      $scope.root = angular.copy($scope.savedRoot);
-      $scope.data = [$scope.root];
-      $scope.goToNode($scope.selectedNode.uuid);
-      $rootScope.sendKornellNotification("success", "As alterações foram descartadas com sucesso.");
+      var discardTreeMessage = "Tem certeza que deseja descartar TODAS as alterações desde a última publicação? Essa operação não poderá ser desfeita.";
+      var discardTreeCallback = function(){
+        $scope.blockPublishButton = true;
+        $scope.root = angular.copy($scope.savedRoot);
+        $scope.data = [$scope.root];
+        $scope.goToNode($scope.selectedNode.uuid);
+        $rootScope.postMessageToParentFrame("wizardDiscard", "");
+      };
+      $scope.confirmModal(discardTreeMessage, discardTreeCallback);
+    };
+
+    $scope.confirmModal = function(message, callback) {
+      var modalInstance = $uibModal.open({
+        animation: true,
+        component: 'confirmModal',
+        resolve: {
+          message: function() {
+            return message;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+        function (selectedType) {
+          callback();
+        },
+        function(){
+        }
+      );
+    };
+
+    $scope.saveTree = function() {
+      $scope.blockPublishButton = true;
+      $scope.savedRoot = angular.copy($scope.root);
+      $scope.verifyTree();
+      var contents = decodeURI(Base64.decode(localStorage.KNLwp));
+      $rootScope.postMessageToParentFrame("wizardSave", contents);
     };
 
     $scope.verifyTreeHelper = function() {
@@ -513,6 +543,32 @@ app.controller('WizardController', [
 //$scope.initWizard();
   }
 ]);
+
+
+app.component('confirmModal', {
+  templateUrl: 'confirmModal.html',
+  bindings: {
+    resolve: '<',
+    close: '&',
+    dismiss: '&'
+  },
+  controller: [
+    function () {
+      var $ctrl = this;
+
+      $ctrl.$onInit = function () {
+      };
+
+      $ctrl.ok = function () {
+          $ctrl.close({$value: 'ok'});
+      };
+
+      $ctrl.cancel = function () {
+          $ctrl.dismiss({$value: 'cancel'});
+      };
+    }
+  ]
+});
 
 
 app.component('addLectureModal', {
