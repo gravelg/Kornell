@@ -15,12 +15,15 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
+import kornell.core.entity.CourseVersion;
 import kornell.core.entity.InstitutionType;
 import kornell.core.lom.ExternalPage;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.event.ShowChatDockEvent;
 import kornell.gui.client.event.ShowChatDockEventHandler;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.view.Positioning;
 
 public class ExternalPageView extends Uidget implements ShowChatDockEventHandler {
@@ -38,6 +41,12 @@ public class ExternalPageView extends Uidget implements ShowChatDockEventHandler
         panel.getElement().appendChild(iframe);
         String url = page.getURL();
         String key = page.getKey();
+        if(session.getCurrentCourseClass() != null &&
+                ContentSpec.WIZARD.equals(session.getCurrentCourseClass().getCourseVersionTO().getCourseTO().getCourse().getContentSpec())){
+            CourseVersion courseVersion = session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion();
+            String classroomJson = StringUtils.isSome(courseVersion.getClassroomJsonPublished()) ? courseVersion.getClassroomJsonPublished() : courseVersion.getClassroomJson();
+            url += "&classroomInfo=" + ClientProperties.base64Encode(classroomJson);
+        }
         setSrc(url, key);
         initWidget(panel);
 

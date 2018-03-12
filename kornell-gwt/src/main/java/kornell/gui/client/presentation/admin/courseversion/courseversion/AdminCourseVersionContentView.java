@@ -11,8 +11,6 @@ public interface AdminCourseVersionContentView extends IsWidget {
         void init(CourseVersion courseVersion, Course course);
 
         AdminCourseVersionContentView getView();
-
-        void upsertCourseVersion(CourseVersion courseVersion, boolean goToListPlace);
     }
 
     void setPresenter(Presenter presenter);

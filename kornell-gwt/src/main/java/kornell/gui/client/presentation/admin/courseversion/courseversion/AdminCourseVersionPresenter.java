@@ -74,11 +74,6 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
 
     @Override
     public void upsertCourseVersion(CourseVersion courseVersion) {
-        upsertCourseVersion(courseVersion, true);
-    }
-
-    @Override
-    public void upsertCourseVersion(CourseVersion courseVersion, boolean goToListPlace) {
         if (courseVersion.getUUID() == null) {
             session.courseVersions().create(courseVersion, new Callback<CourseVersion>() {
                 @Override
@@ -101,9 +96,7 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
                 public void ok(CourseVersion courseVersion) {
                     bus.fireEvent(new ShowPacifierEvent(false));
                     KornellNotification.show("Alterações salvas com sucesso!");
-                    if (goToListPlace) {
-                        placeController.goTo(new AdminCourseVersionsPlace());
-                    }
+                    placeController.goTo(new AdminCourseVersionsPlace());
                 }
 
                 @Override

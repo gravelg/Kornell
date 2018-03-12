@@ -11,10 +11,10 @@
 		  	<div class="row">
 		  		<div class="col-sm-12">
 		  			<div class="tree-control-panel">
-					  	<a ng-disabled="!treeIsUnsaved" uib-tooltip="Salvar" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" confirm-click="saveTree()" confirm-message="Confirma?">
+					  	<a ng-disabled="blockPublishButton" uib-tooltip="Salvar" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" confirm-click="publishTree()" confirm-message="Confirma?">
 					    	<i class="fa fa-floppy-o"></i>
 							</a>
-					  	<a ng-disabled="!treeIsUnsaved" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" confirm-click="discardTree()" confirm-message="Confirma?">
+					  	<a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" confirm-click="discardTree()" confirm-message="Confirma?">
 					    	<i class="fa fa-times"></i>
 							</a>
 							<span ng-show="treeIsUnsaved">&nbsp;&nbsp;&nbsp;[ <i class="fa fa-asterisk changedFlagIcon"></i>&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;Alterações pendentes ]</span>

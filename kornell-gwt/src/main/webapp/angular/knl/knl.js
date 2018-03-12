@@ -65,8 +65,11 @@ app.run([
           });
         };
 
+        $rootScope.postMessageToParentFrame = function(messageType, message){
+            parent.postMessage({type: messageType, message: message}, $rootScope.domain);
+        };
 
-        $rootScope.sendNotification = function(notificationType, message){
+        $rootScope.sendKornellNotification = function(notificationType, message){
             parent.postMessage({
                 type: "kornellNotification", 
                 notificationType: notificationType, 

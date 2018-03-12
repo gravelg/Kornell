@@ -10,7 +10,7 @@ app.controller('LectureController', [
 	'knlUtils',
 	function($scope, $rootScope, $timeout, $location, knlUtils) {
 
-    var classroomInfo = JSON.parse(decodeURI(Base64.decode(window.isPreview ? localStorage.KNLwp : localStorage.KNLw)));
+    var classroomInfo = JSON.parse(decodeURI(Base64.decode(window.isPreview ? localStorage.KNLwp : $location.$$search.classroomInfo)));
 
     classroomInfo.lectures = [];
     angular.forEach(classroomInfo.modules, function(module){

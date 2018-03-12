@@ -9,8 +9,6 @@ public interface AdminCourseVersionView extends IsWidget {
     public interface Presenter extends IsWidget {
         void buildContentView(CourseVersion courseVersion, Course course);
 
-        void upsertCourseVersion(CourseVersion courseVersion, boolean goToListPlace);
-
         void upsertCourseVersion(CourseVersion courseVersion);
     }
 

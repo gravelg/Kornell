@@ -28,10 +28,6 @@ app.run([
         if($location.$$search && $location.$$search.preview === "1"){
             window.isPreview = true;
         }
-
-        if($location.$$search && $location.$$search.classroomPath){
-            $rootScope.classroomPath = $location.$$search.classroomPath;
-        }
         
         $rootScope.isDebug = (window.location.host.startsWith("localhost"));
         

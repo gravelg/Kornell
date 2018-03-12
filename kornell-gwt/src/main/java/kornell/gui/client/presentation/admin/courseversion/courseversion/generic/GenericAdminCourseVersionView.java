@@ -29,6 +29,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
 import kornell.core.entity.Course;
 import kornell.core.entity.CourseDetailsEntityType;
 import kornell.core.entity.CourseVersion;
@@ -105,7 +106,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
     private Course courseEntity;
 
     private KornellFormFieldWrapper name, course, distributionPrefix, disabled, parentCourseVersion, instanceCount,
-            label;
+    label;
 
     private List<KornellFormFieldWrapper> fields;
     private String courseVersionUUID;
@@ -145,8 +146,9 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 
     @Override
     public void init() {
-        if (initializing)
+        if (initializing) {
             return;
+        }
         initializing = true;
         asWidget().setVisible(false);
 
@@ -208,8 +210,9 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
             public void ok(CoursesTO to) {
                 createCoursesField(to);
                 asWidget().setVisible(true);
-                if (!isCreationMode)
+                if (!isCreationMode) {
                     ((ListBox) course.getFieldWidget()).setSelectedValue(courseVersion.getCourseUUID());
+                }
             }
         });
 
@@ -252,6 +255,11 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
             public void execute() {
                 showNavBar(!isCreationMode);
                 courseVersionFields.setVisible(true);
+                if(ContentSpec.WIZARD.equals(courseEntity.getContentSpec())){
+                    presenter.buildContentView(courseVersion, courseEntity);
+                    editTab.setActive(false);
+                    contentsTab.setActive(true);
+                }
             }
         });
 
@@ -319,9 +327,9 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
                 courses.addItem(courseTO.getCourse().getName(), courseTO.getCourse().getUUID());
             }
         } /*
-           * else { courses.addItem(courseVersion.getCourse().getTitle(),
-           * courseVersion.getCourse().getUUID()); }
-           */
+         * else { courses.addItem(courseVersion.getCourse().getTitle(),
+         * courseVersion.getCourse().getUUID()); }
+         */
         courses.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {

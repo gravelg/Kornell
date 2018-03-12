@@ -14,7 +14,7 @@ app.controller('WizardController', [
   'LECTURE_TYPES',
   function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, FileUploader, LECTURE_TYPES) {
 
-    parent.postMessage({type: "wizardReady", message: ""}, $scope.domain);
+    $rootScope.postMessageToParentFrame("wizardReady", "");
 
     window.addEventListener('message',function(event) {
       if(event.data.type === 'classroomJsonLoad'){
@@ -23,6 +23,8 @@ app.controller('WizardController', [
       } else if(event.data.type === 'classroomJsonNew') {
         $scope.newTree(event.data.message);
         $scope.initWizard();
+      } else if(event.data.type === 'classroomJsonSaved'){
+        $scope.blockPublishButton = false;
       }
     },false);
     
@@ -101,6 +103,9 @@ app.controller('WizardController', [
 
       $scope.$watch('root', function() {
         $scope.verifyTreeHelper();
+        if($scope.treeIsUnsaved) {
+          $scope.saveTree();
+        }
       }, true);
 
       $timeout(function(){
@@ -109,25 +114,41 @@ app.controller('WizardController', [
       
     };
 
-    $scope.saveTree = function() {
+    $scope.publishTree = function(){
+      if($scope.blockPublishButton) {
+        return;
+      }
+      $scope.blockPublishButton = true;
       $scope.savedRoot = angular.copy($scope.root);
       $scope.verifyTree();
       var contents = decodeURI(Base64.decode(localStorage.KNLwp));
-      parent.postMessage({type: "wizardSave", message: contents}, $scope.domain);
+      $rootScope.postMessageToParentFrame("wizardPublish", contents);
+    }
+
+    $scope.saveTree = function() {
+      $scope.blockPublishButton = true;
+      $scope.savedRoot = angular.copy($scope.root);
+      $scope.verifyTree();
+      var contents = decodeURI(Base64.decode(localStorage.KNLwp));
+      $rootScope.postMessageToParentFrame("wizardSave", contents);
     };
 
     $scope.discardTree = function() {
+      //TODO
+      if($scope.blockPublishButton) {
+        return;
+      }
       $scope.root = angular.copy($scope.savedRoot);
       $scope.data = [$scope.root];
       $scope.goToNode($scope.selectedNode.uuid);
-      $rootScope.sendNotification("success", "As alterações foram descartadas com sucesso.");
+      $rootScope.sendKornellNotification("success", "As alterações foram descartadas com sucesso.");
     };
 
     $scope.verifyTreeHelper = function() {
       if($scope.verifyTimer){
         $timeout.cancel($scope.verifyTimer);
       }
-      $scope.verifyTimer = $timeout($scope.verifyTree, 500);
+      $scope.verifyTimer = $timeout($scope.verifyTree, 1000);
     };
 
     $scope.verifyTree = function() {
@@ -344,8 +365,7 @@ app.controller('WizardController', [
       $scope.previewURL = $sce.trustAsResourceUrl(
         "knlClassroom/index.html#!/lecture" + 
         "?preview=1" + 
-        "&uuid=" + $scope.selectedNode.uuid +
-        "&classroomPath=/../knl/classroom");
+        "&uuid=" + $scope.selectedNode.uuid);
       var editPanel = $('#editPanel').get(0)
       editPanel && editPanel.scrollIntoView();
     };
@@ -447,7 +467,7 @@ app.controller('WizardController', [
 
     $scope.trimVimeoURL = function(){
       if($scope.selectedNode.id.indexOf('vimeo.com/') >= 0){
-        $rootScope.sendNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
+        $rootScope.sendKornellNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
         $scope.selectedNode.id = $scope.selectedNode.id.split('vimeo.com/')[1];
       }
     };
@@ -457,7 +477,7 @@ app.controller('WizardController', [
         var r, rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
         try {
           var url =  url.match(rx)[1];
-          $rootScope.sendNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
+          $rootScope.sendKornellNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
           return url;
         } catch(err){
           return url;
@@ -552,16 +572,16 @@ app.controller('FileController', [
         }
         uploader.requestUploadPath = false;
         fileItem.file.name = $rootScope.uuid() + '.' + fileExtension;
-        parent.postMessage({type: "requestUploadPath", message: fileItem.file.name}, $rootScope.domain);
+        $rootScope.postMessageToParentFrame("requestUploadPath", fileItem.file.name);
       } else {
-        $rootScope.sendNotification("error", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
+        $rootScope.sendKornellNotification("error", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
         uploader.queue = [];
       }
     };
 
     uploader.onBeforeUploadItem = function(item) {
       if(!uploader.requestUploadPath) {
-        $rootScope.sendNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+        $rootScope.sendKornellNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
         return;
       }
       if(uploader.queue.length == 1){
@@ -574,14 +594,14 @@ app.controller('FileController', [
     };
 
     uploader.onSuccessItem = function(fileItem, response, status, headers) {
-      $rootScope.sendNotification("success", "Upload concluído com sucesso.");
+      $rootScope.sendKornellNotification("success", "Upload concluído com sucesso.");
       $scope.modelAttribute = $scope.modelAttribute || 'id';
       $rootScope.selectedNode[$scope.modelAttribute] = fileItem.fullURL;
       uploader.queue = [];
     };
 
     uploader.onErrorItem = function(fileItem, response, status, headers) {
-      $rootScope.sendNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+      $rootScope.sendKornellNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
     };
 
     window.addEventListener('message',function(event) {
