@@ -59,7 +59,7 @@ app.controller('LectureController', [
 				$scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
 			}
 
-      if($scope.lecture.id && $scope.lecture.id.indexOf('/') == 0 && parent.location.hostname === 'localhost'){
+      if($scope.lecture.id && $scope.lecture.id.indexOf('/') == 0 && location.hostname === 'localhost'){
         $scope.prefixURL = 'http://localhost:8888';
       }
 

@@ -39,7 +39,7 @@ public class ExternalPageView extends Uidget implements ShowChatDockEventHandler
         createIFrame();
         panel.setStyleName("contentWrapper");
         panel.getElement().appendChild(iframe);
-        String url = page.getURL();
+        String url = StringUtils.mkurl("/", page.getURL());
         String key = page.getKey();
         if(session.getCurrentCourseClass() != null &&
                 ContentSpec.WIZARD.equals(session.getCurrentCourseClass().getCourseVersionTO().getCourseTO().getCourse().getContentSpec())){
@@ -47,7 +47,7 @@ public class ExternalPageView extends Uidget implements ShowChatDockEventHandler
             String classroomJson = StringUtils.isSome(courseVersion.getClassroomJsonPublished()) ? courseVersion.getClassroomJsonPublished() : courseVersion.getClassroomJson();
             url += "&classroomInfo=" + ClientProperties.base64Encode(classroomJson);
         }
-        setSrc(url, key);
+        iframe.setSrc(url);
         initWidget(panel);
 
         GenericClientFactoryImpl.EVENT_BUS.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
@@ -103,13 +103,6 @@ public class ExternalPageView extends Uidget implements ShowChatDockEventHandler
         }
         String height = h + "px";
         iframe.setPropertyString("height", height);
-    }
-
-    public void setSrc(final String src, final String actomKey) {
-        // TODO: Check if src exists
-        String mkurl = StringUtils.mkurl("/", src);
-        logger.info("Iframe source set to [" + mkurl + "]");
-        iframe.setSrc(mkurl);
     }
 
     @Override
