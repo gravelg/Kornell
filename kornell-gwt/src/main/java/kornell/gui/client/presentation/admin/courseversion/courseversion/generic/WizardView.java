@@ -85,7 +85,8 @@ public class WizardView extends Composite {
         courseVersion.setClassroomJson(wizardData);
         session.courseVersion(courseVersion.getUUID()).update(courseVersion, new Callback<CourseVersion>() {
             @Override
-            public void ok(CourseVersion courseVersion) {
+            public void ok(CourseVersion courseVersionSaved) {
+                courseVersion = courseVersionSaved;
                 sendIFrameMessage("classroomJsonSaved", "");
             }
         });
@@ -96,9 +97,22 @@ public class WizardView extends Composite {
         courseVersion.setClassroomJsonPublished(wizardData);
         session.courseVersion(courseVersion.getUUID()).update(courseVersion, new Callback<CourseVersion>() {
             @Override
-            public void ok(CourseVersion courseVersion) {
+            public void ok(CourseVersion courseVersionSaved) {
+                courseVersion = courseVersionSaved;
                 sendIFrameMessage("classroomJsonSaved", "");
                 KornellNotification.show("Publicação feita com sucesso.");
+            }
+        });
+    }
+
+    public void discardWizard() {
+        courseVersion.setClassroomJson(null);
+        session.courseVersion(courseVersion.getUUID()).update(courseVersion, new Callback<CourseVersion>() {
+            @Override
+            public void ok(CourseVersion courseVersionSaved) {
+                courseVersion = courseVersionSaved;
+                sendIFrameMessage("classroomJsonLoad", courseVersion.getClassroomJsonPublished());
+                KornellNotification.show("Alterações descartadas com sucesso.");
             }
         });
     }
@@ -131,6 +145,8 @@ public class WizardView extends Composite {
                 v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::saveWizard(Ljava/lang/String;)(e.data.message);
             } else if(e.data.type === "wizardPublish"){
                 v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::publishWizard(Ljava/lang/String;)(e.data.message);
+            } else if(e.data.type === "wizardDiscard"){
+                v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::discardWizard()();
             } else if(e.data.type === "requestUploadPath"){
                 v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::requestUploadPath(Ljava/lang/String;)(e.data.message);
             } else if(e.data.type === "kornellNotification"){
