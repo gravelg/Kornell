@@ -18,7 +18,7 @@ app.controller('WizardController', [
 
     window.addEventListener('message',function(event) {
       if(event.data.type === 'classroomJsonLoad'){
-        $scope.root = JSON.parse(event.data.message);
+        $scope.root = JSON.parse(decodeURI(Base64.decode(event.data.message)));
         $scope.initWizard();
       } else if(event.data.type === 'classroomJsonNew') {
         $scope.newTree(event.data.message);
