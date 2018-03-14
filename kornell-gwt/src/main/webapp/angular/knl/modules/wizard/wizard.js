@@ -124,7 +124,7 @@ app.controller('WizardController', [
         $scope.blockPublishButton = true;
         $scope.savedRoot = angular.copy($scope.root);
         $scope.verifyTree();
-        var contents = decodeURI(Base64.decode(localStorage.KNLwp));
+        var contents = localStorage.KNLwp;
         $rootScope.postMessageToParentFrame("wizardPublish", contents);
       };
       $scope.confirmModal(publishTreeMessage, publishTreeCallback);
@@ -170,7 +170,7 @@ app.controller('WizardController', [
       $scope.blockPublishButton = true;
       $scope.savedRoot = angular.copy($scope.root);
       $scope.verifyTree();
-      var contents = decodeURI(Base64.decode(localStorage.KNLwp));
+      var contents = localStorage.KNLwp;
       $rootScope.postMessageToParentFrame("wizardSave", contents);
     };
 

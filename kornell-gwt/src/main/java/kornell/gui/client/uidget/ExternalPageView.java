@@ -23,7 +23,6 @@ import kornell.core.util.StringUtils;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.event.ShowChatDockEvent;
 import kornell.gui.client.event.ShowChatDockEventHandler;
-import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.view.Positioning;
 
 public class ExternalPageView extends Uidget implements ShowChatDockEventHandler {
@@ -45,7 +44,7 @@ public class ExternalPageView extends Uidget implements ShowChatDockEventHandler
                 ContentSpec.WIZARD.equals(session.getCurrentCourseClass().getCourseVersionTO().getCourseTO().getCourse().getContentSpec())){
             CourseVersion courseVersion = session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion();
             String classroomJson = StringUtils.isSome(courseVersion.getClassroomJsonPublished()) ? courseVersion.getClassroomJsonPublished() : courseVersion.getClassroomJson();
-            url += "&classroomInfo=" + ClientProperties.base64Encode(classroomJson);
+            url += "&classroomInfo="+classroomJson;
         }
         iframe.setSrc(url);
         initWidget(panel);
