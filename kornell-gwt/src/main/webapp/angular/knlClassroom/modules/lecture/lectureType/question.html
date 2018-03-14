@@ -10,7 +10,8 @@
 	    border-color: #{{classroomInfo.colorTheme}} !important;
 	}
 	.question-header,
-	.question-option {
+	.question-option,
+	.question-alert {
 		color: #{{classroomInfo.colorFont}} !important;
 	}
 	.alert {
@@ -30,8 +31,8 @@
 			</div>
             <div id="resultWrapper">
 				<button type="button" id="solve" ng-click="solve()" class="btn btn-primary btn-sm">{{answerCorrect === true ? "AVANÇAR" : "VALIDAR"}}</button>	
-	        	<div ng-show="answerCorrect === true" class="alert alert-success" role="alert">Parabéns, acertou a resposta. Avance!</div>
-				<div ng-show="answerCorrect === false" class="alert alert-warning" role="alert">Releia as opções e tente novamente.</div>
+	        	<div ng-show="answerCorrect === true" class="alert question-alert">Parabéns, acertou a resposta. Avance!</div>
+				<div ng-show="answerCorrect === false" class="alert question-alert">Releia as opções e tente novamente.</div>
             </div>
 		</fieldset>
     </form>
