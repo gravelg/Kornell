@@ -55,13 +55,25 @@ app.controller('LectureController', [
         knlUtils.setAttribute(key, $scope.lecture.type);
       }
 
-			if($scope.classroomInfo.colorBackground){
-				$scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
-			}
-
       if($scope.lecture.id && $scope.lecture.id.indexOf('/') == 0 && location.hostname === 'localhost'){
         $scope.prefixURL = 'http://localhost:8888';
       }
+      if($scope.classroomInfo.colorBackground){
+        $scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
+      }
+			if($scope.lecture.imageBackground){
+        var prefix = '';
+        if($scope.lecture.imageBackground && $scope.lecture.imageBackground.indexOf('/') == 0 && location.hostname === 'localhost'){
+           prefix = 'http://localhost:8888';
+        }
+        $scope.bgStyle += 'background: url('+prefix+$scope.lecture.imageBackground+') no-repeat center center fixed;';
+      } else if($scope.classroomInfo.imageBackground){
+        var prefix = '';
+        if($scope.classroomInfo.imageBackground && $scope.classroomInfo.imageBackground.indexOf('/') == 0 && location.hostname === 'localhost'){
+           prefix = 'http://localhost:8888';
+        }
+        $scope.bgStyle += 'background: url('+prefix+$scope.classroomInfo.imageBackground+') no-repeat center center fixed;';
+      } 
 
       angular.forEach($scope.classroomInfo.modules, function(module){
           angular.forEach(module.lectures, function(lecture){

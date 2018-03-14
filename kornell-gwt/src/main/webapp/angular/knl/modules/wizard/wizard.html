@@ -81,7 +81,15 @@
 					      <input ng-model="selectedNode.title" class="form-control">
 					      <p class="help-block">Nome dessa aula. Esse nome aparecerá no cabeçalho da aula e no painel de detalhes do curso dentro da Eduvem.</p>
 					  </div>
-						<div ng-include="'editLecture_'+selectedNode.type+'.html'"></div>
+					  
+					  <div ng-include="'editLecture_'+selectedNode.type+'.html'"></div>
+
+					  <div class="form-group form-group-border-top">
+					      <label>Imagem do plano de fundo</label>
+      					  <input ng-model="selectedNode.imageBackground" class="form-control">
+					      <p class="help-block">Defina a imagem de plano de fundo para essa aula. Caso não seja definida, o plano de fundo será a imagem ou a cor definida na aula.</p>
+					  	  <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'imageBackground'"></div>
+					  </div>
 					</form>
         </div>
         <div class="tab-pane fade" ng-class="{active: selectedTab === 'preview', in: selectedTab === 'preview'}" ng-show="selectedTab === 'preview'">
@@ -111,7 +119,7 @@
       <label>Imagem</label>
       <input ng-model="selectedNode.id" class="form-control">
       <p class="help-block">URL da imagem que será mostrada. Cole acima a URL de uma imagem hospedada em outro site ou faça o upload abaixo.</p>
-      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'">
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'"></div>
   </div>
   <div class="form-group">
       <label>Texto</label>
@@ -130,7 +138,7 @@
       <label>Imagem do primeiro balão</label>
       <input ng-model="selectedNode.id" class="form-control">
       <p class="help-block">Imagem que aparecerá no primeiro balão.</p>
-      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'">
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'"></div>
   </div>
   <a class="btn btn-primary btn-sm" ng-click="selectedNode.has2 = true" ng-if="!selectedNode.has2">
     <i class="fa fa-trash-o"></i> Adicionar segundo balão
@@ -149,7 +157,7 @@
 	      <label>Imagem do segundo balão</label>
 	      <input ng-model="selectedNode.id2" class="form-control">
 	      <p class="help-block">Imagem que aparecerá no segundo balão.</p>
-      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'id2'">
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'id2'"></div>
 	  </div>
 	  <div class="form-group">
 	      <label>Cor da fonte do segundo balão</label>
@@ -190,13 +198,13 @@
       <label>Vídeo</label>
       <input ng-model="selectedNode.id" class="form-control">
       <p class="help-block">URL do vídeo que será mostrado. Cole acima a URL de um vídeo hospedado em outro site ou faça o upload abaixo.</p>
-      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'">
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'"></div>
   </div>
   <div class="form-group">
       <label>Vídeo em baixa qualidade (para dispositivos móveis)</label>
       <input ng-model="selectedNode.idLow" class="form-control">
       <p class="help-block">URL do vídeo que será mostrado. Cole acima a URL de um vídeo hospedado em outro site ou faça o upload abaixo.</p>
-      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'idLow'">
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'idLow'"></div>
   </div>
 </script>
 
@@ -326,29 +334,10 @@
 					      <p class="help-block">Nome que aparecerá no cabeçalho do curso.</p>
 					  </div>
 
-					  <!-- <div class="form-group" ng-show="hasVideoLectures">
-					      <label>Tamanhos disponíveis de vídeos</label>
-					      <input ng-model="selectedNode.availableVideoSizes" class="form-control">
-					      <div class="help-block">
-						      	<span>Caso faça upload de vídeos, esse campo é obrigatório. Para mais de um tamanho disponível, os valores devem ser separador por vírgula. Ex: "144,360,720". Os vídeos devem seguir o seguinte formato:</span>
-						      	<ul>
-						      		<li>nomeDoVideo_144p.mp4</li>
-						      		<li>nomeDoVideo_360p.mp4</li>
-						      		<li>nomeDoVideo_720p.mp4</li>
-						      	</ul>
-					      </div>
-					  </div> -->
-
 					  <div class="form-group">
 					      <label>Cor principal do tema</label>
 					  		<color-picker ng-model="selectedNode.colorTheme" options="colorPickeroptions"></color-picker>
 					      <p class="help-block">Essa será a cor usada para a barra do topo do curso, títulos, etc.</p>
-					  </div>
-
-					  <div class="form-group">
-					      <label>Cor do plano de fundo</label>
-					  		<color-picker ng-model="selectedNode.colorBackground" options="colorPickeroptions"></color-picker>
-					      <p class="help-block">Essa é a cor do plano de fundo de cada aula.</p>
 					  </div>
 
 					  <div class="form-group">
@@ -361,6 +350,19 @@
 					      <label>Cor da fonte secundária</label>
 					  		<color-picker ng-model="selectedNode.colorTitle" options="colorPickeroptions"></color-picker>
 					      <p class="help-block">Essa é a cor que será utilizada no texto dos títulos e em qualquer lugar que tenha a cor principal do tema no fundo.</p>
+					  </div>
+
+					  <div class="form-group">
+					      <label>Cor do plano de fundo</label>
+					  		<color-picker ng-model="selectedNode.colorBackground" options="colorPickeroptions"></color-picker>
+					      <p class="help-block">Essa é a cor do plano de fundo de cada aula.</p>
+					  </div>
+
+					  <div class="form-group">
+					      <label>Imagem do plano de fundo</label>
+      					  <input ng-model="selectedNode.imageBackground" class="form-control">
+					      <p class="help-block">Se uma imagem for definida, ela terá prioridade sobre a cor definida acima. Além disso, a imagem aparecerá em todas as aulas que não tiverem sua própria imagem de plano de fundo definida.</p>
+					  	  <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'imageBackground'"></div>
 					  </div>
 
 					  <!-- <div class="form-group" ng-show="hasVimeoLectures || hasYoutubeLectures">
