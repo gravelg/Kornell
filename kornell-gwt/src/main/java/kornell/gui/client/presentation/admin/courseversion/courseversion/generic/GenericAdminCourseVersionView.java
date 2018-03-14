@@ -177,7 +177,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 
     public void initData() {
 
-        if (isPlatformAdmin) {
+        if (isInstitutionAdmin) {
             contentsTab.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -255,7 +255,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
             public void execute() {
                 showNavBar(!isCreationMode);
                 courseVersionFields.setVisible(true);
-                if(ContentSpec.WIZARD.equals(courseEntity.getContentSpec())){
+                if(!isCreationMode && ContentSpec.WIZARD.equals(courseEntity.getContentSpec())){
                     presenter.buildContentView(courseVersion, courseEntity);
                     editTab.setActive(false);
                     contentsTab.setActive(true);
