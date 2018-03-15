@@ -387,6 +387,14 @@ app.controller('WizardController', [
       }
     };
 
+    $scope.refreshSlimScroll = function () {
+      $timeout(function(){
+        $('#editPanelScroll').slimScroll({
+            alwaysVisible: true
+        });
+      });
+    }
+
     $scope.edit = function (scope) {
       $rootScope.selectedNode = scope.$modelValue;
       $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, true);
@@ -398,6 +406,7 @@ app.controller('WizardController', [
         "&uuid=" + $scope.selectedNode.uuid);
       var editPanel = $('#editPanel').get(0)
       editPanel && editPanel.scrollIntoView();
+      $scope.refreshSlimScroll();
     };
 
     $scope.remove = function () {

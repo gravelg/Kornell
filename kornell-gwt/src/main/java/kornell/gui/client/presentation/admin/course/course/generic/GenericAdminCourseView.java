@@ -129,8 +129,9 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
         bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
             @Override
             public void onPlaceChange(PlaceChangeEvent event) {
-                if (event.getNewPlace() instanceof AdminCoursePlace && !initializing)
+                if (event.getNewPlace() instanceof AdminCoursePlace && !initializing) {
                     init();
+                }
             }
         });
     }
@@ -217,9 +218,9 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
         courseFields.add(description);
 
         final ListBox contentSpecTypes = new ListBox();
-        contentSpecTypes.addItem("KNL", ContentSpec.KNL.toString());
+        contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
         contentSpecTypes.addItem("SCORM12", ContentSpec.SCORM12.toString());
-        // contentSpecTypes.addItem("WIZARD", ContentSpec.WIZARD.toString());
+        contentSpecTypes.addItem("KNL", ContentSpec.KNL.toString());
         if (!isCreationMode) {
             contentSpecTypes.setSelectedValue(course.getContentSpec().toString());
         }

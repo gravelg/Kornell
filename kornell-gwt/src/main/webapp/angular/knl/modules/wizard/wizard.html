@@ -25,7 +25,7 @@
 			</div>
 	  </div>
 	  <div class="col-md-9 noPadding">
-		  <div class="scroll-body" slimscroll="{}" id="editPanelScroll">
+		  <div class="scroll-body" slimscroll="{alwaysVisible:true}" id="editPanelScroll">
 				<div ng-include="'edit.html'" id="editPanel"></div>
 			</div>
 	  </div>
@@ -66,8 +66,8 @@
 	<div class="panel panel-default">
     <div class="panel-body">
       <ul class="nav nav-tabs" style="margin-bottom: 15px;">
-        <li class="" ng-class="{active: selectedTab === 'edit'}"><a ng-click="$root.selectedTab = 'edit'" data-toggle="tab">Editar</a></li>
-        <li class="" ng-class="{active: selectedTab === 'preview'}"><a ng-click="$root.selectedTab = 'preview'" data-toggle="tab">Visualizar</a></li>
+        <li class="" ng-class="{active: selectedTab === 'edit'}"><a ng-click="$root.selectedTab = 'edit';refreshSlimScroll()" data-toggle="tab">Editar</a></li>
+        <li class="" ng-class="{active: selectedTab === 'preview'}"><a ng-click="$root.selectedTab = 'preview';refreshSlimScroll()" data-toggle="tab">Visualizar</a></li>
 		    <a uib-tooltip="Remover aula" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
 		    	<i class="fa fa-trash-o"></i>
 				</a>
@@ -160,7 +160,7 @@
       <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'id2'"></div>
 	  </div>
 	  <div class="form-group">
-	      <label>Cor da fonte do segundo balão</label>
+	      <label>Cor do plano de fundo do segundo balão</label>
 	  		<color-picker ng-model="selectedNode.color2" options="colorPickeroptions"></color-picker>
 	      <p class="help-block">Essa é a cor que será utilizada para o segundo balão.</p>
 	  </div>

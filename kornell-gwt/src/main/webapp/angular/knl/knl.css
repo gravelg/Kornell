@@ -13,7 +13,7 @@ table, .table {
 
 .slimScrollDiv, .scroll-body {
     height: calc(100vh - 0px) !important;
-}
+}    
 
 .noPadding {
     padding-left: 0px;
