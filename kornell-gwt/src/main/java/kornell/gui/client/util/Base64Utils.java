@@ -1,12 +1,12 @@
 /*
  * Copyright 2009 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -29,7 +29,7 @@ public class Base64Utils {
     private static final char[] base64Chars = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
             'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
             'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1',
-            '2', '3', '4', '5', '6', '7', '8', '9', '$', '_' };
+            '2', '3', '4', '5', '6', '7', '8', '9', '+', '/' };
 
     /**
      * An array mapping legal base 64 characters [a-zA-Z0-9$_] to their
@@ -51,7 +51,7 @@ public class Base64Utils {
 
     /**
      * Decode a base64 string into a byte array.
-     * 
+     *
      * @param data
      *            the encoded data.
      * @return a byte array.
@@ -126,7 +126,7 @@ public class Base64Utils {
      * padded with zeros. Each 24-bit chunk is encoded as 4 characters from the
      * sequence [A-Za-z0-9$_]. If one of the source positions consists entirely
      * of padding zeros, an '=' character is used instead.
-     * 
+     *
      * @param data
      *            a byte array, which may be null or empty
      * @return a String

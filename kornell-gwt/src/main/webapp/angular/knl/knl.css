@@ -203,6 +203,14 @@ label {
     display: block;
 }
 
+input[type="file"]{
+    width: 125px;
+}
+
+input[type="file"]::-webkit-file-upload-button{
+    width: 125px;
+}
+
 .formGroupModal{
     border: 0;
     margin: 0;

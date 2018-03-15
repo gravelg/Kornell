@@ -67,8 +67,9 @@ public class ClientProperties {
         if (cookieName != null) {
             Cookies.setCookie(cookieName, locale, format.parse("01/01/2030"));
         }
-        if (localeCookie != null && !localeCookie.equals(locale))
+        if (localeCookie != null && !localeCookie.equals(locale)) {
             com.google.gwt.user.client.Window.Location.reload();
+        }
     }
 
     public static void setCookie(String name, String value, Date expires) {
@@ -99,21 +100,21 @@ public class ClientProperties {
     };
 
     public static String base64Decode(String base64) {
-        return new String(Base64Utils.fromBase64(base64));
+        return new String(Base64Utils.fromBase64(base64.replace('$', '+').replace('_', '/')));
     }
 
     private static native String getPropertyNative(String propertiesStr, String propertyName) /*-{
         var propertiesObj = JSON.parse(propertiesStr);
         return propertiesObj[propertyName] || null;
     }-*/;
-    
+
     private static native String getPropertiesUpdatedNative(String propertiesStr, String propertyName, String propertyValue) /*-{
         var propertiesObj = JSON.parse(propertiesStr);
         propertiesObj[propertyName] = propertyValue;
         var propertiesStr = JSON.stringify(propertiesObj);
         return propertiesStr;
     }-*/;
-    
+
     private static native String deletePropertyNative(String propertiesStr, String propertyName) /*-{
         var propertiesObj = JSON.parse(propertiesStr);
         delete propertiesObj[propertyName];
