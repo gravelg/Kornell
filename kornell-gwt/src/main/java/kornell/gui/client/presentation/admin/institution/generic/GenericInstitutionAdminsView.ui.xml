@@ -1,17 +1,32 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui' xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
 
-  <g:FlowPanel addStyleNames="multiSelect">
-		<g:HTMLPanel addStyleNames="title">Editar Administradores da Instituição</g:HTMLPanel>
-		<g:Label addStyleNames="subTitle">Escolha na lista abaixo os administradores da instituição. Os administradores da instituição podem alterar as configurações da turma, adicionar novos administradores de turma, criar turmas, matricular alunos e responder as mensagens da turma.</g:Label>
-		<b:Form ui:field="form" addStyleNames="profileForm">
-			<g:FlowPanel ui:field="adminsFields" addStyleNames="fieldsWrapper marginTop25">		
-			</g:FlowPanel>		
-			<g:FlowPanel addStyleNames="standardButtonBar">
-				<g:Button ui:field="btnOK" addStyleNames="btnAction btnStandard"/>
-				<g:Button ui:field="btnCancel" addStyleNames="btnNotSelected btnStandard"/>
-			</g:FlowPanel>
-		</b:Form>		
+  <g:FlowPanel addStyleNames="rolesAdmin">
+	  <g:FlowPanel addStyleNames="multiSelect">
+			<g:HTMLPanel addStyleNames="title">Editar Administradores da Instituição</g:HTMLPanel>
+			<g:Label addStyleNames="subTitle">Escolha na lista abaixo os administradores da instituição. Os administradores da instituição podem alterar as configurações da turma, adicionar novos administradores de turma, criar turmas, matricular alunos e responder as mensagens da turma.</g:Label>
+			<b:Form ui:field="institutionAdminForm" addStyleNames="profileForm">
+				<g:FlowPanel ui:field="institutionAdminFields" addStyleNames="fieldsWrapper marginTop25">
+				</g:FlowPanel>
+				<g:FlowPanel addStyleNames="standardButtonBar">
+					<g:Button ui:field="institutionAdminBtnOK" addStyleNames="btnAction btnStandard"/>
+					<g:Button ui:field="institutionAdminBtnCancel" addStyleNames="btnNotSelected btnStandard"/>
+				</g:FlowPanel>
+			</b:Form>
+		</g:FlowPanel>
+
+		<g:FlowPanel addStyleNames="multiSelect">
+			<g:HTMLPanel addStyleNames="title">Editar publicadores de conteúdo</g:HTMLPanel>
+			<g:Label addStyleNames="subTitle">Escolha na lista abaixo os publicadores de conteúdo. Os publicadores de conteúdo podem alterar as configurações e conteúdos de cursos e versões.</g:Label>
+			<b:Form ui:field="publisherForm" addStyleNames="profileForm">
+				<g:FlowPanel ui:field="publisherFields" addStyleNames="fieldsWrapper marginTop25">
+				</g:FlowPanel>
+				<g:FlowPanel addStyleNames="standardButtonBar">
+					<g:Button ui:field="publisherBtnOK" addStyleNames="btnAction btnStandard"/>
+					<g:Button ui:field="publisherBtnCancel" addStyleNames="btnNotSelected btnStandard"/>
+				</g:FlowPanel>
+			</b:Form>
+		</g:FlowPanel>
 	</g:FlowPanel>
 
 </ui:UiBinder>

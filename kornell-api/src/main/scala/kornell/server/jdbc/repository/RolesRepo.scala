@@ -63,6 +63,16 @@ object RolesRepo {
       | order by r.role, pw.username
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
+  def getPublishers(institutionUUID: String, bindMode: String) =
+    TOs.newRolesTO(sql"""
+      | select *, pw.username, null as courseClassName
+      | from Role r
+      | join Password pw on pw.personUUID = r.personUUID
+      | where r.institutionUUID = ${institutionUUID}
+      | and r.role = ${RoleType.publisher.toString}
+      | order by r.role, pw.username
+    """.map[RoleTO](toRoleTO(_, bindMode)))
+
   def getPlatformAdmins(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
       | select *, pw.username, null as courseClassName
@@ -149,6 +159,19 @@ object RolesRepo {
     roles
   }
 
+  def updatePublishers(institutionUUID: String, roles: Roles) = {
+    val from = getPublishers(institutionUUID, RoleCategory.BIND_DEFAULT)
+
+    removePublishers(institutionUUID).addRoles(roles)
+
+    val to = getPublishers(institutionUUID, RoleCategory.BIND_DEFAULT)
+
+    //log entity change
+    EventsRepo.logEntityChange(institutionUUID, AuditedEntityType.publisher, institutionUUID, from, to)
+
+    roles
+  }
+
   def addRoles(roles: Roles) = {
     roles.getRoles.asScala.foreach(create _)
     roles
@@ -177,6 +200,16 @@ object RolesRepo {
         ${role.getInstitutionAdminRole.getInstitutionUUID})
       """.executeUpdate
     }
+
+    if (RoleType.publisher.equals(role.getRoleType)) {
+      sql"""
+        insert into Role (uuid, personUUID, role, institutionUUID) values (
+        ${role.getUUID},
+        ${role.getPersonUUID},
+        ${role.getRoleType.toString},
+        ${role.getPublisherRole.getInstitutionUUID})
+      """.executeUpdate
+    }
   }
 
   def removeCourseClassRole(courseClassUUID: String, roleType: RoleType) = {
@@ -193,6 +226,15 @@ object RolesRepo {
         delete from Role
         where institutionUUID = ${institutionUUID}
         and role = ${RoleType.institutionAdmin.toString}
+    """.executeUpdate
+    this
+  }
+
+  def removePublishers(institutionUUID: String) = {
+    sql"""
+        delete from Role
+        where institutionUUID = ${institutionUUID}
+        and role = ${RoleType.publisher.toString}
     """.executeUpdate
     this
   }

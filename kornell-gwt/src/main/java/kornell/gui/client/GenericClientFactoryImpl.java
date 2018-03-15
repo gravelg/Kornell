@@ -41,6 +41,7 @@ import kornell.gui.client.personnel.Dean;
 import kornell.gui.client.personnel.MrPostman;
 import kornell.gui.client.personnel.Stalker;
 import kornell.gui.client.presentation.admin.courseclass.courseclasses.AdminCourseClassesPlace;
+import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminCourseVersionsPlace;
 import kornell.gui.client.presentation.classroom.ClassroomPlace;
 import kornell.gui.client.presentation.vitrine.VitrinePlace;
 import kornell.gui.client.presentation.welcome.WelcomePlace;
@@ -183,7 +184,7 @@ public class GenericClientFactoryImpl implements ClientFactory {
                 String id = dots[0];
                 String[] slashes = id.split("-");
                 if (slashes.length > 0) { // @TODO and is followed by only
-                                          // numbers
+                    // numbers
                     institutionName = slashes[0];
                 }
             }
@@ -203,7 +204,9 @@ public class GenericClientFactoryImpl implements ClientFactory {
     }
 
     private void pickDefaultPlace() {
-        if (KORNELL_SESSION.hasAnyAdminRole()) {
+        if (KORNELL_SESSION.hasPublishingRole()) {
+            setDefaultPlace(new AdminCourseVersionsPlace());
+        } else if (KORNELL_SESSION.hasAnyAdminRole()) {
             setDefaultPlace(new AdminCourseClassesPlace());
         } else if (InstitutionType.DASHBOARD.equals(KORNELL_SESSION.getInstitution().getInstitutionType())) {
             setDefaultPlace(getHomePlace());

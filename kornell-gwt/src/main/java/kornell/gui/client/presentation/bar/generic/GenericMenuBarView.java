@@ -45,8 +45,8 @@ import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEvent;
 import kornell.gui.client.event.UnreadMessagesPerThreadFetchedEventHandler;
 import kornell.gui.client.mvp.PlaceUtils;
 import kornell.gui.client.presentation.admin.AdminPlace;
-import kornell.gui.client.presentation.admin.course.courses.AdminCoursesPlace;
 import kornell.gui.client.presentation.admin.courseclass.courseclasses.AdminCourseClassesPlace;
+import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminCourseVersionsPlace;
 import kornell.gui.client.presentation.bar.MenuBarView;
 import kornell.gui.client.presentation.classroom.ClassroomPlace;
 import kornell.gui.client.presentation.message.MessagePlace;
@@ -60,7 +60,7 @@ import kornell.gui.client.util.easing.Updater;
 import kornell.gui.client.util.view.Positioning;
 
 public class GenericMenuBarView extends Composite implements MenuBarView, UnreadMessagesPerThreadFetchedEventHandler,
-        UnreadMessagesCountChangedEventHandler, CourseClassesFetchedEventHandler, ShowPacifierEventHandler {
+UnreadMessagesCountChangedEventHandler, CourseClassesFetchedEventHandler, ShowPacifierEventHandler {
 
     Logger logger = Logger.getLogger(GenericMenuBarView.class.getName());
 
@@ -166,8 +166,9 @@ public class GenericMenuBarView extends Composite implements MenuBarView, Unread
                 placeBar.clear();
             }
             showButtons(place);
-            if (isVisible())
+            if (isVisible()) {
                 return;
+            }
             final Widget widget = this.asWidget();
             final int point = (showingPlacePanel ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR);
             widget.getElement().getStyle().setProperty("top", (point * -1) + "px");
@@ -186,30 +187,34 @@ public class GenericMenuBarView extends Composite implements MenuBarView, Unread
     }
 
     private void loadAssets() {
-        if (isLoaded)
+        if (isLoaded) {
             return;
+        }
 
         if (StringUtils.isNone(imgMenuBar.getUrl())) {
             imgMenuBar.setUrl(imgMenuBarUrl);
         }
 
         Timer screenfulJsTimer = new Timer() {
+            @Override
             public void run() {
                 ScriptInjector.fromUrl(mkurl(ClientConstants.JS_PATH, "screenfull.min.js"))
-                        .setCallback(new com.google.gwt.core.client.Callback<Void, Exception>() {
-                            public void onFailure(Exception reason) {
-                                logger.severe("Screeenful script load failed.");
-                            }
+                .setCallback(new com.google.gwt.core.client.Callback<Void, Exception>() {
+                    @Override
+                    public void onFailure(Exception reason) {
+                        logger.severe("Screeenful script load failed.");
+                    }
 
-                            public void onSuccess(Void result) {
-                                isLoaded = true;
-                            }
-                        }).setWindow(ScriptInjector.TOP_WINDOW).inject();
+                    @Override
+                    public void onSuccess(Void result) {
+                        isLoaded = true;
+                    }
+                }).setWindow(ScriptInjector.TOP_WINDOW).inject();
             }
         };
 
         // wait 2 secs before loading the javascript file
-        screenfulJsTimer.schedule((int) (2 * 1000));
+        screenfulJsTimer.schedule(2 * 1000);
     }
 
     private void showButtons(Place newPlace) {
@@ -256,6 +261,7 @@ public class GenericMenuBarView extends Composite implements MenuBarView, Unread
         }
     }
 
+    @Override
     public void display() {
         if (Window.Location.getHostName().indexOf("-test.ed") >= 0
                 || Window.Location.getHostName().indexOf("-homolog.ed") >= 0) {
@@ -316,7 +322,7 @@ public class GenericMenuBarView extends Composite implements MenuBarView, Unread
     @UiHandler("btnAdmin")
     void handleAdmin(ClickEvent e) {
         if (clientFactory.getKornellSession().isPublisher()) {
-            clientFactory.getPlaceController().goTo(new AdminCoursesPlace());
+            clientFactory.getPlaceController().goTo(new AdminCourseVersionsPlace());
         } else {
             clientFactory.getPlaceController().goTo(new AdminCourseClassesPlace());
         }
@@ -346,6 +352,7 @@ public class GenericMenuBarView extends Composite implements MenuBarView, Unread
         return visible;
     }
 
+    @Override
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
@@ -364,8 +371,9 @@ public class GenericMenuBarView extends Composite implements MenuBarView, Unread
 
     @Override
     public void onUnreadMessagesPerThreadFetched(UnreadMessagesPerThreadFetchedEvent event) {
-        if (event.getUnreadChatThreadTOs().size() > 0 && !btnMessages.isVisible())
+        if (event.getUnreadChatThreadTOs().size() > 0 && !btnMessages.isVisible()) {
             btnMessages.setVisible(true);
+        }
         int count = 0;
         for (UnreadChatThreadTO unreadChatThreadTO : event.getUnreadChatThreadTOs()) {
             count = count + Integer.parseInt(unreadChatThreadTO.getUnreadMessages());
