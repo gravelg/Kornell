@@ -1,13 +1,12 @@
 package kornell.gui.client.uidget;
 
-import java.util.logging.Logger;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.IFrameElement;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.place.shared.PlaceChangeEvent;
+import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
@@ -23,10 +22,10 @@ import kornell.core.util.StringUtils;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.event.ShowChatDockEvent;
 import kornell.gui.client.event.ShowChatDockEventHandler;
+import kornell.gui.client.util.ClientProperties;
 import kornell.gui.client.util.view.Positioning;
 
 public class ExternalPageView extends Uidget implements ShowChatDockEventHandler {
-    private static final Logger logger = Logger.getLogger(ExternalPageView.class.getName());
     private IFrameElement iframe;
 
     FlowPanel panel = new FlowPanel();
@@ -39,11 +38,11 @@ public class ExternalPageView extends Uidget implements ShowChatDockEventHandler
         panel.setStyleName("contentWrapper");
         panel.getElement().appendChild(iframe);
         String url = StringUtils.mkurl("/", page.getURL());
-        String key = page.getKey();
         if(session.getCurrentCourseClass() != null &&
                 ContentSpec.WIZARD.equals(session.getCurrentCourseClass().getCourseVersionTO().getCourseTO().getCourse().getContentSpec())){
             CourseVersion courseVersion = session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion();
             String classroomJson = StringUtils.isSome(courseVersion.getClassroomJsonPublished()) ? courseVersion.getClassroomJsonPublished() : courseVersion.getClassroomJson();
+            classroomJson = ClientProperties.base64Encode(UriUtils.encode(classroomJson));
             url += "&classroomInfo="+classroomJson;
         }
         iframe.setSrc(url);
