@@ -53,7 +53,7 @@ public class AdminCoursesPresenter extends PaginationPresenterImpl<CourseTO> imp
     }
 
     private void init() {
-        if (session.isInstitutionAdmin()) {
+        if (session.hasPublishingRole()) {
             initializeProperties("c.name");
             view = getView();
             view.setPresenter(this);
@@ -114,32 +114,32 @@ public class AdminCoursesPresenter extends PaginationPresenterImpl<CourseTO> imp
 
             confirmModal.showModal("Tem certeza que deseja excluir o curso \"" + courseTO.getCourse().getName() + "\"?",
                     new com.google.gwt.core.client.Callback<Void, Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    bus.fireEvent(new ShowPacifierEvent(true));
+                    session.course(courseTO.getCourse().getUUID()).delete(new Callback<Course>() {
                         @Override
-                        public void onSuccess(Void result) {
-                            bus.fireEvent(new ShowPacifierEvent(true));
-                            session.course(courseTO.getCourse().getUUID()).delete(new Callback<Course>() {
-                                @Override
-                                public void ok(Course to) {
-                                    blockActions = false;
-                                    bus.fireEvent(new ShowPacifierEvent(false));
-                                    KornellNotification.show("Curso excluído com sucesso.");
-                                    updateData();
-                                }
-
-                                @Override
-                                public void internalServerError(KornellErrorTO error) {
-                                    blockActions = false;
-                                    bus.fireEvent(new ShowPacifierEvent(false));
-                                    KornellNotification.show("Erro ao tentar excluir o curso.", AlertType.ERROR);
-                                }
-                            });
+                        public void ok(Course to) {
+                            blockActions = false;
+                            bus.fireEvent(new ShowPacifierEvent(false));
+                            KornellNotification.show("Curso excluído com sucesso.");
+                            updateData();
                         }
 
                         @Override
-                        public void onFailure(Void reason) {
+                        public void internalServerError(KornellErrorTO error) {
                             blockActions = false;
+                            bus.fireEvent(new ShowPacifierEvent(false));
+                            KornellNotification.show("Erro ao tentar excluir o curso.", AlertType.ERROR);
                         }
                     });
+                }
+
+                @Override
+                public void onFailure(Void reason) {
+                    blockActions = false;
+                }
+            });
         }
     }
 

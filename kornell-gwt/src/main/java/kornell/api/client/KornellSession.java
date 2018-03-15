@@ -47,6 +47,14 @@ public class KornellSession extends KornellClient {
         return isInstitutionAdmin(institution.getUUID());
     }
 
+    public boolean isPublisher() {
+        return isValidRole(RoleType.publisher, institution.getUUID(), null);
+    }
+
+    public boolean hasPublishingRole() {
+        return isPublisher() || isInstitutionAdmin();
+    }
+
     public boolean hasCourseClassRole(String courseClassUUID) {
         return isCourseClassAdmin(courseClassUUID) || isCourseClassObserver(courseClassUUID)
                 || isCourseClassTutor(courseClassUUID);
@@ -61,11 +69,13 @@ public class KornellSession extends KornellClient {
     }
 
     public boolean isCourseClassAdmin() {
-        if (currentCourseClass == null)
+        if (currentCourseClass == null) {
             return false;
+        }
         CourseClass courseClass = currentCourseClass.getCourseClass();
-        if (courseClass == null)
+        if (courseClass == null) {
             return false;
+        }
         String courseClassUUID = courseClass.getUUID();
         return isCourseClassAdmin(courseClassUUID);
     }
@@ -75,11 +85,13 @@ public class KornellSession extends KornellClient {
     }
 
     public boolean isCourseClassObserver() {
-        if (currentCourseClass == null)
+        if (currentCourseClass == null) {
             return false;
+        }
         CourseClass courseClass = currentCourseClass.getCourseClass();
-        if (courseClass == null)
+        if (courseClass == null) {
             return false;
+        }
         String courseClassUUID = courseClass.getUUID();
         return isCourseClassObserver(courseClassUUID);
     }
@@ -89,27 +101,32 @@ public class KornellSession extends KornellClient {
     }
 
     public boolean isCourseClassTutor() {
-        if (currentCourseClass == null)
+        if (currentCourseClass == null) {
             return false;
+        }
         CourseClass courseClass = currentCourseClass.getCourseClass();
-        if (courseClass == null)
+        if (courseClass == null) {
             return false;
+        }
         String courseClassUUID = courseClass.getUUID();
         return isCourseClassTutor(courseClassUUID);
     }
 
     public boolean hasAnyAdminRole() {
-        if (currentUser == null)
+        if (currentUser == null) {
             return false;
+        }
         List<RoleTO> roleTOs = currentUser.getRoles();
         return (RoleCategory.hasRole(roleTOs, RoleType.courseClassAdmin)
                 || RoleCategory.hasRole(roleTOs, RoleType.observer) || RoleCategory.hasRole(roleTOs, RoleType.tutor)
+                || isPublisher()
                 || isInstitutionAdmin());
     }
 
     private boolean isValidRole(RoleType type, String institutionUUID, String courseClassUUID) {
-        if (currentUser == null)
+        if (currentUser == null) {
             return false;
+        }
         return RoleCategory.isValidRole(currentUser.getRoles(), type, institutionUUID, courseClassUUID);
     }
 

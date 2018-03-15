@@ -29,7 +29,7 @@ import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.table.PaginationPresenterImpl;
 
 public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseClassTO>
-        implements AdminCourseClassesView.Presenter {
+implements AdminCourseClassesView.Presenter {
     Logger logger = Logger.getLogger(AdminCourseClassesPresenter.class.getName());
     private AdminCourseClassesView view;
     FormHelper formHelper;
@@ -61,6 +61,7 @@ public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseC
         if (RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassAdmin)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
+                || session.isPublisher()
                 || session.isInstitutionAdmin()) {
             initializeProperties("cc.name");
             view = getView();
@@ -78,14 +79,14 @@ public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseC
         bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClasses().getAdministratedCourseClassesTOPaged(pageSize, pageNumber, searchTerm, orderBy, asc,
                 new Callback<CourseClassesTO>() {
-                    @Override
-                    public void ok(CourseClassesTO to) {
-                        courseClassesTO = to;
-                        view.setCourseClasses(courseClassesTO.getCourseClasses());
-                        bus.fireEvent(new ShowPacifierEvent(false));
-                        updateProperties();
-                    }
-                });
+            @Override
+            public void ok(CourseClassesTO to) {
+                courseClassesTO = to;
+                view.setCourseClasses(courseClassesTO.getCourseClasses());
+                bus.fireEvent(new ShowPacifierEvent(false));
+                updateProperties();
+            }
+        });
     }
 
     @Override
@@ -129,23 +130,23 @@ public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseC
                         public void onSuccess(Void result) {
                             bus.fireEvent(new ShowPacifierEvent(true));
                             session.courseClass(courseClassTO.getCourseClass().getUUID())
-                                    .delete(new Callback<CourseClass>() {
-                                        @Override
-                                        public void ok(CourseClass to) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show("Turma excluída com sucesso.");
-                                            updateData();
-                                        }
+                            .delete(new Callback<CourseClass>() {
+                                @Override
+                                public void ok(CourseClass to) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Turma excluída com sucesso.");
+                                    updateData();
+                                }
 
-                                        @Override
-                                        public void internalServerError(KornellErrorTO error) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show("Erro ao tentar excluir a turma.",
-                                                    AlertType.ERROR);
-                                        }
-                                    });
+                                @Override
+                                public void internalServerError(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Erro ao tentar excluir a turma.",
+                                            AlertType.ERROR);
+                                }
+                            });
                         }
 
                         @Override
@@ -169,33 +170,33 @@ public class AdminCourseClassesPresenter extends PaginationPresenterImpl<CourseC
                         public void onSuccess(Void result) {
                             bus.fireEvent(new ShowPacifierEvent(true));
                             session.courseClass(courseClassTO.getCourseClass().getUUID())
-                                    .copy(new Callback<CourseClass>() {
-                                        @Override
-                                        public void ok(CourseClass courseClass) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show("Turma duplicada com sucesso.");
-                                            placeController.goTo(new AdminCourseClassPlace(courseClass.getUUID()));
-                                        }
+                            .copy(new Callback<CourseClass>() {
+                                @Override
+                                public void ok(CourseClass courseClass) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Turma duplicada com sucesso.");
+                                    placeController.goTo(new AdminCourseClassPlace(courseClass.getUUID()));
+                                }
 
-                                        @Override
-                                        public void internalServerError(KornellErrorTO error) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show("Erro ao tentar duplicar a turma.",
-                                                    AlertType.ERROR);
-                                        }
+                                @Override
+                                public void internalServerError(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Erro ao tentar duplicar a turma.",
+                                            AlertType.ERROR);
+                                }
 
-                                        @Override
-                                        public void conflict(KornellErrorTO error) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show(
-                                                    "Erro ao tentar duplicar a turma. Verifique se já existe uma turma com o nome \""
-                                                            + courseClassTO.getCourseClass().getName() + "\" (2).",
+                                @Override
+                                public void conflict(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show(
+                                            "Erro ao tentar duplicar a turma. Verifique se já existe uma turma com o nome \""
+                                                    + courseClassTO.getCourseClass().getName() + "\" (2).",
                                                     AlertType.ERROR, 5000);
-                                        }
-                                    });
+                                }
+                            });
                         }
 
                         @Override

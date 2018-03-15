@@ -29,4 +29,7 @@ public interface Role extends Entity {
 
     ControlPanelAdminRole getControlPanelAdminRole();
     void setControlPanelAdminRole(ControlPanelAdminRole controlPanelAdminRole);
+
+    PublisherRole getPublisherRole();
+    void setPublisherRole(PublisherRole publisherRole);
 }

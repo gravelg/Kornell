@@ -55,7 +55,7 @@ public class AdminCourseVersionsPresenter extends PaginationPresenterImpl<Course
     }
 
     private void init() {
-        if (session.isInstitutionAdmin()) {
+        if (session.hasPublishingRole()) {
             initializeProperties("cv.name");
             view = getView();
             view.setPresenter(this);

@@ -36,13 +36,21 @@ public class InstitutionClient extends RESTClient {
         PUT("institutions", institutionUUID, "admins").withContentType(Roles.TYPE).withEntityBody(roles).go(cb);
     }
 
+    public void getPublishers(String bindMode, Callback<RolesTO> cb) {
+        GET("institutions", institutionUUID, "publishers" + "?bind=" + bindMode).withContentType(CourseClass.TYPE).go(cb);
+    }
+
+    public void updatePublishers(Roles roles, Callback<Roles> cb) {
+        PUT("institutions", institutionUUID, "publishers").withContentType(Roles.TYPE).withEntityBody(roles).go(cb);
+    }
+
     public void getHostnames(Callback<InstitutionHostNamesTO> cb) {
         GET("institutions", institutionUUID, "hostnames").go(cb);
     }
 
     public void updateHostnames(InstitutionHostNamesTO institutionHostNamesTO, Callback<InstitutionHostNamesTO> cb) {
         PUT("institutions", institutionUUID, "hostnames").withContentType(InstitutionHostNamesTO.TYPE)
-                .withEntityBody(institutionHostNamesTO).go(cb);
+        .withEntityBody(institutionHostNamesTO).go(cb);
     }
 
     public void getEmailWhitelist(Callback<InstitutionEmailWhitelistTO> cb) {
@@ -52,7 +60,7 @@ public class InstitutionClient extends RESTClient {
     public void updateEmailWhitelist(InstitutionEmailWhitelistTO institutionEmailWhitelistTO,
             Callback<InstitutionEmailWhitelistTO> cb) {
         PUT("institutions", institutionUUID, "emailWhitelist").withContentType(InstitutionEmailWhitelistTO.TYPE)
-                .withEntityBody(institutionEmailWhitelistTO).go(cb);
+        .withEntityBody(institutionEmailWhitelistTO).go(cb);
     }
 
     public void getUploadURL(String filename, Callback<String> callback) {

@@ -32,6 +32,7 @@ class CourseDetailsLibrariesResource {
     CourseDetailsLibrariesRepo.create(courseDetailsLibrary)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @GET
@@ -42,6 +43,7 @@ class CourseDetailsLibrariesResource {
     CourseDetailsLibrariesRepo.getForEntity(entityUUID, CourseDetailsEntityType.valueOf(entityType))
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @POST
@@ -52,6 +54,7 @@ class CourseDetailsLibrariesResource {
     CourseDetailsLibrariesRepo.moveUp(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @POST
@@ -62,6 +65,7 @@ class CourseDetailsLibrariesResource {
     CourseDetailsLibrariesRepo.moveDown(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
 }

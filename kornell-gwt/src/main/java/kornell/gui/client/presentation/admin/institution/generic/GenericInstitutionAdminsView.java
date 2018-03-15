@@ -22,6 +22,7 @@ import kornell.api.client.KornellSession;
 import kornell.core.entity.EntityFactory;
 import kornell.core.entity.Institution;
 import kornell.core.entity.InstitutionAdminRole;
+import kornell.core.entity.PublisherRole;
 import kornell.core.entity.Role;
 import kornell.core.entity.RoleCategory;
 import kornell.core.entity.RoleType;
@@ -42,16 +43,26 @@ public class GenericInstitutionAdminsView extends Composite {
     private KornellSession session;
     boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
 
-    PeopleMultipleSelect peopleMultipleSelect;
+    PeopleMultipleSelect institutionAdminMultipleSelect;
+    PeopleMultipleSelect publisherMultipleSelect;
 
     @UiField
-    Form form;
+    Form institutionAdminForm;
     @UiField
-    FlowPanel adminsFields;
+    FlowPanel institutionAdminFields;
     @UiField
-    Button btnOK;
+    Button institutionAdminBtnOK;
     @UiField
-    Button btnCancel;
+    Button institutionAdminBtnCancel;
+
+    @UiField
+    Form publisherForm;
+    @UiField
+    FlowPanel publisherFields;
+    @UiField
+    Button publisherBtnOK;
+    @UiField
+    Button publisherBtnCancel;
 
     private Institution institution;
     private EventBus bus;
@@ -65,14 +76,17 @@ public class GenericInstitutionAdminsView extends Composite {
         initWidget(uiBinder.createAndBindUi(this));
 
         // i18n
-        btnOK.setText("Salvar Alterações");
-        btnCancel.setText("Cancelar Alterações");
+        institutionAdminBtnOK.setText("Salvar Alterações");
+        institutionAdminBtnCancel.setText("Cancelar Alterações");
+        publisherBtnOK.setText("Salvar Alterações");
+        publisherBtnCancel.setText("Cancelar Alterações");
 
-        initData();
+        initInstitutionAdminsData();
+        initPublishersData();
     }
 
-    public void initData() {
-        adminsFields.clear();
+    public void initInstitutionAdminsData() {
+        institutionAdminFields.clear();
         FlowPanel fieldPanelWrapper = new FlowPanel();
         fieldPanelWrapper.addStyleName("fieldPanelWrapper");
 
@@ -92,22 +106,53 @@ public class GenericInstitutionAdminsView extends Composite {
                     if (roleTO.getPerson().getFullName() != null && !"".equals(roleTO.getPerson().getFullName())) {
                         item += " (" + roleTO.getPerson().getFullName() + ")";
                     }
-                    peopleMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                    institutionAdminMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
                 }
                 bus.fireEvent(new ShowPacifierEvent(false));
             }
         });
-        peopleMultipleSelect = new PeopleMultipleSelect(session);
-        fieldPanelWrapper.add(peopleMultipleSelect.asWidget());
-        adminsFields.add(fieldPanelWrapper);
+        institutionAdminMultipleSelect = new PeopleMultipleSelect(session);
+        fieldPanelWrapper.add(institutionAdminMultipleSelect.asWidget());
+        institutionAdminFields.add(fieldPanelWrapper);
     }
 
-    @UiHandler("btnOK")
-    void doOK(ClickEvent e) {
+    public void initPublishersData() {
+        publisherFields.clear();
+        FlowPanel fieldPanelWrapper = new FlowPanel();
+        fieldPanelWrapper.addStyleName("fieldPanelWrapper");
+
+        FlowPanel labelPanel = new FlowPanel();
+        labelPanel.addStyleName("labelPanel");
+        Label lblLabel = new Label("Publicadores de conteúdo");
+        lblLabel.addStyleName("lblLabel");
+        labelPanel.add(lblLabel);
+        fieldPanelWrapper.add(labelPanel);
+
+        bus.fireEvent(new ShowPacifierEvent(true));
+        session.institution(institution.getUUID()).getPublishers(RoleCategory.BIND_WITH_PERSON, new Callback<RolesTO>() {
+            @Override
+            public void ok(RolesTO to) {
+                for (RoleTO roleTO : to.getRoleTOs()) {
+                    String item = roleTO.getUsername();
+                    if (roleTO.getPerson().getFullName() != null && !"".equals(roleTO.getPerson().getFullName())) {
+                        item += " (" + roleTO.getPerson().getFullName() + ")";
+                    }
+                    publisherMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                }
+                bus.fireEvent(new ShowPacifierEvent(false));
+            }
+        });
+        publisherMultipleSelect = new PeopleMultipleSelect(session);
+        fieldPanelWrapper.add(publisherMultipleSelect.asWidget());
+        publisherFields.add(fieldPanelWrapper);
+    }
+
+    @UiHandler("institutionAdminBtnOK")
+    void doOKInstituionAdmin(ClickEvent e) {
         if (session.isInstitutionAdmin()) {
             Roles roles = entityFactory.newRoles().as();
-            List<Role> rolesList = new ArrayList<Role>();
-            ListBox multipleSelect = peopleMultipleSelect.getMultipleSelect();
+            List<Role> rolesList = new ArrayList<>();
+            ListBox multipleSelect = institutionAdminMultipleSelect.getMultipleSelect();
             for (int i = 0; i < multipleSelect.getItemCount(); i++) {
                 String personUUID = multipleSelect.getValue(i);
                 Role role = entityFactory.newRole().as();
@@ -126,12 +171,42 @@ public class GenericInstitutionAdminsView extends Composite {
                 }
             });
         }
-
     }
 
-    @UiHandler("btnCancel")
-    void doCancel(ClickEvent e) {
-        initData();
+    @UiHandler("publisherBtnOK")
+    void doOKPublisher(ClickEvent e) {
+        if (session.isInstitutionAdmin()) {
+            Roles roles = entityFactory.newRoles().as();
+            List<Role> rolesList = new ArrayList<>();
+            ListBox multipleSelect = publisherMultipleSelect.getMultipleSelect();
+            for (int i = 0; i < multipleSelect.getItemCount(); i++) {
+                String personUUID = multipleSelect.getValue(i);
+                Role role = entityFactory.newRole().as();
+                PublisherRole publisherRole = entityFactory.newPublisherRole().as();
+                role.setPersonUUID(personUUID);
+                role.setRoleType(RoleType.publisher);
+                publisherRole.setInstitutionUUID(institution.getUUID());
+                role.setPublisherRole(publisherRole);
+                rolesList.add(role);
+            }
+            roles.setRoles(rolesList);
+            session.institution(institution.getUUID()).updatePublishers(roles, new Callback<Roles>() {
+                @Override
+                public void ok(Roles to) {
+                    KornellNotification.show("Os publicadores de conteúdo foram atualizados com sucesso.");
+                }
+            });
+        }
+    }
+
+    @UiHandler("institutionAdminBtnCancel")
+    void doCancelInstitutionAdmin(ClickEvent e) {
+        initInstitutionAdminsData();
+    }
+
+    @UiHandler("publisherBtnCancel")
+    void doCancelPublisher(ClickEvent e) {
+        initPublishersData();
     }
 
 }

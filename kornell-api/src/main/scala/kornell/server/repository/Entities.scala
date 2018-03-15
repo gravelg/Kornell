@@ -283,6 +283,16 @@ object Entities {
     role
   }
 
+  def newPublisherRole(personUUID: String, institutionUUID: String) = {
+    val role = factory.newRole().as
+    role.setPersonUUID(personUUID)
+    val publisherRole = factory.newPublisherRole().as
+    publisherRole.setInstitutionUUID(institutionUUID)
+    role.setRoleType(RoleType.publisher)
+    role.setPublisherRole(publisherRole)
+    role
+  }
+
   def newCourseVersion(
     uuid: String = randUUID, name: String = null,
     courseUUID: String = null, versionCreatedAt: Date = new Date, distributionPrefix: String = null,

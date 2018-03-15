@@ -12,5 +12,6 @@ public enum AuditedEntityType {
     courseClass,
     courseClassAdmin,
     courseClassTutor,
-    courseClassObserver;
+    courseClassObserver,
+    publisher;
 }

@@ -41,7 +41,7 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
     }
 
     private void init() {
-        if (session.isInstitutionAdmin()) {
+        if (session.hasPublishingRole()) {
             view = viewFactory.getAdminCourseVersionView();
             if (view.getPresenter() == null) {
                 view.setPresenter(this);

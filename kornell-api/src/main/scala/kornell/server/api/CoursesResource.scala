@@ -28,6 +28,7 @@ class CoursesResource {
     CoursesRepo.byInstitution(fetchChildCourses == "true", PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true")
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @POST
@@ -37,6 +38,7 @@ class CoursesResource {
     CourseCreationService.simpleCreation(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, course)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 }
 

@@ -88,12 +88,12 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
             }
         });
 
-        btnAddCourse.setVisible(session.isInstitutionAdmin());
+        btnAddCourse.setVisible(session.hasPublishingRole());
         btnAddCourse.addClickHandler(new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
-                if (session.isInstitutionAdmin()) {
+                if (session.hasPublishingRole()) {
                     coursesPanel.setVisible(false);
                     coursesWrapper.setVisible(false);
                     view = viewFactory.getAdminCourseView();
@@ -158,18 +158,18 @@ public class GenericAdminCoursesView extends Composite implements AdminCoursesVi
     }
 
     private CompositeCell<CourseTO> buildCourseCell() {
-        List<HasCell<CourseTO, ?>> cellsC = new LinkedList<HasCell<CourseTO, ?>>();
+        List<HasCell<CourseTO, ?>> cellsC = new LinkedList<>();
         cellsC.add(new CourseLinkHasCell(CourseDetailsEntityType.COURSE.toString(), getGoToCourseDelegate()));
-        CompositeCell<CourseTO> cellC = new CompositeCell<CourseTO>(cellsC);
+        CompositeCell<CourseTO> cellC = new CompositeCell<>(cellsC);
         return cellC;
     }
 
     private CompositeCell<CourseTO> buildActionsCell() {
-        List<HasCell<CourseTO, ?>> cells = new LinkedList<HasCell<CourseTO, ?>>();
+        List<HasCell<CourseTO, ?>> cells = new LinkedList<>();
         cells.add(new CourseActionsHasCell("Gerenciar", getGoToCourseDelegate()));
         cells.add(new CourseActionsHasCell("Duplicar", getDuplicateCourseDelegate()));
         cells.add(new CourseActionsHasCell("Excluir", getDeleteCourseDelegate()));
-        CompositeCell<CourseTO> cell = new CompositeCell<CourseTO>(cells);
+        CompositeCell<CourseTO> cell = new CompositeCell<>(cells);
         return cell;
     }
 

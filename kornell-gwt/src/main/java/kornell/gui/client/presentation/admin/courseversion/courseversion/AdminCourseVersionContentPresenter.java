@@ -30,7 +30,7 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
 
     @Override
     public void init(CourseVersion courseVersion, Course course) {
-        if (session.isInstitutionAdmin()) {
+        if (session.hasPublishingRole()) {
             view = viewFactory.getAdminCourseVersionContentView();
             view.setPresenter(this);
             view.init(courseVersion, course);

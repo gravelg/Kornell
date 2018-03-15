@@ -21,6 +21,7 @@ class CourseDetailsLibraryResource(uuid: String) {
     CourseDetailsLibraryRepo(uuid).get
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @PUT
@@ -30,6 +31,7 @@ class CourseDetailsLibraryResource(uuid: String) {
     CourseDetailsLibraryRepo(uuid).update(courseDetailsLibrary)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 
   @DELETE
@@ -38,6 +40,7 @@ class CourseDetailsLibraryResource(uuid: String) {
     CourseDetailsLibraryRepo(uuid).delete
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .get
 }
 

@@ -77,6 +77,25 @@ class InstitutionResource(uuid: String) {
     .get
 
   @PUT
+  @Consumes(Array(Roles.TYPE))
+  @Produces(Array(Roles.TYPE))
+  @Path("publishers")
+  def updatePublishers(roles: Roles) = {
+    RolesRepo.updatePublishers(uuid, roles)
+  }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
+    .or(isInstitutionAdmin(uuid), AccessDeniedErr())
+    .get
+
+  @GET
+  @Produces(Array(RolesTO.TYPE))
+  @Path("publishers")
+  def getPublishers(@QueryParam("bind") bindMode: String) = {
+    RolesRepo.getPublishers(uuid, bindMode)
+  }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
+    .or(isInstitutionAdmin(uuid), AccessDeniedErr())
+    .get
+
+  @PUT
   @Consumes(Array(InstitutionHostNamesTO.TYPE))
   @Produces(Array(InstitutionHostNamesTO.TYPE))
   @Path("hostnames")

@@ -100,12 +100,12 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
             }
         });
 
-        btnAddCourseVersion.setVisible(session.isInstitutionAdmin());
+        btnAddCourseVersion.setVisible(session.hasPublishingRole());
         btnAddCourseVersion.addClickHandler(new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
-                if (session.isInstitutionAdmin()) {
+                if (session.hasPublishingRole()) {
                     courseVersionsPanel.setVisible(false);
                     courseVersionsWrapper.setVisible(false);
                     adminCourseVersionPresenter = viewFactory.getAdminCourseVersionPresenter();
