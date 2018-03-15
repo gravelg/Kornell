@@ -312,9 +312,9 @@ app.controller('WizardController', [
           }
           if(lecture.type == 'bubble') {
             lecture.text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
-            lecture.id = 'goncaloprado.png';
+            lecture.id = 'https://images.pexels.com/photos/428341/pexels-photo-428341.jpeg?w=200&h=200&auto=compress';
             lecture.text2 = 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
-            lecture.id2 = 'goncaloprado.png';
+            lecture.id2 = 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?w=200&h=200&auto=compress';
             lecture.color2 = $scope.lastBubbleColor2 || '3D3D40';
           } else if(lecture.type == 'youtube') {
             lecture.id = 's1mczCFXcSY';
@@ -387,6 +387,14 @@ app.controller('WizardController', [
       }
     };
 
+    $scope.refreshSlimScroll = function () {
+      $timeout(function(){
+        $('#editPanelScroll').slimScroll({
+            alwaysVisible: true
+        });
+      });
+    }
+
     $scope.edit = function (scope) {
       $rootScope.selectedNode = scope.$modelValue;
       $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, true);
@@ -398,6 +406,7 @@ app.controller('WizardController', [
         "&uuid=" + $scope.selectedNode.uuid);
       var editPanel = $('#editPanel').get(0)
       editPanel && editPanel.scrollIntoView();
+      $scope.refreshSlimScroll();
     };
 
     $scope.remove = function () {

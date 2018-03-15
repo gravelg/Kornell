@@ -92,7 +92,7 @@
 .speech-bubble:after {
     content: "";
     position: absolute;
-    bottom: -20px;
+    bottom: -18px;
     left: 50px;
     border-width: 20px 20px 0px 0px;
     border-style: solid;
@@ -102,7 +102,7 @@
 }
 
 .speech-bubble.top-right:after {
-    top: -20px;
+    top: -18px;
     right: 50px;
     bottom: auto;
     left: auto;
@@ -110,10 +110,16 @@
 }
 
 .speech-actor {
-    -webkit-border-radius: 999px;
-    -moz-border-radius: 999px;
-    border-radius: 999px;
-    max-width: 10em;
+    width: 7em;
+    height: 7em;
+    -webkit-border-radius: 100px;
+    -webkit-background-clip: padding-box;
+    -moz-border-radius: 100px;
+    -moz-background-clip: padding;
+    border-radius: 100px;
+    background-clip: padding-box;
+    background-size: cover;
+    background-position: center center;
 }
 
 .question-header {
