@@ -12,10 +12,18 @@
 	.speech-bubble.top-right:after {
 	    border-color: #{{lecture.color2 || classroomInfo.colorTheme}} transparent !important;
 	}
+	.bubble1 {
+		background-image: url({{prefixURL}}{{lecture.id}});
+		margin: 0px 0 0 40px;
+	}
+	.bubble2 {
+		background-image: url({{prefixURL}}{{lecture.id2}});
+		margin: 0px 39px -22px 0px;
+	}
 </style>
 <div class="innerDiv container" ng-controller="BubbleLectureController">
     <p class="speech-bubble" ng-bind-html="sce.trustAsHtml(lecture.text)"></p>
-    <img ng-src="{{(prefixURL ? prefixURL : '') + lecture.id}}" class="speech-actor"/>
-    <img ng-if="lecture.has2" ng-src="{{(prefixURL ? prefixURL : '') + lecture.id2}}" class="speech-actor right"/>
+    <div class="speech-actor bubble1"></div>
+    <div ng-if="lecture.has2" class="speech-actor bubble2 right"></div>
     <p ng-if="lecture.has2" class="speech-bubble top-right" ng-bind-html="sce.trustAsHtml(lecture.text2)"></p>
 </div>

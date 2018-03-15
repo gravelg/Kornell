@@ -79,7 +79,7 @@
 					  <div class="form-group">
 					      <label>Nome da aula</label>
 					      <input ng-model="selectedNode.title" class="form-control">
-					      <p class="help-block">Nome dessa aula. Esse nome aparecerá no cabeçalho da aula e no painel de detalhes do curso dentro da Eduvem.</p>
+					      <p class="help-block">Esse nome aparecerá no cabeçalho da aula e no painel de detalhes do curso dentro da Eduvem.</p>
 					  </div>
 					  
 					  <div ng-include="'editLecture_'+selectedNode.type+'.html'"></div>
@@ -140,11 +140,11 @@
       <p class="help-block">Imagem que aparecerá no primeiro balão.</p>
       <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'"></div>
   </div>
-  <a class="btn btn-primary btn-sm" ng-click="selectedNode.has2 = true" ng-if="!selectedNode.has2">
-    <i class="fa fa-trash-o"></i> Adicionar segundo balão
+  <a class="btn btn-primary btn-md" ng-click="selectedNode.has2 = true" ng-if="!selectedNode.has2">
+	<span class="glyphicon glyphicon-plus"></span> Adicionar segundo balão
   </a>
-  <a class="btn btn-danger btn-sm" ng-click="selectedNode.has2 = false" ng-if="selectedNode.has2">
-    <i class="fa fa-trash-o"></i> Remover segundo balão
+  <a class="btn btn-danger btn-md" ng-click="selectedNode.has2 = false" ng-if="selectedNode.has2">
+	<i class="fa fa-trash-o"></i> Remover segundo balão
   </a>
   <div ng-if="selectedNode.has2">
   	  <br><br>
@@ -399,7 +399,7 @@
 					  <div class="form-group">
 					      <label>Nome do módulo</label>
 					      <input ng-model="selectedNode.title" class="form-control">
-					      <p class="help-block">Nome desse módulo. Esse nome aparecerá no cabeçalho de cada aula e no painel de detalhes do curso dentro da Eduvem.</p>
+					      <p class="help-block">Esse nome aparecerá no cabeçalho de cada aula e no painel de detalhes do curso dentro da Eduvem.</p>
 					  </div>
 					</form>
 				</div>
@@ -475,7 +475,7 @@
 <script type="text/ng-template" id="fileUpload.html">
 	<br>
     <div class="col-md-9">
-    	<h3>Status do upload:</h3>
+    	<label>Status do upload:</label>
         <table class="table">
             <thead>
                 <tr>
