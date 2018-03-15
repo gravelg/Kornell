@@ -177,7 +177,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
 
     public void initData() {
 
-        if (isInstitutionAdmin) {
+        if (hasPublishingRole) {
             contentsTab.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
