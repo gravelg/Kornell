@@ -26,7 +26,7 @@ class CourseVersionRepo(uuid: String) {
 
   def first = finder.first[CourseVersion]
 
-  def update(courseVersion: CourseVersion, institutionUUID: String): CourseVersion = {
+  def update(courseVersion: CourseVersion, skipAudit: Boolean, institutionUUID: String): CourseVersion = {
     //get previous version
     val oldCourseVersion = CourseVersionRepo(courseVersion.getUUID).first.get
 
@@ -56,8 +56,9 @@ class CourseVersionRepo(uuid: String) {
       | where c.uuid = ${courseVersion.getUUID}""".executeUpdate
 
       //log entity change
-      EventsRepo.logEntityChange(institutionUUID, AuditedEntityType.courseVersion, courseVersion.getUUID, oldCourseVersion, courseVersion)
-
+      if (!skipAudit) {
+        EventsRepo.logEntityChange(institutionUUID, AuditedEntityType.courseVersion, courseVersion.getUUID, oldCourseVersion, courseVersion)
+      }
       courseVersion
     } else {
       throw new EntityConflictException("courseVersionAlreadyExists")

@@ -81,17 +81,6 @@ public class WizardView extends Composite {
         }
     }
 
-    public void saveWizard(String wizardData) {
-        courseVersion.setClassroomJson(wizardData);
-        session.courseVersion(courseVersion.getUUID()).update(courseVersion, new Callback<CourseVersion>() {
-            @Override
-            public void ok(CourseVersion courseVersionSaved) {
-                courseVersion = courseVersionSaved;
-                sendIFrameMessage("classroomJsonSaved", "");
-            }
-        });
-    }
-
     public void publishWizard(String wizardData) {
         courseVersion.setClassroomJson(null);
         courseVersion.setClassroomJsonPublished(wizardData);
@@ -101,6 +90,17 @@ public class WizardView extends Composite {
                 courseVersion = courseVersionSaved;
                 sendIFrameMessage("classroomJsonSaved", "");
                 KornellNotification.show("Publicação feita com sucesso.");
+            }
+        });
+    }
+
+    public void saveWizard(String wizardData) {
+        courseVersion.setClassroomJson(wizardData);
+        session.courseVersion(courseVersion.getUUID()).update(courseVersion, true, new Callback<CourseVersion>() {
+            @Override
+            public void ok(CourseVersion courseVersionSaved) {
+                courseVersion = courseVersionSaved;
+                sendIFrameMessage("classroomJsonSaved", "");
             }
         });
     }

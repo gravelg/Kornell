@@ -34,8 +34,8 @@ class CourseVersionResource(uuid: String) {
   @PUT
   @Consumes(Array(CourseVersion.TYPE))
   @Produces(Array(CourseVersion.TYPE))
-  def update(courseVersion: CourseVersion) = {
-    CourseVersionRepo(uuid).update(courseVersion, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
+  def update(courseVersion: CourseVersion, @QueryParam("skipAudit") skipAudit: Boolean) = {
+    CourseVersionRepo(uuid).update(courseVersion, skipAudit, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())

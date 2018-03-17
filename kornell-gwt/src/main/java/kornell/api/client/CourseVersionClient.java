@@ -16,7 +16,11 @@ public class CourseVersionClient extends RESTClient {
     }
 
     public void update(CourseVersion courseVersion, Callback<CourseVersion> cb) {
-        PUT("courseVersions",courseVersion.getUUID()).withContentType(CourseVersion.TYPE).withEntityBody(courseVersion).go(cb);
+        update(courseVersion, false, cb);
+    }
+
+    public void update(CourseVersion courseVersion, Boolean skipAudit, Callback<CourseVersion> cb) {
+        PUT("courseVersions",courseVersion.getUUID()+"?skipAudit="+skipAudit).withContentType(CourseVersion.TYPE).withEntityBody(courseVersion).go(cb);
     }
 
     public void delete(Callback<CourseVersion> cb) {
