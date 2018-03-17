@@ -658,6 +658,10 @@ app.controller('FileController', [
       }
     };
 
+    $rootScope.$watch('selectedNode.uuid', function() {
+        uploader.queue = [];
+    });
+
     uploader.onSuccessItem = function(fileItem, response, status, headers) {
       $rootScope.sendKornellNotification("success", "Upload concluído com sucesso.");
       $scope.modelAttribute = $scope.modelAttribute || 'id';
