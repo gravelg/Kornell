@@ -676,6 +676,9 @@ app.controller('FileController', [
     window.addEventListener('message',function(event) {
       if(event.data.type === 'responseUploadPath') {
           uploader.requestUploadPath = event.data.message;
+          if(uploader.queue.length > 0){
+            uploader.queue[0].upload();
+          }
       }
     },false);
   }
