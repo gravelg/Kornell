@@ -10,7 +10,8 @@ var app = angular.module('knl', [
     'ui.slimscroll',
     'ui.sortable',
     'textAngular',
-    'angularFileUpload'
+    'angularFileUpload',
+    'angular-intro'
 ]);
 
 app.config([

@@ -109,9 +109,71 @@ app.controller('WizardController', [
       }, true);
 
       $timeout(function(){
-        $scope.goToNode($scope.lastLectureUUID || $scope.lastModuleUUID);
+        if(localStorage.hideHelpOnStart !== "true"){
+          $scope.goToNode($scope.root.uuid);
+          $timeout(function(){
+            $scope.startTreeHelp();
+            localStorage.hideHelpOnStart = true;
+          });
+        } else {
+          $scope.goToNode($scope.lastLectureUUID || $scope.lastModuleUUID);
+        }
       });
       
+    };
+
+    $scope.treeHelpOptions = {
+        steps: [
+            {
+                element: '#treeHelp1',
+                intro: 'Aqui você monta a estrutura do seu curso, agrupando as aulas dentro de módulos. Cada aula é uma página. Existem vários tipos de aula, como imagem, texto, vídeo, youtube, exercício, etc.',
+                position: 'right'
+            },
+            {
+                element: '#treeHelp2',
+                intro: 'O conteúdo é salvo automaticamente à medida que o edita. Mas o fato de ser salvo não quer dizer que os participantes matriculados nas turmas desse curso terão acesso a esse conteúdo. Para que isso aconteça, é necessário que você publique o conteúdo, disponibilizando-o para todos os alunos.',
+                position: 'right'
+            },
+            {
+                element: '#treeHelp3',
+                intro: 'A qualquer momento você pode reverter todas as alterações feitas desde a última publicação.',
+                position: 'right'
+            },
+            {
+                element: '#treeHelp4',
+                intro: 'Use esse botão para adicionar novos módulos.',
+                position: 'right'
+            },
+            {
+                element: '#treeHelp5',
+                intro: 'E dentro de cada módulo você pode usar esse botão para adicionar novas aulas.',
+                position: 'right'
+            },
+            {
+                element: '#treeHelp6',
+                intro: 'Você também pode reorganizar a ordem das suas aulas ou módulos usando esse botão. Simplesmente arraste e solte o item para o novo local desejado.',
+                position: 'right'
+            },
+            {
+                element: '#none',
+                intro: 'Se tiver qualquer outra dúvida ou sugestão, entre em contato com o suporte clicando no botão de ajuda no canto superior direito da plataforma.',
+                position: 'right'
+            }/*,
+            {
+                element: '#treeHelp7',
+                intro: 'Lembre-se que cada item possui sua própria ajuda.',
+                position: 'left'
+            }*/
+        ],
+        showStepNumbers: false,
+        showBullets: true,
+        showProgress: true,
+        exitOnOverlayClick: (localStorage.hideHelpOnStart === "true"),
+        exitOnEsc: (localStorage.hideHelpOnStart === "true"),
+        nextLabel: 'Próxima',
+        prevLabel: 'Anterior',
+        skipLabel: 'Fechar',
+        doneLabel: 'Fechar'
     };
 
     $scope.publishTree = function(){
@@ -217,43 +279,24 @@ app.controller('WizardController', [
           }
         };
 
-        $scope.treeIsUnsaved = false;
-        $scope.hasVimeoLectures = false;
-        $scope.hasYoutubeLectures = false;
-        $scope.hasVideoLectures = false;
-        $scope.hasFinalExamLecture = false;
-        var tCount = 0, totalLecturesCount = 0;
         $scope.root.uuid = $scope.root.uuid || $rootScope.uuid();
-        //ensure backwards compatibility
-        $scope.root.modules = $scope.root.modules || $scope.root.topics;
-        delete $scope.root.topics;
+        $scope.treeIsUnsaved = false;
+        $scope.hasFinalExamLecture = false;
+        var modulesCount = 0, totalLecturesCount = 0;
         angular.forEach($scope.root.modules, function(module){
-          module.uuid = module.uuid || $rootScope.uuid();
-          //ensure backwards compatibility
-          module.itemType = "module";
           $scope.lastModuleUUID = module.uuid;
+          module.uuid = module.uuid || $rootScope.uuid();
+          module.itemType = "module";
           module.parentUUID = $scope.root.uuid;
-          module.count = tCount++;
-          var sCount = 0;
-          //ensure backwards compatibility
-          module.lectures = module.lectures || module.slides; delete module.slides;
+          module.count = modulesCount++;
+          var lecturesCount = 0;
           angular.forEach(module.lectures, function(lecture){
-            lecture.uuid = lecture.uuid || $rootScope.uuid();
-            //ensure backwards compatibility
-            lecture.itemType = "lecture";
             $scope.lastLectureUUID = lecture.uuid;
+            lecture.uuid = lecture.uuid || $rootScope.uuid();
+            lecture.itemType = "lecture";
             lecture.parentUUID = module.uuid;
-            lecture.count = sCount++;
+            lecture.count = lecturesCount++;
             lecture.totalLecturesCount = totalLecturesCount++;
-            if(lecture.type === 'vimeo'){
-              $scope.hasVimeoLectures = true;
-            }
-            if(lecture.type === 'video'){
-              $scope.hasVideoLectures = true;
-            }
-            if(lecture.type === 'youtube'){
-              $scope.hasYoutubeLectures = true;
-            }
             if(lecture.type === 'bubble'){
               $scope.lastBubbleColor2 = (lecture.color2 && lecture.color2.length) ? lecture.color2 : $scope.lastBubbleColor2;
             }
@@ -547,6 +590,8 @@ app.controller('WizardController', [
       }
       $scope.innerWidth = $window.innerWidth;
     };
+
+
 
 //$scope.root = {"title":"KNL","availableVideoSizes":"144,360,720","colorBackground":"EBEBEB","colorFont":"0284B5","colorTheme":"0284B5","colorTitle":"EBEBEB","itemType":"root","paddingTopIframe":56,"modules":[{"itemType":"module","title":"Módulo 1","uuid":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","lectures":[{"itemType":"lecture","title":"Lecture 1.1: Imagem","type":"image","uuid":"ca10d6da-1952-4830-9f9a-2c34a3485146","id":"https://static.pexels.com/photos/355988/pexels-photo-355988.jpeg","$$hashKey":"object:57","parentUUID":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","count":0,"totalLecturesCount":0}],"parentUUID":"4849e1fc-ea88-4247-be80-155052f0fb0e","count":0,"$$hashKey":"object:19"}],"uuid":"4849e1fc-ea88-4247-be80-155052f0fb0e","$$hashKey":"object:13"};
 //$scope.initWizard();

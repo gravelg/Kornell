@@ -18,6 +18,7 @@ import kornell.core.error.exception.UnauthorizedAccessException
 import javax.ws.rs.core.Context
 import javax.servlet.http.HttpServletRequest
 import kornell.core.error.exception.AuthenticationException
+import javax.ws.rs.core.Response
 
 @Path("auth")
 class TokenResource {
@@ -66,7 +67,7 @@ class TokenResource {
       //Gotta be authenticated to logout!
       throw new UnauthorizedAccessException("mustAuthenticate")
     }
-    ""
+    Response.noContent.build
   }
 
 }

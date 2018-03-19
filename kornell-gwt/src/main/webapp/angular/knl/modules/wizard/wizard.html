@@ -4,18 +4,21 @@
     .another-file-over-class { border: dotted 3px green; }
 </style>
 
-<div class="sidePanel" id="page-wrapper">
+<div class="sidePanel" id="page-wrapper" ng-intro-options="treeHelpOptions" ng-intro-method="startTreeHelp" ng-intro-autostart="false" >
 	<div ng-if="innerWidth > 991" class="row">
 	  <div class="col-md-3 noPadding">
 		  <div class="scroll-body" slimscroll="{}">
 		  	<div class="row">
 		  		<div class="col-sm-12">
 		  			<div class="tree-control-panel">
-					  	<a ng-disabled="blockPublishButton" uib-tooltip="Publicar Curso" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" ng-click="publishTree()">
+					  	<a id="treeHelp2" ng-disabled="blockPublishButton" uib-tooltip="Publicar Curso" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" ng-click="publishTree()">
 					    	<i class="fa fa-upload"></i>
 							</a>
-					  	<a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" ng-click="discardTree()">
+					  	<a id="treeHelp3" ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" ng-click="discardTree()">
 					    	<i class="fa fa-times"></i>
+							</a>
+					  	<a uib-tooltip="Ajuda" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm pull-right" ng-click="startTreeHelp()">
+					    	<i class="fa fa-question"></i>
 							</a>
 							<span ng-show="treeIsUnsaved">&nbsp;&nbsp;&nbsp;[ <i class="fa fa-asterisk changedFlagIcon"></i>&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;Alterações pendentes ]</span>
 		  			</div>
@@ -34,11 +37,14 @@
 	  <div class="scroll-body" slimscroll="{}">
   		  <div class="col-sm-12">
   			<div class="tree-control-panel">
-			  	<a ng-disabled="blockPublishButton" uib-tooltip="Publicar Curso" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" confirm-click="publishTree()" confirm-message="Confirma?">
+			  	<a ng-disabled="blockPublishButton" uib-tooltip="Publicar Curso" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" ng-click="publishTree()">
 			    	<i class="fa fa-upload"></i>
 					</a>
-			  	<a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" confirm-click="discardTree()" confirm-message="Confirma?">
+			  	<a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" ng-click="discardTree()">
 			    	<i class="fa fa-times"></i>
+					</a>
+			  	<a uib-tooltip="Ajuda" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm right" ng-click="startTreeHelp()">
+			    	<i class="fa fa-question"></i>
 					</a>
 					<span ng-show="treeIsUnsaved">&nbsp;&nbsp;&nbsp;[ <i class="fa fa-asterisk changedFlagIcon"></i>&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;Alterações pendentes ]</span>
   			</div>
@@ -326,6 +332,9 @@
     <div class="panel-body">
     	<div class="row">
     		<div class="col-sm-12">
+		    		<!-- <a id="treeHelp7" uib-tooltip="Ajuda" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-sm" ng-click="startRootHelp()" style="margin-right: 3px;">
+					  	<i class="fa fa-question"></i>
+					</a> -->
 					<form role="form">
 						<h1 class="form-title"><small>Configurações do Curso</small></h1>
 					  <div class="form-group">
@@ -364,12 +373,6 @@
 					      <p class="help-block">Se uma imagem for definida, ela terá prioridade sobre a cor definida acima. Além disso, a imagem aparecerá em todas as aulas que não tiverem sua própria imagem de plano de fundo definida.</p>
 					  	  <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'imageBackground'"></div>
 					  </div>
-
-					  <!-- <div class="form-group" ng-show="hasVimeoLectures || hasYoutubeLectures">
-					      <label>Padding do iframe do vimeo ou youtube</label>
-					      <input ng-model="selectedNode.paddingTopIframe" type="number" class="form-control">
-					      <p class="help-block">Valor, em porcentagem, do padding do iframe do vimeo ou youtube. Isso fará com que ele fique melhor centralizado. Valor recomendado: 56%.</p>
-					  </div> -->
 
 					</form>
 				</div>
@@ -418,14 +421,14 @@
 
 <script type="text/ng-template" id="tree.html">
   <div ui-tree="uiTreeOptions" id="tree-root">
-    <ol ui-tree-nodes ng-model="data" >
+    <ol ui-tree-nodes ng-model="data" id="treeHelp1">
       <li ui-tree-node ng-repeat="root in data">
       	<div class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === root.uuid}" ng-click="edit(this)">
 		    <span class="tree-node-title"><b><i class="fa fa-asterisk changedFlagIcon" ng-show="root.isUnsaved"></i>{{root.title | limitToDots: limitToDots}}</b></span>
 		    <a id="nodeEdit_{{root.uuid}}" uib-tooltip="Editar curso" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
 		    	<span class="glyphicon glyphicon-edit"></span>
 		    </a>
-		    <a uib-tooltip="Adicionar novo módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newModule(true)" style="margin-right: 3px;">
+		    <a id="treeHelp4" uib-tooltip="Adicionar novo módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" data-nodrag ng-click="newModule(true)" style="margin-right: 3px;">
 		    	<span class="glyphicon glyphicon-plus"></span>
 		    </a>
 		  </div>
@@ -447,10 +450,10 @@
     <a id="nodeEdit_{{module.uuid}}" uib-tooltip="Editar módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" ng-click="edit(this)" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-edit"></span>
     </a>
-    <a uib-tooltip="Mover módulo (arraste e solte)" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ui-tree-handle style="margin-right: 3px;">
+    <a id="treeHelp6" uib-tooltip="Mover módulo (arraste e solte)" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ui-tree-handle style="margin-right: 3px;">
     	<i class="fa fa-sort" style="width: 11px;"></i>
     </a>
-    <a uib-tooltip="Adicionar nova aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ng-click="newLecture(this)" style="margin-right: 3px;">
+    <a id="treeHelp5" uib-tooltip="Adicionar nova aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-default btn-xxs" ng-click="newLecture(this)" style="margin-right: 3px;">
     	<span class="glyphicon glyphicon-plus"></span>
     </a>
   </div>

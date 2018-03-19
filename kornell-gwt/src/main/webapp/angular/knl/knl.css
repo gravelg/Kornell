@@ -177,6 +177,10 @@ label {
     font-size: 12px;
 }
 
+.introjs-tooltiptext {
+    color: #000;
+}
+
 .nav-tabs {
     border-bottom: 1px solid #444444;
 }
