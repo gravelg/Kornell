@@ -25,7 +25,8 @@ table, .table {
 }
 
 .text-angular .btn-group button,
-.text-angular .btn-group div {
+.text-angular .btn-group div,
+.text-angular .btn-group span {
     height: auto;
     font-size: 12px;
     line-height: 12px;
@@ -331,6 +332,39 @@ tr.angular-ui-tree-empty {
     line-height: 1.5;
     border-radius: 3px;
 }
+
+
+.text-angular .btn-group .btn-ta-dropdown {
+    background-color: #424242;
+    color:#fff;
+    border-color: #424242;
+}
+
+.text-angular .btn-group .btn-ta-dropdown:active,
+.text-angular .btn-group .btn-ta-dropdown.active,
+.open > .text-angular .btn-group .dropdown-toggle.btn-ta-dropdown {
+    background-image: none;
+}
+
+.text-angular .btn-group .checked-dropdown-list {
+    border-color: black;
+}
+
+.text-angular .btn-group .bar-btn-dropdown {
+    height: 28px;
+    padding: 0;
+}
+
+.text-angular .btn-group .dropdown-toggle {
+    padding: 6px;
+}
+
+[ta-button] {
+    height: 44px;
+    margin-bottom: 5px;
+}
+
+.red{ color: red; }
 
 @media only screen and (max-width: 1550px)  {
     .optionTextArea{
