@@ -97,7 +97,9 @@ object CourseCreationService {
       false,
       false,
       null,
-      null))
+      null,
+      null,
+      true))
     courseClass
   }
 

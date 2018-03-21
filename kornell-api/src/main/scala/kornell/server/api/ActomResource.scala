@@ -29,6 +29,7 @@ import kornell.server.util.EnrollmentUtil._
 import scala.collection.JavaConverters._
 import java.util.Date
 import javax.ws.rs.core.Response
+import kornell.core.util.UUID
 
 class ActomResource(enrollmentUUID: String, actomURL: String) {
   implicit def toString(rs: ResultSet): String = rs.getString("entryValue")
@@ -58,7 +59,7 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
 
   def updateQueryModel(entryKey: String, entryValue: String) = sql"""
     insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue)
-    values (${randomUUID}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue})
+    values (${UUID.random}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue})
     on duplicate key update entryValue = ${entryValue}
   """.executeUpdate
 
@@ -67,7 +68,7 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
     var queryModelQuery = "insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue) values "
     val queryModelStrings = new ListBuffer[String]
     for ((key, value) <- actomEntries) {
-      queryModelStrings += ("('" + randomUUID + "','" + enrollmentUUID + "','" + actomKey + "','" + key + "','" + value + "')")
+      queryModelStrings += ("('" + UUID.random + "','" + enrollmentUUID + "','" + actomKey + "','" + key + "','" + value + "')")
     }
     queryModelQuery += queryModelStrings.mkString(",")
     queryModelQuery += " on duplicate key update entryValue = VALUES(entryValue)"

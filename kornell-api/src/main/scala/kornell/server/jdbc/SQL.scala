@@ -22,7 +22,4 @@ object SQL {
       new PreparedStmt(query.toString, params)
     }
   }
-
-  def randomUUID = UUID.random()
-
 }

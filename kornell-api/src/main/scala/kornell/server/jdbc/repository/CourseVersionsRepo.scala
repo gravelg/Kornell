@@ -172,4 +172,10 @@ object CourseVersionsRepo {
       and cv.state <> ${EntityState.deleted.toString}
     """.first[String].get.toInt
 
+  def allByInstitution(institutionUUID: String) =
+    sql"""
+      select cv.* from CourseVersion cv left join Course c on cv.courseUUID = c.uuid
+      where cv.state <> ${EntityState.deleted.toString} and c.institutionUUID = ${institutionUUID}
+    """.map[CourseVersion](toCourseVersion)
+
 }

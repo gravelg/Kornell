@@ -253,4 +253,17 @@ object EventsRepo {
     entityChangedEventsTO
   }
 
+  def deleteActoms(enrollmentUUID: String) = {
+    sql"""
+      DELETE from ActomEntered where enrollmentUUID = ${enrollmentUUID}
+    """.executeUpdate
+
+    sql"""
+      DELETE from ActomEntries where enrollmentUUID = ${enrollmentUUID}
+    """.executeUpdate
+
+    sql"""
+      DELETE from ActomEntyChangedEvent where enrollmentUUID = ${enrollmentUUID}
+    """.executeUpdate
+  }
 }

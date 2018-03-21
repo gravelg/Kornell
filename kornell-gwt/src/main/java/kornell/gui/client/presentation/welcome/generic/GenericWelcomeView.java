@@ -45,7 +45,7 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
     FlowPanel coursesWrapper;
     @UiField
     FlowPanel pnlCourses;
-    Button btnCoursesAll, btnCoursesInProgress, btnCoursesToStart, btnCoursesToAcquire, btnCoursesFinished;
+    Button btnCoursesAll, btnCoursesInProgress, btnCoursesToStart, btnCoursesToAcquire, btnCoursesFinished, btnCoursesSandbox;
 
     private KornellSession session;
     private PlaceController placeCtrl;
@@ -79,9 +79,12 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
 
     private void startPlaceBar() {
         if (widgets == null) {
-            widgets = new ArrayList<IsWidget>();
+            widgets = new ArrayList<>();
+            if (session.hasPublishingRole()) {
+                btnCoursesSandbox = startButton(constants.sandbox(), widgets);
+            }
             btnCoursesFinished = startButton(constants.finished(), widgets);
-            btnCoursesToAcquire = startButton("Disponíveis", widgets);
+            btnCoursesToAcquire = startButton(constants.available(), widgets);
             btnCoursesToStart = startButton(constants.toStart(), widgets);
             btnCoursesInProgress = startButton(constants.inProgress(), widgets);
             btnCoursesAll = startButton(constants.allClasses(), widgets);
@@ -134,27 +137,32 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
         classesCount = tos.getCourseClasses().size();
 
         for (final CourseClassTO courseClassTO : tos.getCourseClasses()) {
-            if (courseClassTO.getCourseClass().isInvisible())
+            if (courseClassTO.getCourseClass().isInvisible()) {
                 continue;
+            }
 
             final Teacher teacher = Teachers.of(courseClassTO);
             Student student = teacher.student(session.getCurrentUser());
-            addPanelIfFiltered(btnCoursesAll, courseClassTO);
-            if (student.isEnrolled()) {
-                EnrollmentProgressDescription description = student.getEnrollmentProgress().getDescription();
-                switch (description) {
-                case completed:
-                    addPanelIfFiltered(btnCoursesFinished, courseClassTO);
-                    break;
-                case inProgress:
-                    addPanelIfFiltered(btnCoursesInProgress, courseClassTO);
-                    break;
-                case notStarted:
-                    addPanelIfFiltered(btnCoursesToStart, courseClassTO);
-                    break;
+            if (!courseClassTO.getCourseClass().isSandbox()) {
+                addPanelIfFiltered(btnCoursesAll, courseClassTO);
+                if (student.isEnrolled()) {
+                    EnrollmentProgressDescription description = student.getEnrollmentProgress().getDescription();
+                    switch (description) {
+                    case completed:
+                        addPanelIfFiltered(btnCoursesFinished, courseClassTO);
+                        break;
+                    case inProgress:
+                        addPanelIfFiltered(btnCoursesInProgress, courseClassTO);
+                        break;
+                    case notStarted:
+                        addPanelIfFiltered(btnCoursesToStart, courseClassTO);
+                        break;
+                    }
+                } else {
+                    addPanelIfFiltered(btnCoursesToAcquire, courseClassTO);
                 }
-            } else {
-                addPanelIfFiltered(btnCoursesToAcquire, courseClassTO);
+            } else if (session.hasPublishingRole()) {
+                addPanelIfFiltered(btnCoursesSandbox, courseClassTO);
             }
         }
     }
@@ -163,8 +171,9 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
         if (button.equals(selectedFilterButton)) {
             pnlCourses.add(new GenericCourseSummaryView(placeCtrl, courseClassTO, session));
         }
-        if (classesCount > 3)
+        if (classesCount > 3) {
             button.setVisible(true);
+        }
     }
 
     private void prepareButtons(int classesCount) {
@@ -173,6 +182,9 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
         refreshButtonSelection(btnCoursesToStart);
         refreshButtonSelection(btnCoursesToAcquire);
         refreshButtonSelection(btnCoursesFinished);
+        if (session.hasPublishingRole()) {
+            refreshButtonSelection(btnCoursesSandbox);
+        }
     }
 
     private void refreshButtonSelection(Button button) {

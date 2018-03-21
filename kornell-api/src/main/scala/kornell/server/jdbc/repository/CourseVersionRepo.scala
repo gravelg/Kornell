@@ -75,6 +75,12 @@ class CourseVersionRepo(uuid: String) {
         where uuid = ${uuid}
       """.executeUpdate
 
+      sql"""
+        update CourseClass
+        set state = ${EntityState.deleted.toString},
+        where sandbox = 1 and courseVersionUUID = ${uuid}
+      """.executeUpdate
+
       val course = CourseRepo(courseVersion.getCourseUUID).get
       val repo = ContentRepositoriesRepo.firstRepositoryByInstitution(course.getInstitutionUUID).get
       val cm = ContentManagers.forRepository(repo.getUUID)

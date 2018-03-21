@@ -92,6 +92,7 @@ object ReportInstitutionBillingGenerator {
           SELECT enrollmentUUID, MIN(eventFiredAt) AS firstEventFiredAt FROM ActomEntered GROUP BY enrollmentUUID
         ) AS ae ON ae.enrollmentUUID = e.uuid
       WHERE cc.institutionUUID = ${institutionUUID}
+      AND cc.sandbox = 0
       AND (
           (e.lastBilledAt IS NULL
           AND ae.firstEventFiredAt >= ${periodStart + "-01 00:00:00"}

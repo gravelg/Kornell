@@ -117,7 +117,7 @@ package object repository {
       r.getString("institutionRegistrationPrefixUUID"), r.getBoolean("courseClassChatEnabled"),
       r.getBoolean("chatDockEnabled"), r.getBoolean("allowBatchCancellation"),
       r.getBoolean("tutorChatEnabled"), r.getBoolean("approveEnrollmentsAutomatically"),
-      r.getDate("startDate"), r.getString("ecommerceIdentifier"), r.getString("thumbUrl"))
+      r.getDate("startDate"), r.getString("ecommerceIdentifier"), r.getString("thumbUrl"), r.getBoolean("sandbox"))
 
   implicit def toCourse(rs: ResultSet): Course = newCourse(
     rs.getString("uuid"),
@@ -199,7 +199,8 @@ package object repository {
       rs.getBoolean("approveEnrollmentsAutomatically"),
       null,
       rs.getString("ecommerceIdentifier"),
-      rs.getString("courseClassThumbUrl"))
+      rs.getString("courseClassThumbUrl"),
+      rs.getBoolean("sandbox"))
 
     TOs.newCourseClassTO(course, version, clazz, rs.getString("institutionRegistrationPrefixName"))
   }

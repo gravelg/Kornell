@@ -76,9 +76,9 @@ public interface KornellConstants extends ConstantsWithLookup {
     String passwordChangeError();
 
     /**
-     * 
+     *
      * GenericWelcomeView
-     * 
+     *
      */
     @DefaultStringValue("All")
     String allClasses();
@@ -92,10 +92,16 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("In progress")
     String inProgress();
 
+    @DefaultStringValue("Available")
+    String available();
+
+    @DefaultStringValue("Sandbox")
+    String sandbox();
+
     /**
-     * 
+     *
      * GenericCourseDetailsView
-     * 
+     *
      */
     @DefaultStringValue("Course details: ")
     String detailsHeader();
@@ -188,7 +194,7 @@ public interface KornellConstants extends ConstantsWithLookup {
     String description();
 
     /**
-     * 
+     *
      * GenericBarView
      */
 
@@ -1526,7 +1532,7 @@ public interface KornellConstants extends ConstantsWithLookup {
 
     /**
      * Errors 403
-     * 
+     *
      */
     @DefaultStringValue("For security reasons, you must update your password.")
     String forcedPasswordChange();
