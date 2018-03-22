@@ -282,6 +282,7 @@ app.controller('WizardController', [
         $scope.root.uuid = $scope.root.uuid || $rootScope.uuid();
         $scope.treeIsUnsaved = false;
         $scope.hasFinalExamLecture = false;
+        $scope.lectureUUIDs = [];
         var modulesCount = 0, totalLecturesCount = 0;
         angular.forEach($scope.root.modules, function(module){
           $scope.lastModuleUUID = module.uuid;
@@ -303,6 +304,7 @@ app.controller('WizardController', [
             if(lecture.type === 'finalExam'){
               $scope.hasFinalExamLecture = true;
             }
+            $scope.lectureUUIDs.push(lecture.uuid);
             verifySavedStatus(lecture);
           });
           verifySavedStatus(module);
@@ -322,6 +324,28 @@ app.controller('WizardController', [
         });
       });
       return found;
+    };
+
+    $scope.previousLecture = function(){
+      for(var i = 0; i < $scope.lectureUUIDs.length; i++){
+        if($scope.lectureUUIDs[i] === $scope.selectedNode.uuid){
+          if((i - 1) >= 0){
+            $scope.keepViewTab = true;
+            $scope.goToNode($scope.lectureUUIDs[i-1]);
+          }
+        }
+      }
+    };
+
+    $scope.nextLecture = function(){
+      for(var i = 0; i < $scope.lectureUUIDs.length; i++){
+        if($scope.lectureUUIDs[i] === $scope.selectedNode.uuid){
+          if((i + 1) < $scope.lectureUUIDs.length){
+            $scope.keepViewTab = true;
+            $scope.goToNode($scope.lectureUUIDs[i+1]);
+          }
+        }
+      }
     };
 
     $scope.getLectureNameByType = function(type){
@@ -435,14 +459,20 @@ app.controller('WizardController', [
         $('#editPanelScroll').slimScroll({
             alwaysVisible: true
         });
+        $('widthUnder991Scroll').slimScroll({
+            alwaysVisible: true
+        });
       });
-    }
+    };
 
     $scope.edit = function (scope) {
       $rootScope.selectedNode = scope.$modelValue;
       $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, true);
       $scope.selectedNodeScope = scope;
-      $rootScope.selectedTab = 'edit';
+      if(!$scope.keepViewTab){
+        $rootScope.selectedTab = 'edit';
+      }
+      $scope.keepViewTab = false;
       $scope.previewURL = $sce.trustAsResourceUrl(
         "knlClassroom/index.html#!/lecture" + 
         "?preview=1" + 
@@ -670,7 +700,7 @@ app.controller('FileController', [
       fileItem.disableMultipart = true;
       
       //TODO 'mpg, mpeg, mp4, mov, mkv'
-      var allowedExtensions = $rootScope.selectedNode.type === 'video' ? 'mp4' : 'jpg, jpeg, gif, png',
+      var allowedExtensions = $scope.uploaderType === 'video' ? 'mp4' : 'jpg, jpeg, gif, png',
         fileName = fileItem.file && fileItem.file.name,
         fileParts = fileName && fileName.split('.'),
         fileExtension = fileParts && fileParts.length > 1 && fileParts[fileParts.length - 1],

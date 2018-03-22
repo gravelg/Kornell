@@ -34,7 +34,7 @@
 	  </div>
 	</div>
 	<div ng-if="innerWidth <= 991" class="row">
-	  <div class="scroll-body" slimscroll="{}">
+	  <div class="scroll-body" id="widthUnder991Scroll" slimscroll="{alwaysVisible:true}">
   		  <div class="col-sm-12">
   			<div class="tree-control-panel">
 			  	<a ng-disabled="blockPublishButton" uib-tooltip="Publicar Curso" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" ng-click="publishTree()">
@@ -74,9 +74,15 @@
       <ul class="nav nav-tabs" style="margin-bottom: 15px;">
         <li class="" ng-class="{active: selectedTab === 'edit'}"><a ng-click="$root.selectedTab = 'edit';refreshSlimScroll()" data-toggle="tab">Editar</a></li>
         <li class="" ng-class="{active: selectedTab === 'preview'}"><a ng-click="$root.selectedTab = 'preview';refreshSlimScroll()" data-toggle="tab">Visualizar</a></li>
-		    <a uib-tooltip="Remover aula" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
-		    	<i class="fa fa-trash-o"></i>
-				</a>
+	    <a uib-tooltip="Aula anterior" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-left btn btn-default btn-sm" ng-click="previousLecture()" ng-show="selectedTab === 'preview'" ng-disabled="lectureUUIDs[0] === selectedNode.uuid" style="margin-right: 3px; margin-left: 40px;">
+	    	<i class="fa fa-arrow-left"></i>
+		</a>
+	    <a uib-tooltip="Próxima aula" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-left btn btn-default btn-sm" ng-click="nextLecture()" ng-show="selectedTab === 'preview'" ng-disabled="lectureUUIDs[lectureUUIDs.length - 1] === selectedNode.uuid" style="margin-right: 3px;">
+	    	<i class="fa fa-arrow-right"></i>
+		</a>
+	    <a uib-tooltip="Remover aula" tooltip-placement="bottom" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" confirm-click="remove()" confirm-message="Confirma?" style="margin-right: 3px;">
+	    	<i class="fa fa-trash-o"></i>
+		</a>
       </ul>
       <div id="myTabContent" class="tab-content">
         <div class="tab-pane fade" ng-class="{active: selectedTab === 'edit', in: selectedTab === 'edit'}" ng-show="selectedTab === 'edit'">
@@ -210,7 +216,7 @@
       <label>Vídeo em baixa qualidade (para dispositivos móveis)</label>
       <input ng-model="selectedNode.idLow" class="form-control">
       <p class="help-block">URL do vídeo que será mostrado. Cole acima a URL de um vídeo hospedado em outro site ou faça o upload abaixo.</p>
-      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'idLow'"></div>
+      <div class="row" ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="modelAttribute = 'idLow';uploaderType = 'video'"></div>
   </div>
 </script>
 
