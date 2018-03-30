@@ -14,7 +14,6 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
 import kornell.core.util.StringUtils;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView.Presenter;
@@ -29,8 +28,6 @@ public class WizardView extends Composite {
     private KornellSession session;
     private EventBus bus;
     private Presenter presenter;
-    private CourseVersion courseVersion;
-    private Course course;
     private IFrameElement iframe;
 
     @UiField
@@ -42,9 +39,7 @@ public class WizardView extends Composite {
         initWidget(uiBinder.createAndBindUi(this));
     }
 
-    public void init(CourseVersion courseVersion, Course course, Presenter presenter) {
-        this.courseVersion = courseVersion;
-        this.course = course;
+    public void init(Presenter presenter) {
         this.presenter = presenter;
         createIFrame();
     }
@@ -72,22 +67,22 @@ public class WizardView extends Composite {
     }
 
     public void iframeIsReady(String message) {
-        if (StringUtils.isSome(courseVersion.getClassroomJson())){
-            sendIFrameMessage("classroomJsonLoad", courseVersion.getClassroomJson());
-        } else if(StringUtils.isSome(courseVersion.getClassroomJsonPublished())){
-            sendIFrameMessage("classroomJsonLoad", courseVersion.getClassroomJsonPublished());
+        if (StringUtils.isSome(presenter.getCourseVersion().getClassroomJson())){
+            sendIFrameMessage("classroomJsonLoad", presenter.getCourseVersion().getClassroomJson());
+        } else if(StringUtils.isSome(presenter.getCourseVersion().getClassroomJsonPublished())){
+            sendIFrameMessage("classroomJsonLoad", presenter.getCourseVersion().getClassroomJsonPublished());
         } else {
-            sendIFrameMessage("classroomJsonNew", course.getName());
+            sendIFrameMessage("classroomJsonNew", presenter.getCourse().getName());
         }
     }
 
     public void publishWizard(String wizardData) {
-        courseVersion.setClassroomJson(null);
-        courseVersion.setClassroomJsonPublished(wizardData);
-        session.courseVersion(courseVersion.getUUID()).update(courseVersion, new Callback<CourseVersion>() {
+        presenter.getCourseVersion().setClassroomJson(null);
+        presenter.getCourseVersion().setClassroomJsonPublished(wizardData);
+        session.courseVersion(presenter.getCourseVersion().getUUID()).update(presenter.getCourseVersion(), new Callback<CourseVersion>() {
             @Override
             public void ok(CourseVersion courseVersionSaved) {
-                courseVersion = courseVersionSaved;
+                presenter.setCourseVersion(courseVersionSaved);
                 sendIFrameMessage("classroomJsonSaved", "");
                 KornellNotification.show("Publicação feita com sucesso.");
             }
@@ -95,30 +90,30 @@ public class WizardView extends Composite {
     }
 
     public void saveWizard(String wizardData) {
-        courseVersion.setClassroomJson(wizardData);
-        session.courseVersion(courseVersion.getUUID()).update(courseVersion, true, new Callback<CourseVersion>() {
+        presenter.getCourseVersion().setClassroomJson(wizardData);
+        session.courseVersion(presenter.getCourseVersion().getUUID()).update(presenter.getCourseVersion(), true, new Callback<CourseVersion>() {
             @Override
             public void ok(CourseVersion courseVersionSaved) {
-                courseVersion = courseVersionSaved;
+                presenter.setCourseVersion(courseVersionSaved);
                 sendIFrameMessage("classroomJsonSaved", "");
             }
         });
     }
 
     public void discardWizard() {
-        courseVersion.setClassroomJson(null);
-        session.courseVersion(courseVersion.getUUID()).update(courseVersion, new Callback<CourseVersion>() {
+        presenter.getCourseVersion().setClassroomJson(null);
+        session.courseVersion(presenter.getCourseVersion().getUUID()).update(presenter.getCourseVersion(), new Callback<CourseVersion>() {
             @Override
             public void ok(CourseVersion courseVersionSaved) {
-                courseVersion = courseVersionSaved;
-                sendIFrameMessage("classroomJsonLoad", courseVersion.getClassroomJsonPublished());
+                presenter.setCourseVersion(courseVersionSaved);
+                sendIFrameMessage("classroomJsonLoad", presenter.getCourseVersion().getClassroomJsonPublished());
                 KornellNotification.show("Alterações descartadas com sucesso.");
             }
         });
     }
 
     public void requestUploadPath(String filename) {
-        session.course(courseVersion.getCourseUUID()).getWizardContentUploadURL(filename, new Callback<String>() {
+        session.course(presenter.getCourseVersion().getCourseUUID()).getWizardContentUploadURL(filename, new Callback<String>() {
             @Override
             public void ok(String url) {
                 sendIFrameMessage("responseUploadPath", url);

@@ -20,8 +20,6 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.ContentSpec;
-import kornell.core.entity.Course;
-import kornell.core.entity.CourseVersion;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
 import kornell.gui.client.util.forms.FormHelper;
@@ -51,7 +49,6 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
     @UiField
     FlowPanel wizardContainer;
 
-    private CourseVersion courseVersion;
     private Presenter presenter;
 
     private boolean isWizardVersion = false;
@@ -91,7 +88,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
         btnOK.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                session.courseVersion(courseVersion.getUUID()).getContentUploadURL(new Callback<String>() {
+                session.courseVersion(presenter.getCourseVersion().getUUID()).getContentUploadURL(new Callback<String>() {
                     @Override
                     public void ok(String url) {
                         getFile(url);
@@ -103,21 +100,20 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
     }
 
     @Override
-    public void init(CourseVersion courseVersion, Course course) {
-        this.courseVersion = courseVersion;
-        this.isWizardVersion = ContentSpec.WIZARD.equals(course.getContentSpec());
+    public void init() {
+        this.isWizardVersion = ContentSpec.WIZARD.equals(presenter.getCourse().getContentSpec());
         wizardContainer.clear();
         if (isWizardVersion) {
             if (wizardView == null) {
                 wizardView = new WizardView(session, bus);
             }
-            wizardView.init(courseVersion, course, presenter);
+            wizardView.init(presenter);
             wizardContainer.add(wizardView);
         }
         courseVersionUpload.setVisible(!isWizardVersion);
         title.setVisible(!isWizardVersion);
     }
-	
+
     public static native void getFile(String url) /*-{
         if ($wnd.document.getElementById("versionUpdate").files.length != 1) {
             @kornell.gui.client.util.view.KornellNotification::showError(Ljava/lang/String;)("Por favor selecione um arquivo");
@@ -150,6 +146,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
         bus.fireEvent(new ShowPacifierEvent(false));
     }
 
+    @Override
     public void setPresenter(Presenter presenter) {
         this.presenter = presenter;
     }

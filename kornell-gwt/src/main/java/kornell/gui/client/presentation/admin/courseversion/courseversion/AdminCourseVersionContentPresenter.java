@@ -19,6 +19,7 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
     private PlaceController placeController;
     Place defaultPlace;
     private ViewFactory viewFactory;
+    private AdminCourseVersionPresenter adminCourseVersionPresenter;
 
     public AdminCourseVersionContentPresenter(KornellSession session, PlaceController placeController, EventBus bus,
             Place defaultPlace, ViewFactory viewFactory) {
@@ -29,11 +30,12 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
     }
 
     @Override
-    public void init(CourseVersion courseVersion, Course course) {
+    public void init(AdminCourseVersionPresenter adminCourseVersionPresenter) {
+        this.adminCourseVersionPresenter = adminCourseVersionPresenter;
         if (session.hasPublishingRole()) {
             view = viewFactory.getAdminCourseVersionContentView();
             view.setPresenter(this);
-            view.init(courseVersion, course);
+            view.init();
         } else {
             logger.warning("Hey, only admins are allowed to see this! " + this.getClass().getName());
             placeController.goTo(defaultPlace);
@@ -48,5 +50,20 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
     @Override
     public AdminCourseVersionContentView getView() {
         return view;
+    }
+
+    @Override
+    public CourseVersion getCourseVersion() {
+        return adminCourseVersionPresenter.getCourseVersion();
+    }
+
+    @Override
+    public void setCourseVersion(CourseVersion courseVersion) {
+        adminCourseVersionPresenter.setCourseVersion(courseVersion);
+    }
+
+    @Override
+    public Course getCourse() {
+        return adminCourseVersionPresenter.getCourse();
     }
 }
