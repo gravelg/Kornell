@@ -42,11 +42,12 @@ app.factory('knlUtils', [
         };
 
         knlUtils.doLMSGetValueSanitized = function(key){
+            $rootScope.isDebug && console.log('getAttribute', key);
             try {
                 var value = doLMSGetValue(key);
                 return value && value != 'null' ? value : null;
             } catch(err) {
-                console.log("Error attempting to save SCORM attribute.");
+                console.log("Error attempting to get SCORM attribute.", key);
                 return null;
             }
         };

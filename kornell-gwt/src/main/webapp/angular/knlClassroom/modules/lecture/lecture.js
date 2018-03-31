@@ -33,6 +33,25 @@ app.controller('LectureController', [
       return found;
     };
 
+    $scope.getFileURL = function(id){
+      if(!classroomInfo.files[id]){
+        return;
+      }
+      var type = classroomInfo.files[id].type || 'hosted';
+        console.log(type, classroomInfo.files[id][type+"URL"]);
+      if(type && classroomInfo.files[id][type+"URL"]){
+        var prefixURL = '';
+        if(classroomInfo.files[id].type == 'uploaded' && location.hostname === 'localhost'){
+          prefixURL = 'http://localhost:8888';
+        }
+        if(type == 'uploaded'){
+          prefixURL += classroomInfo.files._baseURL;
+        }
+        console.log(prefixURL + classroomInfo.files[id][type+"URL"]);
+        return prefixURL + classroomInfo.files[id][type+"URL"];
+      }
+    };
+
 		$scope.initLecture = function(){
 			if(!$scope.classroomInfo) return;
 
@@ -50,29 +69,17 @@ app.controller('LectureController', [
 			$rootScope.evaluateTimer(true);
 
 			var key = 'knl.lecture.'+$scope.lectureUUID+'.type';
-        var lectureType = knlUtils.doLMSGetValueSanitized(key);
+      var lectureType = knlUtils.doLMSGetValueSanitized(key);
       if(!lectureType){
         knlUtils.setAttribute(key, $scope.lecture.type);
-      }
-
-      if($scope.lecture.id && $scope.lecture.id.indexOf('/') == 0 && location.hostname === 'localhost'){
-        $scope.prefixURL = 'http://localhost:8888';
       }
       if($scope.classroomInfo.colorBackground){
         $scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
       }
-			if($scope.lecture.imageBackground){
-        var prefix = '';
-        if($scope.lecture.imageBackground && $scope.lecture.imageBackground.indexOf('/') == 0 && location.hostname === 'localhost'){
-           prefix = 'http://localhost:8888';
-        }
-        $scope.bgStyle += 'background: url('+prefix+$scope.lecture.imageBackground+') no-repeat center center fixed;';
-      } else if($scope.classroomInfo.imageBackground){
-        var prefix = '';
-        if($scope.classroomInfo.imageBackground && $scope.classroomInfo.imageBackground.indexOf('/') == 0 && location.hostname === 'localhost'){
-           prefix = 'http://localhost:8888';
-        }
-        $scope.bgStyle += 'background: url('+prefix+$scope.classroomInfo.imageBackground+') no-repeat center center fixed;';
+			if($scope.getFileURL($scope.lecture.imageBackground)){
+        $scope.bgStyle += 'background: url('+$scope.getFileURL($scope.lecture.imageBackground)+') no-repeat center center fixed;';
+      } else if($scope.getFileURL($scope.classroomInfo.imageBackground)){
+        $scope.bgStyle += 'background: url('+$scope.getFileURL($scope.classroomInfo.imageBackground)+') no-repeat center center fixed;';
       } 
 
       angular.forEach($scope.classroomInfo.modules, function(module){

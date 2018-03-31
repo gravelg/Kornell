@@ -17,16 +17,16 @@ app.controller('VideoLectureController', [
 	  		$scope.sources = [];
   			$scope.sources.push(
 				{
-			        src: $scope.contentPath + $scope.lecture.id,
+			        src: $scope.getFileURL($scope.lecture.id),
 			        type: 'video/mp4',
 			        label: 'high',
 			        res: 'high'
 		     	}
 	      	);
-	      	if($scope.lecture.idLow){
+	      	if($scope.getFileURL($scope.lecture.idLow)){
 	  			$scope.sources.push(
 					{
-				        src: $scope.contentPath + $scope.lecture.idLow,
+				        src: $scope.getFileURL($scope.lecture.idLow),
 				        type: 'video/mp4',
 				        label: 'low',
 				        res: 'low'

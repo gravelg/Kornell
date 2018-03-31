@@ -4,7 +4,6 @@ var app = angular.module('knl');
 
 app.controller('WizardController', [
   '$scope',
-  '$rootScope',
   '$timeout',
   '$window',
   '$sce',
@@ -12,9 +11,9 @@ app.controller('WizardController', [
   '$uibModal',
   'FileUploader',
   'LECTURE_TYPES',
-  function($scope, $rootScope, $timeout, $window, $sce, $location, $uibModal, FileUploader, LECTURE_TYPES) {
+  function($scope, $timeout, $window, $sce, $location, $uibModal, FileUploader, LECTURE_TYPES) {
 
-    $rootScope.postMessageToParentFrame("wizardReady", "");
+    $scope.postMessageToParentFrame("wizardReady", "");
 
     window.addEventListener('message',function(event) {
       if(event.data.type === 'classroomJsonLoad'){
@@ -29,6 +28,8 @@ app.controller('WizardController', [
     },false);
     
     $scope.initWizard = function(){
+
+      console.log($scope.root);
 
       $scope.uiTreeOptions = {
         accept: function (src, dest, destIndex) {
@@ -116,7 +117,7 @@ app.controller('WizardController', [
             localStorage.hideHelpOnStart = true;
           });
         } else {
-          $scope.goToNode($scope.lastLectureUUID || $scope.lastModuleUUID);
+          $scope.goToNode($scope.root.lastVisitedLectureUUID || $scope.lastLectureUUID || $scope.lastModuleUUID);
         }
       });
       
@@ -187,7 +188,7 @@ app.controller('WizardController', [
         $scope.savedRoot = angular.copy($scope.root);
         $scope.verifyTree();
         var contents = decodeURI(Base64.decode(localStorage.KNLwp));
-        $rootScope.postMessageToParentFrame("wizardPublish", contents);
+        $scope.postMessageToParentFrame("wizardPublish", contents);
       };
       $scope.confirmModal(publishTreeMessage, publishTreeCallback);
     };
@@ -203,7 +204,7 @@ app.controller('WizardController', [
         $scope.root = angular.copy($scope.savedRoot);
         $scope.data = [$scope.root];
         $scope.goToNode($scope.selectedNode.uuid);
-        $rootScope.postMessageToParentFrame("wizardDiscard", "");
+        $scope.postMessageToParentFrame("wizardDiscard", "");
       };
       $scope.confirmModal(discardTreeMessage, discardTreeCallback);
     };
@@ -233,7 +234,7 @@ app.controller('WizardController', [
       $scope.savedRoot = angular.copy($scope.root);
       $scope.verifyTree();
       var contents = decodeURI(Base64.decode(localStorage.KNLwp));
-      $rootScope.postMessageToParentFrame("wizardSave", contents);
+      $scope.postMessageToParentFrame("wizardSave", contents);
     };
 
     $scope.verifyTreeHelper = function() {
@@ -279,21 +280,22 @@ app.controller('WizardController', [
           }
         };
 
-        $scope.root.uuid = $scope.root.uuid || $rootScope.uuid();
+        $scope.root.uuid = $scope.root.uuid || $scope.uuid();
+        $scope.root.files = $scope.root.files || {};
         $scope.treeIsUnsaved = false;
         $scope.hasFinalExamLecture = false;
         $scope.lectureUUIDs = [];
         var modulesCount = 0, totalLecturesCount = 0;
         angular.forEach($scope.root.modules, function(module){
           $scope.lastModuleUUID = module.uuid;
-          module.uuid = module.uuid || $rootScope.uuid();
+          module.uuid = module.uuid || $scope.uuid();
           module.itemType = "module";
           module.parentUUID = $scope.root.uuid;
           module.count = modulesCount++;
           var lecturesCount = 0;
           angular.forEach(module.lectures, function(lecture){
             $scope.lastLectureUUID = lecture.uuid;
-            lecture.uuid = lecture.uuid || $rootScope.uuid();
+            lecture.uuid = lecture.uuid || $scope.uuid();
             lecture.itemType = "lecture";
             lecture.parentUUID = module.uuid;
             lecture.count = lecturesCount++;
@@ -308,6 +310,13 @@ app.controller('WizardController', [
             verifySavedStatus(lecture);
           });
           verifySavedStatus(module);
+        });
+        angular.forEach($scope.root.files, function(file, attributeName){
+          if(attributeName != '_baseURL'){
+            if(!file.uploadedURL && !file.hostedURL && file.type == 'uploaded'){
+              delete $scope.root.files[attributeName];
+            }
+          }
         });
         verifySavedStatus($scope.root);
         localStorage.KNLwp = Base64.encode(encodeURI(JSON.stringify($scope.root)));
@@ -375,7 +384,7 @@ app.controller('WizardController', [
             itemType: 'lecture',
             title: lectureName,
             type: selectedType,
-            uuid: $rootScope.uuid()
+            uuid: $scope.uuid()
           }
           if(lecture.type == 'bubble') {
             lecture.text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
@@ -436,7 +445,7 @@ app.controller('WizardController', [
         itemType: "root",
         paddingTopIframe: 56,
         modules: [],
-        uuid: $rootScope.uuid()
+        uuid: $scope.uuid()
       };
       $scope.newModule();
     }
@@ -445,7 +454,7 @@ app.controller('WizardController', [
       var newModule = {
         itemType: 'module',
         title: 'Módulo ' + ($scope.root.modules.length + 1),
-        uuid: $rootScope.uuid(),
+        uuid: $scope.uuid(),
         lectures: []
       };
       $scope.root.modules.push(newModule);
@@ -466,11 +475,11 @@ app.controller('WizardController', [
     };
 
     $scope.edit = function (scope) {
-      $rootScope.selectedNode = scope.$modelValue;
+      $scope.selectedNode = scope.$modelValue;
       $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, true);
       $scope.selectedNodeScope = scope;
       if(!$scope.keepViewTab){
-        $rootScope.selectedTab = 'edit';
+        $scope.selectedTab = 'edit';
       }
       $scope.keepViewTab = false;
       $scope.previewURL = $sce.trustAsResourceUrl(
@@ -480,10 +489,19 @@ app.controller('WizardController', [
       var editPanel = $('#editPanel').get(0)
       editPanel && editPanel.scrollIntoView();
       $scope.refreshSlimScroll();
+      $scope.root.lastVisitedLectureUUID = $scope.selectedNode.uuid;
     };
 
     $scope.remove = function () {
       if($scope.selectedNodeScope){
+
+        //cleanup the files associated with the node
+        angular.forEach($scope.root.files, function(file, attributeName){
+          if(attributeName.indexOf($scope.selectedNode.uuid) == 0){
+            delete $scope.root.files[attributeName];
+          }
+        });
+
         var node = $scope.selectedNode,
             parentUUID = node.parentUUID,
             parentArrayAttribute = node.itemType + 's', //modules or lectures
@@ -579,7 +597,7 @@ app.controller('WizardController', [
 
     $scope.trimVimeoURL = function(){
       if($scope.selectedNode.id.indexOf('vimeo.com/') >= 0){
-        $rootScope.sendKornellNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
+        $scope.sendKornellNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
         $scope.selectedNode.id = $scope.selectedNode.id.split('vimeo.com/')[1];
       }
     };
@@ -589,7 +607,7 @@ app.controller('WizardController', [
         var r, rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
         try {
           var url =  url.match(rx)[1];
-          $rootScope.sendKornellNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
+          $scope.sendKornellNotification("success", "O ID do vídeo foi extraído da URL com sucesso");
           return url;
         } catch(err){
           return url;
@@ -690,72 +708,106 @@ app.component('addLectureModal', {
 
 app.controller('FileController', [
   '$scope',
-  '$rootScope',
   'FileUploader',
-  function($scope, $rootScope, FileUploader) {
-    
+  function($scope, FileUploader) {
+      
     var uploader = $scope.uploader = new FileUploader();
 
-    uploader.onAfterAddingFile = function(fileItem) {
-      fileItem.disableMultipart = true;
-      
-      //TODO 'mpg, mpeg, mp4, mov, mkv'
-      var allowedExtensions = $scope.uploaderType === 'video' ? 'mp4' : 'jpg, jpeg, gif, png',
-        fileName = fileItem.file && fileItem.file.name,
-        fileParts = fileName && fileName.split('.'),
-        fileExtension = fileParts && fileParts.length > 1 && fileParts[fileParts.length - 1],
-        isAllowedExtension = fileExtension && allowedExtensions.indexOf(fileExtension) >= 0;
+    $scope.init = function(modelAttribute, uploaderType){
+      $scope.modelAttribute = modelAttribute;
+      $scope.uploaderType = uploaderType;
+      $scope.fileUUID = $scope.selectedNode.uuid + '_' + modelAttribute;
+      $scope.selectedNode[$scope.modelAttribute] = $scope.fileUUID;
+      $scope.root.files[$scope.fileUUID] = $scope.root.files[$scope.fileUUID] || {};
+      $scope.root.files[$scope.fileUUID].type = $scope.root.files[$scope.fileUUID].type || 'uploaded';
+      $scope.initializeUploader();
+    };
 
-      if(isAllowedExtension){
-        if(uploader.queue.length > 1){
-          uploader.queue.splice(0, 1);
+    $scope.getPrefixURL = function() {
+      var prefixURL = '';
+      if($scope.root.files[$scope.fileUUID].type === 'uploaded'){
+        if(location.hostname === 'localhost'){
+          prefixURL = 'http://localhost:8888';
         }
-        uploader.requestUploadPath = false;
-        fileItem.file.name = $rootScope.uuid() + '.' + fileExtension;
-        $rootScope.postMessageToParentFrame("requestUploadPath", fileItem.file.name);
+        prefixURL += $scope.root.files._baseURL;
+      }
+      return prefixURL;
+    };
+
+    $scope.removeCurrentFile = function(){
+      if($scope.root.files[$scope.fileUUID].type === 'uploaded'){
+        delete $scope.root.files[$scope.fileUUID].uploadedURL;
+        delete $scope.root.files[$scope.fileUUID].originalFileName;
       } else {
-        $rootScope.sendKornellNotification("error", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
-        uploader.queue = [];
+        delete $scope.root.files[$scope.fileUUID].hostedURL;
       }
     };
 
-    uploader.onBeforeUploadItem = function(item) {
-      if(!uploader.requestUploadPath) {
-        $rootScope.sendKornellNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
-        return;
-      }
-      if(uploader.queue.length == 1){
-        uploader.queue[0].url = uploader.requestUploadPath;
-        uploader.queue[0].uploader.url = uploader.requestUploadPath;
-        uploader.queue[0].method = 'PUT';
-        uploader.queue[0].fullURL = uploader.requestUploadPath.split('.s3.amazonaws.com')[1].split('?AWS')[0];
-        //item.removeAfterUpload = true;
-      }
-    };
-
-    $rootScope.$watch('selectedNode.uuid', function() {
-        uploader.queue = [];
-    });
-
-    uploader.onSuccessItem = function(fileItem, response, status, headers) {
-      $rootScope.sendKornellNotification("success", "Upload concluído com sucesso.");
-      $scope.modelAttribute = $scope.modelAttribute || 'id';
-      $rootScope.selectedNode[$scope.modelAttribute] = fileItem.fullURL;
+    $scope.initializeUploader = function(){
       uploader.queue = [];
-    };
 
-    uploader.onErrorItem = function(fileItem, response, status, headers) {
-      $rootScope.sendKornellNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
-    };
+      uploader.onAfterAddingFile = function(fileItem) {
+        fileItem.disableMultipart = true;
+        
+        //TODO 'mpg, mpeg, mp4, mov, mkv'
+        var allowedExtensions = $scope.uploaderType === 'video' ? 'mp4' : 'jpg, jpeg, gif, png',
+          fileName = fileItem.file && fileItem.file.name,
+          fileParts = fileName && fileName.split('.'),
+          fileExtension = fileParts && fileParts.length > 1 && fileParts[fileParts.length - 1],
+          isAllowedExtension = fileExtension && allowedExtensions.indexOf(fileExtension) >= 0;
 
-    window.addEventListener('message',function(event) {
-      if(event.data.type === 'responseUploadPath') {
-          uploader.requestUploadPath = event.data.message;
-          if(uploader.queue.length > 0){
-            uploader.queue[0].upload();
+        if(isAllowedExtension){
+          if(uploader.queue.length > 1){
+            uploader.queue.splice(0, 1);
           }
-      }
-    },false);
+          uploader.queue[0].originalFileName = fileName;
+          uploader.requestUploadPath = false;
+          fileItem.file.name = $scope.uuid() + '.' + fileExtension;
+          $scope.postMessageToParentFrame("requestUploadPath", fileItem.file.name);
+        } else {
+          $scope.sendKornellNotification("error", "Extensão do arquivo inválida. Extensões aceitas: " + allowedExtensions + '.');
+          uploader.queue = [];
+        }
+      };
+
+      uploader.onBeforeUploadItem = function(item) {
+        if(!uploader.requestUploadPath) {
+          $scope.sendKornellNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+          return;
+        }
+        if(uploader.queue.length == 1){
+          uploader.queue[0].url = uploader.requestUploadPath;
+          uploader.queue[0].uploader.url = uploader.requestUploadPath;
+          uploader.queue[0].method = 'PUT';
+          uploader.queue[0].fullURL = uploader.requestUploadPath.split('.s3.amazonaws.com')[1].split('?AWS')[0];
+        }
+      };
+
+      uploader.onSuccessItem = function(fileItem, response, status, headers) {
+        $scope.sendKornellNotification("success", "Upload concluído com sucesso.");
+        var fullURLSplit = fileItem.fullURL.split('/');
+        $scope.root.files[$scope.fileUUID] = $scope.root.files[$scope.fileUUID] || {};
+        $scope.root.files[$scope.fileUUID].uploadedURL = fullURLSplit.pop();
+        $scope.root.files[$scope.fileUUID].type = 'uploaded';
+        $scope.root.files._baseURL = fullURLSplit.join('/')+'/';
+        $scope.root.files[$scope.fileUUID].originalFileName = fileItem.originalFileName;
+        uploader.queue = [];
+      };
+
+      uploader.onErrorItem = function(fileItem, response, status, headers) {
+        $scope.sendKornellNotification("error", "Erro ao tentar fazer o upload do arquivo. Tente novamente mais tarde ou entre em contato com o suporte.");
+      };
+
+      window.addEventListener('message',function(event) {
+        if(event.data.type === 'responseUploadPath') {
+            uploader.requestUploadPath = event.data.message;
+            if(uploader.queue.length > 0){
+              uploader.queue[0].upload();
+            }
+        }
+      },false);
+
+    };
   }
 ]);
 

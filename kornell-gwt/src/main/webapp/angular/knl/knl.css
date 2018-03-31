@@ -227,6 +227,8 @@ input[type="file"]::-webkit-file-upload-button{
 
 .btn-default.active.focus, .btn-default.active:focus, .btn-default.active:hover, .btn-default:active.focus, .btn-default:active:focus, .btn-default:active:hover, .open>.dropdown-toggle.btn-default.focus, .open>.dropdown-toggle.btn-default:focus, .open>.dropdown-toggle.btn-default:hover {
     color: #ffffff;
+    background-color: #2d2d2d;
+    border-color: #232323;
 }
 
 .nav-tabs > li > a, 
