@@ -1,8 +1,15 @@
 <style type="text/css">
 	.checkbox-primary input[type="checkbox"]:checked + label::before, 
 	.checkbox-primary input[type="radio"]:checked + label::before {
-	    background-color: #{{classroomInfo.colorTheme}} !important;
-	    border-color: #{{classroomInfo.colorTheme}} !important;
+	    background-color: #{{classroomInfo.colorFont}} !important;
+	    border-color: #{{classroomInfo.colorFont}} !important;
+	}
+	.checkbox-primary input[type="checkbox"]:checked + label::after, 
+	.checkbox-primary input[type="radio"]:checked + label::after {
+	    color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.checkbox label::before {
+	    border: 1px solid #{{classroomInfo.colorFont}} !important;
 	}
 	.btn-primary {
 	    color:  #{{classroomInfo.colorTitle}} !important;

@@ -227,7 +227,7 @@
         <div class="checkbox checkbox-primary">
             <input class="" ng-model="selectedNode.isMultiple" ng-change="toggleOptions()" id="checkbox_isMultiple" type="checkbox">
             <label for="checkbox_isMultiple" id="label_isMultiple">
-                <span><small>Permitir que mais de uma alternativa seja selecionada (ATENÇÃO: alterações afetarão todas as questões)</small></span>
+                <span><small>Permitir que mais de uma alternativa seja selecionada - se essa opção estiver seletionada, a questão será de múltipla escolha (ATENÇÃO: alterações afetarão todas as questões)</small></span>
             </label>
         </div>
         <div class="checkbox checkbox-primary">
@@ -294,7 +294,7 @@
         <div class="checkbox checkbox-primary">
             <input class="" ng-model="selectedNode.isMultiple" ng-change="toggleOption(selectedNode)" id="checkbox_isMultiple" type="checkbox">
             <label for="checkbox_isMultiple" id="label_isMultiple">
-                <span><small>Permitir que mais de uma alternativa seja selecionada</small></span>
+                <span><small>Permitir que mais de uma alternativa seja selecionada - se essa opção estiver seletionada, a questão será de múltipla escolha</small></span>
             </label>
         </div>
         <div class="checkbox checkbox-primary">
@@ -475,8 +475,9 @@
     </script>
 
     <script type="text/ng-template" id="fileUpload.html">
-        <div class="btn-group">
-            <label class="btn {{root.files[fileUUID].type !== 'hosted' ? 'btn-primary': 'btn-default'}}" ng-model="root.files[fileUUID].type" uib-btn-radio="'uploaded'" uncheckable>Fazer upload</label>
+        <div class="btn-group" style="margin-top: 10px;">
+            <label style="float: left; padding: 10px;">Escolha o tipo do arquivo: </label>
+            <label class="btn {{root.files[fileUUID].type !== 'hosted' ? 'btn-primary': 'btn-default'}}" ng-model="root.files[fileUUID].type" uib-btn-radio="'uploaded'" uncheckable>Arquivo via upload</label>
             <label class="btn {{root.files[fileUUID].type === 'hosted' ? 'btn-primary': 'btn-default'}}" ng-model="root.files[fileUUID].type" uib-btn-radio="'hosted'" uncheckable>Arquivo hospedado em outro site</label>
         </div>
         <br><br>
@@ -512,7 +513,7 @@
                 <img ng-src="{{getPrefixURL() + root.files[fileUUID].uploadedURL}}" style="max-width: 500px; max-height: 300px; float: right;" />
             </div>
         </div>
-        <div class="row" ng-show="root.files[fileUUID].type !== 'hosted' && !root.files[fileUUID].originalFileName">
+        <div class="row" ng-if="root.files[fileUUID].type !== 'hosted' && !root.files[fileUUID].originalFileName">
             <div class="{{!uploader.queue.length ? 'col-md-9' : 'col-md-12'}}" ng-if="uploader.queue.length">
                 <label>Status do upload:</label>
                 <table class="table">

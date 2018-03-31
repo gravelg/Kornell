@@ -17,7 +17,6 @@ import kornell.core.to.CourseVersionTO;
 import kornell.gui.client.KornellConstantsHelper;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
-import kornell.gui.client.mvp.PlaceUtils;
 import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminCourseVersionsPlace;
 import kornell.gui.client.util.view.KornellNotification;
 
@@ -81,9 +80,9 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
             session.courseVersions().create(courseVersion, new Callback<CourseVersion>() {
                 @Override
                 public void ok(CourseVersion courseVersion) {
-                    bus.fireEvent(new ShowPacifierEvent(false));
                     KornellNotification.show("Versão de curso criada com sucesso!");
-                    PlaceUtils.reloadCurrentPlace(bus, placeController);
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                    placeController.goTo(new AdminCourseVersionPlace(courseVersion.getUUID()));
                 }
 
                 @Override

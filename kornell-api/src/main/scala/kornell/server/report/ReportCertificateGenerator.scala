@@ -143,8 +143,9 @@ object ReportCertificateGenerator {
     }
     val parameters: HashMap[String, Object] = new HashMap()
     //TODO: both urls NEED the extra slash because the jasper files count on it
-    parameters.put("institutionURL", mkurl(certificateData.head.getBaseURL, "repository", certificateData.head.getAssetsRepositoryUUID, S3Service.PREFIX, S3Service.INSTITUTION) + "/")
-    parameters.put("assetsURL", mkurl(certificateData.head.getBaseURL, certificateDetails.getBgImage) + "/")
+    val baseURL = certificateData.head.getBaseURL.split("Kornell.nocache.html").head
+    parameters.put("institutionURL", mkurl(baseURL, "repository", certificateData.head.getAssetsRepositoryUUID, S3Service.PREFIX, S3Service.INSTITUTION) + "/")
+    parameters.put("assetsURL", mkurl(baseURL, certificateDetails.getBgImage) + "/")
 
     val cl = Thread.currentThread.getContextClassLoader
     val stream = cl.getResourceAsStream(certificateDetails.getCertificateType.getPath)

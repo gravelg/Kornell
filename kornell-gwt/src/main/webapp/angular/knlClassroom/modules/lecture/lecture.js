@@ -34,21 +34,16 @@ app.controller('LectureController', [
     };
 
     $scope.getFileURL = function(id){
-      if(!classroomInfo.files[id]){
-        return;
-      }
-      var type = classroomInfo.files[id].type || 'hosted';
-        console.log(type, classroomInfo.files[id][type+"URL"]);
-      if(type && classroomInfo.files[id][type+"URL"]){
-        var prefixURL = '';
-        if(classroomInfo.files[id].type == 'uploaded' && location.hostname === 'localhost'){
-          prefixURL = 'http://localhost:8888';
-        }
+      if(classroomInfo.files[id]){
+        var type = classroomInfo.files[id].type || 'hosted',
+            url = classroomInfo.files[id][type+"URL"];
         if(type == 'uploaded'){
-          prefixURL += classroomInfo.files._baseURL;
+          url = classroomInfo.files._baseURL + url;
+          if(location.hostname === 'localhost'){
+            url = 'http://localhost:8888' + url;
+          }
         }
-        console.log(prefixURL + classroomInfo.files[id][type+"URL"]);
-        return prefixURL + classroomInfo.files[id][type+"URL"];
+        return url;
       }
     };
 
@@ -77,10 +72,13 @@ app.controller('LectureController', [
         $scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
       }
 			if($scope.getFileURL($scope.lecture.imageBackground)){
-        $scope.bgStyle += 'background: url('+$scope.getFileURL($scope.lecture.imageBackground)+') no-repeat center center fixed;';
+        $scope.bgStyle += 'background-image: url('+$scope.getFileURL($scope.lecture.imageBackground)+');';
       } else if($scope.getFileURL($scope.classroomInfo.imageBackground)){
-        $scope.bgStyle += 'background: url('+$scope.getFileURL($scope.classroomInfo.imageBackground)+') no-repeat center center fixed;';
-      } 
+        $scope.bgStyle += 'background-image: url('+$scope.getFileURL($scope.classroomInfo.imageBackground)+');';
+      }
+      $scope.bgStyle += "background-repeat: no-repeat;" + 
+        "background-attachment: fixed;" +
+        "background-position: center center;"
 
       angular.forEach($scope.classroomInfo.modules, function(module){
           angular.forEach(module.lectures, function(lecture){

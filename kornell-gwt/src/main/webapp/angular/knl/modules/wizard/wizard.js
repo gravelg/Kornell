@@ -743,6 +743,10 @@ app.controller('FileController', [
       }
     };
 
+    $scope.$watch('selectedNode.uuid', function() {
+      $scope.init($scope.modelAttribute, $scope.uploaderType);
+    });
+
     $scope.initializeUploader = function(){
       uploader.queue = [];
 
