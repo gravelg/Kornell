@@ -20,7 +20,7 @@ app.config([
     '$provide', 
     function($routeProvider, $locationProvider, $provide) {
         $routeProvider.when('/wizard', {
-            templateUrl: 'knl/modules/wizard/wizard.html',
+            templateUrl: 'knl/modules/wizard/wizard.html?version='+(new Date().getTime()),
             controller: 'WizardController'
         })
         .otherwise({
