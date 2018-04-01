@@ -706,10 +706,66 @@ app.component('addLectureModal', {
 });
 
 
+app.component('chooseExistingFileModal', {
+  templateUrl: 'chooseExistingFileModal.html',
+  bindings: {
+    resolve: '<',
+    close: '&',
+    dismiss: '&'
+  },
+  controller: [
+    function () {
+      var $ctrl = this;
+
+      $ctrl.$onInit = function () {
+        $ctrl.files = [];
+        for(var name in $ctrl.resolve.files){
+          var file = $ctrl.resolve.files[name],
+            isUploaded = (file.type === 'uploaded' && file.uploadedURL);
+          if(isUploaded){
+            var isVideoUploader = ($ctrl.resolve.uploaderType === 'video'),
+              isVideoFile = (file.uploadedURL.split('.').pop() === 'mp4'),
+            isAllowedExtension = (isVideoUploader && isVideoFile) || (!isVideoUploader && !isVideoFile);
+            if(isAllowedExtension){
+              var found = false;
+              for(var i = 0; i < $ctrl.files.length; i++){
+                if($ctrl.files[i].uploadedURL === file.uploadedURL){
+                  found = true;
+                  break;
+                }
+              }
+              if(!found){
+                file = angular.copy(file);
+                delete file.hostedURL;
+                $ctrl.files.push(file);
+              }
+            }
+          }
+        }
+      };
+
+      $ctrl.getPrefixURL = function() {
+        var prefixURL = '';
+        if(location.hostname === 'localhost'){
+          prefixURL = 'http://localhost:8888';
+        }
+        prefixURL += $ctrl.resolve.files._baseURL;
+        return prefixURL;
+      };
+
+      $ctrl.ok = function (selectedImage) {
+        $ctrl.close({$value: selectedImage});
+      };
+    }
+  ]
+});
+
+
 app.controller('FileController', [
   '$scope',
   'FileUploader',
-  function($scope, FileUploader) {
+  '$uibModal',
+  function($scope, FileUploader, $uibModal) {
       
     var uploader = $scope.uploader = new FileUploader();
 
@@ -741,6 +797,30 @@ app.controller('FileController', [
       } else {
         delete $scope.root.files[$scope.fileUUID].hostedURL;
       }
+    };
+
+    $scope.chooseExistingFile = function(){
+      var modalInstance = $uibModal.open({
+        animation: true,
+        component: 'chooseExistingFileModal',
+        size: 'lg',
+        resolve: {
+          files: function(){
+            return $scope.root.files;
+          },
+          uploaderType: function(){
+            return $scope.uploaderType;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+        function (selectedFile) {
+          $scope.root.files[$scope.fileUUID] = selectedFile;
+        },
+        function(){
+        }
+      );
     };
 
     $scope.$watch('selectedNode.uuid', function() {
