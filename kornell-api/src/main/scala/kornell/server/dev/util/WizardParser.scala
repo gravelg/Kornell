@@ -12,6 +12,7 @@ import scala.util.Try
 import java.io.InputStream
 import com.amazonaws.util.json.JSONUtils
 import scala.util.parsing.json.JSON
+import java.util.Date
 
 object WizardParser {
 
@@ -35,6 +36,7 @@ object WizardParser {
         topic = LOM.newTopic(topicObjMap.get("title").get.asInstanceOf[String])
         result += LOM.newContent(topic)
 
+        val time = (new Date).getTime
         val slides: List[Any] = topicObjMap.get("lectures").get.asInstanceOf[List[Any]]
         slides foreach { slideObj =>
           {
@@ -43,7 +45,7 @@ object WizardParser {
             val fileName = ""
             val title = slideObjMap.get("title").get.asInstanceOf[String]
             val uuid = slideObjMap.get("uuid").get.asInstanceOf[String]
-            val path = "/angular/knlClassroom/index.html#!/lecture?uuid=" + uuid
+            val path = "/angular/knlClassroom/index.html?cache=" + time + "#!/lecture?uuid=" + uuid
 
             val page = LOM.newExternalPage(path, fileName, title, uuid, index)
             page.setVisited(visited.contains(page.getKey()))

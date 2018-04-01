@@ -1,5 +1,7 @@
 package kornell.gui.client.presentation.admin.courseversion.courseversion.generic;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.IFrameElement;
@@ -46,7 +48,7 @@ public class WizardView extends Composite {
 
     private void createIFrame() {
         if (iframe == null) {
-            String iframeSrc = "/angular/knl.html#!/wizard";
+            String iframeSrc = "/angular/knl.html?cache="+(new Date().getTime())+"#!/wizard";
             if(Window.Location.getHostName().indexOf("localhost") >= 0){
                 iframeSrc = "http://localhost:8008" + iframeSrc;
             }
