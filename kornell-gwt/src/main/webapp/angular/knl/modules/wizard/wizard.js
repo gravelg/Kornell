@@ -110,11 +110,11 @@ app.controller('WizardController', [
       }, true);
 
       $timeout(function(){
-        if(localStorage.hideHelpOnStart !== "true"){
+        if(localStorage['KNLw.hideHelpOnStart'] !== "true"){
           $scope.goToNode($scope.root.uuid);
           $timeout(function(){
             $scope.startTreeHelp();
-            localStorage.hideHelpOnStart = true;
+            localStorage['KNLw.hideHelpOnStart'] = true;
           });
         } else {
           $scope.goToNode($scope.root.lastVisitedLectureUUID || $scope.lastLectureUUID || $scope.lastModuleUUID);
@@ -169,8 +169,8 @@ app.controller('WizardController', [
         showStepNumbers: false,
         showBullets: true,
         showProgress: true,
-        exitOnOverlayClick: (localStorage.hideHelpOnStart === "true"),
-        exitOnEsc: (localStorage.hideHelpOnStart === "true"),
+        exitOnOverlayClick: (localStorage['KNLw.hideHelpOnStart'] === "true"),
+        exitOnEsc: (localStorage['KNLw.hideHelpOnStart'] === "true"),
         nextLabel: 'Próxima',
         prevLabel: 'Anterior',
         skipLabel: 'Fechar',
