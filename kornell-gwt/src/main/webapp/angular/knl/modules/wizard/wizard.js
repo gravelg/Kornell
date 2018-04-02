@@ -483,7 +483,7 @@ app.controller('WizardController', [
       }
       $scope.keepViewTab = false;
       $scope.previewURL = $sce.trustAsResourceUrl(
-        "knlClassroom/index.html?version="+(new Date().getTime())+"#!/lecture" + 
+        "knlClassroom/index.html?cache-buster="+(new Date().getTime())+"#!/lecture" + 
         "?preview=1" + 
         "&uuid=" + $scope.selectedNode.uuid);
       var editPanel = $('#editPanel').get(0)
