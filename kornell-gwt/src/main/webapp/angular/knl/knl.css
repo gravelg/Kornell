@@ -156,6 +156,12 @@ label {
     margin-bottom: 8px;
 }
 
+label small {
+    font-size: 14px;
+    margin-bottom: initial;
+}
+
+
 .alert-primary {
     background-color: #30b0ec;
     border-color: #30b0ec;

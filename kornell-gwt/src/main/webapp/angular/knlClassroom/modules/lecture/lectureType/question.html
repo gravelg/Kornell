@@ -37,9 +37,9 @@
 				</label>
 			</div>
             <div id="resultWrapper">
-				<button type="button" id="solve" ng-click="solve()" class="btn btn-primary btn-sm">{{answerCorrect === true ? "AVANÇAR" : "VALIDAR"}}</button>	
-	        	<div ng-show="answerCorrect === true" class="alert question-alert">Parabéns, acertou a resposta. Avance!</div>
-				<div ng-show="answerCorrect === false" class="alert question-alert">Releia as opções e tente novamente.</div>
+				<button type="button" id="solve" ng-click="solve()" class="btn btn-primary btn-sm text-uppercase" translate>{{(answerCorrect === true ? "ADVANCE" : "VALIDATE") }}</button>	
+	        	<div ng-show="answerCorrect === true" class="alert question-alert" translate>QUESTION_CORRECT_ANSWER</div>
+				<div ng-show="answerCorrect === false" class="alert question-alert" translate>QUESTION_WRONG_ANSWER</div>
             </div>
 		</fieldset>
     </form>
