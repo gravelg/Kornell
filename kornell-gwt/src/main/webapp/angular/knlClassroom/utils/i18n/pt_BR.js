@@ -14,7 +14,7 @@ var translations_pt_BR = {
 	EXAM_TOTAL_SCORE_POST: 'pontos.',
 	EXAM_MINIMUM_SCORE_PRE: 'Para ser aprovado é necessário obter',
 	EXAM_MINIMUM_SCORE_POST: 'pontos.',
-	EXAM_CAN_BE_DONE_AGAIN: 'Caso não seja aprovado você poderá refazer a prova.',
+	EXAM_CAN_BE_DONE_AGAIN: 'Caso não seja aprovado você poderá refazer a avaliação.',
 	NECESSARY_TO_REDO_EXAM: 'É necessário fazer a avaliação novamente.',
 	APPROVED_ON_EXAM: 'Você foi aprovado nesta avaliação. Você pode refazê-la se desejar, mas a sua nota continuará a mesma.',
 	CURRENT_SCORE: 'Nota atual',
