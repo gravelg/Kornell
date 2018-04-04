@@ -766,14 +766,11 @@ app.controller('FileController', [
   'FileUploader',
   '$uibModal',
   function($scope, FileUploader, $uibModal) {
-      
-    var uploader = $scope.uploader = new FileUploader();
 
     $scope.init = function(modelAttribute, uploaderType){
       $scope.modelAttribute = modelAttribute;
       $scope.uploaderType = uploaderType;
       $scope.fileUUID = $scope.selectedNode.uuid + '_' + modelAttribute;
-      $scope.selectedNode[$scope.modelAttribute] = $scope.fileUUID;
       $scope.root.files[$scope.fileUUID] = $scope.root.files[$scope.fileUUID] || {};
       $scope.root.files[$scope.fileUUID].type = $scope.root.files[$scope.fileUUID].type || 'uploaded';
       $scope.initializeUploader();
@@ -828,6 +825,7 @@ app.controller('FileController', [
     });
 
     $scope.initializeUploader = function(){
+      var uploader = $scope.uploader = new FileUploader();
       uploader.queue = [];
 
       uploader.onAfterAddingFile = function(fileItem) {
@@ -864,17 +862,18 @@ app.controller('FileController', [
           uploader.queue[0].uploader.url = uploader.requestUploadPath;
           uploader.queue[0].method = 'PUT';
           uploader.queue[0].fullURL = uploader.requestUploadPath.split('.s3.amazonaws.com')[1].split('?AWS')[0];
+          uploader.queue[0].fileUUID = $scope.fileUUID;
         }
       };
 
       uploader.onSuccessItem = function(fileItem, response, status, headers) {
         $scope.sendKornellNotification("success", "Upload concluído com sucesso.");
         var fullURLSplit = fileItem.fullURL.split('/');
-        $scope.root.files[$scope.fileUUID] = $scope.root.files[$scope.fileUUID] || {};
-        $scope.root.files[$scope.fileUUID].uploadedURL = fullURLSplit.pop();
-        $scope.root.files[$scope.fileUUID].type = 'uploaded';
+        $scope.root.files[fileItem.fileUUID] = $scope.root.files[fileItem.fileUUID] || {};
+        $scope.root.files[fileItem.fileUUID].uploadedURL = fullURLSplit.pop();
+        $scope.root.files[fileItem.fileUUID].type = 'uploaded';
+        $scope.root.files[fileItem.fileUUID].originalFileName = fileItem.originalFileName;
         $scope.root.files._baseURL = fullURLSplit.join('/')+'/';
-        $scope.root.files[$scope.fileUUID].originalFileName = fileItem.originalFileName;
         uploader.queue = [];
       };
 

@@ -33,7 +33,8 @@ app.controller('LectureController', [
       return found;
     };
 
-    $scope.getFileURL = function(id){
+    $scope.getFileURL = function(modelAttribute){
+      var id = $scope.lectureUUID + '_' + modelAttribute;
       if(classroomInfo.files[id]){
         var type = classroomInfo.files[id].type || 'hosted',
             url = classroomInfo.files[id][type+"URL"];
@@ -71,10 +72,10 @@ app.controller('LectureController', [
       if($scope.classroomInfo.colorBackground){
         $scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
       }
-			if($scope.getFileURL($scope.lecture.imageBackground)){
-        $scope.bgStyle += 'background-image: url('+$scope.getFileURL($scope.lecture.imageBackground)+');';
-      } else if($scope.getFileURL($scope.classroomInfo.imageBackground)){
-        $scope.bgStyle += 'background-image: url('+$scope.getFileURL($scope.classroomInfo.imageBackground)+');';
+			if($scope.getFileURL('imageBackground')){
+        $scope.bgStyle += 'background-image: url('+$scope.getFileURL('imageBackground')+');';
+      } else if($scope.getFileURL('imageBackground')){
+        $scope.bgStyle += 'background-image: url('+$scope.getFileURL('imageBackground')+');';
       }
       $scope.bgStyle += "background-repeat: no-repeat;" + 
         "background-attachment: fixed;" +

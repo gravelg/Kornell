@@ -432,7 +432,7 @@
                     </a>
                 </div>
                 <ol ui-tree-nodes="" ng-model="root.modules" ng-class="{hidden: collapsed}">
-                    <li ng-repeat="module in root.modules track by $index" ui-tree-node ng-include="'modulesRenderer.html'">
+                    <li ng-repeat="module in root.modules track by module.uuid" ui-tree-node ng-include="'modulesRenderer.html'">
                     </li>
                 </ol>
             </li>
@@ -457,7 +457,7 @@
         </a>
     </div>
     <ol ui-tree-nodes="" ng-model="module.lectures" ng-class="{hidden: collapsed}">
-        <li ng-repeat="lecture in module.lectures track by $index" ui-tree-node ng-include="'lecturesRenderer.html'">
+        <li ng-repeat="lecture in module.lectures track by lecture.uuid" ui-tree-node ng-include="'lecturesRenderer.html'">
         </li>
     </ol>
 </script>
