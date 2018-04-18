@@ -16,7 +16,7 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("A new version of the site is available.")
     String newVersionAvailable();
 
-    @DefaultStringValue("Redresh")
+    @DefaultStringValue("Refresh")
     String refresh();
 
     /**
@@ -76,9 +76,9 @@ public interface KornellConstants extends ConstantsWithLookup {
     String passwordChangeError();
 
     /**
-     * 
+     *
      * GenericWelcomeView
-     * 
+     *
      */
     @DefaultStringValue("All")
     String allClasses();
@@ -93,9 +93,9 @@ public interface KornellConstants extends ConstantsWithLookup {
     String inProgress();
 
     /**
-     * 
+     *
      * GenericCourseDetailsView
-     * 
+     *
      */
     @DefaultStringValue("Course details: ")
     String detailsHeader();
@@ -188,7 +188,7 @@ public interface KornellConstants extends ConstantsWithLookup {
     String description();
 
     /**
-     * 
+     *
      * GenericBarView
      */
 
@@ -1526,7 +1526,7 @@ public interface KornellConstants extends ConstantsWithLookup {
 
     /**
      * Errors 403
-     * 
+     *
      */
     @DefaultStringValue("For security reasons, you must update your password.")
     String forcedPasswordChange();

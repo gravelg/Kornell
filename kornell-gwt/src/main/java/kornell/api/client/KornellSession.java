@@ -26,6 +26,7 @@ public class KornellSession extends KornellClient {
     private UserInfoTO currentUser = null;
     private Institution institution = null;
     private CourseClassTO currentCourseClass = null;
+    private String currentVersionAPI = null;
 
     public KornellSession() {
         logger.info("Instantiated new Kornell Session");
@@ -266,6 +267,14 @@ public class KornellSession extends KornellClient {
             ClientProperties.set(PREFIX + ClientProperties.SEPARATOR + ClientProperties.CURRENT_SESSION,
                     userInfo.getPerson().getUUID());
         }
+    }
+
+    public void setCurrentVersionAPI(String currentVersionAPI) {
+        this.currentVersionAPI = currentVersionAPI;
+    }
+
+    public String getCurrentVersionAPI() {
+        return this.currentVersionAPI;
     }
 
 }

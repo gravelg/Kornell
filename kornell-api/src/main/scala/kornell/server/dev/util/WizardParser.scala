@@ -13,10 +13,12 @@ import java.io.InputStream
 import com.amazonaws.util.json.JSONUtils
 import scala.util.parsing.json.JSON
 import java.util.Date
+import kornell.server.util.Settings._
 
 object WizardParser {
 
   val topicPattern = """#\s?(.*)""".r
+  val buildNum = BUILD_NUM.getOpt.orElse("development_build").get
 
   def parse(classroomJson: String, visited: List[String]): Contents = {
     val json = JSON.parseFull(classroomJson)
@@ -45,7 +47,8 @@ object WizardParser {
             val fileName = ""
             val title = slideObjMap.get("title").get.asInstanceOf[String]
             val uuid = slideObjMap.get("uuid").get.asInstanceOf[String]
-            val path = "/angular/knlClassroom/index.html?cache-buster=" + time + "#!/lecture?uuid=" + uuid
+            //TODO tcfaria KORNELL.PROPERTIES
+            val path = "/angular/knlClassroom/index.html?cache-buster=" + buildNum + "#!/lecture?uuid=" + uuid
 
             val page = LOM.newExternalPage(path, fileName, title, uuid, index)
             page.setVisited(visited.contains(page.getKey()))
