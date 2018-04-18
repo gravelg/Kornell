@@ -18,6 +18,7 @@ import kornell.core.entity.CourseDetailsLibrary
 import kornell.server.jdbc.repository.CourseDetailsLibrariesRepo
 import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.to.CourseDetailsLibrariesTO
+import javax.ws.rs.core.Response
 
 @Path("courseDetailsLibraries")
 class CourseDetailsLibrariesResource {
@@ -52,6 +53,7 @@ class CourseDetailsLibrariesResource {
     @PathParam("entityUUID") entityUUID: String,
     @PathParam("index") index: String) = {
     CourseDetailsLibrariesRepo.moveUp(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
+    Response.noContent.build
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
@@ -63,6 +65,7 @@ class CourseDetailsLibrariesResource {
     @PathParam("entityUUID") entityUUID: String,
     @PathParam("index") index: String) = {
     CourseDetailsLibrariesRepo.moveDown(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
+    Response.noContent.build
   }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
