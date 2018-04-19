@@ -142,8 +142,8 @@ object ReportCertificateGenerator {
       return null
     }
     val parameters: HashMap[String, Object] = new HashMap()
-    //TODO: both urls NEED the extra slash because the jasper files count on it
     val baseURL = certificateData.head.getBaseURL.split("Kornell.nocache.html").head
+    //TODO: both urls NEED the extra slash because the jasper files count on it
     parameters.put("institutionURL", mkurl(baseURL, "repository", certificateData.head.getAssetsRepositoryUUID, S3Service.PREFIX, S3Service.INSTITUTION) + "/")
     parameters.put("assetsURL", mkurl(baseURL, certificateDetails.getBgImage) + "/")
 
@@ -175,7 +175,7 @@ object ReportCertificateGenerator {
       if (certificateInformationTOsByCourseClass.length == 0) {
         throw new ServerErrorException("errorGeneratingReport")
       } else {
-        val report = ReportCertificateGenerator.generateCertificate(certificateInformationTOsByCourseClass)
+        val report = generateCertificate(certificateInformationTOsByCourseClass)
         val bs = new ByteArrayInputStream(report)
         val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
         val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
@@ -187,7 +187,7 @@ object ReportCertificateGenerator {
           "Content-Disposition: attachment; filename=\"" + filename + "\"",
           Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), filename)
 
-        ReportCertificateGenerator.getCourseClassCertificateReportURL(courseClassUUID)
+        getCourseClassCertificateReportURL(courseClassUUID)
       }
     } catch {
       case e: Exception =>
@@ -208,14 +208,14 @@ object ReportCertificateGenerator {
   }
 
   def getCourseClassCertificateReportFileName(courseClassUUID: String) = {
-    mkurl(S3Service.PREFIX, S3Service.CERTIFICATES, ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get + courseClassUUID + ".pdf")
+    mkurl(S3Service.PREFIX, S3Service.REPORTS, S3Service.CERTIFICATES, "certificates-" + ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get + courseClassUUID + ".pdf")
   }
 
   def getCourseClassCertificateReportURL(courseClassUUID: String) = {
     val institutionUUID = getInstitutionUUID(courseClassUUID)
     val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(institutionUUID).get.getUUID)
     val key = getCourseClassCertificateReportFileName(courseClassUUID)
-    mkurl(InstitutionRepo(institutionUUID).get.getBaseURL, repo.url(key))
+    mkurl(InstitutionRepo(institutionUUID).get.getBaseURL.split("Kornell.nocache.html").head, repo.url(key))
   }
 
 }

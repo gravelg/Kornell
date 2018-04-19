@@ -1568,4 +1568,7 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("Error checking for certificates.")
     String errorCheckingCerts();
 
+    @DefaultStringValue("Error checking for the class info report.")
+    String errorCheckingClassInfo();
+
 }
