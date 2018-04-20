@@ -208,7 +208,7 @@ object ReportCourseClassGenerator {
 
       val cl = Thread.currentThread.getContextClassLoader
       val jasperStream = {
-        if (fileType != null && fileType == "xls")
+        if (fileType == "xls")
           cl.getResourceAsStream("reports/courseClassInfoXLS.jasper")
         else
           cl.getResourceAsStream("reports/courseClassInfo.jasper")
@@ -217,12 +217,19 @@ object ReportCourseClassGenerator {
       val bs = new ByteArrayInputStream(report)
       val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
       val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
-      val filename = getCourseClassInfoReportFileName(courseUUID, courseClassUUID, fileType)
+      val filename = getFileName(courseUUID, courseClassUUID)
+      val fileFullPath = getCourseClassInfoReportFileName(courseUUID: String, courseClassUUID: String, fileType: String)
+      val contentType = {
+        if (fileType == "xls")
+          "application/octet-stream"
+        else
+          "application/pdf"
+      }
       repo.put(
         bs,
-        "application/pdf",
+        contentType,
         "Content-Disposition: attachment; filename=\"" + filename + "\"",
-        Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), filename)
+        Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), fileFullPath)
 
       getCourseClassInfoReportURL(courseUUID, courseClassUUID, fileType)
     }
