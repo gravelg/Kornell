@@ -24,7 +24,7 @@ object RolesRepo {
 
   def getUserRoles(personUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, cc.name as courseClassName
+      | select r.*, pw.username, cc.name as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | left join CourseClass cc on r.courseClassUUID = cc.uuid
@@ -34,18 +34,21 @@ object RolesRepo {
 
   def getUsersForCourseClassByRole(courseClassUUID: String, roleType: RoleType, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, cc.name as courseClassName
+      | select r.*,
+      | if(pw.username is not null, pw.username, p.email) as username,
+      | cc.name as courseClassName
       | from Role r
-      | join Password pw on pw.personUUID = r.personUUID
+      | join Person p on p.uuid = r.personUUID
+      | left join Password pw on pw.personUUID = r.personUUID
       | left join CourseClass cc on r.courseClassUUID = cc.uuid
       | where r.courseClassUUID = ${courseClassUUID}
       | and r.role = ${roleType.toString}
-      | order by r.role, pw.username
+      | order by r.role, if(pw.username is not null, pw.username, p.email)
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
   def getAllUsersWithRoleForCourseClass(courseClassUUID: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, cc.name as courseClassName
+      | select r.*, pw.username, cc.name as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | left join CourseClass cc on r.courseClassUUID = cc.uuid
@@ -55,7 +58,7 @@ object RolesRepo {
 
   def getInstitutionAdmins(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, null as courseClassName
+      | select r.*, pw.username, null as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | where r.institutionUUID = ${institutionUUID}
@@ -65,7 +68,7 @@ object RolesRepo {
 
   def getPublishers(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, null as courseClassName
+      | select r.*, pw.username, null as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | where r.institutionUUID = ${institutionUUID}
@@ -75,7 +78,7 @@ object RolesRepo {
 
   def getPlatformAdmins(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, null as courseClassName
+      | select r.*, pw.username, null as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | where r.institutionUUID = ${institutionUUID}
@@ -104,7 +107,7 @@ object RolesRepo {
 
   def getPlatformSupportThreadParticipants(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, null as courseClassName
+      | select r.*, pw.username, null as courseClassName
       | from (select * from Role
       |    order by case `role`
       |  when 'platformAdmin' then 1
