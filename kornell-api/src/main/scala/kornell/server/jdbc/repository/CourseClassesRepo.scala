@@ -20,9 +20,9 @@ import kornell.core.entity.CourseDetailsLibrary
 import kornell.core.entity.CourseDetailsSection
 import kornell.core.entity.CourseVersion
 import kornell.core.entity.EntityState
-import kornell.core.entity.Role
-import kornell.core.entity.RoleCategory
-import kornell.core.entity.RoleType
+import kornell.core.entity.role.Role
+import kornell.core.entity.role.RoleCategory
+import kornell.core.entity.role.RoleType
 import kornell.core.error.exception.EntityConflictException
 import kornell.core.error.exception.EntityNotFoundException
 import kornell.core.to.CourseClassTO
@@ -177,7 +177,7 @@ object CourseClassesRepo {
         (select count(*) from Role r where personUUID = '${adminUUID}' and (
           (r.role = '${RoleType.platformAdmin.toString}' and r.institutionUUID = '${institutionUUID}') or
           (r.role = '${RoleType.institutionAdmin.toString}' and r.institutionUUID = '${institutionUUID}') or
-        ( (r.role = '${RoleType.courseClassAdmin.toString}' or r.role = '${RoleType.observer.toString}' or r.role = '${RoleType.tutor.toString}') and r.courseClassUUID = cc.uuid)
+        ( (r.role = '${RoleType.courseClassAdmin.toString}' or r.role = '${RoleType.courseClassObserver.toString}' or r.role = '${RoleType.tutor.toString}') and r.courseClassUUID = cc.uuid)
       )) > 0)
             order by ${order}, cc.state, c.name, cv.versionCreatedAt desc, cc.name limit ${resultOffset}, ${pageSize};
     """, List[String]()).map[CourseClassTO](toCourseClassTO))
@@ -186,7 +186,7 @@ object CourseClassesRepo {
           (select count(*) from Role r where personUUID = ${adminUUID} and (
             (r.role = ${RoleType.platformAdmin.toString} and r.institutionUUID = ${institutionUUID}) or
             (r.role = ${RoleType.institutionAdmin.toString} and r.institutionUUID = ${institutionUUID}) or
-            ( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.courseClassUUID = cc.uuid)
+            ( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.courseClassObserver.toString} or r.role = ${RoleType.tutor.toString}) and r.courseClassUUID = cc.uuid)
           )) > 0)
                 and (cc.courseVersionUUID = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)})
                 and (cc.uuid = ${courseClassUUID} or ${StringUtils.isNone(courseClassUUID)})
@@ -205,7 +205,7 @@ object CourseClassesRepo {
         (select count(*) from Role r where personUUID = ${adminUUID} and (
           (r.role = ${RoleType.platformAdmin.toString} and r.institutionUUID = ${institutionUUID}) or
           (r.role = ${RoleType.institutionAdmin.toString} and r.institutionUUID = ${institutionUUID}) or
-          ( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.observer.toString} or r.role = ${RoleType.tutor.toString}) and r.courseClassUUID = cc.uuid)
+          ( (r.role = ${RoleType.courseClassAdmin.toString} or r.role = ${RoleType.courseClassObserver.toString} or r.role = ${RoleType.tutor.toString}) and r.courseClassUUID = cc.uuid)
         )) > 0)
                 and (cc.courseVersionUUID = ${courseVersionUUID} or ${StringUtils.isNone(courseVersionUUID)})
                 and (cc.uuid = ${courseClassUUID} or ${StringUtils.isNone(courseClassUUID)})
@@ -403,7 +403,7 @@ object CourseClassesRepo {
   private def isCourseClassObserver(courseClassUUID: String, institutionUUID: String, roles: List[Role]) = {
     var hasRole: Boolean = isInstitutionAdmin(institutionUUID, roles)
     roles.foreach(role => hasRole = hasRole
-      || RoleCategory.isValidRole(role, RoleType.observer, null, courseClassUUID))
+      || RoleCategory.isValidRole(role, RoleType.courseClassObserver, null, courseClassUUID))
     hasRole
   }
 

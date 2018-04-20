@@ -11,7 +11,7 @@ import javax.ws.rs.QueryParam
 import javax.ws.rs.core.Context
 import javax.ws.rs.core.SecurityContext
 import kornell.core.entity.CourseClass
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.RoleCategory
 import kornell.server.jdbc.repository.AuthRepo
 import kornell.server.jdbc.repository.CourseClassesRepo
 import kornell.server.util.Conditional.toConditional

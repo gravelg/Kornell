@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import kornell.api.client.KornellSession;
-import kornell.core.entity.RoleType;
+import kornell.core.entity.role.RoleType;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.RoleTO;
 import kornell.gui.client.KornellConstants;

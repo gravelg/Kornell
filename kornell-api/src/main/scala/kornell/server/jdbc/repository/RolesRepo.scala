@@ -10,11 +10,11 @@ import kornell.server.repository.Entities._
 import kornell.server.repository.TOs._
 import kornell.server.repository.Entities
 import kornell.server.repository.TOs
-import kornell.core.entity.Role
+import kornell.core.entity.role.Role
 import kornell.core.util.UUID
-import kornell.core.entity.Roles
-import kornell.core.entity.RoleType
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.Roles
+import kornell.core.entity.role.RoleType
+import kornell.core.entity.role.RoleCategory
 import kornell.core.to.RoleTO
 import kornell.core.entity.AuditedEntityType
 import kornell.core.error.exception.EntityConflictException
@@ -122,7 +122,7 @@ object RolesRepo {
 
   def updateTutors(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.tutor, roles)
 
-  def updateObservers(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.observer, roles)
+  def updateCourseClassObservers(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.courseClassObserver, roles)
 
   def updateCourseClassRole(institutionUUID: String, courseClassUUID: String, roleType: RoleType, roles: Roles) = {
     val from = getUsersForCourseClassByRole(courseClassUUID, roleType, RoleCategory.BIND_DEFAULT)
@@ -135,7 +135,7 @@ object RolesRepo {
       roleType match {
         case RoleType.courseClassAdmin => AuditedEntityType.courseClassAdmin
         case RoleType.tutor => AuditedEntityType.courseClassTutor
-        case RoleType.observer => AuditedEntityType.courseClassObserver
+        case RoleType.courseClassObserver => AuditedEntityType.courseClassObserver
         case _ => throw new EntityConflictException("invalidValue")
       }
     }
@@ -182,7 +182,7 @@ object RolesRepo {
       role.setUUID(UUID.random)
     }
     if (RoleType.courseClassAdmin.equals(role.getRoleType) || RoleType.tutor.equals(role.getRoleType)
-      || RoleType.observer.equals(role.getRoleType)) {
+      || RoleType.courseClassObserver.equals(role.getRoleType)) {
       sql"""
         insert into Role (uuid, personUUID, role, courseClassUUID) values (
         ${role.getUUID},

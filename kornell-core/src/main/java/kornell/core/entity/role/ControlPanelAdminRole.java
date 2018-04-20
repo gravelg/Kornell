@@ -1,4 +1,4 @@
-package kornell.core.entity;
+package kornell.core.entity.role;
 
 public interface ControlPanelAdminRole extends Role {
 

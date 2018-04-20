@@ -1,4 +1,4 @@
-package kornell.core.entity;
+package kornell.core.entity.role;
 
 import java.util.List;
 
@@ -13,60 +13,68 @@ public class RoleCategory {
     public static boolean isValidRole(Role role, RoleType type, String institutionUUID, String courseClassUUID) {
         switch (role.getRoleType()) {
         case user:
-            if (RoleType.user.equals(type))
+            if (RoleType.user.equals(type)) {
                 return true;
+            }
             break;
         case courseClassAdmin:
             if (RoleType.courseClassAdmin.equals(type)
                     && courseClassUUID != null
                     && role.getCourseClassAdminRole()
                     .getCourseClassUUID()
-                    .equals(courseClassUUID))
+                    .equals(courseClassUUID)) {
                 return true;
+            }
             break;
-        case observer:
-            if (RoleType.observer.equals(type)
+        case courseClassObserver:
+            if (RoleType.courseClassObserver.equals(type)
                     && courseClassUUID != null
-                    && role.getObserverRole()
+                    && role.getCourseClassObserverRole()
                     .getCourseClassUUID()
-                    .equals(courseClassUUID))
+                    .equals(courseClassUUID)) {
                 return true;
+            }
             break;
         case tutor:
             if (RoleType.tutor.equals(type)
                     && courseClassUUID != null
                     && role.getTutorRole()
                     .getCourseClassUUID()
-                    .equals(courseClassUUID))
+                    .equals(courseClassUUID)) {
                 return true;
+            }
             break;
         case institutionAdmin:
             if (RoleType.institutionAdmin.equals(type)
                     && institutionUUID != null
                     && role.getInstitutionAdminRole()
                     .getInstitutionUUID()
-                    .equals(institutionUUID))
+                    .equals(institutionUUID)) {
                 return true;
+            }
             break;
         case platformAdmin:
             if (RoleType.platformAdmin.equals(type)
                     && institutionUUID != null
                     && role.getPlatformAdminRole()
                     .getInstitutionUUID()
-                    .equals(institutionUUID))
+                    .equals(institutionUUID)) {
                 return true;
+            }
             break;
         case controlPanelAdmin:
-            if (RoleType.controlPanelAdmin.equals(type))
+            if (RoleType.controlPanelAdmin.equals(type)) {
                 return true;
+            }
             break;
         case publisher:
             if (RoleType.publisher.equals(type)
                     && institutionUUID != null
                     && role.getPublisherRole()
                     .getInstitutionUUID()
-                    .equals(institutionUUID))
+                    .equals(institutionUUID)) {
                 return true;
+            }
             break;
         default:
             break;
@@ -77,36 +85,44 @@ public class RoleCategory {
     public static boolean isRole(Role role, RoleType type) {
         switch (role.getRoleType()) {
         case user:
-            if (RoleType.user.equals(type))
+            if (RoleType.user.equals(type)) {
                 return true;
+            }
             break;
         case courseClassAdmin:
-            if (RoleType.courseClassAdmin.equals(type))
+            if (RoleType.courseClassAdmin.equals(type)) {
                 return true;
+            }
             break;
-        case observer:
-            if (RoleType.observer.equals(type))
+        case courseClassObserver:
+            if (RoleType.courseClassObserver.equals(type)) {
                 return true;
+            }
             break;
         case tutor:
-            if (RoleType.tutor.equals(type))
+            if (RoleType.tutor.equals(type)) {
                 return true;
+            }
             break;
         case institutionAdmin:
-            if (RoleType.institutionAdmin.equals(type))
+            if (RoleType.institutionAdmin.equals(type)) {
                 return true;
+            }
             break;
         case platformAdmin:
-            if (RoleType.platformAdmin.equals(type))
+            if (RoleType.platformAdmin.equals(type)) {
                 return true;
+            }
             break;
         case controlPanelAdmin:
-            if (RoleType.controlPanelAdmin.equals(type))
+            if (RoleType.controlPanelAdmin.equals(type)) {
                 return true;
+            }
             break;
         case publisher:
-            if (RoleType.publisher.equals(type))
+            if (RoleType.publisher.equals(type)) {
                 return true;
+            }
             break;
         default:
             break;
@@ -131,7 +147,7 @@ public class RoleCategory {
     }
 
     public static boolean isCourseClassObserver(List<RoleTO> roleTOs, String courseClassUUID) {
-        return isValidRole(roleTOs, RoleType.observer, null, courseClassUUID);
+        return isValidRole(roleTOs, RoleType.courseClassObserver, null, courseClassUUID);
     }
 
     public static boolean isCourseClassTutor(List<RoleTO> roleTOs, String courseClassUUID) {
@@ -144,38 +160,42 @@ public class RoleCategory {
 
     public static boolean isValidRole(List<RoleTO> roleTOs, RoleType type, String institutionUUID, String courseClassUUID) {
         for (RoleTO roleTO : roleTOs) {
-            if(isValidRole(roleTO.getRole(), type, institutionUUID, courseClassUUID))
+            if(isValidRole(roleTO.getRole(), type, institutionUUID, courseClassUUID)) {
                 return true;
+            }
         }
         return false;
     }
 
     public static boolean hasRole(List<RoleTO> roleTOs, RoleType type) {
         for (RoleTO roleTO : roleTOs) {
-            if(RoleCategory.isRole(roleTO.getRole(), type))
+            if(RoleCategory.isRole(roleTO.getRole(), type)) {
                 return true;
+            }
         }
         return false;
     }
 
     public static void setCourseClassUUID(Role role, String courseClassUUID){
-        if (RoleType.courseClassAdmin.equals(role.getRoleType()))
+        if (RoleType.courseClassAdmin.equals(role.getRoleType())) {
             role.getCourseClassAdminRole().setCourseClassUUID(courseClassUUID);
-        else if (RoleType.tutor.equals(role.getRoleType()))
+        } else if (RoleType.tutor.equals(role.getRoleType())) {
             role.getTutorRole().setCourseClassUUID(courseClassUUID);
-        else if (RoleType.observer.equals(role.getRoleType()))
-            role.getObserverRole().setCourseClassUUID(courseClassUUID);
+        } else if (RoleType.courseClassObserver.equals(role.getRoleType())) {
+            role.getCourseClassObserverRole().setCourseClassUUID(courseClassUUID);
+        }
     }
 
     public static String getCourseClassUUID(Role role){
-        if (RoleType.courseClassAdmin.equals(role.getRoleType()))
+        if (RoleType.courseClassAdmin.equals(role.getRoleType())) {
             return role.getCourseClassAdminRole().getCourseClassUUID();
-        else if (RoleType.tutor.equals(role.getRoleType()))
+        } else if (RoleType.tutor.equals(role.getRoleType())) {
             return role.getTutorRole().getCourseClassUUID();
-        else if (RoleType.observer.equals(role.getRoleType()))
-            return role.getObserverRole().getCourseClassUUID();
-        else
+        } else if (RoleType.courseClassObserver.equals(role.getRoleType())) {
+            return role.getCourseClassObserverRole().getCourseClassUUID();
+        } else {
             return "";
+        }
     }
 
 }

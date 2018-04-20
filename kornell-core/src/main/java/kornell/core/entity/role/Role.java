@@ -1,4 +1,7 @@
-package kornell.core.entity;
+package kornell.core.entity.role;
+
+import kornell.core.entity.Entity;
+import kornell.core.entity.EntityFactory;
 
 public interface Role extends Entity {
     public static String TYPE = EntityFactory.PREFIX + "role+json";
@@ -24,8 +27,8 @@ public interface Role extends Entity {
     TutorRole getTutorRole();
     void setTutorRole(TutorRole tutorRole);
 
-    ObserverRole getObserverRole();
-    void setObserverRole(ObserverRole observerRole);
+    CourseClassObserverRole getCourseClassObserverRole();
+    void setCourseClassObserverRole(CourseClassObserverRole courseClassObserverRole);
 
     ControlPanelAdminRole getControlPanelAdminRole();
     void setControlPanelAdminRole(ControlPanelAdminRole controlPanelAdminRole);

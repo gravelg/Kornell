@@ -19,7 +19,7 @@ import kornell.core.entity.EnrollmentsEntries;
 import kornell.core.entity.Institution;
 import kornell.core.entity.People;
 import kornell.core.entity.Person;
-import kornell.core.entity.Roles;
+import kornell.core.entity.role.Roles;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.lom.Contents;
 import kornell.core.to.ChatThreadMessagesTO;

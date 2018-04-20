@@ -738,8 +738,8 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("Tutor")
     String RoleType_tutor();
 
-    @DefaultStringValue("Observer")
-    String RoleType_observer();
+    @DefaultStringValue("Course Class Observer")
+    String RoleType_courseClassObserver();
 
     /**
      * Country

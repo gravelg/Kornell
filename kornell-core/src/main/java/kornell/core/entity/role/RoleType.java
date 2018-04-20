@@ -1,4 +1,4 @@
-package kornell.core.entity;
+package kornell.core.entity.role;
 
 public enum RoleType {
     user,
@@ -6,7 +6,7 @@ public enum RoleType {
     institutionAdmin,
     platformAdmin,
     tutor,
-    observer,
+    courseClassObserver,
     controlPanelAdmin,
     publisher
 }

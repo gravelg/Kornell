@@ -40,7 +40,7 @@ import kornell.server.util.Conditional.toConditional
 import javax.ws.rs.POST
 import kornell.server.util.AccessDeniedErr
 import kornell.server.jdbc.repository.RolesRepo
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.RoleCategory
 import kornell.server.jdbc.repository.EventsRepo
 import kornell.core.entity.AuditedEntityType
 import kornell.server.jdbc.repository.CourseClassesRepo

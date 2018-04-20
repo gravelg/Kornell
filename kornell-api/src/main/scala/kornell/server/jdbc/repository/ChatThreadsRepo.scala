@@ -17,14 +17,14 @@ import kornell.core.entity.CourseClass
 import java.util.concurrent.TimeUnit._
 import kornell.core.entity.Person
 import kornell.core.to.ChatThreadMessagesTO
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.RoleCategory
 import kornell.core.entity.ChatThreadType
 import kornell.core.to.EnrollmentTO
 import kornell.core.entity.ChatThreadParticipant
 import java.text.SimpleDateFormat
 import kornell.core.entity.Enrollment
 import kornell.server.util.RequirementNotMet
-import kornell.core.entity.RoleType
+import kornell.core.entity.role.RoleType
 import kornell.core.to.RolesTO
 import kornell.core.to.RoleTO
 import scala.collection.immutable.List

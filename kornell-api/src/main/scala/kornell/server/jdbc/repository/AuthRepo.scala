@@ -6,13 +6,13 @@ import scala.collection.JavaConverters.setAsJavaSetConverter
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
 import kornell.core.entity.Person
-import kornell.core.entity.Role
+import kornell.core.entity.role.Role
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.SQL._
 import kornell.server.repository.Entities.newPerson
 import kornell.server.util.SHA256
 import scala.util.Try
-import kornell.core.entity.RoleType
+import kornell.core.entity.role.RoleType
 import kornell.core.error.exception.EntityNotFoundException
 import kornell.core.error.exception.UnauthorizedAccessException
 import org.mindrot.BCrypt

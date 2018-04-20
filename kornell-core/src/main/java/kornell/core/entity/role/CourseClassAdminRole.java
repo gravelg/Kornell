@@ -1,4 +1,4 @@
-package kornell.core.entity;
+package kornell.core.entity.role;
 
 public interface CourseClassAdminRole extends Role {
     String getCourseClassUUID();

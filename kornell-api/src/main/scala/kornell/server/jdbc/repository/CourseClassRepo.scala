@@ -13,8 +13,8 @@ import kornell.server.service.AssetService
 import kornell.core.util.StringUtils
 import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.entity.EntityState
-import kornell.core.entity.RoleType
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.RoleType
+import kornell.core.entity.role.RoleCategory
 import java.util.Date
 
 class CourseClassRepo(uuid: String) {

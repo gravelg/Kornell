@@ -11,7 +11,7 @@ import kornell.server.jdbc.repository.InstitutionsRepo
 import kornell.server.util.Conditional.toConditional
 import kornell.core.to.InstitutionRegistrationPrefixesTO
 import kornell.server.jdbc.repository.InstitutionRepo
-import kornell.core.entity.Roles
+import kornell.core.entity.role.Roles
 import kornell.server.jdbc.repository.RolesRepo
 import kornell.core.to.RolesTO
 import javax.ws.rs.QueryParam

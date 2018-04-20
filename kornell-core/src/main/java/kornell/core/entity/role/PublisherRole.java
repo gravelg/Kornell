@@ -1,6 +1,6 @@
-package kornell.core.entity;
+package kornell.core.entity.role;
 
-public interface PlatformAdminRole extends Role {
+public interface PublisherRole extends Role {
     String getInstitutionUUID();
     void setInstitutionUUID(String institutionUUID);
 }
