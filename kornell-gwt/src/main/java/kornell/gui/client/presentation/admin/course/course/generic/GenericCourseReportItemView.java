@@ -59,7 +59,7 @@ public class GenericCourseReportItemView extends Composite {
 
     private HandlerRegistration downloadHandler;
 
-    public static final String COURSE_INFO = "courseInfo";
+    public static final String COURSE_CLASS_INFO = "courseClassInfo";
 
     @UiField
     Image certificationIcon;
@@ -85,7 +85,7 @@ public class GenericCourseReportItemView extends Composite {
     }
 
     private void display() {
-        if (COURSE_INFO.equals(this.type)) {
+        if (COURSE_CLASS_INFO.equals(this.type)) {
             displayCourseClassInfo();
         }
     }
@@ -188,22 +188,6 @@ public class GenericCourseReportItemView extends Composite {
                         bus.fireEvent(new ShowPacifierEvent(false));
                     }
                 });
-            }
-        });
-    }
-
-    private void courseClassInfoExists() {
-        displayActionCell(null);
-        session.report().courseClassInfoExists(course.getUUID(), (checkBoxExcel.getValue() ? "xls" : "pdf"),
-                new Callback<String>() {
-            @Override
-            public void ok(String str) {
-                displayActionCell(str);
-            }
-
-            @Override
-            public void internalServerError(KornellErrorTO kornellErrorTO) {
-                displayActionCell(null);
             }
         });
     }
