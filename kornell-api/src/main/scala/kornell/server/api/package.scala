@@ -14,17 +14,20 @@ import kornell.server.jdbc.repository.PersonRepo
 package object api {
   val logger = Logger.getLogger("kornell.server.api")
 
-  def isControlPanelAdmin(): Boolean = RoleCategory.isControlPanelAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs)
+  def isControlPanelAdmin(): Boolean =
+    RoleCategory.isControlPanelAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs)
 
-  def isPlatformAdmin(institutionUUID: String): Boolean = RoleCategory.isPlatformAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
+  def isPlatformAdmin(institutionUUID: String): Boolean =
+    RoleCategory.isPlatformAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
 
-  def isPlatformAdmin(): Boolean = RoleCategory.isPlatformAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
+  def isPlatformAdmin(): Boolean =
+    RoleCategory.isPlatformAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
 
   def isInstitutionAdmin(institutionUUID: String): Boolean =
     RoleCategory.isInstitutionAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
 
   def isInstitutionAdmin(): Boolean =
-    RoleCategory.isInstitutionAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
+    RoleCategory.isInstitutionAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
 
   def isCourseClassAdmin(courseClassUUID: String): Boolean =
     RoleCategory.isCourseClassAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)
@@ -39,9 +42,11 @@ package object api {
     RoleCategory.isPublisher(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
 
   def isPublisher(): Boolean =
-    RoleCategory.isPublisher(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
+    RoleCategory.isPublisher(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
 
   def getAuthenticatedPersonUUID = ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null)
+
+  def getAutenticatedPersonInstitutionUUID = PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID
 
   def getInstitutionUUID(courseClassUUID: String, courseUUID: String = null) = if (courseUUID != null) CourseRepo(courseUUID).get.getInstitutionUUID else CourseClassRepo(courseClassUUID).get.getInstitutionUUID
 

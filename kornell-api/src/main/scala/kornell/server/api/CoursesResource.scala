@@ -25,20 +25,20 @@ class CoursesResource {
   @Produces(Array(CoursesTO.TYPE))
   def getCourses(@QueryParam("fetchChildCourses") fetchChildCourses: String, @QueryParam("searchTerm") searchTerm: String,
     @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) = {
-    CoursesRepo.byInstitution(fetchChildCourses == "true", PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true")
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    CoursesRepo.byInstitution(fetchChildCourses == "true", getAutenticatedPersonInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true")
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @POST
   @Produces(Array(CourseClassTO.TYPE))
   @Consumes(Array(Course.TYPE))
   def create(course: Course) = {
-    CourseCreationService.simpleCreation(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, course)
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    CourseCreationService.simpleCreation(getAutenticatedPersonInstitutionUUID, course)
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 }
 

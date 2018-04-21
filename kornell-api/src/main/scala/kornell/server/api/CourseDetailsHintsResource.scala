@@ -31,9 +31,9 @@ class CourseDetailsHintsResource {
   @Produces(Array(CourseDetailsHint.TYPE))
   def create(courseDetailsHint: CourseDetailsHint) = {
     CourseDetailsHintsRepo.create(courseDetailsHint)
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @GET
@@ -42,9 +42,9 @@ class CourseDetailsHintsResource {
   def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
     @PathParam("entityUUID") entityUUID: String) = {
     CourseDetailsHintsRepo.getForEntity(entityUUID, CourseDetailsEntityType.valueOf(entityType))
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @POST
@@ -54,9 +54,9 @@ class CourseDetailsHintsResource {
     @PathParam("index") index: String) = {
     CourseDetailsHintsRepo.moveUp(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
     Response.noContent.build
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @POST
@@ -66,9 +66,9 @@ class CourseDetailsHintsResource {
     @PathParam("index") index: String) = {
     CourseDetailsHintsRepo.moveDown(entityUUID, CourseDetailsEntityType.valueOf(entityType), index.toInt)
     Response.noContent.build
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
 }
