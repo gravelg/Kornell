@@ -116,7 +116,7 @@ angular.module('textAngularSetup', [])
         htmlEditor: 'form-control'
     },
     defaultTagAttributes : {
-        a: {target:""}
+        a: {target:"_blank"}
     },
     setup: {
         // wysiwyg mode

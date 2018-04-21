@@ -19,9 +19,9 @@ class CourseDetailsSectionResource(uuid: String) {
   @Produces(Array(CourseDetailsSection.TYPE))
   def get = {
     CourseDetailsSectionRepo(uuid).get
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @PUT
@@ -29,18 +29,18 @@ class CourseDetailsSectionResource(uuid: String) {
   @Produces(Array(CourseDetailsSection.TYPE))
   def update(courseDetailsSection: CourseDetailsSection) = {
     CourseDetailsSectionRepo(uuid).update(courseDetailsSection)
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @DELETE
   @Produces(Array(CourseDetailsSection.TYPE))
   def delete() = {
     CourseDetailsSectionRepo(uuid).delete
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
 }

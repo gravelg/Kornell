@@ -17,8 +17,8 @@ class ContentRepositoryResource(uuid: String) {
   @Produces(Array(ContentRepository.TYPE))
   def get: ContentRepository = {
     ContentRepositoryRepo(uuid).get
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
     .get
 
   @PUT
@@ -26,8 +26,8 @@ class ContentRepositoryResource(uuid: String) {
   @Produces(Array(ContentRepository.TYPE))
   def update(contentRepo: ContentRepository) = {
     ContentRepositoryRepo(uuid).update(contentRepo)
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
     .get
 }
 

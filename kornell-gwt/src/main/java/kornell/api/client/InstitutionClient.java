@@ -2,7 +2,7 @@ package kornell.api.client;
 
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.Institution;
-import kornell.core.entity.Roles;
+import kornell.core.entity.role.Roles;
 import kornell.core.to.InstitutionEmailWhitelistTO;
 import kornell.core.to.InstitutionHostNamesTO;
 import kornell.core.to.InstitutionRegistrationPrefixesTO;

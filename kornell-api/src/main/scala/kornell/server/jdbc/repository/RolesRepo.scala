@@ -10,11 +10,11 @@ import kornell.server.repository.Entities._
 import kornell.server.repository.TOs._
 import kornell.server.repository.Entities
 import kornell.server.repository.TOs
-import kornell.core.entity.Role
+import kornell.core.entity.role.Role
 import kornell.core.util.UUID
-import kornell.core.entity.Roles
-import kornell.core.entity.RoleType
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.Roles
+import kornell.core.entity.role.RoleType
+import kornell.core.entity.role.RoleCategory
 import kornell.core.to.RoleTO
 import kornell.core.entity.AuditedEntityType
 import kornell.core.error.exception.EntityConflictException
@@ -25,7 +25,7 @@ object RolesRepo {
 
   def getUserRoles(personUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, cc.name as courseClassName
+      | select r.*, pw.username, cc.name as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | left join CourseClass cc on r.courseClassUUID = cc.uuid
@@ -35,18 +35,21 @@ object RolesRepo {
 
   def getUsersForCourseClassByRole(courseClassUUID: String, roleType: RoleType, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, cc.name as courseClassName
+      | select r.*,
+      | if(pw.username is not null, pw.username, p.email) as username,
+      | cc.name as courseClassName
       | from Role r
-      | join Password pw on pw.personUUID = r.personUUID
+      | join Person p on p.uuid = r.personUUID
+      | left join Password pw on pw.personUUID = r.personUUID
       | left join CourseClass cc on r.courseClassUUID = cc.uuid
       | where r.courseClassUUID = ${courseClassUUID}
       | and r.role = ${roleType.toString}
-      | order by r.role, pw.username
+      | order by r.role, if(pw.username is not null, pw.username, p.email)
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
   def getAllUsersWithRoleForCourseClass(courseClassUUID: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, cc.name as courseClassName
+      | select r.*, pw.username, cc.name as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | left join CourseClass cc on r.courseClassUUID = cc.uuid
@@ -56,7 +59,7 @@ object RolesRepo {
 
   def getInstitutionAdmins(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, null as courseClassName
+      | select r.*, pw.username, null as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | where r.institutionUUID = ${institutionUUID}
@@ -66,7 +69,7 @@ object RolesRepo {
 
   def getPublishers(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, null as courseClassName
+      | select r.*, pw.username, null as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | where r.institutionUUID = ${institutionUUID}
@@ -76,7 +79,7 @@ object RolesRepo {
 
   def getPlatformAdmins(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, null as courseClassName
+      | select r.*, pw.username, null as courseClassName
       | from Role r
       | join Password pw on pw.personUUID = r.personUUID
       | where r.institutionUUID = ${institutionUUID}
@@ -105,7 +108,7 @@ object RolesRepo {
 
   def getPlatformSupportThreadParticipants(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
-      | select *, pw.username, null as courseClassName
+      | select r.*, pw.username, null as courseClassName
       | from (select * from Role
       |    order by case `role`
       |  when 'platformAdmin' then 1
@@ -132,7 +135,7 @@ object RolesRepo {
 
   def updateTutors(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.tutor, roles)
 
-  def updateObservers(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.observer, roles)
+  def updateCourseClassObservers(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.courseClassObserver, roles)
 
   def updateCourseClassRole(institutionUUID: String, courseClassUUID: String, roleType: RoleType, roles: Roles) = {
     val from = getUsersForCourseClassByRole(courseClassUUID, roleType, RoleCategory.BIND_DEFAULT)
@@ -145,7 +148,7 @@ object RolesRepo {
       roleType match {
         case RoleType.courseClassAdmin => AuditedEntityType.courseClassAdmin
         case RoleType.tutor => AuditedEntityType.courseClassTutor
-        case RoleType.observer => AuditedEntityType.courseClassObserver
+        case RoleType.courseClassObserver => AuditedEntityType.courseClassObserver
         case _ => throw new EntityConflictException("invalidValue")
       }
     }
@@ -193,7 +196,7 @@ object RolesRepo {
       role.setUUID(UUID.random)
     }
     if (RoleType.courseClassAdmin.equals(role.getRoleType) || RoleType.tutor.equals(role.getRoleType)
-      || RoleType.observer.equals(role.getRoleType)) {
+      || RoleType.courseClassObserver.equals(role.getRoleType)) {
       sql"""
         insert into Role (uuid, personUUID, role, courseClassUUID) values (
         ${role.getUUID},

@@ -43,9 +43,9 @@ class CourseResource(uuid: String) {
   @Produces(Array(Course.TYPE))
   def delete() = {
     CourseRepo(uuid).delete
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @POST
@@ -53,9 +53,9 @@ class CourseResource(uuid: String) {
   @Produces(Array(Course.TYPE))
   def copy = {
     CourseRepo(uuid).copy
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @GET
@@ -75,6 +75,7 @@ class CourseResource(uuid: String) {
     S3Service.getCourseWizardContentUploadUrl(uuid, filename)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
 }

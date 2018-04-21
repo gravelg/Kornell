@@ -4,8 +4,15 @@
 	}
 	.checkbox-primary input[type="checkbox"]:checked + label::before, 
 	.checkbox-primary input[type="radio"]:checked + label::before {
-	    background-color: #{{classroomInfo.colorTheme}} !important;
-	    border-color: #{{classroomInfo.colorTheme}} !important;
+	    background-color: #{{classroomInfo.colorFont}} !important;
+	    border-color: #{{classroomInfo.colorFont}} !important;
+	}
+	.checkbox-primary input[type="checkbox"]:checked + label::after, 
+	.checkbox-primary input[type="radio"]:checked + label::after {
+	    color: #{{classroomInfo.colorTheme}} !important;
+	}
+	.checkbox label::before {
+	    border: 1px solid #{{classroomInfo.colorFont}} !important;
 	}
 	.btn-primary {
 	    color: #{{classroomInfo.colorTitle}} !important;
@@ -56,21 +63,23 @@
 		</div>
 		<div class="resultBox">
 		    <div class="bs-callout bs-callout-info">
-		        <h3>Avaliação do curso</h3>
+		        <h3 translate>COURSE_EXAM</h3>
 		        <h4>{{classroomInfo.title}}</h4>
-		        <p ng-show="lecture.expectedGrade">A aprovação nesta avaliação é necessária para retirada do certificado.</p>
+		        <p ng-show="lecture.expectedGrade" translate>NEEDS_APPROVAL_FOR_CERTIFICATE</p>
 		        <ul class="margin-bottom-30">
-		        	<li>Ser{{lecture.questions.length > 1 ? 'ão' : 'á'}} <span class="code">{{lecture.questions.length}}</span> quest{{lecture.questions.length > 1 ? 'ões' : 'ão'}}.</li>
-		        	<li ng-show="lecture.isMultiple">Existem questões com mais de uma resposta correta.
-					<li ng-show="lecture.expectedGrade">Valor total da avaliação: <span class="code">100</span> pontos.</li>
-					<li ng-show="lecture.expectedGrade">Para ser aprovado é necessário obter <span class="code">{{lecture.expectedGrade}}</span> pontos.</li>
-		        	<li ng-show="lecture.expectedGrade">Caso não seja aprovado você poderá refazer a prova.</li>
+		        	<li ng-show="lecture.questions.length > 1"><span translate>MULTIPLE_QUESTIONS_PRE</span> <span class="code">{{lecture.questions.length}}</span> <span translate>MULTIPLE_QUESTIONS_POST</span></li>
+		        	<li ng-show="lecture.questions.length == 0"><span translate>SINGLE_QUESTION_PRE</span> <span class="code">{{lecture.questions.length}}</span> <span translate>SINGLE_QUESTION_POST</span></li>
+		        	<li ng-show="lecture.isMultiple" translate>EXAM_HAS_MULTIPLE_CHOICE_QUESTIONS</li>
+					<li ng-show="lecture.expectedGrade"><span translate>EXAM_TOTAL_SCORE_PRE</span> <span class="code">100</span> <span translate>EXAM_TOTAL_SCORE_POST</span></li>
+					<li ng-show="lecture.expectedGrade"><span translate>EXAM_MINIMUM_SCORE_PRE</span> <span class="code">{{lecture.expectedGrade}}</span> <span translate>EXAM_MINIMUM_SCORE_POST</span></li>
+		        	<li ng-show="lecture.expectedGrade" translate>EXAM_CAN_BE_DONE_AGAIN</li>
 		        </ul>
-		        <p ng-show="lecture.expectedGrade && currentScore && !isApproved" class="margin-bottom-30">É necessário fazer o teste novamente.</p>
-		        <p ng-show="currentScore && isApproved"><br>Você foi aprovado nesta avaliação. Você pode refazê-la se desejar, mas a sua nota continuará a mesma.</p>
-		    	<p ng-show="currentScore" class="">Nota atual: <span class="code">{{currentScore}}</span></p>
-		        <button ng-click="startTest()" class="btn btn-primary btn-sm margin-top-30">{{currentScore ? 'REFAZER' : 'INICIAR'}} A AVALIAÇÃO</button>
-		        <button ng-if="isApproved" ng-click="knlUtils.next()" class="btn btn-primary btn-sm margin-top-30 margin-left-30">AVANÇAR</button>
+		        <p ng-show="lecture.expectedGrade && currentScore && !isApproved" class="margin-bottom-30" translate>NECESSARY_TO_REDO_EXAM</p>
+		        <p ng-show="currentScore && isApproved"><br><span translate>APPROVED_ON_EXAM</span></p>
+		    	<p ng-show="currentScore" class=""><span translate>CURRENT_SCORE</span>: <span class="code">{{currentScore}}</span></p>
+		        <button ng-if="currentScore" ng-click="startTest()" class="btn btn-primary btn-sm margin-top-30 text-uppercase" translate>REDO_THE_EXAM</button>
+		        <button ng-if="!currentScore" ng-click="startTest()" class="btn btn-primary btn-sm margin-top-30 text-uppercase" translate>START_THE_EXAM</button>
+		        <button ng-if="isApproved" ng-click="knlUtils.next()" class="btn btn-primary btn-sm margin-top-30 margin-left-30 text-uppercase" translate>ADVANCE</button>
 		    </div>
 		</div>
 	</div>
@@ -95,9 +104,9 @@
 					</label>
 				</div>
 				<div id="resultWrapper">
-					<button type="button" ng-if="currentQuestionIndex == lecture.questions.length - 1" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="finishTest()" class="btn btn-primary btn-sm">CONCLUIR</button>	
-					<button type="button" ng-if="lecture.questions.length - 1 > currentQuestionIndex" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="loadNext()" class="btn btn-primary btn-sm">PRÓXIMA</button>	
-					<button type="button" ng-if="currentQuestionIndex >= 1" ng-click="loadPrevious()" class="btn btn-default btn-sm">ANTERIOR</button>		
+					<button type="button" ng-if="currentQuestionIndex == lecture.questions.length - 1" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="finishTest()" class="btn btn-primary btn-sm text-uppercase" translate>FINISH</button>	
+					<button type="button" ng-if="lecture.questions.length - 1 > currentQuestionIndex" ng-disabled="!hasAccessToQuestion(currentQuestionIndex + 1)" ng-click="loadNext()" class="btn btn-primary btn-sm text-uppercase" translate>NEXT</button>	
+					<button type="button" ng-if="currentQuestionIndex >= 1" ng-click="loadPrevious()" class="btn btn-default btn-sm text-uppercase" translate>PREVIOUS</button>		
 				</div>
 			</fieldset>
 		</form>
@@ -105,16 +114,16 @@
 	<div id="result" ng-show="showPanel == 'result'">
 		<div class="resultBox">
 		    <div class="bs-callout bs-callout-info">
-		        <h3 ng-show="!isApproved">Tente novamente</h3>
-		        <h3 ng-hide="!isApproved">Parabéns, você foi aprovado(a)!</h3>
+		        <h3 ng-show="!isApproved" translate>TRY_AGAIN</h3>
+		        <h3 ng-hide="!isApproved" translate>CONGRATULATIONS_APPROVED</h3>
 		        <p></p>
 		        <ul class="margin-bottom-30">
-		        	<li>Sua nota: <span class="code">{{cmiScoreRaw}}</span></li>
-		            <li>Valor da avaliação: <span class="code">{{cmiScoreMax}}</span></li>
-		            <li>Você acertou <span class="code">{{totalCorrect}}</span> de <span class="code">{{questionCount}}</span> quest{{lecture.questions.length > 1 ? 'ões' : 'ão'}}.</li>
+		        	<li><span translate>YOUR_SCORE</span>: <span class="code">{{cmiScoreRaw}}</span></li>
+		            <li><span translate><span translate>EXAM_TOTAL_SCORE_PRE</span> <span class="code">100</span> <span translate>EXAM_TOTAL_SCORE_POST</span></li>
+		            <li><span translate>TOTAL_CORRECT_PRE</span> <span class="code">{{totalCorrect}}</span> <span translate>TOTAL_CORRECT_MID</span> <span class="code">{{questionCount}}</span> <span translate>{{lecture.questions.length > 1 ? 'TOTAL_CORRECT_POST_MULTIPLE' : 'TOTAL_CORRECT_POST'}}</span></li>
 		        </ul>
-		        <button type="button" ng-if="!isApproved" ng-click="init()" class="btn btn-primary btn-sm">REFAZER A AVALIAÇÃO</button>	
-				<button type="button" ng-if="isApproved" ng-click="knlUtils.next()" class="btn btn-primary btn-sm">AVANÇAR</button>	
+		        <button type="button" ng-if="!isApproved" ng-click="init()" class="btn btn-primary btn-sm text-uppercase" translate>REDO_THE_EXAM</button>	
+				<button type="button" ng-if="isApproved" ng-click="knlUtils.next()" class="btn btn-primary btn-sm text-uppercase" translate>ADVANCE</button>	
 		    </div>
 		</div>
 	</div>

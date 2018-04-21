@@ -1,7 +1,7 @@
 package kornell.core.to;
 
 import kornell.core.entity.Person;
-import kornell.core.entity.Role;
+import kornell.core.entity.role.Role;
 
 public interface RoleTO {
     public static String TYPE = TOFactory.PREFIX + "role+json";

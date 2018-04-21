@@ -16,7 +16,7 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("A new version of the site is available.")
     String newVersionAvailable();
 
-    @DefaultStringValue("Redresh")
+    @DefaultStringValue("Refresh")
     String refresh();
 
     /**
@@ -744,8 +744,8 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("Tutor")
     String RoleType_tutor();
 
-    @DefaultStringValue("Observer")
-    String RoleType_observer();
+    @DefaultStringValue("Course Class Observer")
+    String RoleType_courseClassObserver();
 
     /**
      * Country
@@ -1573,5 +1573,8 @@ public interface KornellConstants extends ConstantsWithLookup {
 
     @DefaultStringValue("Error checking for certificates.")
     String errorCheckingCerts();
+
+    @DefaultStringValue("Error checking for the class info report.")
+    String errorCheckingClassInfo();
 
 }

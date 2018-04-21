@@ -28,7 +28,9 @@ object S3Service {
   def COURSES = "courses"
   def COURSE_VERSIONS = "courseVersions"
   def COURSE_CLASSES = "courseClasses"
+  def REPORTS = "reports"
   def CERTIFICATES = "certificates"
+  def CLASS_INFO = "classInfo"
   def CERTIFICATE_FILENAME = "certificate-bg.jpg"
   def THUMB_FILENAME = "thumb.jpg"
 

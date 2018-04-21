@@ -13,7 +13,7 @@ import kornell.core.entity.Enrollment
 import kornell.core.entity.InstitutionRegistrationPrefix
 import kornell.core.entity.Person
 import kornell.core.entity.RegistrationType
-import kornell.core.entity.Role
+import kornell.core.entity.role.Role
 import kornell.core.to.ChatThreadMessageTO
 import kornell.core.to.CourseClassTO
 import kornell.core.to.CourseVersionTO
@@ -46,7 +46,7 @@ import kornell.core.event.EntityChanged
 import kornell.core.event.EventFactory
 import kornell.core.entity.AuditedEntityType
 import kornell.server.content.ContentManagers
-import kornell.core.entity.RoleType
+import kornell.core.entity.role.RoleType
 import kornell.server.util.DateConverter
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.repository.InstitutionRepo

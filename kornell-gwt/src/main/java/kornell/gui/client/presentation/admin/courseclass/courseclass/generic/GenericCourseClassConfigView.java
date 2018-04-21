@@ -35,7 +35,7 @@ import kornell.core.entity.EntityFactory;
 import kornell.core.entity.EntityState;
 import kornell.core.entity.InstitutionRegistrationPrefix;
 import kornell.core.entity.RegistrationType;
-import kornell.core.entity.RoleCategory;
+import kornell.core.entity.role.RoleCategory;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.CourseTO;
 import kornell.core.to.CourseVersionTO;

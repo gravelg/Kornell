@@ -2,7 +2,7 @@ package kornell.core.to;
 
 import java.util.Date;
 
-import kornell.core.entity.RoleType;
+import kornell.core.entity.role.RoleType;
 
 public interface ChatThreadMessageTO {
     public static final String TYPE = TOFactory.PREFIX+"chatThreadMessage+json";

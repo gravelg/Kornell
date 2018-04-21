@@ -22,8 +22,8 @@ import kornell.core.entity.Enrollments;
 import kornell.core.entity.EntityState;
 import kornell.core.entity.InstitutionType;
 import kornell.core.entity.RegistrationType;
-import kornell.core.entity.RoleCategory;
-import kornell.core.entity.RoleType;
+import kornell.core.entity.role.RoleCategory;
+import kornell.core.entity.role.RoleType;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.EnrollmentRequestTO;
@@ -88,7 +88,7 @@ public class AdminCourseClassPresenter extends PaginationPresenterImpl<Enrollmen
 
     private void init() {
         if (RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassAdmin)
-                || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
+                || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassObserver)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
                 || session.isInstitutionAdmin()) {
             view = getView();

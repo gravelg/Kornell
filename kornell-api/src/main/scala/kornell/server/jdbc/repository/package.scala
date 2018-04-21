@@ -20,6 +20,8 @@ import kornell.core.entity.CourseDetailsHint
 import kornell.core.entity.CourseDetailsLibrary
 import kornell.core.entity.CourseDetailsSection
 import kornell.core.entity.CourseVersion
+import kornell.core.entity.EmailTemplate
+import kornell.core.entity.EmailTemplateType
 import kornell.core.entity.Enrollment
 import kornell.core.entity.EnrollmentSource
 import kornell.core.entity.EnrollmentState
@@ -33,8 +35,13 @@ import kornell.core.entity.PostbackType
 import kornell.core.entity.RegistrationType
 import kornell.core.entity.RegistrationType
 import kornell.core.entity.RepositoryType
-import kornell.core.entity.RoleCategory
-import kornell.core.entity.RoleType
+import kornell.core.entity.role.RoleCategory
+import kornell.core.entity.role.RoleType
+import kornell.core.entity.Track
+import kornell.core.entity.TrackEnrollment
+import kornell.core.entity.TrackItem
+import kornell.core.entity.role.RoleCategory
+import kornell.core.entity.role.RoleType
 import kornell.core.event.EntityChanged
 import kornell.core.to.ChatThreadMessageTO
 import kornell.core.to.CourseClassTO
@@ -51,11 +58,6 @@ import kornell.server.repository.Entities._
 import kornell.server.repository.Entities
 import kornell.server.repository.TOs._
 import kornell.server.repository.TOs
-import kornell.core.entity.EmailTemplateType
-import kornell.core.entity.EmailTemplate
-import kornell.core.entity.Track
-import kornell.core.entity.TrackEnrollment
-import kornell.core.entity.TrackItem
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -309,7 +311,7 @@ package object repository {
   implicit def toPersonTO(rs: ResultSet): PersonTO = newPersonTO(toPerson(rs),
     rs.getString("username"))
 
-  implicit def toRole(rs: java.sql.ResultSet): kornell.core.entity.Role = {
+  implicit def toRole(rs: java.sql.ResultSet): kornell.core.entity.role.Role = {
     val roleType = RoleType.valueOf(rs.getString("role"))
     val role = roleType match {
       case RoleType.user => Entities.newUserRole
@@ -317,7 +319,7 @@ package object repository {
       case RoleType.institutionAdmin => Entities.newInstitutionAdminRole(rs.getString("personUUID"), rs.getString("institutionUUID"))
       case RoleType.courseClassAdmin => Entities.newCourseClassAdminRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
       case RoleType.tutor => Entities.newTutorRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
-      case RoleType.observer => Entities.newObserverRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
+      case RoleType.courseClassObserver => Entities.newCourseClassObserverRole(rs.getString("personUUID"), rs.getString("courseClassUUID"))
       case RoleType.controlPanelAdmin => Entities.newControlPanelAdminRole(rs.getString("personUUID"))
       case RoleType.publisher => Entities.newPublisherRole(rs.getString("personUUID"), rs.getString("institutionUUID"))
     }

@@ -20,14 +20,14 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
-import kornell.core.entity.CourseClassAdminRole;
 import kornell.core.entity.EntityFactory;
-import kornell.core.entity.ObserverRole;
-import kornell.core.entity.Role;
-import kornell.core.entity.RoleCategory;
-import kornell.core.entity.RoleType;
-import kornell.core.entity.Roles;
-import kornell.core.entity.TutorRole;
+import kornell.core.entity.role.CourseClassAdminRole;
+import kornell.core.entity.role.CourseClassObserverRole;
+import kornell.core.entity.role.Role;
+import kornell.core.entity.role.RoleCategory;
+import kornell.core.entity.role.RoleType;
+import kornell.core.entity.role.Roles;
+import kornell.core.entity.role.TutorRole;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.RoleTO;
 import kornell.core.to.RolesTO;
@@ -117,19 +117,19 @@ public class GenericCourseClassAdminsView extends Composite {
         bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClass(courseClassTO.getCourseClass().getUUID()).getAdmins(RoleCategory.BIND_WITH_PERSON,
                 new Callback<RolesTO>() {
-                    @Override
-                    public void ok(RolesTO to) {
-                        for (RoleTO roleTO : to.getRoleTOs()) {
-                            String item = roleTO.getUsername();
-                            if (roleTO.getPerson().getFullName() != null
-                                    && !"".equals(roleTO.getPerson().getFullName())) {
-                                item += " (" + roleTO.getPerson().getFullName() + ")";
-                            }
-                            courseClassAdminsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
-                        }
-                        bus.fireEvent(new ShowPacifierEvent(false));
+            @Override
+            public void ok(RolesTO to) {
+                for (RoleTO roleTO : to.getRoleTOs()) {
+                    String item = roleTO.getUsername();
+                    if (roleTO.getPerson().getFullName() != null
+                            && !"".equals(roleTO.getPerson().getFullName())) {
+                        item += " (" + roleTO.getPerson().getFullName() + ")";
                     }
-                });
+                    courseClassAdminsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                }
+                bus.fireEvent(new ShowPacifierEvent(false));
+            }
+        });
         courseClassAdminsMultipleSelect = new PeopleMultipleSelect(session);
         fieldPanelWrapper.add(courseClassAdminsMultipleSelect.asWidget());
 
@@ -151,19 +151,19 @@ public class GenericCourseClassAdminsView extends Composite {
         bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClass(courseClassTO.getCourseClass().getUUID()).getTutors(RoleCategory.BIND_WITH_PERSON,
                 new Callback<RolesTO>() {
-                    @Override
-                    public void ok(RolesTO to) {
-                        for (RoleTO roleTO : to.getRoleTOs()) {
-                            String item = roleTO.getUsername();
-                            if (roleTO.getPerson().getFullName() != null
-                                    && !"".equals(roleTO.getPerson().getFullName())) {
-                                item += " (" + roleTO.getPerson().getFullName() + ")";
-                            }
-                            tutorsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
-                        }
-                        bus.fireEvent(new ShowPacifierEvent(false));
+            @Override
+            public void ok(RolesTO to) {
+                for (RoleTO roleTO : to.getRoleTOs()) {
+                    String item = roleTO.getUsername();
+                    if (roleTO.getPerson().getFullName() != null
+                            && !"".equals(roleTO.getPerson().getFullName())) {
+                        item += " (" + roleTO.getPerson().getFullName() + ")";
                     }
-                });
+                    tutorsMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                }
+                bus.fireEvent(new ShowPacifierEvent(false));
+            }
+        });
         tutorsMultipleSelect = new PeopleMultipleSelect(session);
         fieldPanelWrapper.add(tutorsMultipleSelect.asWidget());
 
@@ -185,19 +185,19 @@ public class GenericCourseClassAdminsView extends Composite {
         bus.fireEvent(new ShowPacifierEvent(true));
         session.courseClass(courseClassTO.getCourseClass().getUUID()).getObservers(RoleCategory.BIND_WITH_PERSON,
                 new Callback<RolesTO>() {
-                    @Override
-                    public void ok(RolesTO to) {
-                        for (RoleTO roleTO : to.getRoleTOs()) {
-                            String item = roleTO.getUsername();
-                            if (roleTO.getPerson().getFullName() != null
-                                    && !"".equals(roleTO.getPerson().getFullName())) {
-                                item += " (" + roleTO.getPerson().getFullName() + ")";
-                            }
-                            observersMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
-                        }
-                        bus.fireEvent(new ShowPacifierEvent(false));
+            @Override
+            public void ok(RolesTO to) {
+                for (RoleTO roleTO : to.getRoleTOs()) {
+                    String item = roleTO.getUsername();
+                    if (roleTO.getPerson().getFullName() != null
+                            && !"".equals(roleTO.getPerson().getFullName())) {
+                        item += " (" + roleTO.getPerson().getFullName() + ")";
                     }
-                });
+                    observersMultipleSelect.addItem(item, roleTO.getPerson().getUUID());
+                }
+                bus.fireEvent(new ShowPacifierEvent(false));
+            }
+        });
         observersMultipleSelect = new PeopleMultipleSelect(session);
         fieldPanelWrapper.add(observersMultipleSelect.asWidget());
 
@@ -271,11 +271,11 @@ public class GenericCourseClassAdminsView extends Composite {
             for (int i = 0; i < multipleSelect.getItemCount(); i++) {
                 String personUUID = multipleSelect.getValue(i);
                 Role role = entityFactory.newRole().as();
-                ObserverRole observerRole = entityFactory.newObserverRole().as();
+                CourseClassObserverRole observerRole = entityFactory.newCourseClassObserverRole().as();
                 role.setPersonUUID(personUUID);
-                role.setRoleType(RoleType.observer);
+                role.setRoleType(RoleType.courseClassObserver);
                 observerRole.setCourseClassUUID(courseClassTO.getCourseClass().getUUID());
-                role.setObserverRole(observerRole);
+                role.setCourseClassObserverRole(observerRole);
                 rolesList.add(role);
             }
             roles.setRoles(rolesList);

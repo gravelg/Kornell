@@ -22,7 +22,7 @@ import java.util.Date
 import kornell.server.jdbc.SQL._
 import scala.collection.JavaConverters._
 import kornell.server.jdbc.repository.PersonRepo
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.RoleCategory
 import kornell.server.repository.Entities
 import kornell.core.util.StringUtils
 import kornell.core.entity.RegistrationType

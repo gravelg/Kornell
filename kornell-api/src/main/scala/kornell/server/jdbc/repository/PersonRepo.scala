@@ -6,9 +6,9 @@ import java.sql.ResultSet
 import kornell.server.repository.Entities
 import kornell.server.repository.Entities._
 import java.util.Date
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.RoleCategory
 import scala.collection.JavaConverters._
-import kornell.core.entity.RoleType
+import kornell.core.entity.role.RoleType
 import java.text.SimpleDateFormat
 import java.text.DateFormat
 import java.util.concurrent.TimeUnit

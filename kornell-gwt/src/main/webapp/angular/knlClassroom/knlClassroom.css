@@ -72,7 +72,7 @@
 .speech-bubble {
     position: relative;
     padding: 15px;
-    margin: 3em 0 1.5em;
+    margin: 4em 0 2em;
     font-size: 1.1em;
     color: #fff;
     background: #019dd8;
@@ -80,6 +80,7 @@
     -moz-border-radius: 10px;
     border-radius: 10px;
     max-width: 500px;
+    min-width: 180px;
     margin-left: 4em;
 }
 

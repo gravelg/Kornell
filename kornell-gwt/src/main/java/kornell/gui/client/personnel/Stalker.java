@@ -24,13 +24,12 @@ public class Stalker implements ActomEnteredEventHandler, LoginEventHandler {
 
     private KornellConstants constants = GWT.create(KornellConstants.class);
     private KornellSession session;
-    private String versionAPI = null;
     private Timer seuInacioTimer, heartbeatTimer;
+    private String currentVersionAPI = null;
     private PopupPanel popup;
 
     public Stalker(EventBus bus, KornellSession session) {
         this.session = session;
-
         startSeuInacioTimer();
         startHeartBeatTimer();
         initVersionPopup();
@@ -44,6 +43,7 @@ public class Stalker implements ActomEnteredEventHandler, LoginEventHandler {
             @Override
             public void execute() {
                 popup.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+                    @Override
                     public void setPosition(int offsetWidth, int offsetHeight) {
                         int left = (Window.getClientWidth() - offsetWidth) / 2;
                         int top = Positioning.hasPlaceBar() ? Positioning.NORTH_BAR_PLUS : Positioning.NORTH_BAR;
@@ -71,6 +71,7 @@ public class Stalker implements ActomEnteredEventHandler, LoginEventHandler {
         scheduleAttendanceSheetSigning();
 
         seuInacioTimer = new Timer() {
+            @Override
             public void run() {
                 scheduleAttendanceSheetSigning();
             }
@@ -90,8 +91,9 @@ public class Stalker implements ActomEnteredEventHandler, LoginEventHandler {
     }
 
     private void signAttendanceSheet() {
-        if (session.isAnonymous())
+        if (session.isAnonymous()) {
             return;
+        }
         String institutionUUID = session.getInstitution().getUUID();
         String personUUID = session.getCurrentUser().getPerson().getUUID();
         session.events().attendanceSheetSigned(institutionUUID, personUUID).fire(new Callback<Void>() {
@@ -106,6 +108,7 @@ public class Stalker implements ActomEnteredEventHandler, LoginEventHandler {
         scheduleHeartbeat();
 
         heartbeatTimer = new Timer() {
+            @Override
             public void run() {
                 scheduleHeartbeat();
             }
@@ -129,10 +132,10 @@ public class Stalker implements ActomEnteredEventHandler, LoginEventHandler {
             @Override
             public void ok(String text) {
                 if (StringUtils.isSome(text)) {
-                    if (StringUtils.isSome(versionAPI) && !text.equals(versionAPI)) {
+                    if (StringUtils.isSome(currentVersionAPI) && !text.equals(currentVersionAPI)) {
                         showVersionPopup();
                     }
-                    versionAPI = text;
+                    currentVersionAPI = text;
                 }
             }
         });

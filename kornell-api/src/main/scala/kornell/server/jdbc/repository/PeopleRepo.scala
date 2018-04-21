@@ -68,29 +68,29 @@ object PeopleRepo {
   def getTimezoneByUUID(personUUID: String) = timezoneCache.get(personUUID)
 
   def lookupByUsername(institutionUUID: String, username: String) = sql"""
-		select p.* from Person p
-		join Password pwd
-		on p.uuid = pwd.personUUID
-		where pwd.username = $username
-		and p.institutionUUID = $institutionUUID
-	""".first[Person]
+    select p.* from Person p
+    join Password pwd
+    on p.uuid = pwd.personUUID
+    where pwd.username = $username
+    and p.institutionUUID = $institutionUUID
+  """.first[Person]
 
   def lookupByCPF(institutionUUID: String, cpf: String) = sql"""
-		select p.* from Person p	
-		where p.cpf = $cpf
-		and p.institutionUUID = $institutionUUID
-	""".first[Person]
+    select p.* from Person p
+    where p.cpf = $cpf
+    and p.institutionUUID = $institutionUUID
+  """.first[Person]
 
   def lookupByEmail(institutionUUID: String, email: String) = sql"""
-		select p.* from Person p	
-		where p.email = $email
-		and p.institutionUUID = $institutionUUID
-	""".first[Person]
+    select p.* from Person p
+    where p.email = $email
+    and p.institutionUUID = $institutionUUID
+  """.first[Person]
 
   def lookupByUUID(uuid: String) = sql"""
-		select p.* from Person p	
-		where p.uuid = $uuid
-	""".first[Person]
+    select p.* from Person p
+    where p.uuid = $uuid
+  """.first[Person]
 
   def lookupTimezoneByUUID(personUUID: String) =
     sql"""select i.timeZone from Person p left join Institution i on p.institutionUUID = i.uuid where p.uuid = ${personUUID}""".first[String]
@@ -115,16 +115,18 @@ object PeopleRepo {
   def findBySearchTerm(institutionUUID: String, search: String) = {
     newPeopleTO(
       sql"""
-      	| select p.*, pw.username from Person p 
-      	| join Password pw on p.uuid = pw.personUUID
-      	| where (pw.username like ${"%" + search + "%"}
-      	| or p.fullName like ${"%" + search + "%"}
-      	| or p.email like ${"%" + search + "%"}
-      	| or p.cpf like ${"%" + search + "%"})
-      	| and p.institutionUUID = ${institutionUUID}
-      	| order by p.email, p.cpf
-      	| limit 8
-	    """.map[PersonTO](toPersonTO))
+        | select p.*,
+        | if(pw.username is not null, pw.username, p.email) as username
+        | from Person p
+        | left join Password pw on p.uuid = pw.personUUID
+        | where (pw.username like ${"%" + search + "%"}
+        | or p.fullName like ${"%" + search + "%"}
+        | or p.email like ${"%" + search + "%"}
+        | or p.cpf like ${"%" + search + "%"})
+        | and p.institutionUUID = ${institutionUUID}
+        | order by p.email, p.cpf
+        | limit 8
+      """.map[PersonTO](toPersonTO))
   }
 
   def createPerson(institutionUUID: String = null, email: String = null, fullName: String = null, cpf: String = null): Person =
@@ -142,15 +144,15 @@ object PeopleRepo {
   def create(person: Person): Person = {
     if (person.getUUID == null)
       person.setUUID(randUUID)
-    sql""" 
-    	insert into Person(uuid, fullName, email, cpf, institutionUUID, registrationType, institutionRegistrationPrefixUUID) 
-    		values (${person.getUUID},
-	             ${person.getFullName},
-	             ${person.getEmail},
-	             ${person.getCPF},
-	             ${person.getInstitutionUUID},
-	             ${person.getRegistrationType.toString},
-	             ${person.getInstitutionRegistrationPrefixUUID})
+    sql"""
+      insert into Person(uuid, fullName, email, cpf, institutionUUID, registrationType, institutionRegistrationPrefixUUID)
+        values (${person.getUUID},
+               ${person.getFullName},
+               ${person.getEmail},
+               ${person.getCPF},
+               ${person.getInstitutionUUID},
+               ${person.getRegistrationType.toString},
+               ${person.getInstitutionRegistrationPrefixUUID})
     """.executeUpdate
 
     //log entity creation

@@ -40,16 +40,19 @@ import kornell.server.util.Conditional.toConditional
 import javax.ws.rs.POST
 import kornell.server.util.AccessDeniedErr
 import kornell.server.jdbc.repository.RolesRepo
-import kornell.core.entity.RoleCategory
+import kornell.core.entity.role.RoleCategory
 import kornell.server.jdbc.repository.EventsRepo
 import kornell.core.entity.AuditedEntityType
 import kornell.server.jdbc.repository.CourseClassesRepo
 import javax.ws.rs.core.Response
+import kornell.server.util.Settings._
 
 //TODO Person/People Resource
 @Path("user")
 class UserResource(private val authRepo: AuthRepo) {
   def this() = this(AuthRepo())
+
+  val buildNumber = BUILD_NUM.getOpt.orElse("development_build").get
 
   @GET
   @Path("login")
@@ -77,6 +80,8 @@ class UserResource(private val authRepo: AuthRepo) {
         throw new UnauthorizedAccessException("personDoesNotBelongToInstitution")
       }
     }
+
+    userHello.setBuildNumber(buildNumber)
 
     userHello
   }

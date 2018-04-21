@@ -27,29 +27,29 @@ class CourseVersionResource(uuid: String) {
   @GET
   @Produces(Array(CourseVersionTO.TYPE))
   def get = {
-    CourseVersionsRepo.getCourseVersionTO(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID, uuid)
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+    CourseVersionsRepo.getCourseVersionTO(getAutenticatedPersonInstitutionUUID, uuid)
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @PUT
   @Consumes(Array(CourseVersion.TYPE))
   @Produces(Array(CourseVersion.TYPE))
-  def update(courseVersion: CourseVersion) = {
-    CourseVersionRepo(uuid).update(courseVersion, PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID)
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  def update(courseVersion: CourseVersion, @QueryParam("skipAudit") skipAudit: Boolean) = {
+    CourseVersionRepo(uuid).update(courseVersion, skipAudit, getAutenticatedPersonInstitutionUUID)
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @DELETE
   @Produces(Array(CourseVersion.TYPE))
   def delete() = {
     CourseVersionRepo(uuid).delete
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @POST
@@ -57,9 +57,9 @@ class CourseVersionResource(uuid: String) {
   @Produces(Array(CourseVersion.TYPE))
   def copy = {
     CourseVersionRepo(uuid).copy
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isPublisher(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
     .get
 
   @GET

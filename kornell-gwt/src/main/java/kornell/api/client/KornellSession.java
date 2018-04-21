@@ -7,8 +7,8 @@ import com.google.gwt.http.client.RequestBuilder;
 
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.Institution;
-import kornell.core.entity.RoleCategory;
-import kornell.core.entity.RoleType;
+import kornell.core.entity.role.RoleCategory;
+import kornell.core.entity.role.RoleType;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.RoleTO;
@@ -26,6 +26,7 @@ public class KornellSession extends KornellClient {
     private UserInfoTO currentUser = null;
     private Institution institution = null;
     private CourseClassTO currentCourseClass = null;
+    private String currentVersionAPI = null;
 
     public KornellSession() {
         logger.info("Instantiated new Kornell Session");
@@ -81,7 +82,7 @@ public class KornellSession extends KornellClient {
     }
 
     public boolean isCourseClassObserver(String courseClassUUID) {
-        return isValidRole(RoleType.observer, null, courseClassUUID) || isInstitutionAdmin();
+        return isValidRole(RoleType.courseClassObserver, null, courseClassUUID) || isInstitutionAdmin();
     }
 
     public boolean isCourseClassObserver() {
@@ -118,7 +119,7 @@ public class KornellSession extends KornellClient {
         }
         List<RoleTO> roleTOs = currentUser.getRoles();
         return (RoleCategory.hasRole(roleTOs, RoleType.courseClassAdmin)
-                || RoleCategory.hasRole(roleTOs, RoleType.observer) || RoleCategory.hasRole(roleTOs, RoleType.tutor)
+                || RoleCategory.hasRole(roleTOs, RoleType.courseClassObserver) || RoleCategory.hasRole(roleTOs, RoleType.tutor)
                 || isPublisher()
                 || isInstitutionAdmin());
     }
@@ -266,6 +267,14 @@ public class KornellSession extends KornellClient {
             ClientProperties.set(PREFIX + ClientProperties.SEPARATOR + ClientProperties.CURRENT_SESSION,
                     userInfo.getPerson().getUUID());
         }
+    }
+
+    public void setCurrentVersionAPI(String currentVersionAPI) {
+        this.currentVersionAPI = currentVersionAPI;
+    }
+
+    public String getCurrentVersionAPI() {
+        return this.currentVersionAPI;
     }
 
 }

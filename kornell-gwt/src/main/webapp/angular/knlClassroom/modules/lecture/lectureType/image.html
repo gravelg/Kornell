@@ -14,6 +14,6 @@
 	}
 </style>
 <div class="innerDiv container imageInnerDiv" ng-controller="ImageLectureController">
-    <img ng-src="{{(prefixURL ? prefixURL : '') + lecture.id}}"/>
+    <img ng-src="{{getFileURL('id')}}"/>
     <p class="contentText" ng-bind-html="sce.trustAsHtml(lecture.text)"></p>
 </div>

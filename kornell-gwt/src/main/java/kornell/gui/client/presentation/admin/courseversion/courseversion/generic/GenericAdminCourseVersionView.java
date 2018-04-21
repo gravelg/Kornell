@@ -181,7 +181,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
             contentsTab.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    presenter.buildContentView(courseVersion, courseEntity);
+                    presenter.buildContentView(courseVersion.getUUID());
                 }
             });
         } else {
@@ -256,7 +256,7 @@ public class GenericAdminCourseVersionView extends Composite implements AdminCou
                 showNavBar(!isCreationMode);
                 courseVersionFields.setVisible(true);
                 if(!isCreationMode && ContentSpec.WIZARD.equals(courseEntity.getContentSpec())){
-                    presenter.buildContentView(courseVersion, courseEntity);
+                    presenter.buildContentView(courseVersion.getUUID());
                     editTab.setActive(false);
                     contentsTab.setActive(true);
                 }

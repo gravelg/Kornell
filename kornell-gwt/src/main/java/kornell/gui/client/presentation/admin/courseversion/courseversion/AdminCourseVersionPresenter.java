@@ -13,10 +13,10 @@ import kornell.api.client.KornellSession;
 import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
 import kornell.core.error.KornellErrorTO;
+import kornell.core.to.CourseVersionTO;
 import kornell.gui.client.KornellConstantsHelper;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
-import kornell.gui.client.mvp.PlaceUtils;
 import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminCourseVersionsPlace;
 import kornell.gui.client.util.view.KornellNotification;
 
@@ -29,6 +29,8 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
     Place defaultPlace;
     private ViewFactory viewFactory;
     private AdminCourseVersionContentPresenter courseVersionContentPresenter;
+    private CourseVersion courseVersion;
+    private Course course;
 
     public AdminCourseVersionPresenter(KornellSession session, PlaceController placeController, EventBus bus,
             Place defaultPlace, ViewFactory viewFactory) {
@@ -78,9 +80,9 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
             session.courseVersions().create(courseVersion, new Callback<CourseVersion>() {
                 @Override
                 public void ok(CourseVersion courseVersion) {
-                    bus.fireEvent(new ShowPacifierEvent(false));
                     KornellNotification.show("Versão de curso criada com sucesso!");
-                    PlaceUtils.reloadCurrentPlace(bus, placeController);
+                    bus.fireEvent(new ShowPacifierEvent(false));
+                    placeController.goTo(new AdminCourseVersionPlace(courseVersion.getUUID()));
                 }
 
                 @Override
@@ -110,12 +112,35 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
     }
 
     @Override
-    public void buildContentView(CourseVersion courseVersion, Course course) {
-        if (courseVersionContentPresenter == null) {
-            courseVersionContentPresenter = new AdminCourseVersionContentPresenter(session, placeController, bus,
-                    defaultPlace, viewFactory);
-        }
-        courseVersionContentPresenter.init(courseVersion, course);
-        view.addContentPanel((AdminCourseVersionContentView) courseVersionContentPresenter.asWidget());
+    public void buildContentView(String courseVersionUUID) {
+        final AdminCourseVersionPresenter thiz = this;
+        session.courseVersion(courseVersionUUID).get(new Callback<CourseVersionTO>() {
+            @Override
+            public void ok(CourseVersionTO to) {
+                courseVersion = to.getCourseVersion();
+                course = to.getCourseTO().getCourse();
+                if (courseVersionContentPresenter == null) {
+                    courseVersionContentPresenter = new AdminCourseVersionContentPresenter(session, placeController, bus,
+                            defaultPlace, viewFactory);
+                }
+                courseVersionContentPresenter.init(thiz);
+                view.addContentPanel((AdminCourseVersionContentView) courseVersionContentPresenter.asWidget());
+            }
+        });
+    }
+
+    @Override
+    public CourseVersion getCourseVersion() {
+        return this.courseVersion;
+    }
+
+    @Override
+    public void setCourseVersion(CourseVersion courseVersion) {
+        this.courseVersion = courseVersion;
+    }
+
+    @Override
+    public Course getCourse() {
+        return this.course;
     }
 }

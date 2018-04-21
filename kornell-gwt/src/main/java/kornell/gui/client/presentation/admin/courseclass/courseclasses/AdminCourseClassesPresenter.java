@@ -12,8 +12,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.CourseClass;
-import kornell.core.entity.RoleCategory;
-import kornell.core.entity.RoleType;
+import kornell.core.entity.role.RoleCategory;
+import kornell.core.entity.role.RoleType;
 import kornell.core.error.KornellErrorTO;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.CourseClassesTO;
@@ -59,7 +59,7 @@ implements AdminCourseClassesView.Presenter {
 
     private void init() {
         if (RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassAdmin)
-                || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.observer)
+                || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.courseClassObserver)
                 || RoleCategory.hasRole(session.getCurrentUser().getRoles(), RoleType.tutor)
                 || session.isPublisher()
                 || session.isInstitutionAdmin()) {

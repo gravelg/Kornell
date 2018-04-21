@@ -74,7 +74,7 @@ public class GenericCourseReportsView extends Composite {
         FlowPanel reportContentPanel = new FlowPanel();
         reportContentPanel.addStyleName("reportContentPanel");
         reportContentPanel
-                .add(new GenericCourseReportItemView(bus, session, course, GenericCourseReportItemView.COURSE_INFO));
+        .add(new GenericCourseReportItemView(bus, session, course, GenericCourseReportItemView.COURSE_CLASS_INFO));
 
         return reportContentPanel;
     }

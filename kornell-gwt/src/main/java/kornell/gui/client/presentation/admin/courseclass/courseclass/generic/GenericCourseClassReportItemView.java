@@ -54,7 +54,8 @@ public class GenericCourseClassReportItemView extends Composite {
     private String description;
     public static final TOFactory toFactory = GWT.create(TOFactory.class);
 
-    private CheckBox checkBox;
+    private CheckBox checkBoxCollapse;
+    private CheckBox checkBoxExcel;
 
     private HandlerRegistration downloadHandler;
 
@@ -87,12 +88,13 @@ public class GenericCourseClassReportItemView extends Composite {
     }
 
     private void display() {
-        if (CERTIFICATE.equals(this.type))
+        if (CERTIFICATE.equals(this.type)) {
             displayCertificate();
-        else if (COURSE_CLASS_INFO.equals(this.type))
+        } else if (COURSE_CLASS_INFO.equals(this.type)) {
             displayCourseClassInfo();
-        else if (COURSE_CLASS_AUDIT.equals(this.type))
+        } else if (COURSE_CLASS_AUDIT.equals(this.type)) {
             displayCourseClassAudit();
+        }
     }
 
     private void displayCourseClassAudit() {
@@ -136,25 +138,88 @@ public class GenericCourseClassReportItemView extends Composite {
         lblDownload.setEnabled(false);
 
         Image img = new Image(StringUtils.mkurl(LIBRARY_IMAGES_PATH, "xls.png"));
-        checkBox = new CheckBox("Gerar em formato Excel (inclui matrículas canceladas)");
+        checkBoxExcel = new CheckBox("Gerar em formato Excel (inclui matrículas canceladas)");
+        checkBoxExcel.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                displayActionCell(null);
+            }
+        });
 
         optionPanel.add(img);
-        optionPanel.add(checkBox);
+        optionPanel.add(checkBoxExcel);
+
+        CollapseTrigger trigger = new CollapseTrigger();
+        final Collapse collapse = new Collapse();
+        trigger.setTarget("#toggleClassInfoUsernames");
+        collapse.setId("toggleClassInfoUsernames");
+
+        checkBoxCollapse = new CheckBox("Gerar somente para um conjunto de participantes dessa turma");
+
+        FlowPanel triggerPanel = new FlowPanel();
+        triggerPanel.add(checkBoxCollapse);
+        trigger.add(triggerPanel);
+
+        FlowPanel collapsePanel = new FlowPanel();
+        Label infoLabel = new Label(
+                "Digite os usuários, cada um em uma linha.");
+        usernamesTextArea = new TextArea();
+        collapsePanel.add(infoLabel);
+        collapsePanel.add(usernamesTextArea);
+        collapse.add(collapsePanel);
+
+        optionPanel.add(trigger);
+        optionPanel.add(collapse);
+
+        displayActionCell(null);
 
         img.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                checkBox.setValue(!checkBox.getValue());
+                checkBoxExcel.setValue(!checkBoxExcel.getValue());
+                displayActionCell(null);
+            }
+        });
+
+        collapse.addShownHandler(new ShownHandler() {
+            @Override
+            public void onShown(ShownEvent shownEvent) {
+                checkBoxCollapse.setValue(true);
+            }
+        });
+
+        collapse.addHiddenHandler(new HiddenHandler() {
+            @Override
+            public void onHidden(HiddenEvent hiddenEvent) {
+                checkBoxCollapse.setValue(false);
             }
         });
 
         lblGenerate.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                KornellNotification.show("Aguarde um instante...", AlertType.WARNING, 2000);
-                session.report().locationAssign("/report/courseClassInfo",
-                        "?courseClassUUID=" + currentCourseClass.getCourseClass().getUUID() + "&fileType="
-                                + (checkBox.getValue() ? "xls" : "pdf"));
+                displayActionCell(null);
+                bus.fireEvent(new ShowPacifierEvent(true));
+                SimplePeopleTO simplePeopleTO = buildSimplePeopleTO();
+                session.report().generateCourseClassInfo(currentCourseClass.getCourseClass().getUUID(), (checkBoxExcel.getValue() ? "xls" : "pdf"),
+                        simplePeopleTO, new Callback<String>() {
+
+                    @Override
+                    public void ok(String url) {
+                        KornellNotification.show("O relatório de detalhes da classe foi gerado.", AlertType.WARNING, 2000);
+                        displayActionCell(url);
+                        bus.fireEvent(new ShowPacifierEvent(false));
+                    }
+
+                    @Override
+                    public void internalServerError(KornellErrorTO kornellErrorTO) {
+                        KornellNotification.show(
+                                "Erro na geração do relatório. Tente novamente ou entre em contato com o suporte.",
+                                AlertType.ERROR, 3000);
+                        displayActionCell(null);
+                        bus.fireEvent(new ShowPacifierEvent(false));
+                    }
+                });
             }
         });
     }
@@ -175,11 +240,11 @@ public class GenericCourseClassReportItemView extends Composite {
         collapse.setId("toggleCertUsernames");
 
         Image img = new Image(StringUtils.mkurl(LIBRARY_IMAGES_PATH, "pdf.png"));
-        checkBox = new CheckBox("Gerar somente para um conjunto de participantes dessa turma");
+        checkBoxCollapse = new CheckBox("Gerar somente para um conjunto de participantes dessa turma");
 
         FlowPanel triggerPanel = new FlowPanel();
         triggerPanel.add(img);
-        triggerPanel.add(checkBox);
+        triggerPanel.add(checkBoxCollapse);
         trigger.add(triggerPanel);
 
         FlowPanel collapsePanel = new FlowPanel();
@@ -196,89 +261,89 @@ public class GenericCourseClassReportItemView extends Composite {
         img.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                checkBox.setValue(!checkBox.getValue());
+                checkBoxCollapse.setValue(!checkBoxCollapse.getValue());
             }
         });
 
         collapse.addShownHandler(new ShownHandler() {
             @Override
             public void onShown(ShownEvent shownEvent) {
-                checkBox.setValue(true);
+                checkBoxCollapse.setValue(true);
             }
         });
 
         collapse.addHiddenHandler(new HiddenHandler() {
             @Override
             public void onHidden(HiddenEvent hiddenEvent) {
-                checkBox.setValue(false);
+                checkBoxCollapse.setValue(false);
             }
         });
 
         lblGenerate.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                displayCertificateActionCell(null);
+                displayActionCell(null);
                 bus.fireEvent(new ShowPacifierEvent(true));
                 SimplePeopleTO simplePeopleTO = buildSimplePeopleTO();
                 session.report().generateCourseClassCertificate(currentCourseClass.getCourseClass().getUUID(),
                         simplePeopleTO, new Callback<String>() {
 
-                            @Override
-                            public void ok(String url) {
-                                KornellNotification.show("Os certificados foram gerados.", AlertType.WARNING, 2000);
-                                displayCertificateActionCell(url);
-                                bus.fireEvent(new ShowPacifierEvent(false));
-                            }
-
-                            @Override
-                            public void internalServerError(KornellErrorTO kornellErrorTO) {
-                                KornellNotification.show(
-                                        "Erro na geração dos certificados. Certifique-se que existem alunos que concluíram o curso nessa turma.",
-                                        AlertType.ERROR, 3000);
-                                displayCertificateActionCell(null);
-                                bus.fireEvent(new ShowPacifierEvent(false));
-                            }
-                        });
-            }
-
-            private SimplePeopleTO buildSimplePeopleTO() {
-                SimplePeopleTO simplePeopleTO = toFactory.newSimplePeopleTO().as();
-
-                if (checkBox.getValue()) {
-                    String usernames = usernamesTextArea.getValue();
-                    String[] usernamesArr = usernames.trim().split("\n");
-                    List<SimplePersonTO> simplePeopleTOList = new ArrayList<SimplePersonTO>();
-                    SimplePersonTO simplePersonTO;
-                    String username;
-                    for (int i = 0; i < usernamesArr.length; i++) {
-                        username = usernamesArr[i].trim();
-                        if (username.length() > 0) {
-                            simplePersonTO = toFactory.newSimplePersonTO().as();
-                            simplePersonTO.setUsername(username);
-                            simplePeopleTOList.add(simplePersonTO);
-                        }
+                    @Override
+                    public void ok(String url) {
+                        KornellNotification.show("Os certificados foram gerados.", AlertType.WARNING, 2000);
+                        displayActionCell(url);
+                        bus.fireEvent(new ShowPacifierEvent(false));
                     }
-                    simplePeopleTO.setSimplePeopleTO(simplePeopleTOList);
-                }
-                return simplePeopleTO;
+
+                    @Override
+                    public void internalServerError(KornellErrorTO kornellErrorTO) {
+                        KornellNotification.show(
+                                "Erro na geração dos certificados. Certifique-se que existem alunos que concluíram o curso nessa turma.",
+                                AlertType.ERROR, 3000);
+                        displayActionCell(null);
+                        bus.fireEvent(new ShowPacifierEvent(false));
+                    }
+                });
             }
         });
 
         session.report().courseClassCertificateExists(currentCourseClass.getCourseClass().getUUID(),
                 new Callback<String>() {
-                    @Override
-                    public void ok(String str) {
-                        displayCertificateActionCell(str);
-                    }
+            @Override
+            public void ok(String str) {
+                displayActionCell(str);
+            }
 
-                    @Override
-                    public void internalServerError(KornellErrorTO kornellErrorTO) {
-                        displayCertificateActionCell(null);
-                    }
-                });
+            @Override
+            public void internalServerError(KornellErrorTO kornellErrorTO) {
+                displayActionCell(null);
+            }
+        });
     }
 
-    private void displayCertificateActionCell(final String url) {
+    private SimplePeopleTO buildSimplePeopleTO() {
+        SimplePeopleTO simplePeopleTO = toFactory.newSimplePeopleTO().as();
+
+        if (checkBoxCollapse.getValue()) {
+            String usernames = usernamesTextArea.getValue();
+            String[] usernamesArr = usernames.trim().split("\n");
+            List<SimplePersonTO> simplePeopleTOList = new ArrayList<SimplePersonTO>();
+            SimplePersonTO simplePersonTO;
+            String username;
+            for (int i = 0; i < usernamesArr.length; i++) {
+                username = usernamesArr[i].trim();
+                if (username.length() > 0) {
+                    simplePersonTO = toFactory.newSimplePersonTO().as();
+                    simplePersonTO.setUsername(username);
+                    simplePeopleTOList.add(simplePersonTO);
+                }
+            }
+            simplePeopleTO.setSimplePeopleTO(simplePeopleTOList);
+        }
+        return simplePeopleTO;
+    }
+
+    private void displayActionCell(final String url) {
         if (url != null && !"".equals(url)) {
             lblDownload.setText("Baixar");
             lblDownload.addStyleName("cursorPointer");

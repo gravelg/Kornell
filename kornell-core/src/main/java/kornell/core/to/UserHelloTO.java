@@ -14,4 +14,7 @@ public interface UserHelloTO {
     CourseClassesTO getCourseClassesTO();
     void setCourseClassesTO(CourseClassesTO courseClassesTO);
 
+    String getBuildNumber();
+    void setBuildNumber(String buildNumber);
+
 }

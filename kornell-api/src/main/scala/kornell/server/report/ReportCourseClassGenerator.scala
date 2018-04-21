@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.HashMap
 
-import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.collection.mutable.ListBuffer
 
 import javax.servlet.http.HttpServletResponse
@@ -24,6 +23,18 @@ import kornell.server.jdbc.repository.CourseRepo
 import kornell.server.repository.TOs
 import kornell.server.service.S3Service
 import kornell.server.util.DateConverter
+import kornell.core.error.exception.EntityConflictException
+import kornell.core.to.SimplePeopleTO
+import scala.collection.JavaConverters._
+import java.net.HttpURLConnection
+import kornell.core.error.exception.ServerErrorException
+import kornell.server.content.ContentManagers
+import kornell.server.jdbc.repository.ContentRepositoriesRepo
+import kornell.server.jdbc.repository.InstitutionRepo
+import java.net.URL
+import java.io.ByteArrayInputStream
+import kornell.server.jdbc.repository.PersonRepo
+import kornell.server.authentication.ThreadLocalAuthenticator
 
 object ReportCourseClassGenerator {
 
@@ -95,88 +106,100 @@ object ReportCourseClassGenerator {
   type BreakdownData = Tuple2[String, Integer]
   implicit def breakdownConvertion(rs: ResultSet): BreakdownData = (rs.getString(1), rs.getInt(2))
 
-  def generateCourseClassReport(courseUUID: String, courseClassUUID: String, fileType: String, resp: HttpServletResponse) = {
+  def generateCourseClassReport(courseUUID: String, courseClassUUID: String, fileType: String, peopleTO: SimplePeopleTO) = {
     if (courseUUID != null || courseClassUUID != null) {
-      resp.addHeader("Content-disposition", "attachment; filename=" + getFileName(courseUUID, courseClassUUID, fileType))
-      resp.setContentType(getContentType(fileType))
+      var sql = s"""
+        select
+          p.fullName,
+          if(pw.username is not null, pw.username, p.email) as username,
+          p.email,
+          p.cpf,
+          case
+            when e.state = '${EnrollmentState.cancelled.toString}' then 'Cancelada'
+            when e.state = '${EnrollmentState.requested.toString}' then 'Requisitada'
+            when e.state = '${EnrollmentState.denied.toString}' then 'Negada'
+            else 'Matriculado'
+          end as state,
+          case
+            when progress is null OR progress = 0 then 'notStarted'
+            when progress > 0 and progress < 100 then 'inProgress'
+            when progress = 100 and certifiedAt is null then 'waitingEvaluation'
+            else 'completed'
+          end as progressState,
+          e.progress,
+          e.assessmentScore,
+          e.preAssessmentScore,
+          e.postAssessmentScore,
+          e.certifiedAt,
+          e.enrolledOn as enrolledAt,
+          c.name as courseName,
+          cv.name as courseVersionName,
+          cc.name as courseClassName,
+          p.company,
+          p.title,
+          p.sex,
+          p.birthDate,
+          p.telephone,
+          p.country,
+          p.state as stateProvince,
+          p.city,
+          p.addressLine1,
+          p.addressLine2,
+          p.postalCode
+        from
+          Enrollment e
+          join Person p on p.uuid = e.personUUID
+          join CourseClass cc on cc.uuid = e.courseClassUUID
+          join CourseVersion cv on cv.uuid = cc.courseVersionUUID
+          join Course c on c.uuid = cv.courseUUID
+          left join Password pw on pw.personUUID = p.uuid
+        where
+          (e.state = '${EnrollmentState.enrolled.toString}' or '${fileType}' = 'xls') and
+          cc.state <> '${EntityState.deleted.toString}' and
+          (cc.state = '${EntityState.active.toString}' or '${courseUUID}' = 'null') and
+          (e.courseClassUUID = '${courseClassUUID}' or '${courseClassUUID}' = 'null') and
+          (c.uuid = '${courseUUID}' or '${courseUUID}' = 'null') and
+          e.state <> '${EnrollmentState.deleted.toString}'
+      """
 
-      val courseClassReportTO = sql"""
-  			select 
-  				p.fullName, 
-  				if(pw.username is not null, pw.username, p.email) as username,
-  				p.email,
-      			p.cpf,
-  				case    
-  					when e.state = ${EnrollmentState.cancelled.toString} then 'Cancelada'  
-  					when e.state = ${EnrollmentState.requested.toString} then 'Requisitada'  
-  					when e.state = ${EnrollmentState.denied.toString} then 'Negada'  
-  					else 'Matriculado'   
-  				end as state,
-  				case    
-  					when progress is null OR progress = 0 then 'notStarted'  
-  					when progress > 0 and progress < 100 then 'inProgress'  
-  					when progress = 100 and certifiedAt is null then 'waitingEvaluation'  
-  					else 'completed'   
-  				end as progressState,
-  				e.progress,
-  				e.assessmentScore,
-  				e.preAssessmentScore,
-  				e.postAssessmentScore,
-  				e.certifiedAt,
-  				e.enrolledOn as enrolledAt,
-    			c.name as courseName,
-    			cv.name as courseVersionName,
-    			cc.name as courseClassName,
-  				p.company,
-  				p.title,
-  				p.sex,
-  				p.birthDate,
-  				p.telephone,
-  				p.country,
-  				p.state as stateProvince,
-  				p.city,
-  				p.addressLine1,
-  				p.addressLine2,
-  				p.postalCode
-  			from 
-  				Enrollment e 
-  				join Person p on p.uuid = e.personUUID
-  				join CourseClass cc on cc.uuid = e.courseClassUUID
-  				join CourseVersion cv on cv.uuid = cc.courseVersionUUID
-  				join Course c on c.uuid = cv.courseUUID
-  				left join Password pw on pw.personUUID = p.uuid
-  			where
-  				(e.state = ${EnrollmentState.enrolled.toString} or ${fileType} = 'xls') and
-      			cc.state <> ${EntityState.deleted.toString} and 
-      			(cc.state = ${EntityState.active.toString} or ${courseUUID} is null) and
-  		  		(e.courseClassUUID = ${courseClassUUID} or ${courseClassUUID} is null) and
-  				(c.uuid = ${courseUUID} or ${courseUUID} is null) and
-  				e.state <> ${EnrollmentState.deleted.toString}
-  			order by 
-  				case 
-  					when e.state = ${EnrollmentState.enrolled.toString} then 1
-  					when e.state = ${EnrollmentState.requested.toString}  then 2
-  					when e.state = ${EnrollmentState.denied.toString}  then 3
-  					when e.state = ${EnrollmentState.cancelled.toString}  then 4
-  					else 5
-  					end,
-  				case 
-  					when progressState = 'completed' then 1
-  					when progressState = 'waitingEvaluation'  then 2
-  					when progressState = 'inProgress'  then 3
-  					else 4 
-  					end,
-  				c.name,
-  				cv.name,
-  				cc.name,
-  				e.certifiedAt desc,
-  				progress,
-  				p.fullName,
-  				pw.username,
-  				p.email
-	    """.map[CourseClassReportTO](toCourseClassReportTO)
+      var usernames = "";
+      if (peopleTO != null && peopleTO.getSimplePeopleTO != null) {
+        peopleTO.getSimplePeopleTO.asScala.map { person => usernames += "'" + person.getUsername + "'," }
+        if (usernames.length > 1) {
+          usernames = usernames.dropRight(1);
+          sql += s"""and if(pw.username is not null, pw.username, p.email) in ( ${usernames} ) """
+        }
+      }
 
-      val parameters = getTotalsAsParameters(courseUUID, courseClassUUID, fileType)
+      if (sql.contains("--")) throw new EntityConflictException("invalidValue")
+
+      sql += s"""
+        order by
+          case
+            when e.state = '${EnrollmentState.enrolled.toString}' then 1
+            when e.state = '${EnrollmentState.requested.toString}'  then 2
+            when e.state = '${EnrollmentState.denied.toString}'  then 3
+            when e.state = '${EnrollmentState.cancelled.toString}'  then 4
+            else 5
+            end,
+          case
+            when progressState = 'completed' then 1
+            when progressState = 'waitingEvaluation'  then 2
+            when progressState = 'inProgress'  then 3
+            else 4
+            end,
+          c.name,
+          cv.name,
+          cc.name,
+          e.certifiedAt desc,
+          progress,
+          p.fullName,
+          pw.username,
+          p.email"""
+      val pstmt = new PreparedStmt(sql, List())
+      val courseClassReportTO = pstmt.map[CourseClassReportTO](toCourseClassReportTO)
+
+      val parameters = getTotalsAsParameters(courseUUID, courseClassUUID, fileType, usernames)
       addInfoParameters(courseUUID, courseClassUUID, parameters)
 
       val enrollmentBreakdowns: ListBuffer[EnrollmentsBreakdownTO] = ListBuffer()
@@ -185,12 +208,30 @@ object ReportCourseClassGenerator {
 
       val cl = Thread.currentThread.getContextClassLoader
       val jasperStream = {
-        if (fileType != null && fileType == "xls")
+        if (fileType == "xls")
           cl.getResourceAsStream("reports/courseClassInfoXLS.jasper")
         else
           cl.getResourceAsStream("reports/courseClassInfo.jasper")
       }
-      getReportBytesFromStream(courseClassReportTO, parameters, jasperStream, fileType)
+      val report = getReportBytesFromStream(courseClassReportTO, parameters, jasperStream, fileType)
+      val bs = new ByteArrayInputStream(report)
+      val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
+      val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
+      val filename = getFileName(courseUUID, courseClassUUID)
+      val fileFullPath = getCourseClassInfoReportFileName(courseUUID: String, courseClassUUID: String, fileType: String)
+      val contentType = {
+        if (fileType == "xls")
+          "application/octet-stream"
+        else
+          "application/pdf"
+      }
+      repo.put(
+        bs,
+        contentType,
+        "Content-Disposition: attachment; filename=\"" + filename + "\"",
+        Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), fileFullPath)
+
+      getCourseClassInfoReportURL(courseUUID, courseClassUUID, fileType)
     }
 
   }
@@ -200,37 +241,37 @@ object ReportCourseClassGenerator {
 
   private def addInfoParameters(courseUUID: String, courseClassUUID: String, parameters: HashMap[String, Object]) = {
     val headerInfo = sql"""
-			select 
-				i.fullName as 'institutionName',
-				c.name as 'courseName',
-				cc.name as 'courseClassName',
-				cc.createdAt,
-				cc.maxEnrollments,
-				i.assetsRepositoryUUID,
-				(select eventFiredAt from CourseClassStateChanged 
-					where toState = 'inactive' and courseClassUUID = cc.uuid
-					order by eventFiredAt desc) as disabledAt,
-				(select replace(GROUP_CONCAT(p.fullName),',',', ')
-					from Role r 
-					join Person p on p.uuid = r.personUUID 
-					where courseClassUUID = cc.uuid
-					group by courseClassUUID) as courseClassAdminNames,
+      select
+        i.fullName as 'institutionName',
+        c.name as 'courseName',
+        cc.name as 'courseClassName',
+        cc.createdAt,
+        cc.maxEnrollments,
+        i.assetsRepositoryUUID,
+        (select eventFiredAt from CourseClassStateChanged
+          where toState = 'inactive' and courseClassUUID = cc.uuid
+          order by eventFiredAt desc) as disabledAt,
+        (select replace(GROUP_CONCAT(p.fullName),',',', ')
+          from Role r
+          join Person p on p.uuid = r.personUUID
+          where courseClassUUID = cc.uuid
+          group by courseClassUUID) as courseClassAdminNames,
         i.baseURL
-			from
-				CourseClass cc
-				join CourseVersion cv on cc.courseVersionUUID = cv.uuid
-				join Course c on cv.courseUUID = c.uuid
-				join Institution i on i.uuid = cc.institutionUUID
-			where (cc.uuid = ${courseClassUUID} or ${courseClassUUID} is null) and
-				(cv.courseUUID = ${courseUUID} or ${courseUUID} is null) and
-    			cc.state <> ${EntityState.deleted.toString} and 
-    			(cc.state = ${EntityState.active.toString} or ${courseUUID} is null)
+      from
+        CourseClass cc
+        join CourseVersion cv on cc.courseVersionUUID = cv.uuid
+        join Course c on cv.courseUUID = c.uuid
+        join Institution i on i.uuid = cc.institutionUUID
+      where (cc.uuid = ${courseClassUUID} or ${courseClassUUID} is null) and
+        (cv.courseUUID = ${courseUUID} or ${courseUUID} is null) and
+          cc.state <> ${EntityState.deleted.toString} and
+          (cc.state = ${EntityState.active.toString} or ${courseUUID} is null)
     """.first[ReportHeaderData](headerDataConvertion)
 
     if (headerInfo.isDefined) {
       parameters.put("institutionName", headerInfo.get._1)
       parameters.put("courseTitle", headerInfo.get._2)
-      parameters.put("assetsURL", mkurl(headerInfo.get._9, "repository", headerInfo.get._6, S3Service.PREFIX, S3Service.INSTITUTION, ""))
+      parameters.put("assetsURL", mkurl(headerInfo.get._9.split("Kornell.nocache.html").head, "repository", headerInfo.get._6, S3Service.PREFIX, S3Service.INSTITUTION, ""))
       if (courseClassUUID != null) {
         parameters.put("courseClassName", headerInfo.get._3)
         parameters.put("createdAt", headerInfo.get._4)
@@ -242,43 +283,80 @@ object ReportCourseClassGenerator {
     parameters
   }
 
-  private def getTotalsAsParameters(courseUUID: String, courseClassUUID: String, fileType: String): HashMap[String, Object] = {
-    val enrollmentStateBreakdown = sql"""
-    		select 
-					case    
-						when progress is null OR progress = 0 then 'notStarted'  
-						when progress > 0 and progress < 100 then 'inProgress'  
-						when progress = 100 and certifiedAt is null then 'waitingEvaluation'  
-						else 'completed'   
-					end as progressState,
-					count(*) as total
-				from 
-					Enrollment e 
-					join CourseClass cc on cc.uuid = e.courseClassUUID
-					join CourseVersion cv on cv.uuid = cc.courseVersionUUID
-				where      
-					(e.state = ${EnrollmentState.enrolled.toString} or ${fileType} = 'xls') and
-    				cc.state = ${EntityState.active.toString} and 
-    		  		(e.courseClassUUID = ${courseClassUUID} or ${courseClassUUID} is null) and
-					(cv.courseUUID = ${courseUUID} or ${courseUUID} is null) and
-					e.state <> ${EnrollmentState.deleted.toString}
-				group by 
-					case    
-						when progress is null OR progress = 0 then 'notStarted'  
-						when progress > 0 and progress < 100 then 'inProgress' 
-						when progress = 100 and certifiedAt is null then 'waitingEvaluation'  
-						else 'completed'   
-					end
-		    """.map[BreakdownData](breakdownConvertion)
+  private def getTotalsAsParameters(courseUUID: String, courseClassUUID: String, fileType: String, usernames: String): HashMap[String, Object] = {
+
+    var sql = s"""
+        select
+          case
+            when progress is null OR progress = 0 then 'notStarted'
+            when progress > 0 and progress < 100 then 'inProgress'
+            when progress = 100 and certifiedAt is null then 'waitingEvaluation'
+            else 'completed'
+          end as progressState,
+          count(*) as total
+        from
+          Enrollment e
+          join Person p on p.uuid = e.personUUID
+          left join Password pw on pw.personUUID = p.uuid
+          join CourseClass cc on cc.uuid = e.courseClassUUID
+          join CourseVersion cv on cv.uuid = cc.courseVersionUUID
+        where
+          (e.state = '${EnrollmentState.enrolled.toString}' or '${fileType}' = 'xls') and
+          cc.state = '${EntityState.active.toString}' and
+          (e.courseClassUUID = '${courseClassUUID}' or '${courseClassUUID}' = 'null') and
+          (cv.courseUUID = '${courseUUID}' or '${courseUUID}' = 'null') and
+          e.state <> '${EnrollmentState.deleted.toString}'
+      """
+
+    if (usernames != null && usernames.length > 0)
+      sql += s"""and if(pw.username is not null, pw.username, p.email) in ( $usernames ) """
+
+    if (sql.contains("--")) throw new EntityConflictException("invalidValue")
+
+    sql += s"""
+        group by
+          case
+            when progress is null OR progress = 0 then 'notStarted'
+            when progress > 0 and progress < 100 then 'inProgress'
+            when progress = 100 and certifiedAt is null then 'waitingEvaluation'
+            else 'completed'
+          end"""
+    val pstmt = new PreparedStmt(sql, List())
+    val enrollmentStateBreakdown = pstmt.map[BreakdownData](breakdownConvertion)
 
     val parameters: HashMap[String, Object] = new HashMap()
     enrollmentStateBreakdown.foreach(rd => parameters.put(rd._1, rd._2))
     parameters
   }
 
-  def getFileName(courseUUID: String, courseClassUUID: String, fileType: String) = {
+  def courseClassInfoExists(courseUUID: String, courseClassUUID: String, fileType: String) = {
+    try {
+      val url = getCourseClassInfoReportURL(courseUUID, courseClassUUID, fileType)
+      HttpURLConnection.setFollowRedirects(false);
+      val con = new URL(url).openConnection.asInstanceOf[HttpURLConnection]
+      con.setRequestMethod("HEAD")
+      if (con.getResponseCode() == HttpURLConnection.HTTP_OK) url else ""
+    } catch {
+      case e: Exception => throw new ServerErrorException("errorCheckingClassInfo", e)
+    }
+  }
+
+  def getFileName(courseUUID: String, courseClassUUID: String) = {
     val title = if (courseUUID != null) CourseRepo(courseUUID).get.getName else CourseClassRepo(courseClassUUID).get.getName
-    title + " - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) + "." + getFileType(fileType)
+    title + " - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())
+  }
+
+  def getCourseClassInfoReportFileName(courseUUID: String, courseClassUUID: String, fileType: String) = {
+    val fileNamePrefix = getFileName(courseUUID, courseClassUUID)
+    mkurl(S3Service.PREFIX, S3Service.REPORTS, S3Service.CLASS_INFO, fileNamePrefix + " - " + ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get +
+      (Option(courseClassUUID).getOrElse("")) + (Option(courseUUID).getOrElse("")) + "." + getFileType(fileType))
+  }
+
+  def getCourseClassInfoReportURL(courseUUID: String, courseClassUUID: String, fileType: String) = {
+    val institutionUUID = getInstitutionUUID(courseClassUUID, courseUUID)
+    val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(institutionUUID).get.getUUID)
+    val key = getCourseClassInfoReportFileName(courseUUID, courseClassUUID, fileType)
+    mkurl(InstitutionRepo(institutionUUID).get.getBaseURL.split("Kornell.nocache.html").head, repo.url(key))
   }
 
 }

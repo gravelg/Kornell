@@ -22,8 +22,8 @@ class TrackEnrollmentsResource {
   @Produces(Array(TrackEnrollment.TYPE))
   def create(trackEnrollment: TrackEnrollment) = {
     TrackEnrollmentsRepo.create(trackEnrollment)
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
     .get
 }
 

@@ -8,14 +8,21 @@ import kornell.gui.client.presentation.admin.courseversion.courseversion.generic
 
 public interface AdminCourseVersionContentView extends IsWidget {
     public interface Presenter extends IsWidget {
-        void init(CourseVersion courseVersion, Course course);
+
+        void init(AdminCourseVersionPresenter adminCourseVersionPresenter);
 
         AdminCourseVersionContentView getView();
+
+        CourseVersion getCourseVersion();
+
+        void setCourseVersion(CourseVersion courseVersion);
+
+        Course getCourse();
     }
 
     void setPresenter(Presenter presenter);
 
-    void init(CourseVersion courseVersion, Course course);
+    void init();
 
     WizardView getWizardView();
 

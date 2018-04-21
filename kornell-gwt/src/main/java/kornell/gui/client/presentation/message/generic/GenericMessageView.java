@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.KornellSession;
-import kornell.core.entity.RoleType;
+import kornell.core.entity.role.RoleType;
 import kornell.core.to.ChatThreadMessageTO;
 import kornell.core.to.ChatThreadMessagesTO;
 import kornell.core.to.UnreadChatThreadTO;

@@ -19,6 +19,7 @@ import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.mvp.PlaceUtils;
 import kornell.gui.client.presentation.admin.course.courses.AdminCoursesPlace;
+import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPlace;
 import kornell.gui.client.util.view.KornellNotification;
 
 public class AdminCoursePresenter implements AdminCourseView.Presenter {
@@ -74,7 +75,8 @@ public class AdminCoursePresenter implements AdminCourseView.Presenter {
                 @Override
                 public void ok(CourseClassTO courseClassTO) {
                     bus.fireEvent(new ShowPacifierEvent(false));
-                    KornellNotification.show("Curso criado com sucesso!");
+                    placeController.goTo(new AdminCourseVersionPlace(courseClassTO.getCourseVersionTO().getCourseVersion().getUUID()));
+                    KornellNotification.show("Curso criado com sucesso! Você pode gerenciar sua versão se desejar, ou pode publicar seu conteúdo.", 5000);
                     PlaceUtils.reloadCurrentPlace(bus, placeController);
                 }
 

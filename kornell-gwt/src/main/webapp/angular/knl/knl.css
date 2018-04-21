@@ -20,12 +20,17 @@ table, .table {
     padding-right: 0px;
 }
 
+.background-transparent {
+    background-color: transparent;
+}
+
 .text-angular .btn-group {
     margin-bottom: 5px;
 }
 
 .text-angular .btn-group button,
-.text-angular .btn-group div {
+.text-angular .btn-group div,
+.text-angular .btn-group span {
     height: auto;
     font-size: 12px;
     line-height: 12px;
@@ -147,8 +152,15 @@ a {
 }
 
 label {
-    font-size: 16px;
+    font-size: 20px;
+    margin-bottom: 8px;
 }
+
+label small {
+    font-size: 14px;
+    margin-bottom: initial;
+}
+
 
 .alert-primary {
     background-color: #30b0ec;
@@ -175,6 +187,10 @@ label {
 
 .help-block {
     font-size: 12px;
+}
+
+.introjs-tooltiptext {
+    color: #000;
 }
 
 .nav-tabs {
@@ -222,6 +238,8 @@ input[type="file"]::-webkit-file-upload-button{
 
 .btn-default.active.focus, .btn-default.active:focus, .btn-default.active:hover, .btn-default:active.focus, .btn-default:active:focus, .btn-default:active:hover, .open>.dropdown-toggle.btn-default.focus, .open>.dropdown-toggle.btn-default:focus, .open>.dropdown-toggle.btn-default:hover {
     color: #ffffff;
+    background-color: #2d2d2d;
+    border-color: #232323;
 }
 
 .nav-tabs > li > a, 
@@ -327,6 +345,43 @@ tr.angular-ui-tree-empty {
     line-height: 1.5;
     border-radius: 3px;
 }
+
+
+.text-angular .btn-group .btn-ta-dropdown {
+    background-color: #424242;
+    color:#fff;
+    border-color: #424242;
+}
+
+.text-angular .btn-group .btn-ta-dropdown:active,
+.text-angular .btn-group .btn-ta-dropdown.active,
+.open > .text-angular .btn-group .dropdown-toggle.btn-ta-dropdown {
+    background-image: none;
+}
+
+.text-angular .btn-group .checked-dropdown-list {
+    border-color: black;
+}
+
+.text-angular .btn-group .bar-btn-dropdown {
+    height: 28px;
+    padding: 0;
+}
+
+.text-angular .btn-group .dropdown-toggle {
+    padding: 6px;
+}
+
+[ta-button] {
+    height: 44px;
+    margin-bottom: 5px;
+}
+
+.introjs-skipbutton {
+    color: initial;
+}
+
+.red{ color: red; }
 
 @media only screen and (max-width: 1550px)  {
     .optionTextArea{

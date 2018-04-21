@@ -1,7 +1,7 @@
 package kornell.api.client;
 
 import kornell.core.entity.CourseClass;
-import kornell.core.entity.Roles;
+import kornell.core.entity.role.Roles;
 import kornell.core.to.CourseClassTO;
 import kornell.core.to.LibraryFilesTO;
 import kornell.core.to.RolesTO;

@@ -33,6 +33,21 @@ app.controller('LectureController', [
       return found;
     };
 
+    $scope.getFileURL = function(modelAttribute){
+      var id = $scope.lectureUUID + '_' + modelAttribute;
+      if(classroomInfo.files[id]){
+        var type = classroomInfo.files[id].type || 'hosted',
+            url = classroomInfo.files[id][type+"URL"];
+        if(type == 'uploaded'){
+          url = classroomInfo.files._baseURL + url;
+          if(location.hostname === 'localhost'){
+            url = 'http://localhost:8888' + url;
+          }
+        }
+        return url;
+      }
+    };
+
 		$scope.initLecture = function(){
 			if(!$scope.classroomInfo) return;
 
@@ -50,30 +65,21 @@ app.controller('LectureController', [
 			$rootScope.evaluateTimer(true);
 
 			var key = 'knl.lecture.'+$scope.lectureUUID+'.type';
-        var lectureType = knlUtils.doLMSGetValueSanitized(key);
+      var lectureType = knlUtils.doLMSGetValueSanitized(key);
       if(!lectureType){
         knlUtils.setAttribute(key, $scope.lecture.type);
-      }
-
-      if($scope.lecture.id && $scope.lecture.id.indexOf('/') == 0 && location.hostname === 'localhost'){
-        $scope.prefixURL = 'http://localhost:8888';
       }
       if($scope.classroomInfo.colorBackground){
         $scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
       }
-			if($scope.lecture.imageBackground){
-        var prefix = '';
-        if($scope.lecture.imageBackground && $scope.lecture.imageBackground.indexOf('/') == 0 && location.hostname === 'localhost'){
-           prefix = 'http://localhost:8888';
-        }
-        $scope.bgStyle += 'background: url('+prefix+$scope.lecture.imageBackground+') no-repeat center center fixed;';
-      } else if($scope.classroomInfo.imageBackground){
-        var prefix = '';
-        if($scope.classroomInfo.imageBackground && $scope.classroomInfo.imageBackground.indexOf('/') == 0 && location.hostname === 'localhost'){
-           prefix = 'http://localhost:8888';
-        }
-        $scope.bgStyle += 'background: url('+prefix+$scope.classroomInfo.imageBackground+') no-repeat center center fixed;';
-      } 
+			if($scope.getFileURL('imageBackground')){
+        $scope.bgStyle += 'background-image: url('+$scope.getFileURL('imageBackground')+');';
+      } else if($scope.getFileURL('imageBackground')){
+        $scope.bgStyle += 'background-image: url('+$scope.getFileURL('imageBackground')+');';
+      }
+      $scope.bgStyle += "background-repeat: no-repeat;" + 
+        "background-attachment: fixed;" +
+        "background-position: center center;"
 
       angular.forEach($scope.classroomInfo.modules, function(module){
           angular.forEach(module.lectures, function(lecture){

@@ -162,6 +162,7 @@ public class GenericClientFactoryImpl implements ClientFactory {
                     UserInfoTO userInfoTO = userHelloTO.getUserInfoTO();
                     KORNELL_SESSION.setInstitution(institution);
                     KORNELL_SESSION.setCurrentUser(userInfoTO);
+                    KORNELL_SESSION.setCurrentVersionAPI(userHelloTO.getBuildNumber());
                     boolean authenticated = KORNELL_SESSION.isAuthenticated();
                     if (authenticated) {
                         EVENT_BUS.fireEvent(new CourseClassesFetchedEvent(userHelloTO.getCourseClassesTO()));

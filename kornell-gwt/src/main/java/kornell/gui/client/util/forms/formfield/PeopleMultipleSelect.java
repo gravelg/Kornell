@@ -102,7 +102,7 @@ public class PeopleMultipleSelect extends Composite {
                 if (currentSearch.length() >= 1 && (!currentSearch.equals(previousSearch)
                         || event.getNativeKeyCode() == 86 || event.getNativeKeyCode() == 17)) {
                     searchChangesTimer.cancel();
-                    searchChangesTimer.schedule(100);
+                    searchChangesTimer.schedule(333);
                 }
                 previousSearch = currentSearch;
             }
@@ -141,12 +141,16 @@ public class PeopleMultipleSelect extends Composite {
                 for (PersonTO personTO : to.getPeopleTO()) {
                     person = personTO.getPerson();
                     username = personTO.getUsername();
+                    if(username == null){
+                        username = person.getEmail();
+                    }
                     oracleStr = username
                             + (StringUtils.isSome(person.getFullName()) ? " (" + person.getFullName() + ")" : "");
                     oracle.add(oracleStr);
                     oraclePeople.put(username, person);
-                    if (++i == 10)
+                    if (++i == 10) {
                         break;
+                    }
                 }
                 if (to.getPeopleTO().size() == 1) {
                     Person p = oraclePeople.get(searchStr);
@@ -162,7 +166,7 @@ public class PeopleMultipleSelect extends Composite {
         String item = search.getText().split(" \\(")[0];
         if (oraclePeople != null && oraclePeople.containsKey(item)) {
             if (!formHelper.isItemInListBox(search.getText(), multipleSelect)) {
-                Person person = (Person) oraclePeople.get(item);
+                Person person = oraclePeople.get(item);
                 multipleSelect.addItem(search.getText(), person.getUUID());
             }
             search.setText("");

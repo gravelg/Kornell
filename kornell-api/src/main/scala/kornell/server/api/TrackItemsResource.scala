@@ -22,8 +22,8 @@ class TrackItemsResource {
   @Produces(Array(TrackItem.TYPE))
   def create(trackItem: TrackItem): TrackItem = {
     TrackItemsRepo.create(trackItem)
-  }.requiring(isPlatformAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
-    .or(isInstitutionAdmin(PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID), AccessDeniedErr())
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
     .get
 }
 

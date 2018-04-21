@@ -33,8 +33,8 @@ import kornell.core.entity.Person
 import kornell.core.entity.PostbackType
 import kornell.core.entity.RegistrationType
 import kornell.core.entity.RepositoryType
-import kornell.core.entity.Role
-import kornell.core.entity.RoleType
+import kornell.core.entity.role.Role
+import kornell.core.entity.role.RoleType
 import kornell.core.util.UUID
 import kornell.server.util.DateConverter
 import kornell.core.entity.EmailTemplateType
@@ -264,13 +264,13 @@ object Entities {
     role
   }
 
-  def newObserverRole(personUUID: String, courseClassUUID: String) = {
+  def newCourseClassObserverRole(personUUID: String, courseClassUUID: String) = {
     val role = factory.newRole().as
     role.setPersonUUID(personUUID)
-    val observerRole = factory.newObserverRole().as
-    observerRole.setCourseClassUUID(courseClassUUID)
-    role.setRoleType(RoleType.observer)
-    role.setObserverRole(observerRole)
+    val courseClassObserverRole = factory.newCourseClassObserverRole().as
+    courseClassObserverRole.setCourseClassUUID(courseClassUUID)
+    role.setRoleType(RoleType.courseClassObserver)
+    role.setCourseClassObserverRole(courseClassObserverRole)
     role
   }
 
