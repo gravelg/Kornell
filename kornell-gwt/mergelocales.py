@@ -19,12 +19,18 @@ files for GWT internationalisation with UIBinder. For more
 information on the motivation for this script, see:
   http://code.google.com/p/google-web-toolkit/issues/detail?id=4355
   
+Make sure to have added these properties to the uibinder:
+    ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+    ui:generateKeys='com.google.gwt.i18n.server.keygen.MD5KeyGenerator'
+    ui:generateLocales='default'
+
+Also, a maven clean install is needed.
 
 Invoke in this way:
    mergelocales Extras_dir LocalizableResource_dir
    
 For example:
-   mergelocales ./extras/myproject ./src/com/google/gwt/i18n/client/  
+   python mergelocales.py ./target/i18n/kornell/ ./src/main/java/com/google/gwt/i18n/client/  
   
   
 The typical use case:

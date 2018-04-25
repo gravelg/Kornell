@@ -34,4 +34,8 @@ public class CourseVersionClient extends RESTClient {
     public void getContentUploadURL(Callback<String> callback) {
         GET("courseVersions", courseVersionUUID, "contentUploadUrl").go(callback);
     }
+
+    public void resetSandbox(Callback<Void> callback) {
+        PUT("courseVersions", courseVersionUUID, "resetSandbox").go(callback);
+    }
 }

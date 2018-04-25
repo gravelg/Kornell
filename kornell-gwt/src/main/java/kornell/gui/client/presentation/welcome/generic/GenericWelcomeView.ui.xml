@@ -1,11 +1,19 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'
 	xmlns:b="urn:import:com.github.gwtbootstrap.client.ui"
-	xmlns:knl="urn:import:kornell.gui.client.presentation.bar.generic">
+	xmlns:knl="urn:import:kornell.gui.client.presentation.bar.generic"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+    ui:generateKeys='com.google.gwt.i18n.server.keygen.MD5KeyGenerator'
+    ui:generateLocales='default'>
 	<g:FlowPanel >
 		<g:FlowPanel styleName="welcomePanel">
 			<g:ScrollPanel>
 				<g:FlowPanel ui:field="coursesWrapper" addStyleNames="coursesWrapper">
+				    <g:HTMLPanel ui:field="subtitleSandbox" addStyleNames="coursePanelInfo">
+				    	<ui:msg description="Sandbox classes explanation">
+				    		A opção de visualizar turmas "sandbox" só é disponível para administradores da instituição. Para cada versão criada, existe uma turma "sandbox", onde os administradores podem testar as alterações no conteúdo de seus cursos. A qualquer momento, um administrador pode reiniciar todas as matrículas da turma, caso seja necessário testar alguma alteração.
+				    	</ui:msg>
+				    </g:HTMLPanel>
 					<g:FlowPanel ui:field="pnlCourses" addStyleNames="pnlCourses"/>
 				</g:FlowPanel>
 		  	</g:ScrollPanel>

@@ -78,7 +78,7 @@ class CourseVersionRepo(uuid: String) {
 
       sql"""
         update CourseClass
-        set state = ${EntityState.deleted.toString},
+        set state = ${EntityState.deleted.toString}
         where sandbox = 1 and courseVersionUUID = ${uuid}
       """.executeUpdate
 

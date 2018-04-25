@@ -12,6 +12,8 @@ public interface AdminCourseVersionsView extends IsWidget {
         void deleteCourseVersion(CourseVersionTO courseVersionTO);
 
         void duplicateCourseVersion(CourseVersionTO courseVersionTO);
+
+        void resetSandboxEnrollments(kornell.core.to.CourseVersionTO courseVersionTO);
     }
 
     void setPresenter(AdminCourseVersionsView.Presenter presenter);

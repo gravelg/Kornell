@@ -263,7 +263,7 @@ object EventsRepo {
     """.executeUpdate
 
     sql"""
-      DELETE from ActomEntyChangedEvent where enrollmentUUID = ${enrollmentUUID}
+      DELETE from ActomEntryChangedEvent where enrollmentUUID = ${enrollmentUUID}
     """.executeUpdate
   }
 }

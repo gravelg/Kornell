@@ -13,7 +13,6 @@ import kornell.core.entity.RegistrationType
 import kornell.server.authentication.ThreadLocalAuthenticator
 import java.math.BigDecimal
 import kornell.server.jdbc.repository.RolesRepo
-import kornell.core.entity.RoleCategory
 import scala.collection.JavaConverters._
 import kornell.server.jdbc.repository.EnrollmentsRepo
 import kornell.core.entity.EnrollmentState
@@ -24,6 +23,7 @@ import scala.collection.mutable.ListBuffer
 import kornell.server.jdbc.repository.CourseVersionsRepo
 import kornell.server.jdbc.SQL._
 import kornell.core.entity.CourseClass
+import kornell.core.entity.role.RoleCategory
 
 object SandboxService {
 

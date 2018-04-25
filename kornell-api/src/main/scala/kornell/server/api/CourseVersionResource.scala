@@ -90,6 +90,7 @@ class CourseVersionResource(uuid: String) {
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
     .or(isPublisher(), AccessDeniedErr())
+    .get
 }
 
 object CourseVersionResource {

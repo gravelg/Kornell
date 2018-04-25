@@ -27,7 +27,7 @@ import kornell.gui.client.util.view.KornellNotification;
 import kornell.gui.client.util.view.table.PaginationPresenterImpl;
 
 public class AdminCourseVersionsPresenter extends PaginationPresenterImpl<CourseVersionTO>
-        implements AdminCourseVersionsView.Presenter {
+implements AdminCourseVersionsView.Presenter {
     Logger logger = Logger.getLogger(AdminCourseVersionsPresenter.class.getName());
     private AdminCourseVersionsView view;
     FormHelper formHelper;
@@ -121,23 +121,63 @@ public class AdminCourseVersionsPresenter extends PaginationPresenterImpl<Course
                         public void onSuccess(Void result) {
                             bus.fireEvent(new ShowPacifierEvent(true));
                             session.courseVersion(courseVersionTO.getCourseVersion().getUUID())
-                                    .delete(new Callback<CourseVersion>() {
-                                        @Override
-                                        public void ok(CourseVersion to) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show("Versão excluída com sucesso.");
-                                            updateData();
-                                        }
+                            .delete(new Callback<CourseVersion>() {
+                                @Override
+                                public void ok(CourseVersion to) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Versão excluída com sucesso.");
+                                    updateData();
+                                }
 
-                                        @Override
-                                        public void internalServerError(KornellErrorTO error) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show("Erro ao tentar excluir a versão.",
-                                                    AlertType.ERROR);
-                                        }
-                                    });
+                                @Override
+                                public void internalServerError(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Erro ao tentar excluir a versão.",
+                                            AlertType.ERROR);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Void reason) {
+                            blockActions = false;
+                        }
+                    });
+        }
+
+    }
+
+    @Override
+    public void resetSandboxEnrollments(CourseVersionTO courseVersionTO) {
+        if (!blockActions) {
+            blockActions = true;
+
+            confirmModal.showModal(
+                    "Tem certeza que deseja reiniciar todas as matrículas da turma \"SANDBOX\" da versão \"" + courseVersionTO.getCourseVersion().getName() + "\"? O progresso de todos os administradores e publicadores de conteúdo será reiniciado. Essa operação não pode ser desfeita.",
+                    new com.google.gwt.core.client.Callback<Void, Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            bus.fireEvent(new ShowPacifierEvent(true));
+                            session.courseVersion(courseVersionTO.getCourseVersion().getUUID())
+                            .resetSandbox(new Callback<Void>() {
+                                @Override
+                                public void ok(Void str) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("As matrículas da turma sandbox foram reiniciadas com sucesso.");
+                                    updateData();
+                                }
+
+                                @Override
+                                public void internalServerError(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Erro ao tentar reiniciar as matrículas da turma sandbox.",
+                                            AlertType.ERROR);
+                                }
+                            });
                         }
 
                         @Override
@@ -161,33 +201,33 @@ public class AdminCourseVersionsPresenter extends PaginationPresenterImpl<Course
                         public void onSuccess(Void result) {
                             bus.fireEvent(new ShowPacifierEvent(true));
                             session.courseVersion(courseVersionTO.getCourseVersion().getUUID())
-                                    .copy(new Callback<CourseVersion>() {
-                                        @Override
-                                        public void ok(CourseVersion courseVersion) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show("Versão duplicada com sucesso.");
-                                            placeCtrl.goTo(new AdminCourseVersionPlace(courseVersion.getUUID()));
-                                        }
+                            .copy(new Callback<CourseVersion>() {
+                                @Override
+                                public void ok(CourseVersion courseVersion) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Versão duplicada com sucesso.");
+                                    placeCtrl.goTo(new AdminCourseVersionPlace(courseVersion.getUUID()));
+                                }
 
-                                        @Override
-                                        public void internalServerError(KornellErrorTO error) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show("Erro ao tentar duplicar a versão.",
-                                                    AlertType.ERROR);
-                                        }
+                                @Override
+                                public void internalServerError(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show("Erro ao tentar duplicar a versão.",
+                                            AlertType.ERROR);
+                                }
 
-                                        @Override
-                                        public void conflict(KornellErrorTO error) {
-                                            blockActions = false;
-                                            bus.fireEvent(new ShowPacifierEvent(false));
-                                            KornellNotification.show(
-                                                    "Erro ao tentar duplicar a versão. Verifique se já existe uma versão com o nome \""
-                                                            + courseVersionTO.getCourseVersion().getName() + "\" (2).",
+                                @Override
+                                public void conflict(KornellErrorTO error) {
+                                    blockActions = false;
+                                    bus.fireEvent(new ShowPacifierEvent(false));
+                                    KornellNotification.show(
+                                            "Erro ao tentar duplicar a versão. Verifique se já existe uma versão com o nome \""
+                                                    + courseVersionTO.getCourseVersion().getName() + "\" (2).",
                                                     AlertType.ERROR, 5000);
-                                        }
-                                    });
+                                }
+                            });
                         }
 
                         @Override
