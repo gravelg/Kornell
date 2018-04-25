@@ -68,7 +68,8 @@ object CourseClassesRepo {
                 approveEnrollmentsAutomatically,
                 startDate,
                 ecommerceIdentifier,
-                thumbUrl)
+                thumbUrl,
+                sandbox)
         values(${courseClass.getUUID},
                ${courseClass.getName},
                ${courseClass.getCourseVersionUUID},
@@ -89,7 +90,8 @@ object CourseClassesRepo {
                ${courseClass.isApproveEnrollmentsAutomatically},
                ${courseClass.getStartDate},
                ${courseClass.getEcommerceIdentifier},
-               ${courseClass.getThumbUrl}
+               ${courseClass.getThumbUrl},
+               ${courseClass.isSandbox}
                )
       """.executeUpdate
       ChatThreadsRepo.addParticipantsToCourseClassThread(courseClass)
@@ -103,7 +105,7 @@ object CourseClassesRepo {
   }
 
   private def getAllClassesByInstitution(institutionUUID: String): kornell.core.to.CourseClassesTO =
-    getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, null)
+    getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, null, showSandbox = true)
 
   def getCourseClassTO(institutionUUID: String, courseClassUUID: String) = {
     val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, courseClassUUID)
@@ -112,7 +114,7 @@ object CourseClassesRepo {
     }
   }
 
-  def getAllClassesByInstitutionPaged(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, adminUUID: String, courseVersionUUID: String, courseClassUUID: String): kornell.core.to.CourseClassesTO = {
+  def getAllClassesByInstitutionPaged(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, adminUUID: String, courseVersionUUID: String, courseClassUUID: String, showSandbox: Boolean = false): kornell.core.to.CourseClassesTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
     val orderColumn = if (orderBy != null && !orderBy.contains(";")) orderBy else "cc.name"
@@ -163,12 +165,13 @@ object CourseClassesRepo {
           cc.approveEnrollmentsAutomatically as approveEnrollmentsAutomatically,
           cc.ecommerceIdentifier as ecommerceIdentifier,
           cc.thumbUrl as courseClassThumbUrl,
+          cc.sandbox as sandbox,
           irp.name as institutionRegistrationPrefixName
       from Course c
         join CourseVersion cv on cv.courseUUID = c.uuid
         join CourseClass cc on cc.courseVersionUUID = cv.uuid and cc.institutionUUID = '${institutionUUID}'
           left join InstitutionRegistrationPrefix irp on irp.uuid = cc.institutionRegistrationPrefixUUID
-            where cc.state <> '${EntityState.deleted.toString}' and
+            where cc.state <> '${EntityState.deleted.toString}' and cc.sandbox in (false, ${showSandbox}) and
                 (cc.courseVersionUUID = '${courseVersionUUID}' or ${StringUtils.isNone(courseVersionUUID)}) and
                 (cc.uuid = '${courseClassUUID}' or ${StringUtils.isNone(courseClassUUID)}) and
           cc.institutionUUID = '${institutionUUID}' and
@@ -182,7 +185,7 @@ object CourseClassesRepo {
             order by ${order}, cc.state, c.name, cv.versionCreatedAt desc, cc.name limit ${resultOffset}, ${pageSize};
     """, List[String]()).map[CourseClassTO](toCourseClassTO))
     courseClassesTO.setCount(
-      sql"""select count(cc.uuid) from CourseClass cc where cc.state <> ${EntityState.deleted.toString} and (${StringUtils.isSome(adminUUID)} and
+      sql"""select count(cc.uuid) from CourseClass cc where cc.state <> ${EntityState.deleted.toString} and cc.sandbox in (false, ${showSandbox}) and (${StringUtils.isSome(adminUUID)} and
           (select count(*) from Role r where personUUID = ${adminUUID} and (
             (r.role = ${RoleType.platformAdmin.toString} and r.institutionUUID = ${institutionUUID}) or
             (r.role = ${RoleType.institutionAdmin.toString} and r.institutionUUID = ${institutionUUID}) or
@@ -358,7 +361,20 @@ object CourseClassesRepo {
       from CourseClass cc
       where cc.courseVersionUUID = ${courseVersionUUID}
       and cc.state <> ${EntityState.deleted.toString}
+      and sandbox = 0
     """.first[String].get.toInt
+
+  def sandboxForVersion(courseVersionUUID: String) = {
+    sql"""
+      select * from CourseClass where sandbox = 1 and courseVersionUUID = ${courseVersionUUID}
+    """.first[CourseClass]
+  }
+
+  def sandboxClassesForInstitution(institutionUUID: String) = {
+    sql"""
+      select * from CourseClass where sandbox = 1 and institutionUUID = ${institutionUUID} and state <> ${EntityState.deleted.toString}
+    """.map[CourseClass](toCourseClass)
+  }
 
   private def bindEnrollments(personUUID: String, courseClassesTO: CourseClassesTO) = {
     val classes = courseClassesTO.getCourseClasses().asScala

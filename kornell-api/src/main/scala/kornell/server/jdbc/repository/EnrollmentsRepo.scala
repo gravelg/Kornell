@@ -148,7 +148,7 @@ object EnrollmentsRepo {
 
   def create(enrollment: Enrollment): Enrollment = {
     if (enrollment.getUUID == null)
-      enrollment.setUUID(randomUUID)
+      enrollment.setUUID(UUID.random)
     if (enrollment.getCourseClassUUID != null && enrollment.getCourseVersionUUID != null)
       throw new EntityConflictException("doubleEnrollmentCriteria")
     sql"""

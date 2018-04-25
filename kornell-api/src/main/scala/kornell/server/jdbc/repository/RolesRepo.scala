@@ -19,6 +19,7 @@ import kornell.core.to.RoleTO
 import kornell.core.entity.AuditedEntityType
 import kornell.core.error.exception.EntityConflictException
 import kornell.core.util.StringUtils
+import kornell.server.service.SandboxService
 
 object RolesRepo {
 
@@ -121,6 +122,15 @@ object RolesRepo {
       | group by pw.username
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
+  def getAllAdminsForInstitution(institutionUUID: String, bindMode: String) =
+    TOs.newRolesTO(sql"""
+      | select r.*, pw.username, null as courseClassName
+      | from Role r
+      | join Password pw on pw.personUUID = r.personUUID
+      | where r.institutionUUID = ${institutionUUID}
+      | order by r.role, pw.username
+    """.map[RoleTO](toRoleTO(_, bindMode)))
+
   def updateCourseClassAdmins(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.courseClassAdmin, roles)
 
   def updateTutors(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.tutor, roles)
@@ -158,6 +168,7 @@ object RolesRepo {
 
     //log entity change
     EventsRepo.logEntityChange(institutionUUID, AuditedEntityType.institutionAdmin, institutionUUID, from, to)
+    SandboxService.fixEnrollments(institutionUUID, from, to)
 
     roles
   }

@@ -331,7 +331,7 @@ object Entities {
     tutorChatEnabled: Boolean = false,
     approveEnrollmentsAutomatically: Boolean = false,
     startDate: Date = null, ecommerceIdentifier: String = null,
-    thumbUrl: String = null) = {
+    thumbUrl: String = null, sandbox: Boolean = false) = {
     val clazz = factory.newCourseClass.as
     clazz.setUUID(uuid)
     clazz.setName(name)
@@ -355,6 +355,7 @@ object Entities {
     clazz.setStartDate(startDate);
     clazz.setEcommerceIdentifier(ecommerceIdentifier)
     clazz.setThumbUrl(thumbUrl)
+    clazz.setSandbox(sandbox)
     clazz
   }
 

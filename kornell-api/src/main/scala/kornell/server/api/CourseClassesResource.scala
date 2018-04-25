@@ -64,7 +64,7 @@ class CourseClassesResource {
     @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) =
     AuthRepo().withPerson { person =>
       {
-        CourseClassesRepo.getAllClassesByInstitutionPaged(person.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true", person.getUUID, courseVersionUUID, null)
+        CourseClassesRepo.getAllClassesByInstitutionPaged(person.getInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true", person.getUUID, courseVersionUUID, null, showSandbox = false)
       }
     }
 }

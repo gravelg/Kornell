@@ -19,6 +19,8 @@ import javax.ws.rs.QueryParam
 import kornell.server.jdbc.repository.CourseVersionsRepo
 import kornell.server.jdbc.repository.AuthRepo
 import javax.ws.rs.POST
+import kornell.server.service.SandboxService
+import javax.ws.rs.core.Response
 
 class CourseVersionResource(uuid: String) {
 
@@ -75,6 +77,16 @@ class CourseVersionResource(uuid: String) {
   @Produces(Array("text/plain"))
   def getUploadUrl: String = {
     S3Service.getCourseVersionContentUploadUrl(uuid)
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
+    .get
+
+  @PUT
+  @Path("resetSandbox")
+  def resetSandbox = {
+    SandboxService.resetEnrollments(uuid)
+    Response.noContent.build
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
     .or(isPublisher(), AccessDeniedErr())

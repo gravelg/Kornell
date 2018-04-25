@@ -70,4 +70,6 @@ public interface CourseClass extends LearningEntity {
     String getEcommerceIdentifier();
     void setEcommerceIdentifier(String ecommerceIdentifier);
 
+    Boolean isSandbox();
+    void setSandbox(Boolean sandbox);
 }

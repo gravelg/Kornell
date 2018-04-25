@@ -92,6 +92,12 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("In progress")
     String inProgress();
 
+    @DefaultStringValue("Available")
+    String available();
+
+    @DefaultStringValue("Sandbox")
+    String sandbox();
+
     /**
      *
      * GenericCourseDetailsView

@@ -130,11 +130,11 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
 
         table.initColumn("Versão", 20, "cv.name",
                 new Column<CourseVersionTO, CourseVersionTO>(buildCourseVersionCell()) {
-                    @Override
-                    public CourseVersionTO getValue(CourseVersionTO courseVersionTO) {
-                        return courseVersionTO;
-                    }
-                });
+            @Override
+            public CourseVersionTO getValue(CourseVersionTO courseVersionTO) {
+                return courseVersionTO;
+            }
+        });
 
         table.initColumn("Código", 20, "cv.distributionPrefix", new TextColumn<CourseVersionTO>() {
             @Override
@@ -192,6 +192,7 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
     private CompositeCell<CourseVersionTO> buildActionsCell() {
         List<HasCell<CourseVersionTO, ?>> cells = new LinkedList<HasCell<CourseVersionTO, ?>>();
         cells.add(new CourseVersionActionsHasCell("Gerenciar", getGoToCourseVersionDelegate()));
+        cells.add(new CourseVersionActionsHasCell("Reiniciar Matrículas da Turma Sandbox", getResetSandboxEnrollmentsDelegate()));
         cells.add(new CourseVersionActionsHasCell("Duplicar", getDuplicateCourseVersionDelegate()));
         cells.add(new CourseVersionActionsHasCell("Excluir", getDeleteCourseVersionDelegate()));
         CompositeCell<CourseVersionTO> cell = new CompositeCell<CourseVersionTO>(cells);
@@ -226,6 +227,16 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
             @Override
             public void execute(CourseVersionTO courseVersionTO) {
                 presenter.deleteCourseVersion(courseVersionTO);
+            }
+        };
+    }
+
+    private Delegate<CourseVersionTO> getResetSandboxEnrollmentsDelegate() {
+        return new Delegate<CourseVersionTO>() {
+
+            @Override
+            public void execute(CourseVersionTO courseVersionTO) {
+                presenter.resetSandboxEnrollments(courseVersionTO);
             }
         };
     }
@@ -313,6 +324,9 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
                         btn.addStyleName("btnNotSelected");
                     } else if ("Duplicar".equals(actionName)) {
                         btn.setIcon(IconType.COPY);
+                        btn.addStyleName("btnNotSelected");
+                    } else if ("Reiniciar Matrículas da Turma Sandbox".equals(actionName)) {
+                        btn.setIcon(IconType.ERASER);
                         btn.addStyleName("btnNotSelected");
                     }
                     btn.addStyleName("btnIconSolo");

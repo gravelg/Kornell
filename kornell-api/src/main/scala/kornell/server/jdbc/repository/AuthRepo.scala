@@ -16,6 +16,7 @@ import kornell.core.entity.role.RoleType
 import kornell.core.error.exception.EntityNotFoundException
 import kornell.core.error.exception.UnauthorizedAccessException
 import org.mindrot.BCrypt
+import kornell.core.util.UUID
 
 object AuthRepo {
 
@@ -144,7 +145,7 @@ class AuthRepo() {
     }
     sql"""
       insert into Password (uuid,personUUID,username,password,requestPasswordChangeUUID,institutionUUID)
-      values (${randomUUID},$personUUID,$username,$pwd,$requestPasswordChangeUUID,$institutionUUID)
+      values (${UUID.random},$personUUID,$username,$pwd,$requestPasswordChangeUUID,$institutionUUID)
       on duplicate key update
       username = $username, password = $pwd, requestPasswordChangeUUID = $requestPasswordChangeUUID
     """.executeUpdate
@@ -166,7 +167,7 @@ class AuthRepo() {
   def grantPlatformAdmin(personUUID: String, institutionUUID: String) = {
     sql"""
         insert into Role (uuid, personUUID, role, institutionUUID, courseClassUUID)
-        values (${randomUUID}, ${personUUID},
+        values (${UUID.random}, ${personUUID},
         ${RoleType.platformAdmin.toString},
         ${institutionUUID},
         ${null})
@@ -176,7 +177,7 @@ class AuthRepo() {
   def grantInstitutionAdmin(personUUID: String, institutionUUID: String) =
     sql"""
         insert into Role (uuid, personUUID, role, institutionUUID, courseClassUUID)
-        values (${randomUUID},
+        values (${UUID.random},
         ${personUUID},
         ${RoleType.institutionAdmin.toString},
         ${institutionUUID},
