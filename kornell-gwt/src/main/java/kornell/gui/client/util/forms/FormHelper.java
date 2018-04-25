@@ -84,7 +84,7 @@ public class FormHelper {
     }
 
     public boolean isListBoxSelected(ListBox value) {
-        return value != null && !("-".equals(((ListBox) value).getValue()) || ((ListBox) value).getValue() == null);
+        return value != null && !("-".equals(value.getValue()) || value.getValue() == null);
     }
 
     public TextBoxFormField createTextBoxFormField(String text, String textBoxFormFieldType) {
@@ -101,8 +101,9 @@ public class FormHelper {
 
     public TextAreaFormField createTextAreaFormField(String text, int visibleLines) {
         TextArea fieldTextArea = new TextArea();
-        if (visibleLines > 0)
+        if (visibleLines > 0) {
             fieldTextArea.setVisibleLines(visibleLines);
+        }
         fieldTextArea.addStyleName("field");
         fieldTextArea.addStyleName("textField");
         fieldTextArea.setValue(text);
@@ -134,36 +135,42 @@ public class FormHelper {
     }
 
     public boolean checkErrors(List<KornellFormFieldWrapper> fields) {
-        for (KornellFormFieldWrapper field : fields)
-            if (!"".equals(field.getError()))
+        for (KornellFormFieldWrapper field : fields) {
+            if (!"".equals(field.getError())) {
                 return true;
+            }
+        }
         return false;
     }
 
     public static String stripCPF(String cpf) {
-        if (cpf == null)
+        if (cpf == null) {
             return null;
+        }
         return cpf.replaceAll("[^0-9]+", "");
     }
 
     public boolean isItemInListBox(String item, ListBox listBox) {
         for (int i = 0; i < listBox.getItemCount(); i++) {
-            if (item.equals(listBox.getItemText(i)))
+            if (item.equals(listBox.getItemText(i))) {
                 return true;
+            }
         }
         return false;
     }
 
     public static boolean isCPFValid(String cpf) {
-        if (cpf == null)
+        if (cpf == null) {
             return false;
+        }
         cpf = stripCPF(cpf);
         // considera-se erro CPF's formados por uma sequencia de numeros iguais
         if (cpf.equals("00000000000") || cpf.equals("11111111111") || cpf.equals("22222222222")
                 || cpf.equals("33333333333") || cpf.equals("44444444444") || cpf.equals("55555555555")
                 || cpf.equals("66666666666") || cpf.equals("77777777777") || cpf.equals("88888888888")
-                || cpf.equals("99999999999") || (cpf.length() != 11))
+                || cpf.equals("99999999999") || (cpf.length() != 11)) {
             return false;
+        }
 
         char dig10, dig11;
         int sm, i, r, num, peso;
@@ -176,39 +183,43 @@ public class FormHelper {
                 // converte o i-esimo caractere do CPF em um numero:
                 // por exemplo, transforma o caractere '0' no inteiro 0
                 // (48 eh a posicao de '0' na tabela ASCII)
-                num = (int) (cpf.charAt(i) - 48);
+                num = cpf.charAt(i) - 48;
                 sm = sm + (num * peso);
                 peso = peso - 1;
             }
 
             r = 11 - (sm % 11);
-            if ((r == 10) || (r == 11))
+            if ((r == 10) || (r == 11)) {
                 dig10 = '0';
-            else
+            }
+            else {
                 dig10 = (char) (r + 48); // converte no respectivo caractere
-                                         // numerico
+                // numerico
+            }
 
             // Calculo do 2o. Digito Verificador
             sm = 0;
             peso = 11;
             for (i = 0; i < 10; i++) {
-                num = (int) (cpf.charAt(i) - 48);
+                num = cpf.charAt(i) - 48;
                 sm = sm + (num * peso);
                 peso = peso - 1;
             }
 
             r = 11 - (sm % 11);
-            if ((r == 10) || (r == 11))
+            if ((r == 10) || (r == 11)) {
                 dig11 = '0';
-            else
+            } else {
                 dig11 = (char) (r + 48);
+            }
 
             // Verifica se os digitos calculados conferem com os digitos
             // informados.
-            if ((dig10 == cpf.charAt(9)) && (dig11 == cpf.charAt(10)))
+            if ((dig10 == cpf.charAt(9)) && (dig11 == cpf.charAt(10))) {
                 return true;
-            else
+            } else {
                 return false;
+            }
         } catch (Exception erro) {
             return false;
         }
@@ -222,8 +233,9 @@ public class FormHelper {
 
     public String formatCPF(String cpf) {
         cpf = stripCPF(cpf);
-        if (cpf == null || cpf.length() != 11)
+        if (cpf == null || cpf.length() != 11) {
             return "";
+        }
         return cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "." + cpf.substring(6, 9) + "-" + cpf.substring(9, 11);
     }
 
@@ -250,19 +262,21 @@ public class FormHelper {
         long seconds = diffM / (1000);
         seconds = seconds > 0 ? seconds : 1;
 
-        if (days > 0)
+        if (days > 0) {
             return dateToString(date);
-        else if (hours > 0)
+        } else if (hours > 0) {
             return messages.hoursAgo(hours, hours > 1);
-        else if (minutes > 0)
+        } else if (minutes > 0) {
             return messages.minutesAgo(minutes, minutes > 1);
-        else
+        } else {
             return messages.secondsAgo(seconds, seconds > 1);
+        }
     }
 
     public String dateToString(Date date) {
-        if (date == null)
+        if (date == null) {
             return null;
+        }
         String month = ((date.getMonth() + 1) < 10 ? "0" : "") + (date.getMonth() + 1);
         String day = (date.getDate() < 10 ? "0" : "") + date.getDate();
         return (1900 + date.getYear()) + "-" + month + "-" + day;
@@ -312,6 +326,7 @@ public class FormHelper {
         skins.addItem("Escuro - Verde", "_green");
         skins.addItem("Escuro - Azul", "_blue");
         skins.addItem("Escuro - Amarelo", "_yellow");
+        skins.addItem("Escuro - Laranja", "_orange");
         skins.addItem("Escuro - Vermelho", "_red");
         skins.addItem("Claro - Cinza", "_light");
         skins.addItem("Claro - Verde", "_light_green");
