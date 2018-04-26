@@ -45,6 +45,9 @@ object CourseClassesRepo {
       if (courseClass.getUUID == null) {
         courseClass.setUUID(UUID.random)
       }
+      if (courseClass.isSandbox == null) {
+        courseClass.setSandbox(false)
+      }
       val ecommerceIdentifier = UUID.random.replace("-", "").substring(0, 20)
       courseClass.setEcommerceIdentifier(ecommerceIdentifier)
       sql"""
