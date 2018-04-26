@@ -1,4 +1,4 @@
-package kornell.gui.client.personnel;
+package kornell.gui.client.personnel.classroom;
 
 import kornell.core.entity.ContentSpec;
 import kornell.core.to.CourseClassTO;
@@ -8,8 +8,9 @@ public class Teachers {
         ContentSpec spec = courseClassTO.getCourseVersionTO().getCourseTO().getCourse().getContentSpec();
         switch (spec) {
         case KNL:
-        case WIZARD:
             return new KNLTeacher(courseClassTO);
+        case WIZARD:
+            return new WizardTeacher(courseClassTO);
         case SCORM12:
             return new SCORM12Teacher(courseClassTO);
         default:

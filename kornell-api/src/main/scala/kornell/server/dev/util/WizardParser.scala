@@ -1,19 +1,17 @@
 package kornell.server.dev.util
 
-import scala.collection.mutable.ListBuffer
-import kornell.core.lom.Topic
-import kornell.core.lom.Content
-import kornell.server.repository.Entities
-import kornell.core.lom.Contents
-import scala.io.Source
-import kornell.core.util.StringUtils._
-import kornell.server.repository.LOM
-import scala.util.Try
-import java.io.InputStream
-import com.amazonaws.util.json.JSONUtils
-import scala.util.parsing.json.JSON
 import java.util.Date
-import kornell.server.util.Settings._
+
+import scala.collection.mutable.ListBuffer
+import scala.util.Try
+import scala.util.parsing.json.JSON
+
+import kornell.core.lom.Content
+import kornell.core.lom.Contents
+import kornell.core.lom.Topic
+import kornell.server.repository.LOM
+import kornell.server.util.Settings.BUILD_NUM
+import kornell.server.util.Settings.toOption
 
 object WizardParser {
 

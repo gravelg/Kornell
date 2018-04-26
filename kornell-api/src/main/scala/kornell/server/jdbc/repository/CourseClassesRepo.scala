@@ -311,11 +311,11 @@ object CourseClassesRepo {
       """.first[CourseClass](toCourseClass)
   }
 
-  def byEnrollment(enrollmentUUID: String, personUUID: String, institutionUUID: String): CourseClassTO = {
+  def byEnrollment(enrollmentUUID: String, personUUID: String, institutionUUID: String, showSandbox: Boolean = false): CourseClassTO = {
     val courseClass = byEnrollment(enrollmentUUID);
 
     if (courseClass.isDefined) {
-      val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, courseClass.get.getUUID)
+      val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, courseClass.get.getUUID, showSandbox)
       bindEnrollments(personUUID, courseClassesTO).getCourseClasses().get(0)
     } else {
       //@TODO what about disabled versions?

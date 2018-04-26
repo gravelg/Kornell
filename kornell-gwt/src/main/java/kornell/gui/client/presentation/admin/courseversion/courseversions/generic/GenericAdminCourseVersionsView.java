@@ -150,21 +150,21 @@ public class GenericAdminCourseVersionsView extends Composite implements AdminCo
             }
         });
 
-        table.initColumn("Criada em", 10, "cv.versionCreatedAt", false, new TextColumn<CourseVersionTO>() {
+        table.initColumn("Criada em", 8, "cv.versionCreatedAt", false, new TextColumn<CourseVersionTO>() {
             @Override
             public String getValue(CourseVersionTO courseVersionTO) {
                 return formHelper.dateToString(courseVersionTO.getCourseVersion().getVersionCreatedAt());
             }
         });
 
-        table.initColumn("Turmas", 10, new TextColumn<CourseVersionTO>() {
+        table.initColumn("Turmas", 8, new TextColumn<CourseVersionTO>() {
             @Override
             public String getValue(CourseVersionTO courseVersionTO) {
                 return "" + courseVersionTO.getCourseClassesCount();
             }
         });
 
-        table.initColumn("Ações", 10, new Column<CourseVersionTO, CourseVersionTO>(buildActionsCell()) {
+        table.initColumn("Ações", 14, new Column<CourseVersionTO, CourseVersionTO>(buildActionsCell()) {
             @Override
             public CourseVersionTO getValue(CourseVersionTO courseTO) {
                 return courseTO;

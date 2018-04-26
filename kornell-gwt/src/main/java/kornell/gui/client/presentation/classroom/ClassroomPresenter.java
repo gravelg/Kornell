@@ -11,6 +11,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
+import kornell.core.entity.Course;
 import kornell.core.entity.CourseClass;
 import kornell.core.entity.Enrollment;
 import kornell.core.entity.EnrollmentState;
@@ -24,6 +26,7 @@ import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstants;
 import kornell.gui.client.event.HideSouthBarEvent;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.personnel.classroom.WizardTeacher;
 import kornell.gui.client.presentation.vitrine.VitrinePlace;
 import kornell.gui.client.sequence.Sequencer;
 import kornell.gui.client.sequence.SequencerFactory;
@@ -89,25 +92,28 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
     private void courseClassFetched(CourseClassTO courseClassTO) {
 
         Enrollment enrollment = courseClassTO != null ? courseClassTO.getEnrollment() : null;
-        boolean isEnrolled = enrollment != null && EnrollmentState.enrolled.equals(enrollment.getState());
         if (enrollment == null) {
             session.setCurrentCourseClass((CourseClassTO) null);
         } else {
             ClientProperties.set(
                     PREFIX + ClientProperties.SEPARATOR + session.getCurrentUser().getPerson().getUUID()
-                            + ClientProperties.SEPARATOR + ClientProperties.CURRENT_ENROLLMENT,
+                    + ClientProperties.SEPARATOR + ClientProperties.CURRENT_ENROLLMENT,
                     courseClassTO.getEnrollment().getUUID());
 
             session.setCurrentCourseClass(courseClassTO);
         }
 
-        CourseClass courseClass = session.getCurrentCourseClass() != null
-                ? session.getCurrentCourseClass().getCourseClass() : null;
+        courseClassTO = session.getCurrentCourseClass();
+        CourseClass courseClass = courseClassTO != null ? courseClassTO.getCourseClass() : null;
+        Course course = courseClassTO != null ? courseClassTO.getCourseVersionTO().getCourseTO().getCourse() : null;
         EntityState courseClassState = courseClass != null ? courseClass.getState() : null;
 
-        // TODO: Consider if the null state is inactive
+        final boolean isEnrolled = enrollment != null && EnrollmentState.enrolled.equals(enrollment.getState());
+        final boolean isCourseClassActive = courseClassState != null && !EntityState.inactive.equals(courseClassState);
+        final boolean isWizardCourse = course != null && ContentSpec.WIZARD.equals(course.getContentSpec());
+        final boolean isClassroomJsonNeededAndAbscent = isWizardCourse && new WizardTeacher(courseClassTO).getClassroomJson() == null;
         final boolean showCourseClassContent = enrollment == null
-                || (isEnrolled && (courseClassState != null && !EntityState.inactive.equals(courseClassState)));
+                || (isEnrolled && isCourseClassActive && !isClassroomJsonNeededAndAbscent);
 
         if (showCourseClassContent) {
             bus.fireEvent(new ShowPacifierEvent(true));
@@ -120,6 +126,7 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
             });
             session.enrollment(place.getEnrollmentUUID()).launch(new Callback<EnrollmentLaunchTO>() {
 
+                @Override
                 public void ok(EnrollmentLaunchTO to) {
                     alert.close();
                     loadRuntime(to.getEnrollmentEntries());
@@ -164,8 +171,9 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 
     @Override
     public void stopSequencer() {
-        if (sequencer != null)
+        if (sequencer != null) {
             sequencer.stop();
+        }
     }
 
     @Override
@@ -189,7 +197,8 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
 
     @Override
     public void fireProgressEvent() {
-        if (sequencer != null)
+        if (sequencer != null) {
             sequencer.fireProgressEvent();
+        }
     }
 }

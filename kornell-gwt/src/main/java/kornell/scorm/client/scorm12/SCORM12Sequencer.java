@@ -29,8 +29,9 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
 
     @Override
     public void onContinue(NavigationRequest event) {
-        if (!isActive)
+        if (!isActive) {
             return;
+        }
         if (currentIndex < (actoms.size() - 1)) {
             currentIndex++;
             paintCurrent();
@@ -45,8 +46,9 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
 
     @Override
     public void onPrevious(NavigationRequest event) {
-        if (!isActive)
+        if (!isActive) {
             return;
+        }
         if (currentIndex > 0) {
             currentIndex--;
             paintCurrent();
@@ -63,8 +65,10 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
     private void launch(String key) {
         isActive = true;
         currentIndex = StringUtils.isSome(key) ? lookupCurrentIndex(key) : 0;
-        currentActom = actoms.get(currentIndex);
-        paintCurrent();
+        if(currentIndex < actoms.size()){
+            currentActom = actoms.get(currentIndex);
+            paintCurrent();
+        }
     }
 
     @Override
@@ -88,10 +92,12 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
     }
 
     private void paintCurrent() {
-        if (!isActive)
+        if (!isActive) {
             return;
-        if (contentPanel != null)
+        }
+        if (contentPanel != null) {
             contentPanel.clear();
+        }
         currentActom = actoms.get(currentIndex);
         currentUidget = Uidget.forActom(currentActom);
         currentUidget.setVisible(false);
@@ -113,8 +119,9 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
     // TODO: Smell - Activity Bar shows only after this fires.
     @Override
     public void fireProgressEvent() {
-        if (actoms == null)
+        if (actoms == null) {
             return;
+        }
         int pagesVisitedCount = 0;
         int totalPages = actoms.size();
         for (Actom actom : actoms) {

@@ -25,6 +25,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
+import kornell.core.entity.ContentSpec;
+import kornell.core.entity.Course;
 import kornell.core.entity.CourseDetailsHint;
 import kornell.core.entity.CourseDetailsLibrary;
 import kornell.core.entity.CourseDetailsSection;
@@ -45,6 +47,7 @@ import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowDetailsEvent;
 import kornell.gui.client.event.ShowDetailsEventHandler;
 import kornell.gui.client.event.ShowPacifierEvent;
+import kornell.gui.client.personnel.classroom.WizardTeacher;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.generic.GenericCourseClassMessagesView;
 import kornell.gui.client.presentation.classroom.ClassroomView.Presenter;
 import kornell.gui.client.presentation.message.MessagePresenter;
@@ -98,7 +101,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
     private Contents contents;
     private List<Actom> actoms;
 
-    private boolean isEnrolled, isCancelled, isInactiveCourseClass;
+    private boolean isEnrolled, isCancelled, isInactiveCourseClass, isClassroomJsonNeededAndAbscent;
 
     public GenericCourseDetailsView(EventBus bus, KornellSession session, PlaceController placeCtrl,
             ViewFactory viewFactory) {
@@ -125,8 +128,9 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
         setContents(presenter.getContents());
         certificationPanel = getCertificationPanel();
         courseClassTO = session.getCurrentCourseClass();
-        if (courseClassTO != null)
+        if (courseClassTO != null) {
             display();
+        }
     }
 
     private void setContents(Contents contents) {
@@ -149,6 +153,9 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
             }
         }
         isInactiveCourseClass = EntityState.inactive.equals(courseClassTO.getCourseClass().getState());
+        Course course = courseClassTO.getCourseVersionTO().getCourseTO().getCourse();
+        final boolean isWizardCourse = course != null && ContentSpec.WIZARD.equals(course.getContentSpec());
+        isClassroomJsonNeededAndAbscent = isWizardCourse && new WizardTeacher(courseClassTO).getClassroomJson() == null;
         displayButtons();
 
         topicsPanel = new FlowPanel();
@@ -159,8 +166,9 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
         displayContent(btnCurrent);
 
         topicsPanel.addStyleName("topicsPanel");
-        if (contents != null)
+        if (contents != null) {
             displayTopics();
+        }
 
         displayTitle();
 
@@ -176,17 +184,17 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
                 btnLibrary.setVisible(true);
             } else {
                 session.courseClass(session.getCurrentCourseClass().getCourseClass().getUUID())
-                        .libraryFiles(new Callback<LibraryFilesTO>() {
-                            @Override
-                            public void ok(LibraryFilesTO to) {
-                                if (to.getLibraryFiles() != null && to.getLibraryFiles().size() > 0) {
-                                    libraryPanel = getLibraryPanelOld(to);
-                                    libraryPanel.setVisible(false);
-                                    detailsContentPanel.add(libraryPanel);
-                                    btnLibrary.setVisible(true);
-                                }
-                            }
-                        });
+                .libraryFiles(new Callback<LibraryFilesTO>() {
+                    @Override
+                    public void ok(LibraryFilesTO to) {
+                        if (to.getLibraryFiles() != null && to.getLibraryFiles().size() > 0) {
+                            libraryPanel = getLibraryPanelOld(to);
+                            libraryPanel.setVisible(false);
+                            detailsContentPanel.add(libraryPanel);
+                            btnLibrary.setVisible(true);
+                        }
+                    }
+                });
             }
         }
     }
@@ -216,8 +224,9 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
             messagePresenterClassroomTutorChat.enableMessagesUpdate(false);
         }
 
-        if (libraryPanel != null)
+        if (libraryPanel != null) {
             libraryPanel.setVisible(btn.equals(btnLibrary));
+        }
         bus.fireEvent(new ShowPacifierEvent(false));
     }
 
@@ -324,7 +333,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
         certificationHeaderPanel.addStyleName("certificationHeaderPanel");
 
         certificationHeaderPanel
-                .add(getHeaderButton(constants.certificationTableInfo(), "btnItem", "btnCertificationHeader"));
+        .add(getHeaderButton(constants.certificationTableInfo(), "btnItem", "btnCertificationHeader"));
         certificationHeaderPanel.add(getHeaderButton(constants.certificationTableStatus(), "btnStatus centerText",
                 "btnCertificationHeader"));
         certificationHeaderPanel.add(
@@ -436,7 +445,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
                 displayButton(btnCertification, constants.btnCertification(), constants.printCertificateButton(),
                         false);
             }
-        } else if (isEnrolled && !isCancelled) {
+        } else if (isEnrolled && !isCancelled && !isClassroomJsonNeededAndAbscent) {
             if (courseClassTO.getCourseClass().getRequiredScore() != null) {
                 displayButton(btnCertification, constants.btnCertification(), constants.printCertificateButton(),
                         false);
@@ -487,24 +496,14 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
         FlowPanel sidePanel = new FlowPanel();
         sidePanel.addStyleName("sidePanel");
 
-        String text = "";
-        if (isInactiveCourseClass || isCancelled || !isEnrolled) {
+        String text = getSidePanelText();
+        if(StringUtils.isSome(text)){
             FlowPanel warningPanel = new FlowPanel();
             warningPanel.addStyleName("notEnrolledPanel");
-            if (isInactiveCourseClass) {
-                text = constants.inactiveCourseClass();
-            } else if (isCancelled) {
-                text = constants.cancelledEnrollment();
-            } else if (!isEnrolled) {
-                text = constants.enrollmentNotApproved()
-                        + (StringUtils.isSome(session.getCurrentUser().getPerson().getEmail()) ? ""
-                                : constants.enrollmentConfirmationEmail());
-            }
             HTMLPanel panel = new HTMLPanel(text);
             warningPanel.add(panel);
             sidePanel.add(warningPanel);
         }
-
         if (!"".equals(text) && InstitutionType.DASHBOARD.equals(session.getInstitution().getInstitutionType())) {
             KornellNotification.show(text.replaceAll("<br>", ""), AlertType.WARNING, 5000);
             placeCtrl.goTo(new ProfilePlace(session.getCurrentUser().getPerson().getUUID(), false));
@@ -523,6 +522,22 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
         sidePanel.setVisible(sidePanel.getWidgetCount() != 0);
 
         return sidePanel;
+    }
+
+    private String getSidePanelText() {
+        String text = "";
+        if (isInactiveCourseClass) {
+            text = constants.inactiveCourseClass();
+        } else if (isCancelled) {
+            text = constants.cancelledEnrollment();
+        } else if (!isEnrolled) {
+            text = constants.enrollmentNotApproved()
+                    + (StringUtils.isSome(session.getCurrentUser().getPerson().getEmail()) ? ""
+                            : constants.enrollmentConfirmationEmail());
+        } else if(isClassroomJsonNeededAndAbscent) {
+            text = constants.noPublishedContentForClassroom();
+        }
+        return text;
     }
 
     private FlowPanel getHintPanel(String fontAwesomeClass, String hintText) {

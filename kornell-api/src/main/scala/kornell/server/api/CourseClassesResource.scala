@@ -53,7 +53,7 @@ class CourseClassesResource {
   def getByEnrollment(implicit @Context sc: SecurityContext, @PathParam("enrollmentUUID") enrollmentUUID: String) =
     AuthRepo().withPerson { person =>
       {
-        CourseClassesRepo.byEnrollment(enrollmentUUID, person.getUUID, person.getInstitutionUUID);
+        CourseClassesRepo.byEnrollment(enrollmentUUID, person.getUUID, person.getInstitutionUUID, true);
       }
     }
 

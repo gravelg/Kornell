@@ -24,6 +24,7 @@ import kornell.server.jdbc.repository.CourseVersionsRepo
 import kornell.server.jdbc.SQL._
 import kornell.core.entity.CourseClass
 import kornell.core.entity.role.RoleCategory
+import kornell.server.jdbc.repository.EnrollmentRepo
 
 object SandboxService {
 
@@ -81,11 +82,15 @@ object SandboxService {
   }
 
   def enrollAdmins(sandboxClassUUID: String, institutionUUID: String) = {
-    val rolesTO = RolesRepo.getAllAdminsForInstitution(institutionUUID, RoleCategory.BIND_DEFAULT)
+    val rolesTO = RolesRepo.getAllUsersWithRoleForInstitution(institutionUUID, RoleCategory.BIND_DEFAULT)
     for (roleTO <- rolesTO.getRoleTOs.asScala) {
       val enrollment = EnrollmentsRepo.byCourseClassAndPerson(sandboxClassUUID, roleTO.getRole.getPersonUUID, false)
       if (enrollment.isEmpty) {
         enrollAdmin(sandboxClassUUID, roleTO.getRole.getPersonUUID)
+      } else if (!EnrollmentState.enrolled.equals(enrollment.get.getState)) {
+        val e = enrollment.get
+        e.setState(EnrollmentState.enrolled)
+        EnrollmentRepo(e.getUUID).update(e)
       }
     }
   }

@@ -1,4 +1,4 @@
-package kornell.gui.client.personnel;
+package kornell.gui.client.personnel.classroom;
 
 import kornell.core.to.CourseClassTO;
 

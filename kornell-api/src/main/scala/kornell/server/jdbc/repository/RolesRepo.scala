@@ -122,7 +122,7 @@ object RolesRepo {
       | group by pw.username
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def getAllAdminsForInstitution(institutionUUID: String, bindMode: String) =
+  def getAllUsersWithRoleForInstitution(institutionUUID: String, bindMode: String) =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, null as courseClassName
       | from Role r

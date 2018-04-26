@@ -185,6 +185,7 @@ app.controller('WizardController', [
         "Tem certeza que deseja publicá-las? O conteúdo será imediatamente acessível para todos os participantes de turmas que utilizam essa versão. Essa operação não poderá ser desfeita.";
       var publishTreeCallback = function(){
         $scope.blockPublishButton = true;
+        $scope.publishingUUID = $scope.uuid();
         $scope.savedRoot = angular.copy($scope.root);
         $scope.verifyTree();
         var contents = decodeURI(Base64.decode(localStorage.KNLwp));

@@ -21,6 +21,8 @@ import kornell.core.error.exception.ServerErrorException
 import kornell.server.jdbc.repository.CourseVersionsRepo
 import kornell.server.dev.util.WizardParser
 import kornell.core.entity.CourseVersion
+import kornell.server.jdbc.repository.CourseClassRepo
+import kornell.core.util.StringUtils
 
 object ContentRepository {
 
@@ -51,8 +53,16 @@ object ContentRepository {
   def findKNLVisitedContent(enrollment: Enrollment, person: Person, isWizard: Boolean) = {
     val visited = getVisited(enrollment)
     if (isWizard) {
+      val courseClass = CourseClassRepo(enrollment.getCourseClassUUID).get
       val courseVersion = CourseVersionsRepo.byCourseClassUUID(enrollment.getCourseClassUUID).get
-      WizardParser.parse(Option(courseVersion.getClassroomJsonPublished).getOrElse(courseVersion.getClassroomJson), visited)
+      val classroomJson = courseVersion.getClassroomJson
+      val classroomJsonPublished = courseVersion.getClassroomJsonPublished
+      val json = if (courseClass.isSandbox && StringUtils.isSome(classroomJson)) {
+        classroomJson;
+      } else if (StringUtils.isSome(classroomJsonPublished)) {
+        classroomJsonPublished;
+      } else ""
+      WizardParser.parse(json, visited)
     } else {
       val prefix = getPrefix(enrollment, person)
       val structureSrc = {
