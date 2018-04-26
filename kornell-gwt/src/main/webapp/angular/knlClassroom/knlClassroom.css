@@ -56,12 +56,10 @@
 }
 
 .header .title {
-    color: #ebebeb;
     font-size: 1em !important;
 }
 
 .header .subtitle {
-    color: #ebebeb;
     font-size: 1em !important;
 }
 
@@ -74,8 +72,6 @@
     padding: 15px;
     margin: 4em 0 2em;
     font-size: 1.1em;
-    color: #fff;
-    background: #019dd8;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
@@ -97,7 +93,6 @@
     left: 50px;
     border-width: 20px 20px 0px 0px;
     border-style: solid;
-    border-color: #019dd8 transparent;
     display: block;
     width: 0;
 }
@@ -141,7 +136,6 @@
     margin-left: -25px;
     margin-top: 3px;
     background-color: transparent;
-    border: 1px solid #0184b5;
 }
 
 .checkbox input[type="checkbox"]:checked + label::after, 
@@ -161,7 +155,6 @@
 .pagination-sm>li>a.disabled {
     cursor: not-allowed;
     text-decoration: none;
-    color: #b7b3b3;
 }
 
 .resultBox {
@@ -186,17 +179,8 @@
     float: left;
 }
 
-.videocontent h5{
-	color: #4e819d;
-    text-shadow: 1px 1px #a4dfff;
-}
-
 .bs-callout+.bs-callout {
     margin-top: -5px;
-}
-
-.bs-callout-info {
-    border-left-color: #1b809e !important;
 }
 
 .bs-callout {
@@ -209,7 +193,6 @@
 
 .code {
     padding: 2px 5px;
-    color: #02719b;
     font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }
 
