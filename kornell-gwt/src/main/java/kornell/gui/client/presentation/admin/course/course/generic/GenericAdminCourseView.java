@@ -79,6 +79,8 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
     @UiField
     HTMLPanel titleCreate;
     @UiField
+    HTMLPanel subtitleCreate;
+    @UiField
     Form form;
     @UiField
     FlowPanel courseFields;
@@ -174,6 +176,7 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
 
         titleEdit.setVisible(!isCreationMode);
         titleCreate.setVisible(isCreationMode);
+        subtitleCreate.setVisible(isCreationMode);
 
         buildReportsView();
         reportsTab.addClickHandler(new ClickHandler() {
