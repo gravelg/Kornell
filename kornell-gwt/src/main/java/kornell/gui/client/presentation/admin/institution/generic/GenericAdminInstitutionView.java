@@ -144,8 +144,6 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
             ViewFactory viewFactory) {
         this.session = session;
         this.bus = bus;
-        this.isPlatformAdmin = session.isPlatformAdmin();
-        this.isInstitutionAdmin = session.isInstitutionAdmin();
         initWidget(uiBinder.createAndBindUi(this));
 
         // i18n
@@ -154,8 +152,14 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 
         btnModalOK.setText("OK".toUpperCase());
         btnModalCancel.setText("Cancelar".toUpperCase());
+    }
 
-        this.institution = session.getInstitution();
+    @Override
+    public void init() {
+        institution = session.getInstitution();
+        isPlatformAdmin = session.isPlatformAdmin();
+        isInstitutionAdmin = session.isInstitutionAdmin();
+
         if (isPlatformAdmin) {
             session.repository().getRepository(institution.getAssetsRepositoryUUID(),
                     new kornell.api.client.Callback<ContentRepository>() {
@@ -266,7 +270,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
         assetsPanel.add(assetsView);
     }
 
-    public void initData() {
+    private void initData() {
         institutionFields.setVisible(false);
         this.fields = new ArrayList<KornellFormFieldWrapper>();
         this.termsFieldsMap = new HashMap<>();
@@ -534,40 +538,6 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
         if (isInstitutionAdmin && validateFields()) {
             bus.fireEvent(new ShowPacifierEvent(true));
             Institution institution = getInstitutionInfoFromForm();
-            // institution.setTerms("{\"termsLanguageItems\":[{\"language\":\"pt_BR\",\"terms\":\"<p><span
-            // style='color: white'>Você está na Auctus!</span></p><p>Ao acessar
-            // este sistema, você declara que irá respeitar todos os direitos de
-            // propriedade intelectual e industrial.</p><p>Você assume toda e
-            // qualquer responsabilidade, de caráter cívil e/ou criminal, pela
-            // utilização indevida das informações, textos, gráficos, marcas,
-            // obras, enfim, de todo e qualquer direito de propriedade
-            // intelectual ou industrial contido neste sistema.</p><p>Você
-            // concorda que é responsável por sua própria conduta e por qualquer
-            // conteúdo que criar, transmitir ou apresentar ao utilizar os
-            // serviços da <span class='highlightText'>Auctus</span> e por todas
-            // as consequências relacionadas. Você concorda em usar os serviços
-            // da <span class='highlightText'>Auctus</span> apenas para
-            // finalidades legais, adequadas e condizentes com os termos e com
-            // quaisquer políticas ou diretrizes aplicáveis. Você concorda em
-            // não se engajar em qualquer atividade que interfira ou interrompa
-            // os serviços da <span class='highlightText'>Auctus</span>, ou os
-            // servidores e redes relacionados aos serviços da <span
-            // class='highlightText'>Auctus</span>.</p><p>Ao usar os serviços da
-            // <span class='highlightText'>Auctus</span>, você concorda e está
-            // ciente de que a <span class='highlightText'>Auctus</span> pode
-            // acessar, preservar e divulgar as informações da sua conta e
-            // qualquer conteúdo a ela associado, caso assim seja exigido por
-            // lei ou quando acreditarmos, de boa-fé, que tal preservação ou
-            // divulgação de acesso é necessária para: (a) cumprir qualquer lei,
-            // regulamentação, processo legal ou solicitação governamental
-            // obrigatória; (b) fazer cumprir os termos, incluindo a
-            // investigação de possíveis violações; (c) detectar, impedir ou
-            // tratar de questões de fraude, segurança ou técnicas (inclusive,
-            // sem limitações, a filtragem de spam); (d) proteger, mediante
-            // perigo iminente, os direitos, a propriedade ou a segurança da
-            // <span class='highlightText'>Auctus</span>, seus usuários ou o
-            // público, de acordo com o exigido ou permitido por
-            // lei.</p>\"},{\"language\":\"en\",\"terms\":\"fdsafasdfsdafasd\"}]}");
             presenter.updateInstitution(institution);
 
         }

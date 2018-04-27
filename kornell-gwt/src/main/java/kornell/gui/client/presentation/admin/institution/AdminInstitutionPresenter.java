@@ -46,8 +46,15 @@ public class AdminInstitutionPresenter implements AdminInstitutionView.Presenter
 
     private void init() {
         if (session.isInstitutionAdmin()) {
-            view = getView();
+            view = viewFactory.getAdminInstitutionView();
             view.setPresenter(this);
+            session.institution(session.getInstitution().getUUID()).get(new kornell.api.client.Callback<Institution>() {
+                @Override
+                public void ok(Institution institutionIn) {
+                    session.setInstitution(institutionIn);
+                    view.init();
+                }
+            });
         } else {
             logger.warning("Hey, only admins are allowed to see this! " + this.getClass().getName());
             placeController.goTo(defaultPlace);
@@ -57,10 +64,6 @@ public class AdminInstitutionPresenter implements AdminInstitutionView.Presenter
     @Override
     public Widget asWidget() {
         return view.asWidget();
-    }
-
-    private AdminInstitutionView getView() {
-        return viewFactory.getAdminInstitutionView();
     }
 
     @Override

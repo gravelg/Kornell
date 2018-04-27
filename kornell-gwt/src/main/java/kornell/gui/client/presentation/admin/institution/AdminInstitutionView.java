@@ -10,4 +10,6 @@ public interface AdminInstitutionView extends IsWidget {
     }
 
     void setPresenter(Presenter presenter);
+
+    void init();
 }
