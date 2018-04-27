@@ -296,7 +296,7 @@ public class GenericClientFactoryImpl implements ClientFactory {
                 // found yet, get non active enrollment)
                 enrollment = courseClassTO.getEnrollment();
                 if (enrollment != null && enrollment.getEnrolledOn().after(date)
-                        && enrollment.getCourseClassUUID() != null) {
+                        && enrollment.getCourseClassUUID() != null && !courseClassTO.getCourseClass().isSandbox()) {
                     if (EnrollmentState.enrolled.equals(enrollment.getState()) || enrollmentUUID == null) {
                         date = enrollment.getEnrolledOn();
                         enrollmentUUID = enrollment.getUUID();
