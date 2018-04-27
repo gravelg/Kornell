@@ -37,7 +37,7 @@ object CourseVersionsRepo {
       courseVersion.setVersionCreatedAt(new Date());
 
       sql"""
-      | insert into CourseVersion (uuid,name,courseUUID,versionCreatedAt,distributionPrefix,disabled,thumbUrl,label,instanceCount,parentVersionUUID)
+      | insert into CourseVersion (uuid,name,courseUUID,versionCreatedAt,distributionPrefix,disabled,thumbUrl,classroomJson,classroomJsonPublished,label,instanceCount,parentVersionUUID)
       | values(
       | ${courseVersion.getUUID},
       | ${courseVersion.getName},
@@ -46,6 +46,8 @@ object CourseVersionsRepo {
       | ${courseVersion.getDistributionPrefix},
       | ${courseVersion.isDisabled},
       | ${courseVersion.getThumbUrl},
+      | ${courseVersion.getClassroomJson},
+      | ${courseVersion.getClassroomJsonPublished},
       | ${courseVersion.getLabel},
       | ${courseVersion.getInstanceCount},
       | ${courseVersion.getParentVersionUUID})""".executeUpdate
