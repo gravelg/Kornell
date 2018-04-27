@@ -100,4 +100,8 @@ public class KornellNotification {
     public static void showError(String message) {
         show(message, AlertType.ERROR, 4000);
     }
+
+    public static native void consoleLog(String str) /*-{
+        console.log(str);
+    }-*/;
 }

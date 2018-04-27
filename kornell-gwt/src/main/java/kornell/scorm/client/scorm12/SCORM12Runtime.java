@@ -45,7 +45,7 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
         this.bus = bus;
         bus.addHandler(ActomEnteredEvent.TYPE, this);
         bus.addHandler(ProgressEvent.TYPE, this);
-        initializeDisableButtonsTimer();
+        enableDisableButtons(true, true);
     }
 
     public static synchronized SCORM12Runtime launch(EventBus bus, KornellSession session, PlaceController placeCtrl,
@@ -57,8 +57,9 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
     @Override
     public void onActomEntered(ActomEnteredEvent event) {
         logger.info("Loading [enrollmentUUID:" + event.getEnrollmentUUID() + "][actomKey:" + event.getActomKey() + "]");
-        if (currentAPI != null)
+        if (currentAPI != null) {
             currentAPI.onActomEntered();
+        }
         bindNewAdapter(event.getEnrollmentUUID(), event.getActomKey());
     }
 
@@ -125,27 +126,30 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
     }
 
     private void initializeDisableButtonsTimer() {
+        bus.fireEvent(NavigationAuthorizationEvent.next(false));
+        bus.fireEvent(NavigationAuthorizationEvent.prev(false));
+        disableButtonsTimer = new Timer() {
+            @Override
+            public void run() {
+                bus.fireEvent(NavigationAuthorizationEvent.next(!disableNextButton));
+                bus.fireEvent(NavigationAuthorizationEvent.prev(!disablePrevButton));
+            }
+        };
+        // Schedule the timer to run after 3s
+        disableButtonsTimer.schedule(3000);
+    }
+
+    private void enableDisableButtons(boolean enableNext, boolean enablePrev) {
         if (session.getCurrentCourseClass().getEnrollment().getCertifiedAt() != null) {
-            bus.fireEvent(NavigationAuthorizationEvent.next(true));
-            bus.fireEvent(NavigationAuthorizationEvent.prev(true));
+            bus.fireEvent(NavigationAuthorizationEvent.next(enableNext));
+            bus.fireEvent(NavigationAuthorizationEvent.prev(enablePrev));
         } else {
-            bus.fireEvent(NavigationAuthorizationEvent.next(false));
-            bus.fireEvent(NavigationAuthorizationEvent.prev(false));
-            disableButtonsTimer = new Timer() {
-                public void run() {
-                    bus.fireEvent(NavigationAuthorizationEvent.next(!disableNextButton));
-                    bus.fireEvent(NavigationAuthorizationEvent.prev(!disablePrevButton));
-                }
-            };
-            // Schedule the timer to run after 3s
-            disableButtonsTimer.schedule(3000);
+            initializeDisableButtonsTimer();
         }
     }
 
     @Override
     public void onProgress(ProgressEvent event) {
-        disableNextButton = false;
-        disablePrevButton = false;
-        initializeDisableButtonsTimer();
+        enableDisableButtons(event.hasNext(), event.hasPrevious());
     }
 }

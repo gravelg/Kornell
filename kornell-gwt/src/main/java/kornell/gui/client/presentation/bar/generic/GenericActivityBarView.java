@@ -37,8 +37,7 @@ import kornell.gui.client.presentation.bar.ActivityBarView;
 import kornell.gui.client.presentation.classroom.generic.notes.NotesPopup;
 import kornell.gui.client.sequence.NavigationRequest;
 
-public class GenericActivityBarView extends Composite implements ActivityBarView, ProgressEventHandler,
-        ShowDetailsEventHandler, ShowChatDockEventHandler, NavigationAuthorizationEventHandler {
+public class GenericActivityBarView extends Composite implements ActivityBarView, ProgressEventHandler, ShowDetailsEventHandler, ShowChatDockEventHandler, NavigationAuthorizationEventHandler {
 
     interface MyUiBinder extends UiBinder<Widget, GenericActivityBarView> {
     }
@@ -377,16 +376,20 @@ public class GenericActivityBarView extends Composite implements ActivityBarView
             btnNotes.removeStyleName("last");
         }
         shouldShowActivityBar = isEnrolled && session.getCurrentCourseClass() != null
-                && !EntityState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState()) && session
-                        .getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null;
+                && !EntityState.inactive.equals(session.getCurrentCourseClass().getCourseClass().getState())
+                && session.getCurrentCourseClass().getCourseVersionTO().getCourseVersion().getParentVersionUUID() == null;
         clientFactory.getEventBus().fireEvent(new HideSouthBarEvent(!shouldShowActivityBar));
         this.setVisible(shouldShowActivityBar);
+
+        enableButton(BUTTON_PREVIOUS, !showDetails && enablePrev && allowedPrev);
+        enableButton(BUTTON_NEXT, !showDetails && enableNext && allowedNext);
     }
 
     @UiHandler("btnDetails")
     void handleClickBtnDetails(ClickEvent e) {
-        if (shouldShowActivityBar)
+        if (shouldShowActivityBar) {
             clientFactory.getEventBus().fireEvent(new ShowDetailsEvent(!showDetails));
+        }
     }
 
     @Override

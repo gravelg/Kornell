@@ -40,10 +40,6 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
         }
     }
 
-    private void makeCurrentVisible() {
-        currentUidget.setVisible(true);
-    }
-
     @Override
     public void onPrevious(NavigationRequest event) {
         if (!isActive) {
@@ -104,6 +100,10 @@ public class SCORM12Sequencer extends SimpleSequencer implements Sequencer {
         contentPanel.add(currentUidget);
         dropBreadcrumb();
         makeCurrentVisible();
+    }
+
+    private void makeCurrentVisible() {
+        currentUidget.setVisible(true);
     }
 
     private void setContents(Contents contents) {
