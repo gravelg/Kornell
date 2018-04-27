@@ -21,6 +21,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.to.UserInfoTO;
+import kornell.core.util.StringUtils;
 import kornell.gui.client.ClientFactory;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.KornellConstants;
@@ -76,10 +77,11 @@ public class GenericTermsView extends Composite implements TermsView {
     }
 
     private void initData() {
-        if (session.getCurrentUser().getPerson().getTermsAcceptedOn() == null)
+        if (session.getCurrentUser().getPerson().getTermsAcceptedOn() == null) {
             paint();
-        else
+        } else {
             goStudy();
+        }
     }
 
     private void paint() {
@@ -91,7 +93,11 @@ public class GenericTermsView extends Composite implements TermsView {
             if (locale == null) {
                 locale = "pt_BR";
             }
-            txtTerms.getElement().setInnerHTML(getTermsForLanguage(locale));
+            String terms = getTermsForLanguage(locale);
+            if(StringUtils.isNone(terms)){
+                goStudy();
+            }
+            txtTerms.getElement().setInnerHTML(terms);
             String skin = session.getInstitution().getSkin();
             boolean isLightSkin = skin == null || !skin.contains("_light");
             String barLogoFileName = "/logo300x80" + (isLightSkin ? "_light" : "") + ".png?1";
@@ -100,13 +106,17 @@ public class GenericTermsView extends Composite implements TermsView {
     }
 
     private String getTermsForLanguage(String language) {
-        AutoBeanFactory factory = GenericClientFactoryImpl.GUI_ENTITY_FACTORY;
-        AutoBean<TermsLanguageItems> bean = AutoBeanCodex.decode(factory, TermsLanguageItems.class,
-                session.getInstitution().getTerms());
-        TermsLanguageItems list = bean.as();
-        for (TermsLanguageItem termsLanguageItem : list.getTermsLanguageItems()) {
-            if (termsLanguageItem.getLanguage().equals(language))
-                return termsLanguageItem.getTerms();
+        try {
+            AutoBeanFactory factory = GenericClientFactoryImpl.GUI_ENTITY_FACTORY;
+            AutoBean<TermsLanguageItems> bean = AutoBeanCodex.decode(factory, TermsLanguageItems.class,
+                    session.getInstitution().getTerms());
+            TermsLanguageItems list = bean.as();
+            for (TermsLanguageItem termsLanguageItem : list.getTermsLanguageItems()) {
+                if (termsLanguageItem.getLanguage().equals(language)) {
+                    return termsLanguageItem.getTerms();
+                }
+            }
+        } catch (Exception e) {
         }
         return "";
     }

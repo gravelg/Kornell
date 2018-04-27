@@ -44,6 +44,7 @@ import kornell.core.entity.ContentRepository;
 import kornell.core.entity.EntityFactory;
 import kornell.core.entity.Institution;
 import kornell.core.entity.InstitutionType;
+import kornell.core.util.StringUtils;
 import kornell.gui.client.GenericClientFactoryImpl;
 import kornell.gui.client.ViewFactory;
 import kornell.gui.client.event.ShowPacifierEvent;
@@ -125,9 +126,9 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
     private ContentRepository repo;
 
     private KornellFormFieldWrapper name, fullName, institutionType, assetsRepositoryUUID, baseURL, billingType,
-            demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername,
-            advancedMode, useEmailWhitelist, timeZone, skin, institutionSupportEmail, notifyInstitutionAdmins,
-            allowedLanguages;
+    demandsPersonContactDetails, validatePersonContactDetails, allowRegistration, allowRegistrationByUsername,
+    advancedMode, useEmailWhitelist, timeZone, skin, institutionSupportEmail, notifyInstitutionAdmins,
+    allowedLanguages;
 
     private List<KornellFormFieldWrapper> fields;
     private Map<String, KornellFormFieldWrapper> termsFieldsMap;
@@ -158,18 +159,18 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
         if (isPlatformAdmin) {
             session.repository().getRepository(institution.getAssetsRepositoryUUID(),
                     new kornell.api.client.Callback<ContentRepository>() {
+                @Override
+                public void ok(ContentRepository to) {
+                    repo = to;
+                    buildRepoView();
+                    repoTab.addClickHandler(new ClickHandler() {
                         @Override
-                        public void ok(ContentRepository to) {
-                            repo = to;
+                        public void onClick(ClickEvent event) {
                             buildRepoView();
-                            repoTab.addClickHandler(new ClickHandler() {
-                                @Override
-                                public void onClick(ClickEvent event) {
-                                    buildRepoView();
-                                }
-                            });
                         }
                     });
+                }
+            });
 
             buildReportsView();
             reportsTab.addClickHandler(new ClickHandler() {
@@ -188,8 +189,9 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
         bus.addHandler(PlaceChangeEvent.TYPE, new PlaceChangeEvent.Handler() {
             @Override
             public void onPlaceChange(PlaceChangeEvent event) {
-                if (event.getNewPlace() instanceof AdminInstitutionPlace)
+                if (event.getNewPlace() instanceof AdminInstitutionPlace) {
                     initData();
+                }
             }
         });
 
@@ -323,26 +325,26 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
         fields.add(demandsPersonContactDetails);
         institutionFields.add(demandsPersonContactDetails);
         ((CheckBox) demandsPersonContactDetails.getFieldWidget())
-                .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                    @Override
-                    public void onValueChange(ValueChangeEvent<Boolean> event) {
-                        if (event.getValue()) {
-                        }
-                    }
-                });
+        .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                if (event.getValue()) {
+                }
+            }
+        });
 
         validatePersonContactDetails = new KornellFormFieldWrapper("Validação dos Detalhes de Contato",
                 formHelper.createCheckBoxFormField(institution.isValidatePersonContactDetails()), isInstitutionAdmin);
         fields.add(validatePersonContactDetails);
         institutionFields.add(validatePersonContactDetails);
         ((CheckBox) validatePersonContactDetails.getFieldWidget())
-                .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                    @Override
-                    public void onValueChange(ValueChangeEvent<Boolean> event) {
-                        if (event.getValue()) {
-                        }
-                    }
-                });
+        .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                if (event.getValue()) {
+                }
+            }
+        });
 
         allowRegistration = new KornellFormFieldWrapper("Permitir Registro",
                 formHelper.createCheckBoxFormField(institution.isAllowRegistration()), isInstitutionAdmin);
@@ -379,10 +381,12 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
                 Dean.showContentNative(false);
 
                 Callback<Void, Exception> callback = new Callback<Void, Exception>() {
+                    @Override
                     public void onFailure(Exception reason) {
                         Window.Location.reload();
                     }
 
+                    @Override
                     public void onSuccess(Void result) {
                         Dean.showContentNative(true);
                     }
@@ -415,13 +419,13 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
             fields.add(allowRegistrationByUsername);
             institutionFields.add(allowRegistrationByUsername);
             ((CheckBox) allowRegistrationByUsername.getFieldWidget())
-                    .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                        @Override
-                        public void onValueChange(ValueChangeEvent<Boolean> event) {
-                            if (event.getValue()) {
-                            }
-                        }
-                    });
+            .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                @Override
+                public void onValueChange(ValueChangeEvent<Boolean> event) {
+                    if (event.getValue()) {
+                    }
+                }
+            });
 
             advancedMode = new KornellFormFieldWrapper("Modo avançado",
                     formHelper.createCheckBoxFormField(institution.isAdvancedMode()), isPlatformAdmin);
@@ -442,13 +446,13 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
             fields.add(notifyInstitutionAdmins);
             institutionFields.add(notifyInstitutionAdmins);
             ((CheckBox) notifyInstitutionAdmins.getFieldWidget())
-                    .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                        @Override
-                        public void onValueChange(ValueChangeEvent<Boolean> event) {
-                            if (event.getValue()) {
-                            }
-                        }
-                    });
+            .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                @Override
+                public void onValueChange(ValueChangeEvent<Boolean> event) {
+                    if (event.getValue()) {
+                    }
+                }
+            });
         }
 
         allowedLanguages = new KornellFormFieldWrapper("Línguas Disponíveis",
@@ -458,15 +462,17 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
         institutionFields.add(allowedLanguages);
 
         String[] allowedLanguagesArr = institution.getAllowedLanguages().split(",");
-        for (int i = 0; i < allowedLanguagesArr.length; i++) {
-            KornellFormFieldWrapper terms = new KornellFormFieldWrapper("Termos de Uso - " + allowedLanguagesArr[i],
-                    formHelper.createTextAreaFormField(getTermsForLanguage(allowedLanguagesArr[i]), 20),
-                    isInstitutionAdmin);
-            terms.addStyleName("heightAuto");
-            terms.addStyleName("marginBottom25");
-            fields.add(terms);
-            termsFieldsMap.put(allowedLanguagesArr[i], terms);
-            institutionFields.add(terms);
+        if(StringUtils.isSome(allowedLanguagesArr[0])){
+            for (int i = 0; i < allowedLanguagesArr.length; i++) {
+                KornellFormFieldWrapper terms = new KornellFormFieldWrapper("Termos de Uso - " + allowedLanguagesArr[i],
+                        formHelper.createTextAreaFormField(getTermsForLanguage(allowedLanguagesArr[i]), 20),
+                        isInstitutionAdmin);
+                terms.addStyleName("heightAuto");
+                terms.addStyleName("marginBottom25");
+                fields.add(terms);
+                termsFieldsMap.put(allowedLanguagesArr[i], terms);
+                institutionFields.add(terms);
+            }
         }
 
         institutionFields.add(formHelper.getImageSeparator());
@@ -475,15 +481,18 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
 
     private String getTermsForLanguage(String language) {
         AutoBeanFactory factory = GenericClientFactoryImpl.GUI_ENTITY_FACTORY;
-        AutoBean<TermsLanguageItems> bean = AutoBeanCodex.decode(factory, TermsLanguageItems.class,
-                institution.getTerms());
-        TermsLanguageItems list = bean.as();
-        for (TermsLanguageItem termsLanguageItem : list.getTermsLanguageItems()) {
-            if (termsLanguageItem.getLanguage().equals(language)) {
-                String terms = termsLanguageItem.getTerms();
-                terms = terms.replaceAll("\\\\\"", "\"");
-                return terms;
+        try {
+            AutoBean<TermsLanguageItems> bean = AutoBeanCodex.decode(factory, TermsLanguageItems.class,
+                    institution.getTerms());
+            TermsLanguageItems list = bean.as();
+            for (TermsLanguageItem termsLanguageItem : list.getTermsLanguageItems()) {
+                if (termsLanguageItem.getLanguage().equals(language)) {
+                    String terms = termsLanguageItem.getTerms();
+                    terms = terms.replaceAll("\\\\\"", "\"");
+                    return terms;
+                }
             }
+        } catch (Exception e) {
         }
         return "";
     }
@@ -507,14 +516,14 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
             timeZone.setError("Escolha o fuso horário.");
         }
 
-        for (Entry<String, KornellFormFieldWrapper> entry : termsFieldsMap.entrySet()) {
+        /*for (Entry<String, KornellFormFieldWrapper> entry : termsFieldsMap.entrySet()) {
             String language = entry.getKey();
             String terms = entry.getValue().getFieldPersistText().replace("\"", "\\\"");
             if (!formHelper.isLengthValid(terms, 10)) {
                 entry.getValue().setError(
                         "Coloque os termos para " + ("pt_BR".equals(language) ? "Português" : "Inglês") + ".");
             }
-        }
+        }*/
 
         return !formHelper.checkErrors(fields);
     }
@@ -578,7 +587,7 @@ public class GenericAdminInstitutionView extends Composite implements AdminInsti
             institution.setBillingType(BillingType.valueOf(billingType.getFieldPersistText()));
             institution.setInstitutionType(InstitutionType.valueOf(institutionType.getFieldPersistText()));
             institution
-                    .setAllowRegistrationByUsername(allowRegistrationByUsername.getFieldPersistText().equals("true"));
+            .setAllowRegistrationByUsername(allowRegistrationByUsername.getFieldPersistText().equals("true"));
             institution.setAdvancedMode(advancedMode.getFieldPersistText().equals("true"));
             institution.setUseEmailWhitelist(useEmailWhitelist.getFieldPersistText().equals("true"));
             institution.setSkin(skin.getFieldPersistText());
