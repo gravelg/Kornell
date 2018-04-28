@@ -20,7 +20,7 @@
                             <a uib-tooltip="Ajuda" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm pull-right" ng-click="startTreeHelp()">
                                 <i class="fa fa-question"></i>
                             </a>
-                            <span ng-show="treeIsUnsaved">&nbsp;&nbsp;&nbsp;[ <i class="fa fa-asterisk changedFlagIcon"></i>&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;Alterações pendentes ]</span>
+                            <span ng-show="isUnpublished" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true">&nbsp;&nbsp;&nbsp; <i class="fa fa-warning changedFlagIcon"></i></span>
                         </div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                     <a uib-tooltip="Ajuda" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm right" ng-click="startTreeHelp()">
                         <i class="fa fa-question"></i>
                     </a>
-                    <span ng-show="treeIsUnsaved">&nbsp;&nbsp;&nbsp;[ <i class="fa fa-asterisk changedFlagIcon"></i>&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;Alterações pendentes ]</span>
+                    <span ng-show="isUnpublished" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true">&nbsp;&nbsp;&nbsp; <i class="fa fa-warning changedFlagIcon"></i></span>
                 </div>
             </div>
             <div class="col-sm-12">
@@ -423,7 +423,7 @@
         <ol ui-tree-nodes ng-model="data" id="treeHelp1">
             <li ui-tree-node ng-repeat="root in data">
                 <div class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === root.uuid}" ng-click="edit(this)">
-                    <span class="tree-node-title"><b><i class="fa fa-asterisk changedFlagIcon" ng-show="root.isUnsaved"></i>{{root.title | limitToDots: limitToDots}}</b></span>
+                    <span class="tree-node-title"><b><i class="fa fa-warning changedFlagIcon" ng-show="root.isUnpublished"></i>{{root.title | limitToDots: limitToDots}}</b></span>
                     <a id="nodeEdit_{{root.uuid}}" uib-tooltip="Editar curso" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
                         <span class="glyphicon glyphicon-edit"></span>
                     </a>
@@ -445,7 +445,7 @@
         <a class="btn btn-primary btn-xxs margin-right-5" ng-if="module.lectures && module.lectures.length > 0" data-nodrag ng-click="this.toggle()">
             <span class="glyphicon" ng-class="{ 'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed }"></span>
         </a>
-        <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="module.isUnsaved"></i>{{module.title | limitToDots: limitToDots}}</span>
+        <span class="tree-node-title"><i class="fa fa-warning changedFlagIcon" ng-show="module.isUnpublished"></i>{{module.title | limitToDots: limitToDots}}</span>
         <a id="nodeEdit_{{module.uuid}}" uib-tooltip="Editar módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" ng-click="edit(this)" style="margin-right: 3px;">
             <span class="glyphicon glyphicon-edit"></span>
         </a>
@@ -464,7 +464,7 @@
 
 <script type="text/ng-template" id="lecturesRenderer.html">
     <div class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === lecture.uuid}" ng-click="edit(this)">
-        <span class="tree-node-title"><i class="fa fa-asterisk changedFlagIcon" ng-show="lecture.isUnsaved"></i>{{lecture.title | limitToDots: limitToDots}}</span>
+        <span class="tree-node-title"><i class="fa fa-warning changedFlagIcon" ng-show="lecture.isUnpublished"></i>{{lecture.title | limitToDots: limitToDots}}</span>
         <a id="nodeEdit_{{lecture.uuid}}" uib-tooltip="Editar aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs knlEditLectureButton" style="margin-right: 3px;">
             <span class="glyphicon glyphicon-edit"></span>
         </a>

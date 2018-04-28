@@ -67,6 +67,7 @@ public class WizardView extends Composite {
     }
 
     public void iframeIsReady(String message) {
+        checkForUnpublishedContent(presenter.getCourseVersion());
         if (StringUtils.isSome(presenter.getCourseVersion().getClassroomJson())){
             sendIFrameMessage("classroomJsonLoad", presenter.getCourseVersion().getClassroomJson());
         } else if(StringUtils.isSome(presenter.getCourseVersion().getClassroomJsonPublished())){
@@ -85,6 +86,7 @@ public class WizardView extends Composite {
                 presenter.setCourseVersion(courseVersionSaved);
                 sendIFrameMessage("classroomJsonSaved", "");
                 KornellNotification.show("Publicação feita com sucesso.");
+                checkForUnpublishedContent(courseVersionSaved);
             }
         });
     }
@@ -96,6 +98,7 @@ public class WizardView extends Composite {
             public void ok(CourseVersion courseVersionSaved) {
                 presenter.setCourseVersion(courseVersionSaved);
                 sendIFrameMessage("classroomJsonSaved", "");
+                checkForUnpublishedContent(courseVersionSaved);
             }
         });
     }
@@ -108,6 +111,7 @@ public class WizardView extends Composite {
                 presenter.setCourseVersion(courseVersionSaved);
                 sendIFrameMessage("classroomJsonLoad", presenter.getCourseVersion().getClassroomJsonPublished());
                 KornellNotification.show("Alterações descartadas com sucesso.");
+                checkForUnpublishedContent(courseVersionSaved);
             }
         });
     }
@@ -119,6 +123,10 @@ public class WizardView extends Composite {
                 sendIFrameMessage("responseUploadPath", url);
             }
         });
+    }
+
+    private void checkForUnpublishedContent(CourseVersion courseVersionSaved) {
+        sendIFrameMessage("lastClassroomJsonPublished", courseVersionSaved.getClassroomJsonPublished());
     }
 
     private native void sendIFrameMessage(String type, String message) /*-{

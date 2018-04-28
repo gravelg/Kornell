@@ -24,6 +24,9 @@ app.controller('WizardController', [
         $scope.initWizard();
       } else if(event.data.type === 'classroomJsonSaved'){
         $scope.blockPublishButton = false;
+      } else if(event.data.type === 'lastClassroomJsonPublished'){
+        $scope.lastClassroomJsonPublished = JSON.parse(event.data.message);
+        $scope.verifyTree();
       }
     },false);
     
@@ -104,7 +107,7 @@ app.controller('WizardController', [
 
       $scope.$watch('root', function() {
         $scope.verifyTreeHelper();
-        if($scope.treeIsUnsaved) {
+        if($scope.isUnsaved) {
           $scope.saveTree();
         }
       }, true);
@@ -117,7 +120,7 @@ app.controller('WizardController', [
             localStorage['KNLw.hideHelpOnStart'] = true;
           });
         } else {
-          $scope.goToNode($scope.root.lastVisitedLectureUUID || $scope.lastLectureUUID || $scope.lastModuleUUID);
+          $scope.goToNode($scope.lastLectureUUID || $scope.lastModuleUUID);
         }
       });
       
@@ -234,7 +237,7 @@ app.controller('WizardController', [
       $scope.blockPublishButton = true;
       $scope.savedRoot = angular.copy($scope.root);
       $scope.verifyTree();
-      var contents = decodeURI(Base64.decode(localStorage.KNLwp));
+      var contents = angular.toJson(angular.fromJson(decodeURI(Base64.decode(localStorage.KNLwp))));
       $scope.postMessageToParentFrame("wizardSave", contents);
     };
 
@@ -246,7 +249,13 @@ app.controller('WizardController', [
     };
 
     $scope.verifyTree = function() {
-        var verifySavedStatus = function(node) {
+
+        var verifySavedStatuses = function(node) {
+          verifySavedStatus(node, 'savedRoot');
+          verifySavedStatus(node, 'lastClassroomJsonPublished');
+        };
+
+        var verifySavedStatus = function(node, source) {
           var concatenateUUIDs = function(array) {
             var uuids = "";
             angular.forEach(array, function(obj){
@@ -255,12 +264,14 @@ app.controller('WizardController', [
             return uuids;
           };
 
-          if($scope.savedRoot) {
+          source = source || 'savedRoot';
+          var flagAttribute = source == 'savedRoot' ? 'isUnsaved' : 'isUnpublished';
+          if($scope[source]) {
             var o1 = angular.copy(node),
-                o2 = angular.copy($scope.getNodeByUUID(node.uuid, true));
+                o2 = angular.copy($scope.getNodeByUUID(node.uuid, source));
             if(o2){
-              delete o1.isUnsaved;
-              delete o2.isUnsaved;
+              delete o1[flagAttribute];
+              delete o2[flagAttribute];
               if(o1.itemType === 'root'){
                 o1.modules = concatenateUUIDs(o1.modules);
                 o2.modules = concatenateUUIDs(o2.modules);
@@ -273,17 +284,18 @@ app.controller('WizardController', [
               }
             }
             if(!angular.equals(o1, o2)){
-              node.isUnsaved = true;
-              $scope.treeIsUnsaved = true;
+              node[flagAttribute] = true;
+              $scope[flagAttribute] = true;
             } else {
-              delete node.isUnsaved;
+              delete node[flagAttribute];
             }
           }
         };
 
         $scope.root.uuid = $scope.root.uuid || $scope.uuid();
         $scope.root.files = $scope.root.files || {};
-        $scope.treeIsUnsaved = false;
+        $scope.isUnsaved = false;
+        $scope.isUnpublished = false;
         $scope.hasFinalExamLecture = false;
         $scope.lectureUUIDs = [];
         var modulesCount = 0, totalLecturesCount = 0;
@@ -308,9 +320,9 @@ app.controller('WizardController', [
               $scope.hasFinalExamLecture = true;
             }
             $scope.lectureUUIDs.push(lecture.uuid);
-            verifySavedStatus(lecture);
+            verifySavedStatuses(lecture);
           });
-          verifySavedStatus(module);
+          verifySavedStatuses(module);
         });
         angular.forEach($scope.root.files, function(file, attributeName){
           if(attributeName != '_baseURL'){
@@ -319,13 +331,13 @@ app.controller('WizardController', [
             }
           }
         });
-        verifySavedStatus($scope.root);
+        verifySavedStatuses($scope.root);
         localStorage.KNLwp = Base64.encode(encodeURI(angular.toJson($scope.root)));
     };
 
-    $scope.getNodeByUUID = function(uuid, getFromSavedRoot){
+    $scope.getNodeByUUID = function(uuid, source){
       var found;
-      var tree = getFromSavedRoot ? $scope.savedRoot : $scope.root;
+      var tree = source ? $scope[source] : $scope.root;
       if(tree.uuid === uuid) found = tree;
       angular.forEach(tree.modules, function(module){
         if(module.uuid === uuid) found = module;
@@ -477,7 +489,7 @@ app.controller('WizardController', [
 
     $scope.edit = function (scope) {
       $scope.selectedNode = scope.$modelValue;
-      $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, true);
+      $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, 'savedRoot');
       $scope.selectedNodeScope = scope;
       if(!$scope.keepViewTab){
         $scope.selectedTab = 'edit';
@@ -490,7 +502,6 @@ app.controller('WizardController', [
       var editPanel = $('#editPanel').get(0)
       editPanel && editPanel.scrollIntoView();
       $scope.refreshSlimScroll();
-      $scope.root.lastVisitedLectureUUID = $scope.selectedNode.uuid;
     };
 
     $scope.remove = function () {
