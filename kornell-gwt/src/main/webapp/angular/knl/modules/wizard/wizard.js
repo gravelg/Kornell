@@ -320,7 +320,7 @@ app.controller('WizardController', [
           }
         });
         verifySavedStatus($scope.root);
-        localStorage.KNLwp = Base64.encode(encodeURI(JSON.stringify($scope.root)));
+        localStorage.KNLwp = Base64.encode(encodeURI(angular.toJson($scope.root)));
     };
 
     $scope.getNodeByUUID = function(uuid, getFromSavedRoot){
