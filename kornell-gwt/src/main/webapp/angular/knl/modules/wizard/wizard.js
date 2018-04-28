@@ -103,7 +103,7 @@ app.controller('WizardController', [
       $scope.calculateLimitToDots();
 
       $scope.verifyTree();
-      $scope.savedRoot = angular.copy($scope.root);
+      $scope.lastClassroomJsonSaved = angular.copy($scope.root);
 
       $scope.$watch('root', function() {
         $scope.verifyTreeHelper();
@@ -120,7 +120,8 @@ app.controller('WizardController', [
             localStorage['KNLw.hideHelpOnStart'] = true;
           });
         } else {
-          $scope.goToNode($scope.lastLectureUUID || $scope.lastModuleUUID);
+          var lastExists = $scope.getNodeByUUID(localStorage['KNLw.lastVisitedLectureUUID']);
+          $scope.goToNode((lastExists && localStorage['KNLw.lastVisitedLectureUUID']) || $scope.lastLectureUUID || $scope.lastModuleUUID);
         }
       });
       
@@ -189,7 +190,7 @@ app.controller('WizardController', [
       var publishTreeCallback = function(){
         $scope.blockPublishButton = true;
         $scope.publishingUUID = $scope.uuid();
-        $scope.savedRoot = angular.copy($scope.root);
+        $scope.lastClassroomJsonSaved = angular.copy($scope.root);
         $scope.verifyTree();
         var contents = decodeURI(Base64.decode(localStorage.KNLwp));
         $scope.postMessageToParentFrame("wizardPublish", contents);
@@ -205,7 +206,7 @@ app.controller('WizardController', [
       var discardTreeMessage = "Tem certeza que deseja descartar TODAS as alterações desde a última publicação? Essa operação não poderá ser desfeita.";
       var discardTreeCallback = function(){
         $scope.blockPublishButton = true;
-        $scope.root = angular.copy($scope.savedRoot);
+        $scope.root = angular.copy($scope.lastClassroomJsonSaved);
         $scope.data = [$scope.root];
         $scope.goToNode($scope.selectedNode.uuid);
         $scope.postMessageToParentFrame("wizardDiscard", "");
@@ -235,7 +236,7 @@ app.controller('WizardController', [
 
     $scope.saveTree = function() {
       $scope.blockPublishButton = true;
-      $scope.savedRoot = angular.copy($scope.root);
+      $scope.lastClassroomJsonSaved = angular.copy($scope.root);
       $scope.verifyTree();
       var contents = angular.toJson(angular.fromJson(decodeURI(Base64.decode(localStorage.KNLwp))));
       $scope.postMessageToParentFrame("wizardSave", contents);
@@ -251,7 +252,7 @@ app.controller('WizardController', [
     $scope.verifyTree = function() {
 
         var verifySavedStatuses = function(node) {
-          verifySavedStatus(node, 'savedRoot');
+          verifySavedStatus(node, 'lastClassroomJsonSaved');
           verifySavedStatus(node, 'lastClassroomJsonPublished');
         };
 
@@ -264,8 +265,8 @@ app.controller('WizardController', [
             return uuids;
           };
 
-          source = source || 'savedRoot';
-          var flagAttribute = source == 'savedRoot' ? 'isUnsaved' : 'isUnpublished';
+          source = source || 'lastClassroomJsonSaved';
+          var flagAttribute = source == 'lastClassroomJsonSaved' ? 'isUnsaved' : 'isUnpublished';
           if($scope[source]) {
             var o1 = angular.copy(node),
                 o2 = angular.copy($scope.getNodeByUUID(node.uuid, source));
@@ -292,6 +293,7 @@ app.controller('WizardController', [
           }
         };
 
+        if(!$scope.root) return;
         $scope.root.uuid = $scope.root.uuid || $scope.uuid();
         $scope.root.files = $scope.root.files || {};
         $scope.isUnsaved = false;
@@ -489,7 +491,7 @@ app.controller('WizardController', [
 
     $scope.edit = function (scope) {
       $scope.selectedNode = scope.$modelValue;
-      $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, 'savedRoot');
+      $scope.selectedNodeSaved = $scope.getNodeByUUID($scope.selectedNode.uuid, 'lastClassroomJsonSaved');
       $scope.selectedNodeScope = scope;
       if(!$scope.keepViewTab){
         $scope.selectedTab = 'edit';
@@ -502,6 +504,7 @@ app.controller('WizardController', [
       var editPanel = $('#editPanel').get(0)
       editPanel && editPanel.scrollIntoView();
       $scope.refreshSlimScroll();
+      localStorage['KNLw.lastVisitedLectureUUID'] = scope.selectedNode.uuid;
     };
 
     $scope.remove = function () {

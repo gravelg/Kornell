@@ -62,14 +62,6 @@
 	    }
 	  }
   }
-  var stripIdFromVideoURL = function(url){
-	var r, rx = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
-	try {
-		return url.match(rx)[1];
-	} catch(err){
-		return "";
-	}
-  }
   var knl = function(){
 	return JSON.stringify({
 	  "KNL" : (localStorage["KNL" ] && JSON.parse(atob(localStorage["KNL" ]))),

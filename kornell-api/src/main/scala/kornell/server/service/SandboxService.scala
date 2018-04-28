@@ -125,7 +125,10 @@ object SandboxService {
   /**
    * This methods wipes progress for all enrollments on the sandbox class, used when wizard course changes a lot
    */
-  def resetEnrollments(courseVersionUUID: String) = {
+  def resetEnrollments(courseVersionUUID: String, institutionUUID: String) = {
+    // make sure the version is processed
+    processVersion(courseVersionUUID: String, institutionUUID: String)
+
     val courseClass = CourseClassesRepo.sandboxForVersion(courseVersionUUID).get
     if (courseClass.getState == EntityState.deleted) {
       sql"""

@@ -144,7 +144,7 @@ object EnrollmentsRepo {
     courseVersionUUID: String,
     parentEnrollmentUUID: String,
     enrollmentSource: EnrollmentSource): Enrollment =
-    create(Entities.newEnrollment(null, null, courseClassUUID, personUUID, null, "", EnrollmentState.notEnrolled, null, null, null, null, null, courseVersionUUID, parentEnrollmentUUID, null, null, null, null, enrollmentSource))
+    create(Entities.newEnrollment(null, null, courseClassUUID, personUUID, null, "", enrollmentState, null, null, null, null, null, courseVersionUUID, parentEnrollmentUUID, null, null, null, null, enrollmentSource))
 
   def create(enrollment: Enrollment): Enrollment = {
     if (enrollment.getUUID == null)

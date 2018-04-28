@@ -17,6 +17,7 @@ import kornell.core.error.exception.EntityConflictException
 import java.util.Date
 import kornell.server.content.ContentManagers
 import kornell.server.service.S3Service
+import kornell.server.service.SandboxService
 
 class CourseVersionRepo(uuid: String) {
 
@@ -94,7 +95,7 @@ class CourseVersionRepo(uuid: String) {
 
   def copy = {
     val courseVersion = CourseVersionRepo(uuid).first.get
-    val institutuionUUID = CoursesRepo.byCourseVersionUUID(courseVersion.getUUID).get.getInstitutionUUID
+    val institutionUUID = CoursesRepo.byCourseVersionUUID(courseVersion.getUUID).get.getInstitutionUUID
     val sourceCourseVersionUUID = courseVersion.getUUID
     val targetCourseVersionUUID = UUID.random
 
@@ -108,9 +109,9 @@ class CourseVersionRepo(uuid: String) {
       courseVersion.setThumbUrl(courseVersion.getThumbUrl.replace(sourceCourseVersionUUID + "/thumb.jpg", targetCourseVersionUUID + "/thumb.jpg"))
     }
     println(courseVersion.getThumbUrl)
-    CourseVersionsRepo.create(courseVersion, institutuionUUID)
+    CourseVersionsRepo.create(courseVersion, institutionUUID)
 
-    AssetService.copyAssets(institutuionUUID, CourseDetailsEntityType.COURSE_VERSION, sourceCourseVersionUUID, targetCourseVersionUUID, courseVersion.getThumbUrl)
+    AssetService.copyAssets(institutionUUID, CourseDetailsEntityType.COURSE_VERSION, sourceCourseVersionUUID, targetCourseVersionUUID, courseVersion.getThumbUrl)
 
     courseVersion
   }

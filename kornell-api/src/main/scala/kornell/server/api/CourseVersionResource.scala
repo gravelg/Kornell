@@ -85,7 +85,7 @@ class CourseVersionResource(uuid: String) {
   @PUT
   @Path("resetSandbox")
   def resetSandbox = {
-    SandboxService.resetEnrollments(uuid)
+    SandboxService.resetEnrollments(uuid, getAutenticatedPersonInstitutionUUID)
     Response.noContent.build
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())

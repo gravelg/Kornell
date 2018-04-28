@@ -18,6 +18,7 @@ import kornell.core.util.StringUtils
 import kornell.server.jdbc.PreparedStmt
 import kornell.core.entity.EntityState
 import kornell.core.entity.InstitutionType
+import kornell.server.service.SandboxService
 
 object CourseVersionsRepo {
 
@@ -51,6 +52,9 @@ object CourseVersionsRepo {
       | ${courseVersion.getLabel},
       | ${courseVersion.getInstanceCount},
       | ${courseVersion.getParentVersionUUID})""".executeUpdate
+
+      //create sandbox class
+      SandboxService.processVersion(courseVersion.getUUID, institutionUUID)
 
       //log creation event
       EventsRepo.logEntityChange(institutionUUID, AuditedEntityType.courseVersion, courseVersion.getUUID, null, courseVersion)
