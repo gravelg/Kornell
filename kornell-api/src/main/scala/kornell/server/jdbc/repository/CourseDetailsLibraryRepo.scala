@@ -1,19 +1,19 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import kornell.server.jdbc.SQL._
-import scala.collection.JavaConverters._
 import kornell.core.entity.CourseDetailsLibrary
-import kornell.server.content.ContentManagers
-import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.core.util.StringUtils
+import kornell.server.authentication.ThreadLocalAuthenticator
+import kornell.server.content.ContentManagers
+import kornell.server.jdbc.SQL._
+
+import scala.collection.JavaConverters._
 
 class CourseDetailsLibraryRepo(uuid: String) {
 
   val finder = sql"select * from CourseDetailsLibrary where uuid=$uuid"
 
-  def get = finder.get[CourseDetailsLibrary]
-  def first = finder.first[CourseDetailsLibrary]
+  def get: CourseDetailsLibrary = finder.get[CourseDetailsLibrary]
+  def first: Option[CourseDetailsLibrary] = finder.first[CourseDetailsLibrary]
 
   def update(courseDetailsLibrary: CourseDetailsLibrary): CourseDetailsLibrary = {
     sql"""
@@ -30,7 +30,7 @@ class CourseDetailsLibraryRepo(uuid: String) {
     courseDetailsLibrary
   }
 
-  def delete = {
+  def delete: CourseDetailsLibrary = {
     val courseDetailsLibrary = get
     sql"""
       delete from CourseDetailsLibrary
@@ -54,7 +54,6 @@ class CourseDetailsLibraryRepo(uuid: String) {
 
     courseDetailsLibrary
   }
-
 }
 
 object CourseDetailsLibraryRepo {

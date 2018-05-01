@@ -1,28 +1,29 @@
 package kornell.server.content
 
-import kornell.core.entity.ContentRepository
-import com.amazonaws.services.s3.AmazonS3Client
-import scala.util.Try
-import java.util.logging.Logger
-import kornell.core.util.StringUtils._
-import scala.io.Source
 import java.io.InputStream
-import com.amazonaws.services.s3.model.ObjectMetadata
-import scala.collection.JavaConverters._
+import java.util.logging.Logger
+
 import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.services.s3.model.DeleteObjectsRequest
+import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.model.{DeleteObjectsRequest, ObjectMetadata}
+import kornell.core.entity.ContentRepository
+import kornell.core.util.StringUtils._
+
+import scala.collection.JavaConverters._
+import scala.io.{BufferedSource, Source}
+import scala.util.Try
 
 class S3ContentManager(repo: ContentRepository)
     extends SyncContentManager {
 
-  val logger = Logger.getLogger(classOf[S3ContentManager].getName)
+  val logger: Logger = Logger.getLogger(classOf[S3ContentManager].getName)
 
-  lazy val s3 = if (isSome(repo.getAccessKeyId()))
-    new AmazonS3Client(new BasicAWSCredentials(repo.getAccessKeyId(), repo.getSecretAccessKey()))
+  lazy val s3: AmazonS3Client = if (isSome(repo.getAccessKeyId))
+    new AmazonS3Client(new BasicAWSCredentials(repo.getAccessKeyId, repo.getSecretAccessKey))
   else
     new AmazonS3Client
 
-  def source(keys: String*) =
+  def source(keys: String*): Try[BufferedSource] =
     inputStream(keys: _*).map { Source.fromInputStream(_, "UTF-8") }
 
   def inputStream(keys: String*): Try[InputStream] = Try {
@@ -39,21 +40,21 @@ class S3ContentManager(repo: ContentRepository)
     }
   }
 
-  def put(value: InputStream, contentType: String, contentDisposition: String, metadataMap: Map[String, String], keys: String*) = {
+  def put(value: InputStream, contentType: String, contentDisposition: String, metadataMap: Map[String, String], keys: String*): Unit = {
     val metadata = new ObjectMetadata()
     metadata.setUserMetadata(metadataMap asJava)
-    Option(contentType).foreach { metadata.setContentType(_) }
-    Option(contentDisposition).foreach { metadata.setContentDisposition(_) }
+    Option(contentType).foreach { metadata.setContentType }
+    Option(contentDisposition).foreach { metadata.setContentDisposition }
     s3.putObject(repo.getBucketName, url(keys: _*), value, metadata)
   }
 
-  def delete(keys: String*) = {
+  def delete(keys: String*): Unit = {
     // keys we support delete for already have repo prefix appended
     logger.info("Trying to delete object [ " + mkurl("", keys: _*) + " ]")
     s3.deleteObject(repo.getBucketName, mkurl("", keys: _*))
   }
 
-  def deleteFolder(keys: String*) = {
+  def deleteFolder(keys: String*): Unit = {
     val path = url(keys: _*)
     logger.info("Trying to delete folder object [ " + path + " ]")
     val objects = s3.listObjects(repo.getBucketName, path)
@@ -62,12 +63,12 @@ class S3ContentManager(repo: ContentRepository)
     try {
       s3.deleteObjects(deleteRequest)
     } catch {
-      case e: Throwable => {
+      case _: Throwable => {
         logger.info("Could not delete folder object. [ " + path + " ]")
       }
     }
   }
 
-  def getPrefix = repo.getPrefix
+  def getPrefix: String = repo.getPrefix
 
 }

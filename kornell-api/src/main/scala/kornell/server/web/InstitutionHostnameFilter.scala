@@ -1,23 +1,19 @@
 package kornell.server.web
 
-import javax.servlet._
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 import java.util.logging.Logger
+
+import javax.servlet._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import kornell.core.entity.Institution
 import kornell.server.jdbc.repository.InstitutionsRepo
 import kornell.server.util.DateConverter
-import kornell.core.entity.Institution
-import java.net.URL
-import java.net.URI
-import org.apache.http.client.utils.URLEncodedUtils
-import java.nio.charset.Charset
 
 class InstitutionHostnameFilter extends Filter {
 
-  val logger = Logger.getLogger("kornell.server.web")
+  val logger: Logger = Logger.getLogger("kornell.server.web")
   val DOMAIN_HEADER = "X-KNL-DOMAIN"
 
-  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) =
+  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain): Unit =
     (sreq, sres) match {
       case (hreq: HttpServletRequest, hres: HttpServletResponse) => {
         if (hreq.getRequestURI.startsWith("/api") && !hreq.getRequestURI.equals("/api")) {
@@ -28,25 +24,25 @@ class InstitutionHostnameFilter extends Filter {
       }
     }
 
-  def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
+  def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain): Unit = {
     //    debugLogRequest(req)
     val institution = getInstitution(req)
 
     if (institution.isDefined) {
       DateConverter.setTimeZone(institution.get.getTimeZone)
       chain.doFilter(req, resp)
-      clearTimeZone
+      clearTimeZone()
     } else {
       logAndContinue(req, resp, chain)
     }
   }
 
-  def logAndContinue(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
+  def logAndContinue(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain): Unit = {
     logger.warning("Request did not contain a valid 'X-KNL-DOMAIN' header, could not initialize DateConverter for URL " + req.getRequestURL)
     chain.doFilter(req, resp)
   }
 
-  def debugLogRequest(request: HttpServletRequest) = {
+  def debugLogRequest(request: HttpServletRequest): Unit = {
     val pathString = {
       if (request.getQueryString != null) request.getMethod + " " + request.getRequestURI + "?" + request.getQueryString
       else request.getMethod + " " + request.getRequestURI
@@ -82,9 +78,9 @@ class InstitutionHostnameFilter extends Filter {
     }
   }
 
-  override def init(cfg: FilterConfig) {}
+  override def init(cfg: FilterConfig): Unit = {}
 
-  override def destroy() {}
+  override def destroy(): Unit = {}
 
-  def clearTimeZone = DateConverter.clearTimeZone
+  def clearTimeZone(): Unit = DateConverter.clearTimeZone()
 }

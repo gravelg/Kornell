@@ -1,65 +1,36 @@
 package kornell.server.api
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.collection.JavaConverters.setAsJavaSetConverter
-import scala.collection.immutable.Set
 import javax.servlet.http.HttpServletRequest
-import javax.ws.rs.Consumes
-import javax.ws.rs.GET
-import javax.ws.rs.PUT
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.SecurityContext
-import kornell.core.entity.Person
-import kornell.core.entity.RegistrationType
-import kornell.core.error.exception.EntityNotFoundException
-import kornell.core.error.exception.UnauthorizedAccessException
-import kornell.core.to.RegistrationRequestTO
-import kornell.core.to.UserInfoTO
-import kornell.core.util.UUID
-import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.jdbc.repository.AuthRepo
-import kornell.server.jdbc.repository.EnrollmentsRepo
-import kornell.server.jdbc.repository.InstitutionRepo
-import kornell.server.jdbc.repository.InstitutionsRepo
-import kornell.server.jdbc.repository.PeopleRepo
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.server.repository.Entities.newEnrollments
-import kornell.server.repository.TOs
-import kornell.server.repository.TOs.newUserHelloTO
-import kornell.server.repository.TOs.newUserInfoTO
-import kornell.server.service.RegistrationEnrollmentService
-import kornell.server.util.EmailService
-import kornell.server.web.BasicAuthFilter
-import kornell.core.to.UserHelloTO
-import kornell.server.jdbc.repository.TokenRepo
-import kornell.server.util.Conditional.toConditional
-import javax.ws.rs.POST
-import kornell.server.util.AccessDeniedErr
-import kornell.server.jdbc.repository.RolesRepo
+import javax.ws.rs._
+import javax.ws.rs.core.{Context, Response, SecurityContext}
 import kornell.core.entity.role.RoleCategory
-import kornell.server.jdbc.repository.EventsRepo
-import kornell.core.entity.AuditedEntityType
-import kornell.server.jdbc.repository.CourseClassesRepo
-import javax.ws.rs.core.Response
+import kornell.core.entity.{AuditedEntityType, Person, RegistrationType}
+import kornell.core.error.exception.{EntityNotFoundException, UnauthorizedAccessException}
+import kornell.core.to.{RegistrationRequestTO, UserHelloTO, UserInfoTO}
+import kornell.core.util.UUID
+import kornell.server.jdbc.repository.{AuthRepo, CourseClassesRepo, EventsRepo, InstitutionRepo, InstitutionsRepo, PeopleRepo, PersonRepo, RolesRepo, TokenRepo}
+import kornell.server.repository.TOs
+import kornell.server.repository.TOs.{newUserHelloTO, newUserInfoTO}
+import kornell.server.service.RegistrationEnrollmentService
+import kornell.server.util.Conditional.toConditional
 import kornell.server.util.Settings._
+import kornell.server.util.{AccessDeniedErr, EmailService}
+
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 //TODO Person/People Resource
 @Path("user")
 class UserResource(private val authRepo: AuthRepo) {
   def this() = this(AuthRepo())
 
-  val buildNumber = BUILD_NUM.getOpt.orElse("development_build").get
+  val buildNumber: String = BUILD_NUM.getOpt.orElse("development_build").get
 
   @GET
   @Path("login")
   @Produces(Array(UserHelloTO.TYPE))
   def get(@Context req: HttpServletRequest,
     @QueryParam("name") name: String,
-    @QueryParam("hostName") hostName: String) = {
+    @QueryParam("hostName") hostName: String): UserHelloTO = {
     val userHello = newUserHelloTO
 
     val institution = {
@@ -67,17 +38,17 @@ class UserResource(private val authRepo: AuthRepo) {
       else if (hostName != null) InstitutionsRepo.getByHostName(hostName)
       else None
     }
-    if (!institution.isDefined) {
+    if (institution.isEmpty) {
       throw new EntityNotFoundException("unknownInstitution")
     }
 
-    userHello.setInstitution(institution.get);
+    userHello.setInstitution(institution.get)
     val auth = req.getHeader("X-KNL-TOKEN")
 
     val token = TokenRepo().checkToken(auth)
     if (token.isDefined) {
-      val person = PersonRepo(token.get.getPersonUUID).first.getOrElse(null)
-      userHello.setUserInfoTO(getUser(person).getOrElse(null))
+      val person = PersonRepo(token.get.getPersonUUID).first.orNull
+      userHello.setUserInfoTO(getUser(person).orNull)
       userHello.setCourseClassesTO(CourseClassesRepo.byPersonAndInstitution(person.getUUID, person.getInstitutionUUID))
 
       if (institution.isDefined && person.getInstitutionUUID != institution.get.getUUID) {
@@ -90,13 +61,13 @@ class UserResource(private val authRepo: AuthRepo) {
     userHello
   }
 
-  def getUser(person: Person) = {
+  def getUser(person: Person): Option[UserInfoTO] = {
     val user = newUserInfoTO
     val username = PersonRepo(person.getUUID).getUsername
     user.setUsername(username)
     user.setPerson(person)
     user.setLastPlaceVisited(person.getLastPlaceVisited)
-    val roleTOs = RolesRepo.getUserRoles(person.getUUID, RoleCategory.BIND_DEFAULT)
+    val roleTOs = new RolesRepo().getUserRoles(person.getUUID, RoleCategory.BIND_DEFAULT)
     user.setRoles(roleTOs.getRoleTOs)
     if (RegistrationType.username.equals(person.getRegistrationType)) {
       user.setInstitutionRegistrationPrefix(InstitutionRepo(person.getInstitutionUUID).getInstitutionRegistrationPrefixes.getInstitutionRegistrationPrefixes
@@ -110,8 +81,7 @@ class UserResource(private val authRepo: AuthRepo) {
   @Path("get/{personUUID}")
   @Produces(Array(UserInfoTO.TYPE))
   def getByPersonUUID(implicit @Context sc: SecurityContext,
-    @PathParam("personUUID") personUUID: String): Option[UserInfoTO] =
-    authRepo.withPerson { p =>
+    @PathParam("personUUID") personUUID: String): Option[UserInfoTO] = {
       val user = newUserInfoTO
       val person = PersonRepo(personUUID).first.get
       if (person != null) {
@@ -142,14 +112,14 @@ class UserResource(private val authRepo: AuthRepo) {
   @GET
   @Path("requestPasswordChange/{email}/{institutionName}")
   def requestPasswordChange(@PathParam("email") email: String,
-    @PathParam("institutionName") institutionName: String) = {
+    @PathParam("institutionName") institutionName: String): Response = {
     val institution = InstitutionsRepo.getByName(institutionName)
     val person = PeopleRepo.getByEmail(institution.get.getUUID, email)
     if (person.isDefined && institution.isDefined) {
       val requestPasswordChangeUUID = UUID.random
 
       AuthRepo().getUsernameByPersonUUID(person.get.getUUID) match {
-        case Some(one) => authRepo.updateRequestPasswordChangeUUID(person.get.getUUID, requestPasswordChangeUUID)
+        case Some(_) => authRepo.updateRequestPasswordChangeUUID(person.get.getUUID, requestPasswordChangeUUID)
         case None => authRepo.setPlainPassword(institution.get.getUUID, person.get.getUUID, person.get.getEmail, null, false, requestPasswordChangeUUID)
       }
 
@@ -163,7 +133,7 @@ class UserResource(private val authRepo: AuthRepo) {
   @PUT
   @Path("resetPassword/{passwordChangeUUID}")
   @Produces(Array(UserInfoTO.TYPE))
-  def resetPassword(@PathParam("passwordChangeUUID") passwordChangeUUID: String, password: String) = {
+  def resetPassword(@PathParam("passwordChangeUUID") passwordChangeUUID: String, password: String): Option[UserInfoTO] = {
     val person = authRepo.getPersonByPasswordChangeUUID(passwordChangeUUID)
     if (person.isDefined) {
       PersonRepo(person.get.getUUID).setPassword(password, false)
@@ -172,7 +142,7 @@ class UserResource(private val authRepo: AuthRepo) {
       EventsRepo.logEntityChange(person.get.getInstitutionUUID, AuditedEntityType.password, person.get.getUUID, null, null, person.get.getUUID)
 
       val user = newUserInfoTO
-      user.setUsername(person.get.getEmail())
+      user.setUsername(person.get.getEmail)
       Option(user)
     } else {
       throw new UnauthorizedAccessException("passwordChangeFailed")
@@ -182,7 +152,7 @@ class UserResource(private val authRepo: AuthRepo) {
   @PUT
   @Path("changePassword/{targetPersonUUID}/")
   def changePassword(implicit @Context sc: SecurityContext,
-    @PathParam("targetPersonUUID") targetPersonUUID: String, password: String) = {
+    @PathParam("targetPersonUUID") targetPersonUUID: String, password: String): Response = {
     authRepo.withPerson { p =>
       if (!PersonRepo(p.getUUID).hasPowerOver(targetPersonUUID))
         throw new UnauthorizedAccessException("passwordChangeDenied")
@@ -201,7 +171,7 @@ class UserResource(private val authRepo: AuthRepo) {
   @PUT
   @Path("updatePassword/{username}")
   @Produces(Array(UserInfoTO.TYPE))
-  def updatePassword(@PathParam("username") username: String, password: String) = {
+  def updatePassword(@PathParam("username") username: String, password: String): Option[UserInfoTO] = {
     val person = authRepo.getPersonByUsernameAndPasswordUpdateFlag(username)
     if (person.isDefined) {
       PersonRepo(person.get.getUUID).updatePassword(person.get.getUUID, password, true)
@@ -210,7 +180,7 @@ class UserResource(private val authRepo: AuthRepo) {
       EventsRepo.logEntityChange(person.get.getInstitutionUUID, AuditedEntityType.password, person.get.getUUID, null, null, person.get.getUUID)
 
       val user = newUserInfoTO
-      user.setUsername(person.get.getEmail())
+      user.setUsername(person.get.getEmail)
       Option(user)
     } else {
       throw new UnauthorizedAccessException("passwordChangeFailed")
@@ -221,7 +191,7 @@ class UserResource(private val authRepo: AuthRepo) {
   @Path("hasPowerOver/{targetPersonUUID}")
   @Produces(Array("application/boolean"))
   def changePassword(implicit @Context sc: SecurityContext,
-    @PathParam("targetPersonUUID") targetPersonUUID: String) = {
+    @PathParam("targetPersonUUID") targetPersonUUID: String): Boolean = {
     authRepo.withPerson { p =>
       PersonRepo(p.getUUID).hasPowerOver(targetPersonUUID)
     }
@@ -231,7 +201,7 @@ class UserResource(private val authRepo: AuthRepo) {
   @Path("registrationRequest")
   @Consumes(Array(RegistrationRequestTO.TYPE))
   @Produces(Array(UserInfoTO.TYPE))
-  def createUser(regReq: RegistrationRequestTO) = RegistrationEnrollmentService.userRequestRegistration(regReq)
+  def createUser(regReq: RegistrationRequestTO): UserInfoTO = RegistrationEnrollmentService.userRequestRegistration(regReq)
 
   @PUT
   @Path("{personUUID}")
@@ -239,21 +209,23 @@ class UserResource(private val authRepo: AuthRepo) {
   @Produces(Array(UserInfoTO.TYPE))
   def update(implicit @Context sc: SecurityContext,
     userInfo: UserInfoTO,
-    @PathParam("personUUID") personUUID: String) = authRepo.withPerson { p =>
+    @PathParam("personUUID") personUUID: String): UserInfoTO = authRepo.withPerson { p =>
     if (userInfo != null) {
-      if (!PersonRepo(p.getUUID).hasPowerOver(personUUID))
+      if (!PersonRepo(p.getUUID).hasPowerOver(personUUID)) {
         throw new UnauthorizedAccessException("passwordChangeDenied")
-      else {
+      } else {
         val from = PersonRepo(personUUID).first.get
 
         PersonRepo(personUUID).update(userInfo.getPerson)
 
         //log entity change
         EventsRepo.logEntityChange(p.getInstitutionUUID, AuditedEntityType.person, personUUID, from, userInfo.getPerson)
-        val roleTOs = RolesRepo.getUserRoles(personUUID, RoleCategory.BIND_DEFAULT)
+        val roleTOs = new RolesRepo().getUserRoles(personUUID, RoleCategory.BIND_DEFAULT)
         userInfo.setRoles(roleTOs.getRoleTOs)
         userInfo
       }
+    } else {
+      throw new EntityNotFoundException("missingPayload")
     }
   }
 
@@ -261,7 +233,7 @@ class UserResource(private val authRepo: AuthRepo) {
   @Path("acceptTerms")
   @Consumes(Array("text/plain"))
   @Produces(Array(UserInfoTO.TYPE))
-  def acceptTerms() = AuthRepo().withPerson { p =>
+  def acceptTerms(): Option[UserInfoTO] = AuthRepo().withPerson { p =>
     val from = PersonRepo(p.getUUID).first.get
 
     PersonRepo(p.getUUID).acceptTerms(from)

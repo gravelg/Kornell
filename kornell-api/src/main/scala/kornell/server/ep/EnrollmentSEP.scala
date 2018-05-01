@@ -1,9 +1,6 @@
 package kornell.server.ep
 
 import kornell.server.jdbc.repository.EnrollmentRepo
-import kornell.server.jdbc.repository.CourseClassesRepo
-import kornell.server.jdbc.repository.CourseVersionRepo
-import kornell.core.entity.ContentSpec._
 import java.math.BigDecimal
 
 /**
@@ -11,17 +8,17 @@ import java.math.BigDecimal
  */
 object EnrollmentSEP {
 
-  def onProgress(enrollmentUUID: String) = {
-    EnrollmentRepo(enrollmentUUID).updateProgress
+  def onProgress(enrollmentUUID: String): Unit = {
+    EnrollmentRepo(enrollmentUUID).updateProgress()
   }
 
-  def onAssessment(enrollmentUUID: String) =
-    EnrollmentRepo(enrollmentUUID).updateAssessment
+  def onAssessment(enrollmentUUID: String): Unit =
+    EnrollmentRepo(enrollmentUUID).updateAssessment()
 
-  def onPreAssessmentScore(enrollmentUUID: String, score: BigDecimal) =
+  def onPreAssessmentScore(enrollmentUUID: String, score: BigDecimal): Unit =
     EnrollmentRepo(enrollmentUUID).updatePreAssessmentScore(score)
 
-  def onPostAssessmentScore(enrollmentUUID: String, score: BigDecimal) =
+  def onPostAssessmentScore(enrollmentUUID: String, score: BigDecimal): Unit =
     EnrollmentRepo(enrollmentUUID).updatePostAssessmentScore(score)
 
 }

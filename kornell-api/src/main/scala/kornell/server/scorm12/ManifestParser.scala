@@ -1,12 +1,12 @@
 package kornell.server.scorm12
 
-import scala.xml.XML
-import scala.collection.mutable.ListBuffer
 import java.io.InputStream
-import kornell.core.lom.Contents
+
+import kornell.core.lom.{Content, Contents}
 import kornell.server.repository.LOM
-import kornell.core.lom.Content
-import kornell.core.lom.Topic
+
+import scala.collection.mutable.ListBuffer
+import scala.xml.XML
 
 object ManifestParser {
 
@@ -19,9 +19,9 @@ object ManifestParser {
     val resourceMap = (xmlContents \\ "resource").map(x => x.attribute("identifier").get.text -> x.attribute("href").get.text).toMap
 
     //topics don't have a 'identifierref' attribute
-    val topicsNodes = (xmlContents \\ "organization" \ "item")
+    val topicsNodes = xmlContents \\ "organization" \ "item"
     val topLevelRefs = topicsNodes.map(x => (x \ "@identifierref").text).filter(_.nonEmpty)
-    if (topLevelRefs.size != 0) {
+    if (topLevelRefs.nonEmpty) {
       //one level
       val topic = LOM.newTopic((xmlContents \\ "organization" \ "title").text)
       result += LOM.newContent(topic)
@@ -30,11 +30,11 @@ object ManifestParser {
         {
           val identifier = x._1
           val title = x._2
-          val fileName = resourceMap.get(identifier).get
+          val fileName = resourceMap(identifier)
           val page = LOM.newExternalPage(prefix, fileName, title, fileName, index)
-          page.setVisited(visited.contains(page.getKey()))
+          page.setVisited(visited.contains(page.getKey))
           val content = LOM.newContent(page)
-          topic.getChildren().add(content)
+          topic.getChildren.add(content)
           index += 1
         }
       }
@@ -52,11 +52,11 @@ object ManifestParser {
                 {
                   val identRef = x.attribute("identifierref").get.text
                   val title = (x \ "title").text
-                  val fileName = resourceMap.get(identRef).get
+                  val fileName = resourceMap(identRef)
                   val page = LOM.newExternalPage(prefix, fileName, title, fileName, index)
-                  page.setVisited(visited.contains(page.getKey()))
+                  page.setVisited(visited.contains(page.getKey))
                   val content = LOM.newContent(page)
-                  topic.getChildren().add(content)
+                  topic.getChildren.add(content)
                   index += 1
                 }
             }

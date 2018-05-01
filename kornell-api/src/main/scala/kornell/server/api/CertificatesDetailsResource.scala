@@ -1,18 +1,11 @@
 package kornell.server.api
 
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.POST
-import javax.ws.rs.Consumes
-import javax.ws.rs.Produces
-import kornell.core.entity.CertificateDetails
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.server.util.AccessDeniedErr
-import kornell.server.jdbc.repository.CertificatesDetailsRepo
-import kornell.server.util.Conditional.toConditional
-import kornell.core.entity.CourseDetailsEntityType
-import javax.ws.rs.GET
+import javax.ws.rs._
+import kornell.core.entity.{CertificateDetails, CourseDetailsEntityType}
 import kornell.core.error.exception.EntityNotFoundException
+import kornell.server.jdbc.repository.CertificatesDetailsRepo
+import kornell.server.util.AccessDeniedErr
+import kornell.server.util.Conditional.toConditional
 
 @Path("certificatesDetails")
 class CertificatesDetailsResource {
@@ -23,27 +16,26 @@ class CertificatesDetailsResource {
   @POST
   @Consumes(Array(CertificateDetails.TYPE))
   @Produces(Array(CertificateDetails.TYPE))
-  def create(certificateDetails: CertificateDetails) = {
+  def create(certificateDetails: CertificateDetails): CertificateDetails = {
     CertificatesDetailsRepo.create(certificateDetails)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
-    .or(isPublisher(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
+    .or(isPublisher, AccessDeniedErr())
     .get
 
   @GET
   @Path("/{entityType}/{entityUUID}")
   @Produces(Array(CertificateDetails.TYPE))
   def getByEntityTypeAndUUID(@PathParam("entityType") entityType: String,
-    @PathParam("entityUUID") entityUUID: String) = {
+    @PathParam("entityUUID") entityUUID: String): CertificateDetails = {
     val certificatesDetailsRepo = CertificatesDetailsRepo.getForEntity(entityUUID, CourseDetailsEntityType.valueOf(entityType))
     certificatesDetailsRepo match {
       case Some(x) => x
       case _ => throw new EntityNotFoundException("notFound")
     }
-
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
-    .or(isPublisher(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
+    .or(isPublisher, AccessDeniedErr())
     .get
 
 }

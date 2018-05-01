@@ -17,7 +17,7 @@ object TrackItemsRepo {
       | ${trackItem.getTrackUUID},
       | ${trackItem.getParentUUID},
       | ${trackItem.getOrder},
-      | ${trackItem.isHavingPreRequirements()},
+      | ${trackItem.isHavingPreRequirements},
       | ${trackItem.getStartDate})
     """.executeUpdate
 

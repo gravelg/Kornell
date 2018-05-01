@@ -1,18 +1,19 @@
 package db.jdbcmigration
 
-import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration
 import java.sql.Connection
-import kornell.server.util.EnrollmentUtil._
-import kornell.server.jdbc.repository.EnrollmentRepo
-import kornell.server.jdbc.SQL._
+
+import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration
 import kornell.server.jdbc.ConnectionHandler
+import kornell.server.jdbc.SQL._
+import kornell.server.jdbc.repository.EnrollmentRepo
+import kornell.server.util.EnrollmentUtil._
 
 class V2016_02_13_15_02__PreAssessmentScore extends JdbcMigration {
-  override def migrate(conn: Connection) {
-    migratePreAssessmentScores
+  override def migrate(conn: Connection): Unit = {
+    migratePreAssessmentScores()
   }
 
-  def migratePreAssessmentScores() = {
+  def migratePreAssessmentScores(): Unit = {
     sql"""
 		  select ae.enrollment_uuid,ae.entryValue 
 		  from ActomEntries ae

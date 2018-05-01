@@ -1,25 +1,19 @@
 package kornell.server.api
 
-import javax.ws.rs.Path
-import javax.ws.rs.GET
-import kornell.server.jdbc.SQL._
-import scala.util.Try
-import scala.util.Success
-import scala.util.Success
+import javax.ws.rs.{GET, Path}
 import javax.ws.rs.core.Response
-import scala.util.Failure
-import javax.ws.rs.core.Response._
-import kornell.server.util.EmailSender._
-import java.sql.ResultSet
+import kornell.server.jdbc.SQL._
+
+import scala.util.{Failure, Success, Try}
 
 @Path("healthCheck")
 class HealthCheckResource {
 
   @GET
-  def isHealthy = checkDatabase match {
-    case Success(_) => ok.entity("System seems healthy.").build
-    case Failure(ex) => serverError.entity(ex.getMessage).build
+  def isHealthy: Response = checkDatabase match {
+    case Success(_) => Response.ok.entity("System seems healthy.").build
+    case Failure(ex) => Response.serverError.entity(ex.getMessage).build
   }
 
-  def checkDatabase = Try { sql"select 'Health Check'".executeQuery }
+  def checkDatabase = Try { sql"select 'Health Check'".executeQuery() }
 }

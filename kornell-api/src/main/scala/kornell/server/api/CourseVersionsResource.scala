@@ -1,22 +1,11 @@
 package kornell.server.api
 
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.SecurityContext
-import kornell.server.jdbc.repository.AuthRepo
+import javax.ws.rs._
+import kornell.core.entity.CourseVersion
 import kornell.core.to.CourseVersionsTO
 import kornell.server.jdbc.repository.CourseVersionsRepo
-import kornell.server.repository.Entities
-import javax.ws.rs.PathParam
-import javax.ws.rs.POST
-import javax.ws.rs.Consumes
-import kornell.core.entity.CourseVersion
-import kornell.server.util.Conditional.toConditional
-import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.util.AccessDeniedErr
+import kornell.server.util.Conditional.toConditional
 
 @Path("courseVersions")
 class CourseVersionsResource {
@@ -27,21 +16,21 @@ class CourseVersionsResource {
   @GET
   @Produces(Array(CourseVersionsTO.TYPE))
   def getCourseVersions(@QueryParam("courseUUID") courseUUID: String, @QueryParam("searchTerm") searchTerm: String,
-    @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String) = {
+    @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int, @QueryParam("orderBy") orderBy: String, @QueryParam("asc") asc: String): CourseVersionsTO = {
     CourseVersionsRepo.byInstitution(getAutenticatedPersonInstitutionUUID, searchTerm, pageSize, pageNumber, orderBy, asc == "true", courseUUID)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
-    .or(isPublisher(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
+    .or(isPublisher, AccessDeniedErr())
     .get
 
   @POST
   @Produces(Array(CourseVersion.TYPE))
   @Consumes(Array(CourseVersion.TYPE))
-  def create(courseVersion: CourseVersion) = {
+  def create(courseVersion: CourseVersion): CourseVersion = {
     CourseVersionsRepo.create(courseVersion, getAutenticatedPersonInstitutionUUID)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
-    .or(isPublisher(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
+    .or(isPublisher, AccessDeniedErr())
     .get
 }
 

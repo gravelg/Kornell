@@ -1,41 +1,29 @@
 package kornell.server.report
 
-import java.io.InputStream
+import java.io.ByteArrayInputStream
 import java.math.BigDecimal
+import java.net.{HttpURLConnection, URL}
 import java.sql.ResultSet
-import java.text.SimpleDateFormat
+import java.text.{Normalizer, SimpleDateFormat}
+import java.util
 import java.util.Date
-import java.util.HashMap
 
-import scala.collection.mutable.ListBuffer
-
-import javax.servlet.http.HttpServletResponse
-import kornell.core.entity.EnrollmentState
-import kornell.core.entity.EntityState
-import kornell.core.to.report.CourseClassReportTO
-import kornell.core.to.report.EnrollmentsBreakdownTO
+import kornell.core.entity.{EnrollmentState, EntityState}
+import kornell.core.error.exception.{EntityConflictException, EntityNotFoundException, ServerErrorException}
+import kornell.core.to.SimplePeopleTO
+import kornell.core.to.report.{CourseClassReportTO, EnrollmentsBreakdownTO}
 import kornell.core.util.StringUtils._
+import kornell.server.authentication.ThreadLocalAuthenticator
+import kornell.server.content.ContentManagers
 import kornell.server.jdbc.PreparedStmt
 import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.jdbc.repository.CourseClassRepo
-import kornell.server.jdbc.repository.CourseRepo
+import kornell.server.jdbc.repository.{ContentRepositoriesRepo, CourseClassRepo, CourseRepo, InstitutionRepo, PersonRepo}
 import kornell.server.repository.TOs
 import kornell.server.service.S3Service
 import kornell.server.util.DateConverter
-import kornell.core.error.exception.EntityConflictException
-import kornell.core.to.SimplePeopleTO
+
 import scala.collection.JavaConverters._
-import java.net.HttpURLConnection
-import kornell.core.error.exception.ServerErrorException
-import kornell.server.content.ContentManagers
-import kornell.server.jdbc.repository.ContentRepositoriesRepo
-import kornell.server.jdbc.repository.InstitutionRepo
-import java.net.URL
-import java.io.ByteArrayInputStream
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.server.authentication.ThreadLocalAuthenticator
-import java.text.Normalizer
+import scala.collection.mutable.ListBuffer
 
 object ReportCourseClassGenerator {
 
@@ -104,10 +92,10 @@ object ReportCourseClassGenerator {
       rs.getString("addressLine2"),
       rs.getString("postalCode"))
 
-  type BreakdownData = Tuple2[String, Integer]
+  type BreakdownData = (String, Integer)
   implicit def breakdownConvertion(rs: ResultSet): BreakdownData = (rs.getString(1), rs.getInt(2))
 
-  def generateCourseClassReport(courseUUID: String, courseClassUUID: String, fileType: String, peopleTO: SimplePeopleTO) = {
+  def generateCourseClassReport(courseUUID: String, courseClassUUID: String, fileType: String, peopleTO: SimplePeopleTO): String = {
     if (courseUUID != null || courseClassUUID != null) {
       var sql = s"""
         select
@@ -163,11 +151,11 @@ object ReportCourseClassGenerator {
           e.state <> '${EnrollmentState.deleted.toString}'
       """
 
-      var usernames = "";
+      var usernames = ""
       if (peopleTO != null && peopleTO.getSimplePeopleTO != null) {
-        peopleTO.getSimplePeopleTO.asScala.map { person => usernames += "'" + person.getUsername + "'," }
+        peopleTO.getSimplePeopleTO.asScala.foreach { person => usernames += "'" + person.getUsername + "'," }
         if (usernames.length > 1) {
-          usernames = usernames.dropRight(1);
+          usernames = usernames.dropRight(1)
           sql += s"""and if(pw.username is not null, pw.username, p.email) in ( ${usernames} ) """
         }
       }
@@ -217,7 +205,7 @@ object ReportCourseClassGenerator {
       val report = getReportBytesFromStream(courseClassReportTO, parameters, jasperStream, fileType)
       val bs = new ByteArrayInputStream(report)
       val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
-      val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
+      val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID).get.getUUID)
       val filename = getFileName(courseUUID, courseClassUUID)
       val fileFullPath = getCourseClassInfoReportFileName(courseUUID: String, courseClassUUID: String, fileType: String)
       val contentType = {
@@ -230,17 +218,18 @@ object ReportCourseClassGenerator {
         bs,
         contentType,
         "Content-Disposition: attachment; filename=\"" + filename + "\"",
-        Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), fileFullPath)
+        Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName), fileFullPath)
 
       getCourseClassInfoReportURL(courseUUID, courseClassUUID, fileType)
+    } else {
+      throw new EntityNotFoundException("notFound")
     }
-
   }
 
-  type ReportHeaderData = Tuple9[String, String, String, Date, String, String, Date, String, String]
+  type ReportHeaderData = (String, String, String, Date, String, String, Date, String, String)
   implicit def headerDataConvertion(rs: ResultSet): ReportHeaderData = (rs.getString(1), rs.getString(2), rs.getString(3), rs.getDate(4), rs.getString(5), rs.getString(6), rs.getDate(7), rs.getString(8), rs.getString(9))
 
-  private def addInfoParameters(courseUUID: String, courseClassUUID: String, parameters: HashMap[String, Object]) = {
+  private def addInfoParameters(courseUUID: String, courseClassUUID: String, parameters: util.HashMap[String, Object]) = {
     val headerInfo = sql"""
       select
         i.fullName as 'institutionName',
@@ -284,7 +273,7 @@ object ReportCourseClassGenerator {
     parameters
   }
 
-  private def getTotalsAsParameters(courseUUID: String, courseClassUUID: String, fileType: String, usernames: String): HashMap[String, Object] = {
+  private def getTotalsAsParameters(courseUUID: String, courseClassUUID: String, fileType: String, usernames: String): util.HashMap[String, Object] = {
 
     var sql = s"""
         select
@@ -325,41 +314,40 @@ object ReportCourseClassGenerator {
     val pstmt = new PreparedStmt(sql, List())
     val enrollmentStateBreakdown = pstmt.map[BreakdownData](breakdownConvertion)
 
-    val parameters: HashMap[String, Object] = new HashMap()
+    val parameters: util.HashMap[String, Object] = new util.HashMap()
     enrollmentStateBreakdown.foreach(rd => parameters.put(rd._1, rd._2))
     parameters
   }
 
-  def courseClassInfoExists(courseUUID: String, courseClassUUID: String, fileType: String) = {
+  def courseClassInfoExists(courseUUID: String, courseClassUUID: String, fileType: String): String = {
     try {
       val url = getCourseClassInfoReportURL(courseUUID, courseClassUUID, fileType)
-      HttpURLConnection.setFollowRedirects(false);
+      HttpURLConnection.setFollowRedirects(false)
       val con = new URL(url).openConnection.asInstanceOf[HttpURLConnection]
       con.setRequestMethod("HEAD")
-      if (con.getResponseCode() == HttpURLConnection.HTTP_OK) url else ""
+      if (con.getResponseCode == HttpURLConnection.HTTP_OK) url else ""
     } catch {
       case e: Exception => throw new ServerErrorException("errorCheckingClassInfo", e)
     }
   }
 
-  def getFileName(courseUUID: String, courseClassUUID: String) = {
+  def getFileName(courseUUID: String, courseClassUUID: String): String = {
     val title = if (courseUUID != null) CourseRepo(courseUUID).get.getName else CourseClassRepo(courseClassUUID).get.getName
     val normalizeTitle = Normalizer.normalize(title, Normalizer.Form.NFD)
     val replaceTitle = normalizeTitle.replaceAll("[^\\p{ASCII}]", "")
     replaceTitle + " - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())
   }
 
-  def getCourseClassInfoReportFileName(courseUUID: String, courseClassUUID: String, fileType: String) = {
+  def getCourseClassInfoReportFileName(courseUUID: String, courseClassUUID: String, fileType: String): String = {
     val fileNamePrefix = getFileName(courseUUID, courseClassUUID)
     mkurl(S3Service.PREFIX, S3Service.REPORTS, S3Service.CLASS_INFO, fileNamePrefix + " - " + ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get +
-      (Option(courseClassUUID).getOrElse("")) + (Option(courseUUID).getOrElse("")) + "." + getFileType(fileType))
+      Option(courseClassUUID).getOrElse("") + Option(courseUUID).getOrElse("") + "." + getFileType(fileType))
   }
 
-  def getCourseClassInfoReportURL(courseUUID: String, courseClassUUID: String, fileType: String) = {
+  def getCourseClassInfoReportURL(courseUUID: String, courseClassUUID: String, fileType: String): String = {
     val institutionUUID = getInstitutionUUID(courseClassUUID, courseUUID)
     val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(institutionUUID).get.getUUID)
     val key = getCourseClassInfoReportFileName(courseUUID, courseClassUUID, fileType)
     mkurl(InstitutionRepo(institutionUUID).get.getBaseURL.split("Kornell.nocache.html").head, repo.url(key))
   }
-
 }

@@ -1,65 +1,58 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import kornell.server.repository.Entities._
-import kornell.server.repository.Entities
-import kornell.core.entity.Person
-import kornell.core.entity.Institution
-import kornell.server.jdbc.SQL._
-import kornell.server.repository.TOs
-import kornell.core.entity.AuditedEntityType
 import java.util.Date
-import kornell.core.util.UUID
-import kornell.core.entity.InstitutionType
-import com.google.common.cache.CacheLoader
-import com.google.common.cache.CacheBuilder
 import java.util.concurrent.TimeUnit.MINUTES
+
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import kornell.core.entity.{AuditedEntityType, Institution, InstitutionType}
+import kornell.core.util.UUID
+import kornell.server.jdbc.SQL._
 
 object InstitutionsRepo {
 
-  val cacheBuilder = CacheBuilder
+  val cacheBuilder: CacheBuilder[AnyRef, AnyRef] = CacheBuilder
     .newBuilder()
     .expireAfterAccess(5, MINUTES)
     .maximumSize(1000)
 
   /*uuid cache*/
-  val uuidLoader = new CacheLoader[String, Option[Institution]]() {
+  val uuidLoader: CacheLoader[String, Option[Institution]] = new CacheLoader[String, Option[Institution]]() {
     override def load(uuid: String): Option[Institution] = lookupByUUID(uuid)
   }
-  val uuidCache = cacheBuilder.build(uuidLoader)
-  def getByUUID(uuid: String) = uuidCache.get(uuid)
-  def lookupByUUID(UUID: String) =
+  val uuidCache: LoadingCache[String, Option[Institution]] = cacheBuilder.build(uuidLoader)
+  def getByUUID(uuid: String): Option[Institution] = uuidCache.get(uuid)
+  def lookupByUUID(UUID: String): Option[Institution] =
     sql"select * from Institution where uuid = ${UUID}".first[Institution]
 
   /*name cache*/
-  val nameLoader = new CacheLoader[String, Option[Institution]]() {
+  val nameLoader: CacheLoader[String, Option[Institution]] = new CacheLoader[String, Option[Institution]]() {
     override def load(name: String): Option[Institution] = lookupByName(name)
   }
-  val nameCache = cacheBuilder.build(nameLoader)
-  def getByName(name: String) = nameCache.get(name)
-  def lookupByName(institutionName: String) =
+  val nameCache: LoadingCache[String, Option[Institution]] = cacheBuilder.build(nameLoader)
+  def getByName(name: String): Option[Institution] = nameCache.get(name)
+  def lookupByName(institutionName: String): Option[Institution] =
     sql"select * from Institution where name = ${institutionName}".first[Institution]
 
   /*hostName cache*/
-  val hostNameLoader = new CacheLoader[String, Option[Institution]]() {
+  val hostNameLoader: CacheLoader[String, Option[Institution]] = new CacheLoader[String, Option[Institution]]() {
     override def load(hostName: String): Option[Institution] = lookupByHostName(hostName)
   }
-  val hostNameCache = cacheBuilder.build(hostNameLoader)
-  def getByHostName(hostName: String) = hostNameCache.get(hostName)
-  def lookupByHostName(hostName: String) =
+  val hostNameCache: LoadingCache[String, Option[Institution]] = cacheBuilder.build(hostNameLoader)
+  def getByHostName(hostName: String): Option[Institution] = hostNameCache.get(hostName)
+  def lookupByHostName(hostName: String): Option[Institution] =
     sql"""
         | select i.* from Institution i
         | join InstitutionHostName ihn on i.uuid = ihn.institutionUUID
         | where ihn.hostName = ${hostName}
       """.first[Institution]
 
-  def clearCache() = {
+  def clearCache(): Unit = {
     hostNameCache.invalidateAll()
     nameCache.invalidateAll()
     uuidCache.invalidateAll()
   }
 
-  def byType(institutionType: InstitutionType) =
+  def byType(institutionType: InstitutionType): Option[Institution] =
     sql"""
         select * from Institution where institutionType = ${institutionType.toString}
     """.first[Institution]
@@ -102,17 +95,17 @@ object InstitutionsRepo {
     institution
   }
 
-  def updateCaches(i: Institution) = {
+  def updateCaches(i: Institution): Unit = {
     val oi = Some(i)
     uuidCache.put(i.getUUID, oi)
     nameCache.put(i.getName, oi)
   }
 
-  def cleanUpHostNameCache = {
-    hostNameCache.cleanUp
+  def cleanUpHostNameCache(): Unit = {
+    hostNameCache.cleanUp()
   }
 
-  def updateHostNameCache(institutionUUID: String, hostName: String) = {
+  def updateHostNameCache(institutionUUID: String, hostName: String): Unit = {
     val oi = getByUUID(institutionUUID)
     hostNameCache.put(hostName, oi)
   }

@@ -1,12 +1,9 @@
 package kornell.server.jdbc.repository
 
-import scala.collection.JavaConverters._
-import kornell.server.jdbc.SQL._
-import kornell.server.repository.Entities._
+import kornell.core.entity.{CourseDetailsEntityType, CourseDetailsHint}
+import kornell.core.to.CourseDetailsHintsTO
 import kornell.core.util.UUID
-
-import kornell.core.entity.CourseDetailsHint
-import kornell.core.entity.CourseDetailsEntityType
+import kornell.server.jdbc.SQL._
 import kornell.server.repository.TOs
 
 object CourseDetailsHintsRepo {
@@ -29,13 +26,13 @@ object CourseDetailsHintsRepo {
     courseDetailsHint
   }
 
-  def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType) = {
+  def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType): CourseDetailsHintsTO = {
     TOs.newCourseDetailsHintsTO(sql"""
       select * from CourseDetailsHint where entityUUID = ${entityUUID} and entityType = ${entityType.toString} order by `index`
     """.map[CourseDetailsHint](toCourseDetailsHint))
   }
 
-  def moveUp(entityUUID: String, entityType: CourseDetailsEntityType, index: Int) = {
+  def moveUp(entityUUID: String, entityType: CourseDetailsEntityType, index: Int): Unit = {
     val courseDetailsHints = CourseDetailsHintsRepo.getForEntity(entityUUID, entityType).getCourseDetailsHints
     if (index >= 0 && courseDetailsHints.size > 1) {
       val currentHint = courseDetailsHints.get(index)
@@ -47,10 +44,9 @@ object CourseDetailsHintsRepo {
       CourseDetailsHintRepo(currentHint.getUUID).update(currentHint)
       CourseDetailsHintRepo(previousHint.getUUID).update(previousHint)
     }
-    ""
   }
 
-  def moveDown(entityUUID: String, entityType: CourseDetailsEntityType, index: Int) = {
+  def moveDown(entityUUID: String, entityType: CourseDetailsEntityType, index: Int): Unit = {
     val courseDetailsHints = CourseDetailsHintsRepo.getForEntity(entityUUID, entityType).getCourseDetailsHints
     if (index < (courseDetailsHints.size - 1) && courseDetailsHints.size > 1) {
       val currentHint = courseDetailsHints.get(index)
@@ -62,7 +58,5 @@ object CourseDetailsHintsRepo {
       CourseDetailsHintRepo(currentHint.getUUID).update(currentHint)
       CourseDetailsHintRepo(nextHint.getUUID).update(nextHint)
     }
-    ""
   }
-
 }

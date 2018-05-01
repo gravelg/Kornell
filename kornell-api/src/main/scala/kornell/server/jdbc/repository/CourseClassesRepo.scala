@@ -1,37 +1,20 @@
 package kornell.server.jdbc.repository
 
 import java.sql.ResultSet
-import java.util.ArrayList
+import java.util
 import java.util.Date
 
-import scala.collection.JavaConverters._
-import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.collection.JavaConverters.bufferAsJavaListConverter
-import scala.collection.JavaConverters.seqAsJavaListConverter
-import scala.collection.mutable.Buffer
-
-import kornell.core.entity.AssetEntity
-import kornell.core.entity.AuditedEntityType
-import kornell.core.entity.Course
-import kornell.core.entity.CourseClass
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.entity.CourseDetailsHint
-import kornell.core.entity.CourseDetailsLibrary
-import kornell.core.entity.CourseDetailsSection
-import kornell.core.entity.CourseVersion
-import kornell.core.entity.EntityState
-import kornell.core.entity.role.Role
-import kornell.core.entity.role.RoleCategory
-import kornell.core.entity.role.RoleType
-import kornell.core.error.exception.EntityConflictException
-import kornell.core.error.exception.EntityNotFoundException
-import kornell.core.to.CourseClassTO
-import kornell.core.to.CourseClassesTO
-import kornell.core.util.StringUtils
-import kornell.core.util.UUID
+import kornell.core.entity._
+import kornell.core.entity.role.{Role, RoleCategory, RoleType}
+import kornell.core.error.exception.{EntityConflictException, EntityNotFoundException}
+import kornell.core.to.{CourseClassTO, CourseClassesTO}
+import kornell.core.util.{StringUtils, UUID}
 import kornell.server.jdbc.PreparedStmt
 import kornell.server.jdbc.SQL.SQLHelper
 import kornell.server.repository.TOs
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 object CourseClassesRepo {
 
@@ -107,22 +90,24 @@ object CourseClassesRepo {
     }
   }
 
-  private def getAllClassesByInstitution(institutionUUID: String): kornell.core.to.CourseClassesTO =
+  private def getAllClassesByInstitution(institutionUUID: String): CourseClassesTO =
     getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, null, showSandbox = false)
 
-  def getCourseClassTO(institutionUUID: String, courseClassUUID: String) = {
+  def getCourseClassTO(institutionUUID: String, courseClassUUID: String): Option[CourseClassTO] = {
     val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, courseClassUUID)
     if (courseClassesTO.getCourseClasses.size > 0) {
-      courseClassesTO.getCourseClasses.get(0)
+      Some(courseClassesTO.getCourseClasses.get(0))
+    } else {
+      None
     }
   }
 
-  def getAllClassesByInstitutionPaged(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, adminUUID: String, courseVersionUUID: String, courseClassUUID: String, showSandbox: Boolean = false): kornell.core.to.CourseClassesTO = {
+  def getAllClassesByInstitutionPaged(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, adminUUID: String, courseVersionUUID: String, courseClassUUID: String, showSandbox: Boolean = false): CourseClassesTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
     val orderColumn = if (orderBy != null && !orderBy.contains(";")) orderBy else "cc.name"
-    val orderMod = (if (asc) " asc" else " desc")
-    val order = orderColumn + orderMod + (if (orderColumn.contains("cc.state")) (", cc.publicClass desc, cc.invisible desc ") else "")
+    val orderMod = if (asc) " asc" else " desc"
+    val order = orderColumn + orderMod + (if (orderColumn.contains("cc.state")) ", cc.publicClass desc, cc.invisible desc " else "")
 
     val courseClassesTO = TOs.newCourseClassesTO(
       new PreparedStmt(s"""
@@ -219,7 +204,7 @@ object CourseClassesRepo {
     })
 
     if (courseClassUUID != null && courseClassesTO.getCourseClasses.size == 1) {
-      bindClassroomDetails(courseClassesTO.getCourseClasses.get(0));
+      bindClassroomDetails(courseClassesTO.getCourseClasses.get(0))
     } else if (StringUtils.isSome(adminUUID)) {
       bindEnrollmentCounts(courseClassesTO)
     }
@@ -227,14 +212,14 @@ object CourseClassesRepo {
     courseClassesTO
   }
 
-  private def bindEnrollmentCounts(courseClassesTO: CourseClassesTO) = {
-    val classes = courseClassesTO.getCourseClasses().asScala
+  private def bindEnrollmentCounts(courseClassesTO: CourseClassesTO): CourseClassesTO = {
+    val classes = courseClassesTO.getCourseClasses.asScala
     classes.foreach(cc => cc.setEnrollmentCount(EnrollmentsRepo.countByCourseClass(cc.getCourseClass.getUUID)))
     courseClassesTO.setCourseClasses(classes.asJava)
     courseClassesTO
   }
 
-  def bindClassroomDetails(courseClassTO: CourseClassTO) {
+  def bindClassroomDetails(courseClassTO: CourseClassTO): Unit = {
     val courseUUID = courseClassTO.getCourseVersionTO.getCourseTO.getCourse.getUUID
     val courseVersionUUID = courseClassTO.getCourseVersionTO.getCourseVersion.getUUID
     val courseClassUUID = courseClassTO.getCourseClass.getUUID
@@ -244,36 +229,35 @@ object CourseClassesRepo {
     courseClassTO.setCourseDetailsLibraries(mergeLibraries(courseUUID, courseVersionUUID, courseClassUUID))
   }
 
-  def mergeSections(courseUUID: String, courseVersionUUID: String, courseClassUUID: String) = {
-    val sectionsCourse = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsSections.asScala.asInstanceOf[Buffer[AssetEntity]]
-    val sectionsCourseVersion = CourseDetailsSectionsRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsSections.asScala.asInstanceOf[Buffer[AssetEntity]]
-    val sectionsCourseClass = CourseDetailsSectionsRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsSections.asScala.asInstanceOf[Buffer[AssetEntity]]
-    mergeAssets(sectionsCourse, sectionsCourseVersion, sectionsCourseClass).asInstanceOf[Buffer[CourseDetailsSection]].asJava
+  def mergeSections(courseUUID: String, courseVersionUUID: String, courseClassUUID: String): util.List[CourseDetailsSection] = {
+    val sectionsCourse = CourseDetailsSectionsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsSections.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    val sectionsCourseVersion = CourseDetailsSectionsRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsSections.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    val sectionsCourseClass = CourseDetailsSectionsRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsSections.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    mergeAssets(sectionsCourse, sectionsCourseVersion, sectionsCourseClass).asInstanceOf[mutable.Buffer[CourseDetailsSection]].asJava
   }
 
-  def mergeHints(courseUUID: String, courseVersionUUID: String, courseClassUUID: String) = {
-    val hintsCourse = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsHints.asScala.asInstanceOf[Buffer[AssetEntity]]
-    val hintsCourseVersion = CourseDetailsHintsRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsHints.asScala.asInstanceOf[Buffer[AssetEntity]]
-    val hintsCourseClass = CourseDetailsHintsRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsHints.asScala.asInstanceOf[Buffer[AssetEntity]]
-    mergeAssets(hintsCourse, hintsCourseVersion, hintsCourseClass).asInstanceOf[Buffer[CourseDetailsHint]].asJava
+  def mergeHints(courseUUID: String, courseVersionUUID: String, courseClassUUID: String): util.List[CourseDetailsHint] = {
+    val hintsCourse = CourseDetailsHintsRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsHints.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    val hintsCourseVersion = CourseDetailsHintsRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsHints.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    val hintsCourseClass = CourseDetailsHintsRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsHints.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    mergeAssets(hintsCourse, hintsCourseVersion, hintsCourseClass).asInstanceOf[mutable.Buffer[CourseDetailsHint]].asJava
   }
 
-  def mergeLibraries(courseUUID: String, courseVersionUUID: String, courseClassUUID: String) = {
-    val libraryFilesCourse = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsLibraries.asScala.asInstanceOf[Buffer[AssetEntity]]
-    val libraryFilesCourseVersion = CourseDetailsLibrariesRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsLibraries.asScala.asInstanceOf[Buffer[AssetEntity]]
-    val libraryFilesCourseClass = CourseDetailsLibrariesRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsLibraries.asScala.asInstanceOf[Buffer[AssetEntity]]
-    mergeAssets(libraryFilesCourse, libraryFilesCourseVersion, libraryFilesCourseClass).asInstanceOf[Buffer[CourseDetailsLibrary]].asJava
+  def mergeLibraries(courseUUID: String, courseVersionUUID: String, courseClassUUID: String): util.List[CourseDetailsLibrary] = {
+    val libraryFilesCourse = CourseDetailsLibrariesRepo.getForEntity(courseUUID, CourseDetailsEntityType.COURSE).getCourseDetailsLibraries.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    val libraryFilesCourseVersion = CourseDetailsLibrariesRepo.getForEntity(courseVersionUUID, CourseDetailsEntityType.COURSE_VERSION).getCourseDetailsLibraries.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    val libraryFilesCourseClass = CourseDetailsLibrariesRepo.getForEntity(courseClassUUID, CourseDetailsEntityType.COURSE_CLASS).getCourseDetailsLibraries.asScala.asInstanceOf[mutable.Buffer[AssetEntity]]
+    mergeAssets(libraryFilesCourse, libraryFilesCourseVersion, libraryFilesCourseClass).asInstanceOf[mutable.Buffer[CourseDetailsLibrary]].asJava
   }
 
-  def mergeAssets(assetsCourse: Buffer[AssetEntity], assetsCourseVersion: Buffer[AssetEntity], assetsCourseClass: Buffer[AssetEntity]) = {
+  def mergeAssets(assetsCourse: mutable.Buffer[AssetEntity], assetsCourseVersion: mutable.Buffer[AssetEntity], assetsCourseClass: mutable.Buffer[AssetEntity]): mutable.Buffer[AssetEntity] = {
 
     var assetsCourseVersionNew = assetsCourseVersion
     var assetsCourseClassNew = assetsCourseClass
-
     val assetsCourseWithVersion = assetsCourse.map { sc =>
       {
         val assetCV = assetsCourseVersion.filter { _.getTitle.equals(sc.getTitle) }
-        if (assetCV.size > 0) {
+        if (assetCV.nonEmpty) {
           assetsCourseVersionNew = assetsCourseVersionNew.filterNot { _.getTitle.equals(sc.getTitle) }
           assetCV.head
         } else sc
@@ -283,25 +267,25 @@ object CourseClassesRepo {
     val assetsCourseWithClass = assetsCourseWithVersion.map { sc =>
       {
         val assetCC = assetsCourseClass.filter { _.getTitle.equals(sc.getTitle) }
-        if (assetCC.size > 0) {
+        if (assetCC.nonEmpty) {
           assetsCourseClassNew = assetsCourseClassNew.filterNot { _.getTitle.equals(sc.getTitle) }
           assetCC.head
         } else sc
       }
     }
 
-    (assetsCourseWithClass ++ assetsCourseVersionNew ++ assetsCourseClassNew)
+    assetsCourseWithClass ++ assetsCourseVersionNew ++ assetsCourseClassNew
   }
 
-  def byPersonAndInstitution(personUUID: String, institutionUUID: String) = {
+  def byPersonAndInstitution(personUUID: String, institutionUUID: String): CourseClassesTO = {
     bindEnrollments(personUUID, getAllClassesByInstitution(institutionUUID))
   }
 
-  def byEcommerceIdentifier(ecommerceIdentifier: String) = {
+  def byEcommerceIdentifier(ecommerceIdentifier: String): Option[CourseClass] = {
     sql"""select * from CourseClass where ecommerceIdentifier = ${ecommerceIdentifier}""".first[CourseClass](toCourseClass)
   }
 
-  def byEnrollment(enrollmentUUID: String) = {
+  def byEnrollment(enrollmentUUID: String): Option[CourseClass] = {
     sql"""
       | select cc.* from
       | CourseClass cc
@@ -312,11 +296,11 @@ object CourseClassesRepo {
   }
 
   def byEnrollment(enrollmentUUID: String, personUUID: String, institutionUUID: String, showSandbox: Boolean = false): CourseClassTO = {
-    val courseClass = byEnrollment(enrollmentUUID);
+    val courseClass = byEnrollment(enrollmentUUID)
 
     if (courseClass.isDefined) {
       val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, courseClass.get.getUUID, showSandbox)
-      bindEnrollments(personUUID, courseClassesTO).getCourseClasses().get(0)
+      bindEnrollments(personUUID, courseClassesTO).getCourseClasses.get(0)
     } else {
       //@TODO what about disabled versions?
       val courseVersion = sql"""
@@ -342,7 +326,7 @@ object CourseClassesRepo {
           """.first[CourseClass]
 
         val courseClassesTO = TOs.newCourseClassesTO
-        val list = new ArrayList[CourseClassTO]
+        val list = new util.ArrayList[CourseClassTO]
         val courseClassTO = TOs.newCourseClassTO(course.get, courseVersion.get, parentCourseClass.get, null)
         courseClassTO.setEnrolledOnCourseVersion(true)
         bindEnrollment(personUUID, courseClassTO)
@@ -359,7 +343,7 @@ object CourseClassesRepo {
     }
   }
 
-  def countByCourseVersion(courseVersionUUID: String) =
+  def countByCourseVersion(courseVersionUUID: String): Int =
     sql"""select count(*)
       from CourseClass cc
       where cc.courseVersionUUID = ${courseVersionUUID}
@@ -367,20 +351,20 @@ object CourseClassesRepo {
       and sandbox = 0
     """.first[String].get.toInt
 
-  def sandboxForVersion(courseVersionUUID: String) = {
+  def sandboxForVersion(courseVersionUUID: String): Option[CourseClass] = {
     sql"""
       select * from CourseClass where sandbox = 1 and courseVersionUUID = ${courseVersionUUID}
     """.first[CourseClass]
   }
 
-  def sandboxClassesForInstitution(institutionUUID: String) = {
+  def sandboxClassesForInstitution(institutionUUID: String): List[CourseClass] = {
     sql"""
       select * from CourseClass where sandbox = 1 and institutionUUID = ${institutionUUID} and state <> ${EntityState.deleted.toString}
     """.map[CourseClass](toCourseClass)
   }
 
-  private def bindEnrollments(personUUID: String, courseClassesTO: CourseClassesTO) = {
-    val classes = courseClassesTO.getCourseClasses().asScala
+  private def bindEnrollments(personUUID: String, courseClassesTO: CourseClassesTO): CourseClassesTO = {
+    val classes = courseClassesTO.getCourseClasses.asScala
     //bind enrollment if it exists
     val enrollments = EnrollmentsRepo.byPerson(personUUID)
     enrollments.foreach { e =>
@@ -390,52 +374,52 @@ object CourseClassesRepo {
       }
     }
     //only return the valid classes for the user (for example, hide private classes)
-    courseClassesTO.setCourseClasses(classes.filter(isValidClass _).asJava)
+    courseClassesTO.setCourseClasses(classes.filter(isValidClass).asJava)
     courseClassesTO
   }
 
   private def isValidClass(cc: CourseClassTO): Boolean = {
-    cc.getCourseClass().isPublicClass() || cc.getEnrollment() != null
+    cc.getCourseClass.isPublicClass || cc.getEnrollment != null
   }
 
-  private def isPlatformAdmin(institutionUUID: String, roles: List[Role]) = {
+  private def isPlatformAdmin(institutionUUID: String, roles: List[Role]): Boolean = {
     var hasRole: Boolean = false
     roles.foreach(role => hasRole = hasRole
       || RoleCategory.isValidRole(role, RoleType.platformAdmin, institutionUUID, null))
     hasRole
   }
 
-  private def isInstitutionAdmin(institutionUUID: String, roles: List[Role]) = {
+  private def isInstitutionAdmin(institutionUUID: String, roles: List[Role]): Boolean = {
     var hasRole: Boolean = isPlatformAdmin(institutionUUID, roles)
     roles.foreach(role => hasRole = hasRole
       || RoleCategory.isValidRole(role, RoleType.institutionAdmin, institutionUUID, null))
     hasRole
   }
 
-  private def isCourseClassAdmin(courseClassUUID: String, institutionUUID: String, roles: List[Role]) = {
+  private def isCourseClassAdmin(courseClassUUID: String, institutionUUID: String, roles: List[Role]): Boolean = {
     var hasRole: Boolean = isInstitutionAdmin(institutionUUID, roles)
     roles.foreach(role => hasRole = hasRole
       || RoleCategory.isValidRole(role, RoleType.courseClassAdmin, null, courseClassUUID))
     hasRole
   }
 
-  private def isCourseClassObserver(courseClassUUID: String, institutionUUID: String, roles: List[Role]) = {
+  private def isCourseClassObserver(courseClassUUID: String, institutionUUID: String, roles: List[Role]): Boolean = {
     var hasRole: Boolean = isInstitutionAdmin(institutionUUID, roles)
     roles.foreach(role => hasRole = hasRole
       || RoleCategory.isValidRole(role, RoleType.courseClassObserver, null, courseClassUUID))
     hasRole
   }
 
-  private def isCourseClassTutor(courseClassUUID: String, institutionUUID: String, roles: List[Role]) = {
+  private def isCourseClassTutor(courseClassUUID: String, institutionUUID: String, roles: List[Role]): Boolean = {
     var hasRole: Boolean = isInstitutionAdmin(institutionUUID, roles)
     roles.foreach(role => hasRole = hasRole
       || RoleCategory.isValidRole(role, RoleType.tutor, null, courseClassUUID))
     hasRole
   }
 
-  private def bindEnrollment(personUUID: String, courseClassTO: CourseClassTO) = {
+  private def bindEnrollment(personUUID: String, courseClassTO: CourseClassTO): Unit = {
     val enrollment =
-      if (courseClassTO.getCourseClass() != null)
+      if (courseClassTO.getCourseClass != null)
         EnrollmentsRepo.byCourseClassAndPerson(courseClassTO.getCourseClass.getUUID, personUUID, false)
       else
         EnrollmentsRepo.byCourseVersionAndPerson(courseClassTO.getCourseVersionTO.getCourseVersion.getUUID, personUUID)

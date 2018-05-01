@@ -1,47 +1,46 @@
 package kornell.server.jdbc.repository
 
-import kornell.core.entity.AuthClientType
-import kornell.server.jdbc.SQL._
-import org.joda.time.DateTime
-import kornell.server.repository.TOs
-import kornell.core.to.TokenTO
-import com.google.common.cache.CacheBuilder
 import java.util.concurrent.TimeUnit.MINUTES
-import com.google.common.cache.LoadingCache
-import com.google.common.cache.CacheLoader
+
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import kornell.core.entity.AuthClientType
+import kornell.core.to.TokenTO
+import kornell.server.jdbc.SQL._
+import kornell.server.repository.TOs
+import org.joda.time.DateTime
 
 object TokenRepo {
 
-  val TOKEN_CACHE_SIZE = 300;
+  val TOKEN_CACHE_SIZE = 300
 
-  val cacheBuilder = CacheBuilder
+  val cacheBuilder: CacheBuilder[AnyRef, AnyRef] = CacheBuilder
     .newBuilder()
     .expireAfterAccess(15, MINUTES)
     .maximumSize(TOKEN_CACHE_SIZE)
 
   def apply() = new TokenRepo(newTokenCache)
 
-  def newTokenCache = cacheBuilder.build(tokenLoader)
+  def newTokenCache: LoadingCache[TokenID, Option[TokenTO]] = cacheBuilder.build(tokenLoader)
 
   type TokenID = String
   type TokenCache = LoadingCache[TokenID, Option[TokenTO]]
 
-  val tokenLoader = new CacheLoader[TokenID, Option[TokenTO]]() {
+  val tokenLoader: CacheLoader[TokenID, Option[TokenTO]] = new CacheLoader[TokenID, Option[TokenTO]]() {
     override def load(token: TokenID): Option[TokenTO] =
       lookupToken(token)
   }
 
-  def clearCache() = newTokenCache.invalidateAll()
+  def clearCache(): Unit = newTokenCache.invalidateAll()
 
-  def lookupToken(token: TokenID) = {
+  def lookupToken(token: TokenID): Option[TokenTO] = {
     sql"""select * from Token where token = ${token}""".first[TokenTO]
   }
 
-  def getToken(personUUID: String) = {
+  def getToken(personUUID: String): Option[TokenTO] = {
     sql"""select * from Token where personUUID = ${personUUID}""".first[TokenTO]
   }
 
-  def createToken(token: String, personUUID: String, authClientType: AuthClientType) = {
+  def createToken(token: String, personUUID: String, authClientType: AuthClientType): TokenTO = {
     val expiry = {
       if (authClientType == AuthClientType.web) {
         new DateTime().plusDays(7).toDate
@@ -57,14 +56,14 @@ object TokenRepo {
 }
 
 class TokenRepo(tokenCache: TokenRepo.TokenCache) {
-  def checkToken(tokenId: String) = {
+  def checkToken(tokenId: String): Option[TokenTO] = {
     if (tokenId != null && tokenId.length() > 0)
       tokenCache.get(tokenId)
     else
       None
   }
 
-  def deleteToken(token: String) = {
+  def deleteToken(token: String): Unit = {
     sql"""delete from Token where token = ${token}""".executeUpdate
     tokenCache.invalidate(token)
   }

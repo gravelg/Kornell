@@ -1,36 +1,19 @@
 package kornell.server.api
 
-import javax.ws.rs.Consumes
-import javax.ws.rs.GET
-import javax.ws.rs.POST
-import javax.ws.rs.PUT
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import kornell.core.entity.Institution
-import kornell.server.jdbc.repository.InstitutionsRepo
-import kornell.server.util.Conditional.toConditional
-import kornell.core.to.InstitutionRegistrationPrefixesTO
-import kornell.server.jdbc.repository.InstitutionRepo
+import javax.ws.rs._
+import kornell.core.entity.{ChatThreadType, Institution}
 import kornell.core.entity.role.Roles
-import kornell.server.jdbc.repository.RolesRepo
-import kornell.core.to.RolesTO
-import javax.ws.rs.QueryParam
-import kornell.server.jdbc.repository.ChatThreadsRepo
-import kornell.server.util.AccessDeniedErr
-import kornell.server.jdbc.repository.InstitutionHostNameRepo
-import kornell.server.jdbc.repository.InstitutionHostNameRepo
-import kornell.core.to.InstitutionHostNamesTO
-import kornell.core.to.InstitutionEmailWhitelistTO
-import kornell.server.jdbc.repository.InstitutionEmailWhitelistRepo
-import kornell.core.entity.ChatThreadType
+import kornell.core.to.{InstitutionEmailWhitelistTO, InstitutionHostNamesTO, InstitutionRegistrationPrefixesTO, RolesTO}
+import kornell.server.jdbc.repository.{ChatThreadsRepo, InstitutionEmailWhitelistRepo, InstitutionHostNameRepo, InstitutionRepo, RolesRepo}
 import kornell.server.service.S3Service
-import javax.ws.rs.PathParam
+import kornell.server.util.AccessDeniedErr
+import kornell.server.util.Conditional.toConditional
 
 class InstitutionResource(uuid: String) {
 
   @GET
   @Produces(Array(Institution.TYPE))
-  def get = {
+  def get: Institution = {
     InstitutionRepo(uuid).get
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())
@@ -39,7 +22,7 @@ class InstitutionResource(uuid: String) {
   @PUT
   @Consumes(Array(Institution.TYPE))
   @Produces(Array(Institution.TYPE))
-  def update(institution: Institution) = {
+  def update(institution: Institution): Institution = {
     InstitutionRepo(uuid).update(institution)
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())
@@ -48,7 +31,7 @@ class InstitutionResource(uuid: String) {
   @GET
   @Produces(Array(InstitutionRegistrationPrefixesTO.TYPE))
   @Path("registrationPrefixes")
-  def getRegistrationPrefixes() = {
+  def getRegistrationPrefixes: InstitutionRegistrationPrefixesTO = {
     InstitutionRepo(uuid).getInstitutionRegistrationPrefixes
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr()).get
@@ -57,8 +40,8 @@ class InstitutionResource(uuid: String) {
   @Consumes(Array(Roles.TYPE))
   @Produces(Array(Roles.TYPE))
   @Path("admins")
-  def updateAdmins(roles: Roles) = {
-    val r = RolesRepo.updateInstitutionAdmins(uuid, roles)
+  def updateAdmins(roles: Roles): Roles = {
+    val r = new RolesRepo().updateInstitutionAdmins(uuid, roles)
     ChatThreadsRepo.updateParticipantsInCourseClassSupportThreadsForInstitution(uuid, ChatThreadType.SUPPORT)
     ChatThreadsRepo.updateParticipantsInCourseClassSupportThreadsForInstitution(uuid, ChatThreadType.INSTITUTION_SUPPORT)
     ChatThreadsRepo.updateParticipantsInCourseClassSupportThreadsForInstitution(uuid, ChatThreadType.PLATFORM_SUPPORT)
@@ -70,8 +53,8 @@ class InstitutionResource(uuid: String) {
   @GET
   @Produces(Array(RolesTO.TYPE))
   @Path("admins")
-  def getAdmins(@QueryParam("bind") bindMode: String) = {
-    RolesRepo.getInstitutionAdmins(uuid, bindMode)
+  def getAdmins(@QueryParam("bind") bindMode: String): RolesTO = {
+    new RolesRepo().getInstitutionAdmins(uuid, bindMode)
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())
     .get
@@ -80,8 +63,8 @@ class InstitutionResource(uuid: String) {
   @Consumes(Array(Roles.TYPE))
   @Produces(Array(Roles.TYPE))
   @Path("publishers")
-  def updatePublishers(roles: Roles) = {
-    RolesRepo.updatePublishers(uuid, roles)
+  def updatePublishers(roles: Roles): Roles = {
+    new RolesRepo().updatePublishers(uuid, roles)
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())
     .get
@@ -89,8 +72,8 @@ class InstitutionResource(uuid: String) {
   @GET
   @Produces(Array(RolesTO.TYPE))
   @Path("publishers")
-  def getPublishers(@QueryParam("bind") bindMode: String) = {
-    RolesRepo.getPublishers(uuid, bindMode)
+  def getPublishers(@QueryParam("bind") bindMode: String): RolesTO = {
+    new RolesRepo().getPublishers(uuid, bindMode)
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())
     .get
@@ -99,7 +82,7 @@ class InstitutionResource(uuid: String) {
   @Consumes(Array(InstitutionHostNamesTO.TYPE))
   @Produces(Array(InstitutionHostNamesTO.TYPE))
   @Path("hostnames")
-  def updateHostnames(hostnames: InstitutionHostNamesTO) = {
+  def updateHostnames(hostnames: InstitutionHostNamesTO): InstitutionHostNamesTO = {
     InstitutionHostNameRepo(uuid).updateHostnames(hostnames)
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())
@@ -108,7 +91,7 @@ class InstitutionResource(uuid: String) {
   @GET
   @Produces(Array(InstitutionHostNamesTO.TYPE))
   @Path("hostnames")
-  def getHostnames() = {
+  def getHostnames: InstitutionHostNamesTO = {
     InstitutionHostNameRepo(uuid).get
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())
@@ -118,7 +101,7 @@ class InstitutionResource(uuid: String) {
   @Consumes(Array(InstitutionEmailWhitelistTO.TYPE))
   @Produces(Array(InstitutionEmailWhitelistTO.TYPE))
   @Path("emailWhitelist")
-  def updateEmailWhitelist(domains: InstitutionEmailWhitelistTO) = {
+  def updateEmailWhitelist(domains: InstitutionEmailWhitelistTO): InstitutionEmailWhitelistTO = {
     InstitutionEmailWhitelistRepo(uuid).updateDomains(domains)
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())
@@ -127,7 +110,7 @@ class InstitutionResource(uuid: String) {
   @GET
   @Produces(Array(InstitutionEmailWhitelistTO.TYPE))
   @Path("emailWhitelist")
-  def getEmailWhitelist() = {
+  def getEmailWhitelist: InstitutionEmailWhitelistTO = {
     InstitutionEmailWhitelistRepo(uuid).get
   }.requiring(isPlatformAdmin(uuid), AccessDeniedErr())
     .or(isInstitutionAdmin(uuid), AccessDeniedErr())

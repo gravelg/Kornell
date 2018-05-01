@@ -1,49 +1,23 @@
 package kornell.server.repository
 
 import java.math.BigDecimal
+import java.util
 import java.util.Date
-import java.util.HashMap
-import java.util.Map
+
+import com.google.web.bindery.autobean.vm.AutoBeanFactorySource
+import kornell.core.entity._
+import kornell.core.entity.role.{Role, RoleType, Roles}
+import kornell.core.util.UUID
+import kornell.server.util.DateConverter
+import org.joda.time.LocalDate
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
 
-import org.joda.time.LocalDate
-
-import com.google.web.bindery.autobean.vm.AutoBeanFactorySource
-
-import kornell.core.entity.ActomEntries
-import kornell.core.entity.Assessment
-import kornell.core.entity.BillingType
-import kornell.core.entity.CertificateType
-import kornell.core.entity.ContentSpec
-import kornell.core.entity.Course
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.entity.CourseDetailsHint
-import kornell.core.entity.CourseDetailsLibrary
-import kornell.core.entity.CourseDetailsSection
-import kornell.core.entity.Enrollment
-import kornell.core.entity.EnrollmentEntries
-import kornell.core.entity.EnrollmentSource
-import kornell.core.entity.EnrollmentState
-import kornell.core.entity.EntityFactory
-import kornell.core.entity.EntityState
-import kornell.core.entity.InstitutionRegistrationPrefix
-import kornell.core.entity.InstitutionType
-import kornell.core.entity.Person
-import kornell.core.entity.PostbackType
-import kornell.core.entity.RegistrationType
-import kornell.core.entity.RepositoryType
-import kornell.core.entity.role.Role
-import kornell.core.entity.role.RoleType
-import kornell.core.util.UUID
-import kornell.server.util.DateConverter
-import kornell.core.entity.EmailTemplateType
-
 //TODO: Remove this class without spreading dependency on AutoBeanFactorySource
 object Entities {
-  val factory = AutoBeanFactorySource.create(classOf[EntityFactory])
+  val factory: EntityFactory = AutoBeanFactorySource.create(classOf[EntityFactory])
 
-  def randUUID = UUID.random
+  def randUUID: String = UUID.random
 
   def newPerson: Person = factory.newPerson.as
 
@@ -70,7 +44,7 @@ object Entities {
     registrationType: RegistrationType = null,
     institutionRegistrationPrefixUUID: String = null,
     receiveEmailCommunication: Boolean = true,
-    forcePasswordUpdate: Boolean = false) = {
+    forcePasswordUpdate: Boolean = false): Person = {
     //in some case, we new a person and no one is authenticated
     val person = factory.newPerson.as
     person.setUUID(uuid)
@@ -99,13 +73,13 @@ object Entities {
     person
   }
 
-  def newPeople(people: List[Person]) = {
+  def newPeople(people: List[Person]): People = {
     val ps = factory.newPeople.as
     ps.setPeople(people.asJava)
     ps
   }
 
-  def newPrincipal(uuid: String, personUUID: String, username: String) = {
+  def newPrincipal(uuid: String, personUUID: String, username: String): Principal = {
     val principal = factory.newPrincipal.as
     principal.setUUID(uuid)
     principal.setPersonUUID(personUUID)
@@ -135,13 +109,13 @@ object Entities {
     c
   }
 
-  implicit def toEnrollments(enrollments: List[Enrollment]) = {
+  implicit def toEnrollments(enrollments: List[Enrollment]): Enrollments = {
     val es = factory.newEnrollments.as
     es.setEnrollments(enrollments.asJava)
     es
   }
 
-  def newRoles(roles: List[Role]) = {
+  def newRoles(roles: List[Role]): Roles = {
     val rs = factory.newRoles.as
     rs.setRoles(roles.asJava)
     rs
@@ -179,7 +153,7 @@ object Entities {
     e
   }
 
-  def newEnrollments(enrollments: List[Enrollment]) = {
+  def newEnrollments(enrollments: List[Enrollment]): Enrollments = {
     val ps = factory.newEnrollments.as
     ps.setEnrollments(enrollments.asJava)
     ps
@@ -190,14 +164,14 @@ object Entities {
     demandsPersonContactDetails: Boolean, validatePersonContactDetails: Boolean, allowRegistration: Boolean, allowRegistrationByUsername: Boolean,
     activatedAt: Date, skin: String, billingType: BillingType, institutionType: InstitutionType, dashboardVersionUUID: String,
     useEmailWhitelist: Boolean = false, assetsRepositoryUUID: String = null, timeZone: String, institutionSupportEmail: String, advancedMode: Boolean,
-    notifyInstitutionAdmins: Boolean, allowedLanguages: String) = {
+    notifyInstitutionAdmins: Boolean, allowedLanguages: String): Institution = {
     val i = factory.newInstitution.as
     i.setName(name)
     i.setFullName(fullName)
     i.setUUID(uuid)
     if (terms != null)
       i.setTerms(terms.stripMargin)
-    i.setAssetsRepositoryUUID(assetsRepositoryUUID);
+    i.setAssetsRepositoryUUID(assetsRepositoryUUID)
     i.setBaseURL(baseURL)
     i.setDemandsPersonContactDetails(demandsPersonContactDetails)
     i.setValidatePersonContactDetails(validatePersonContactDetails)
@@ -217,7 +191,7 @@ object Entities {
     i
   }
 
-  lazy val newUserRole = {
+  lazy val newUserRole: Role = {
     val role = factory.newRole().as
     role.setRoleType(RoleType.user)
     role.setUserRole(factory.newUserRole().as())
@@ -234,7 +208,7 @@ object Entities {
     role
   }
 
-  def newInstitutionAdminRole(personUUID: String, institutionUUID: String) = {
+  def newInstitutionAdminRole(personUUID: String, institutionUUID: String): Role = {
     val role = factory.newRole().as
     role.setPersonUUID(personUUID)
     val institutionAdminRole = factory.newInstitutionAdminRole().as
@@ -244,7 +218,7 @@ object Entities {
     role
   }
 
-  def newCourseClassAdminRole(personUUID: String, courseClassUUID: String) = {
+  def newCourseClassAdminRole(personUUID: String, courseClassUUID: String): Role = {
     val role = factory.newRole().as
     role.setPersonUUID(personUUID)
     val courseClassAdminRole = factory.newCourseClassAdminRole().as
@@ -254,7 +228,7 @@ object Entities {
     role
   }
 
-  def newTutorRole(personUUID: String, courseClassUUID: String) = {
+  def newTutorRole(personUUID: String, courseClassUUID: String): Role = {
     val role = factory.newRole().as
     role.setPersonUUID(personUUID)
     val tutorRole = factory.newTutorRole().as
@@ -264,7 +238,7 @@ object Entities {
     role
   }
 
-  def newCourseClassObserverRole(personUUID: String, courseClassUUID: String) = {
+  def newCourseClassObserverRole(personUUID: String, courseClassUUID: String): Role = {
     val role = factory.newRole().as
     role.setPersonUUID(personUUID)
     val courseClassObserverRole = factory.newCourseClassObserverRole().as
@@ -274,7 +248,7 @@ object Entities {
     role
   }
 
-  def newControlPanelAdminRole(personUUID: String) = {
+  def newControlPanelAdminRole(personUUID: String): Role = {
     val role = factory.newRole().as
     role.setPersonUUID(personUUID)
     val controlPanelAdminRole = factory.newControlPanelAdminRole().as
@@ -283,7 +257,7 @@ object Entities {
     role
   }
 
-  def newPublisherRole(personUUID: String, institutionUUID: String) = {
+  def newPublisherRole(personUUID: String, institutionUUID: String): Role = {
     val role = factory.newRole().as
     role.setPersonUUID(personUUID)
     val publisherRole = factory.newPublisherRole().as
@@ -298,11 +272,11 @@ object Entities {
     courseUUID: String = null, versionCreatedAt: Date = new Date, distributionPrefix: String = null,
     state: EntityState = null, disabled: Boolean = false, parentVersionUUID: String = null,
     instanceCount: Integer = 1, classroomJson: String = null, classroomJsonPublished: String = null,
-    label: String = null, thumbUrl: String = null) = {
+    label: String = null, thumbUrl: String = null): CourseVersion = {
     val version = factory.newCourseVersion.as
-    version.setUUID(uuid);
-    version.setName(name);
-    version.setCourseUUID(courseUUID);
+    version.setUUID(uuid)
+    version.setName(name)
+    version.setCourseUUID(courseUUID)
     version.setVersionCreatedAt(DateConverter.convertDate(versionCreatedAt))
     version.setDistributionPrefix(distributionPrefix)
     version.setState(state)
@@ -331,7 +305,7 @@ object Entities {
     tutorChatEnabled: Boolean = false,
     approveEnrollmentsAutomatically: Boolean = false,
     startDate: Date = null, ecommerceIdentifier: String = null,
-    thumbUrl: String = null, sandbox: Boolean = false) = {
+    thumbUrl: String = null, sandbox: Boolean = false): CourseClass = {
     val clazz = factory.newCourseClass.as
     clazz.setUUID(uuid)
     clazz.setName(name)
@@ -352,14 +326,14 @@ object Entities {
     clazz.setAllowBatchCancellation(allowBatchCancellation)
     clazz.setTutorChatEnabled(tutorChatEnabled)
     clazz.setApproveEnrollmentsAutomatically(approveEnrollmentsAutomatically)
-    clazz.setStartDate(startDate);
+    clazz.setStartDate(startDate)
     clazz.setEcommerceIdentifier(ecommerceIdentifier)
     clazz.setThumbUrl(thumbUrl)
     clazz.setSandbox(sandbox)
     clazz
   }
 
-  def newActomEntries(enrollmentUUID: String, actomKey: String, entriesMap: Map[String, String]) = {
+  def newActomEntries(enrollmentUUID: String, actomKey: String, entriesMap: util.Map[String, String]): ActomEntries = {
     val entries = factory.newActomEntries.as
     entries.setActomKey(actomKey)
     entries.setEnrollmentUUID(enrollmentUUID)
@@ -375,7 +349,7 @@ object Entities {
     prefix: String = null,
     region: String = null,
     institutionUUID: String = null,
-    path: String = null) = {
+    path: String = null): ContentRepository = {
     val repo = factory.newContentRepository.as
     repo.setUUID(uuid)
     repo.setRepositoryType(repositoryType)
@@ -389,7 +363,7 @@ object Entities {
     repo
   }
 
-  def newChatThread(uuid: String = null, createdAt: Date = null, institutionUUID: String = null, courseClassUUID: String = null, personUUID: String = null, threadType: String = null, active: Boolean = true, lastSentAt: Date = null) = {
+  def newChatThread(uuid: String = null, createdAt: Date = null, institutionUUID: String = null, courseClassUUID: String = null, personUUID: String = null, threadType: String = null, active: Boolean = true, lastSentAt: Date = null): ChatThread = {
     val chatThread = factory.newChatThread.as
     chatThread.setUUID(uuid)
     chatThread.setCreatedAt(DateConverter.convertDate(createdAt))
@@ -403,7 +377,7 @@ object Entities {
   }
 
   def newChatThreadParticipant(uuid: String = null, chatThreadUUID: String = null, personUUID: String = null,
-    lastReadAt: Date = null, active: Boolean = false, lastJoinDate: Date = null, unreadCount: Integer = 0) = {
+    lastReadAt: Date = null, active: Boolean = false, lastJoinDate: Date = null, unreadCount: Integer = 0): ChatThreadParticipant = {
     val chatThreadParticipant = factory.newChatThreadParticipant.as
     chatThreadParticipant.setUUID(uuid)
     chatThreadParticipant.setThreadUUID(chatThreadUUID)
@@ -426,19 +400,19 @@ object Entities {
     institutionRegistrationPrefix
   }
 
-  def newEnrollmentsEntries() = {
+  def newEnrollmentsEntries(): EnrollmentsEntries = {
     val esEntries = factory.newEnrollmentsEntries().as
-    esEntries.setEnrollmentEntriesMap(new HashMap[String, EnrollmentEntries]())
+    esEntries.setEnrollmentEntriesMap(new util.HashMap[String, EnrollmentEntries]())
     esEntries
   }
 
-  def newEnrollmentEntries = {
+  def newEnrollmentEntries: EnrollmentEntries = {
     val eEntries = factory.newEnrollmentEntries.as
-    eEntries.setActomEntriesMap(new HashMap[String, ActomEntries]())
+    eEntries.setActomEntriesMap(new util.HashMap[String, ActomEntries]())
     eEntries
   }
 
-  def newCourseDetailsHint(uuid: String, title: String, text: String, entityType: CourseDetailsEntityType, entityUUID: String, index: Integer, fontAwesomeClassName: String) = {
+  def newCourseDetailsHint(uuid: String, title: String, text: String, entityType: CourseDetailsEntityType, entityUUID: String, index: Integer, fontAwesomeClassName: String): CourseDetailsHint = {
     val hint = factory.newCourseDetailsHint.as
     hint.setUUID(uuid)
     hint.setTitle(title)
@@ -450,7 +424,7 @@ object Entities {
     hint
   }
 
-  def newCourseDetailsLibrary(uuid: String, title: String, description: String, entityType: CourseDetailsEntityType, entityUUID: String, index: Integer, size: Integer, path: String, uploadDate: Date, fontAwesomeClassName: String) = {
+  def newCourseDetailsLibrary(uuid: String, title: String, description: String, entityType: CourseDetailsEntityType, entityUUID: String, index: Integer, size: Integer, path: String, uploadDate: Date, fontAwesomeClassName: String): CourseDetailsLibrary = {
     val library = factory.newCourseDetailsLibrary.as
     library.setUUID(uuid)
     library.setTitle(title)
@@ -465,7 +439,7 @@ object Entities {
     library
   }
 
-  def newCourseDetailsSection(uuid: String, title: String, text: String, entityType: CourseDetailsEntityType, entityUUID: String, index: Integer) = {
+  def newCourseDetailsSection(uuid: String, title: String, text: String, entityType: CourseDetailsEntityType, entityUUID: String, index: Integer): CourseDetailsSection = {
     val section = factory.newCourseDetailsSection.as
     section.setUUID(uuid)
     section.setTitle(title)
@@ -476,7 +450,7 @@ object Entities {
     section
   }
 
-  def newCertificateDetails(uuid: String, bgImage: String, certificateType: CertificateType, entityType: CourseDetailsEntityType, entityUUID: String) = {
+  def newCertificateDetails(uuid: String, bgImage: String, certificateType: CertificateType, entityType: CourseDetailsEntityType, entityUUID: String): CertificateDetails = {
     val certificateDetails = factory.newCertificateDetails().as
     certificateDetails.setUUID(uuid)
     certificateDetails.setBgImage(bgImage)
@@ -486,7 +460,7 @@ object Entities {
     certificateDetails
   }
 
-  def newPostbackConfig(uuid: String, instutionUUID: String, postbackType: PostbackType, contents: String) = {
+  def newPostbackConfig(uuid: String, instutionUUID: String, postbackType: PostbackType, contents: String): PostbackConfig = {
     val config = factory.newPostbackConfig.as
     config.setUUID(uuid)
     config.setInstitutionUUID(uuid)
@@ -495,7 +469,7 @@ object Entities {
     config
   }
 
-  def newEmailTemplate(uuid: String, templateType: EmailTemplateType, locale: String, title: String, template: String) = {
+  def newEmailTemplate(uuid: String, templateType: EmailTemplateType, locale: String, title: String, template: String): EmailTemplate = {
     val emailTemplate = factory.newEmailTemplate.as
     emailTemplate.setUUID(uuid)
     emailTemplate.setTemplateType(templateType)
@@ -505,7 +479,7 @@ object Entities {
     emailTemplate
   }
 
-  def newTrack(uuid: String, institutionUUID: String, name: String) = {
+  def newTrack(uuid: String, institutionUUID: String, name: String): Track = {
     val track = factory.newTrack.as
     track.setUUID(uuid)
     track.setInstitutionUUID(institutionUUID)
@@ -513,7 +487,7 @@ object Entities {
     track
   }
 
-  def newTrackEnrollment(uuid: String, personUUID: String, trackUUID: String) = {
+  def newTrackEnrollment(uuid: String, personUUID: String, trackUUID: String): TrackEnrollment = {
     val trackEnrollment = factory.newTrackEnrollment.as
     trackEnrollment.setUUID(uuid)
     trackEnrollment.setPersonUUID(personUUID)
@@ -521,7 +495,7 @@ object Entities {
     trackEnrollment
   }
 
-  def newTrackItem(uuid: String, courseVersionUUID: String, trackUUID: String, parentUUID: String, order: Integer, havingPreRequirements: Boolean, startDate: Date) = {
+  def newTrackItem(uuid: String, courseVersionUUID: String, trackUUID: String, parentUUID: String, order: Integer, havingPreRequirements: Boolean, startDate: Date): TrackItem = {
     val trackItem = factory.newTrackItem.as
     trackItem.setUUID(uuid)
     trackItem.setCourseVersionUUID(courseVersionUUID)

@@ -1,21 +1,11 @@
 package kornell.server.api
 
 import javax.servlet.http.HttpServletResponse
-import javax.ws.rs.Consumes
-import javax.ws.rs.GET
-import javax.ws.rs.PUT
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
+import javax.ws.rs._
 import javax.ws.rs.core.Context
 import kornell.core.to.SimplePeopleTO
 import kornell.server.jdbc.repository.CourseClassRepo
-import kornell.server.report.ReportCertificateGenerator
-import kornell.server.report.ReportCourseClassAuditGenerator
-import kornell.server.report.ReportCourseClassGenerator
-import kornell.server.report.clearJasperFiles
-import kornell.server.report.ReportInstitutionBillingGenerator
+import kornell.server.report._
 import kornell.server.util.AccessDeniedErr
 import kornell.server.util.Conditional.toConditional
 
@@ -27,21 +17,21 @@ class ReportResource {
   @Produces(Array("application/pdf"))
   def get(@Context resp: HttpServletResponse,
     @PathParam("userUUID") userUUID: String,
-    @PathParam("courseClassUUID") courseClassUUID: String) = {
+    @PathParam("courseClassUUID") courseClassUUID: String): Array[Byte] = {
     ReportCertificateGenerator.generateCertificate(userUUID, courseClassUUID, resp)
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
     .or(isInstitutionAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
     .or(isCourseClassAdmin(courseClassUUID), AccessDeniedErr())
     .or(isCourseClassObserver(courseClassUUID), AccessDeniedErr())
     .or(isCourseClassTutor(courseClassUUID), AccessDeniedErr())
-    .or((getAuthenticatedPersonUUID == userUUID), AccessDeniedErr()).get
+    .or(getAuthenticatedPersonUUID == userUUID, AccessDeniedErr()).get
 
   @PUT
   @Path("certificate")
   @Consumes(Array(SimplePeopleTO.TYPE))
   @Produces(Array("text/plain"))
   def getCertificates(peopleTO: SimplePeopleTO,
-    @QueryParam("courseClassUUID") courseClassUUID: String) = {
+    @QueryParam("courseClassUUID") courseClassUUID: String): String = {
     ReportCertificateGenerator.generateCourseClassCertificates(courseClassUUID, peopleTO)
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
     .or(isInstitutionAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
@@ -52,7 +42,7 @@ class ReportResource {
   @GET
   @Path("courseClassCertificateExists")
   @Produces(Array("text/plain"))
-  def fileExists(@QueryParam("courseClassUUID") courseClassUUID: String) = {
+  def fileExists(@QueryParam("courseClassUUID") courseClassUUID: String): String = {
     ReportCertificateGenerator.courseClassCertificateExists(courseClassUUID)
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
     .or(isInstitutionAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
@@ -67,7 +57,7 @@ class ReportResource {
   def getCourseClassInfo(peopleTO: SimplePeopleTO,
     @QueryParam("courseUUID") courseUUID: String,
     @QueryParam("courseClassUUID") courseClassUUID: String,
-    @QueryParam("fileType") fileType: String) = {
+    @QueryParam("fileType") fileType: String): String = {
     ReportCourseClassGenerator.generateCourseClassReport(courseUUID, courseClassUUID, fileType, peopleTO)
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseClassUUID, courseUUID)), AccessDeniedErr())
     .or(isInstitutionAdmin(getInstitutionUUID(courseClassUUID, courseUUID)), AccessDeniedErr())
@@ -79,7 +69,7 @@ class ReportResource {
   @Produces(Array("text/plain"))
   def fileExists(@QueryParam("courseUUID") courseUUID: String,
     @QueryParam("courseClassUUID") courseClassUUID: String,
-    @QueryParam("fileType") fileType: String) = {
+    @QueryParam("fileType") fileType: String): String = {
     ReportCourseClassGenerator.courseClassInfoExists(courseUUID, courseClassUUID, fileType)
   }.requiring(isPlatformAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
     .or(isInstitutionAdmin(getInstitutionUUID(courseClassUUID)), AccessDeniedErr())
@@ -90,7 +80,7 @@ class ReportResource {
   @GET
   @Path("courseClassAudit")
   def getCourseClassAudit(@Context resp: HttpServletResponse,
-    @QueryParam("courseClassUUID") courseClassUUID: String) = {
+    @QueryParam("courseClassUUID") courseClassUUID: String): Array[Byte] = {
     ReportCourseClassAuditGenerator.generateCourseClassAuditReport(courseClassUUID, resp)
   }.requiring(isPlatformAdmin(CourseClassRepo(courseClassUUID).get.getInstitutionUUID), AccessDeniedErr())
     .or(isInstitutionAdmin(CourseClassRepo(courseClassUUID).get.getInstitutionUUID), AccessDeniedErr())
@@ -101,12 +91,12 @@ class ReportResource {
   def getInstitutionBilling(@Context resp: HttpServletResponse,
     @QueryParam("institutionUUID") institutionUUID: String,
     @QueryParam("periodStart") periodStart: String,
-    @QueryParam("periodEnd") periodEnd: String) = {
+    @QueryParam("periodEnd") periodEnd: String): Array[Byte] = {
     ReportInstitutionBillingGenerator.generateInstitutionBillingReport(institutionUUID, periodStart, periodEnd, resp)
   }.requiring(isPlatformAdmin(institutionUUID), AccessDeniedErr()).get
 
   @GET
   @Path("clear")
-  def clear = clearJasperFiles
+  def clear: String = clearJasperFiles
 
 }

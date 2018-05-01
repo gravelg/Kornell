@@ -1,19 +1,13 @@
 package kornell.server.jdbc
 
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-import java.sql.Timestamp
-import java.sql.{ Date => SQLDate }
-import java.util.{ Date => JDate }
-//import kornell.core.value.{ Date => KDate }
+import java.sql.{Connection, PreparedStatement, ResultSet, Timestamp}
+import java.util.{Date => JDate}
 import java.math.BigDecimal
-import scala.collection.mutable.ListBuffer
-import DataSources._
-import kornell.server.util.Settings
-import java.sql.Date
 import java.sql.SQLException
+
 import kornell.core.error.exception.EntityConflictException
+
+import scala.collection.mutable.ListBuffer
 
 class PreparedStmt(query: String, params: List[Any]) {
 
@@ -26,7 +20,7 @@ class PreparedStmt(query: String, params: List[Any]) {
     connected { conn =>
       val pstmt = conn.prepareStatement(query.stripMargin.trim)
 
-      def setQueryParam(i: Int, param: Any) = try {
+      def setQueryParam(i: Int, param: Any): Unit = try {
         param match {
           case null => pstmt.setObject(i, null)
           case p: String => pstmt.setString(i, p)
@@ -40,7 +34,7 @@ class PreparedStmt(query: String, params: List[Any]) {
           case _ => throw new EntityConflictException("invalidValue")
         }
       } catch {
-        case e: SQLException => logger.severe(s"Failed to set param [${i}] value to [${param}] on query ${query}")
+        case _: SQLException => logger.severe(s"Failed to set param [${i}] value to [${param}] on query ${query}")
       }
 
       params
@@ -50,7 +44,7 @@ class PreparedStmt(query: String, params: List[Any]) {
       logger.finer(s"Executing query [$query].")
 
       try fun(pstmt)
-      finally pstmt.close
+      finally pstmt.close()
     }
 
   def executeUpdate: Int = prepared { stmt => stmt.executeUpdate }
@@ -58,10 +52,10 @@ class PreparedStmt(query: String, params: List[Any]) {
   def executeQuery[T](fun: ResultSet => T): T = prepared { stmt =>
     val rs = stmt.executeQuery
     try fun(rs)
-    finally rs.close
+    finally rs.close()
   }
 
-  def executeQuery: Unit = executeQuery { rs => () }
+  def executeQuery(): Unit = executeQuery { _ => () }
 
   def foreach(fun: ResultSet => Unit): Unit = executeQuery { rs =>
     while (rs.next) fun(rs)
@@ -80,19 +74,19 @@ class PreparedStmt(query: String, params: List[Any]) {
     if (!rs.next) None
     else
       try Option(conversion(rs))
-      finally rs.close
+      finally rs.close()
   }
 
   def isPositive: Boolean = executeQuery { rs =>
     rs.next && rs.getInt(1) > 0
   }
 
-  def getUUID = executeQuery { rs =>
+  def getUUID: String = executeQuery { rs =>
     if (rs.next) rs.getString("uuid")
     else throw new IllegalStateException("Can not get on empty result")
   }
 
   def get[T](implicit conversion: ResultSet => T): T = first(conversion).get
 
-  override def toString = query
+  override def toString: String = query
 }

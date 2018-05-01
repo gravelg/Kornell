@@ -1,11 +1,9 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import scala.collection.JavaConverters._
-import kornell.server.jdbc.SQL._
+import kornell.core.entity.{CourseDetailsEntityType, CourseDetailsSection}
+import kornell.core.to.CourseDetailsSectionsTO
 import kornell.core.util.UUID
-import kornell.core.entity.CourseDetailsSection
-import kornell.core.entity.CourseDetailsEntityType
+import kornell.server.jdbc.SQL._
 import kornell.server.repository.TOs
 
 object CourseDetailsSectionsRepo {
@@ -27,13 +25,13 @@ object CourseDetailsSectionsRepo {
     courseDetailsSection
   }
 
-  def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType) = {
+  def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType): CourseDetailsSectionsTO = {
     TOs.newCourseDetailsSectionsTO(sql"""
       select * from CourseDetailsSection where entityUUID = ${entityUUID} and entityType = ${entityType.toString} order by `index`
     """.map[CourseDetailsSection](toCourseDetailsSection))
   }
 
-  def moveUp(entityUUID: String, entityType: CourseDetailsEntityType, index: Int) = {
+  def moveUp(entityUUID: String, entityType: CourseDetailsEntityType, index: Int): Unit = {
     val courseDetailsSections = CourseDetailsSectionsRepo.getForEntity(entityUUID, entityType).getCourseDetailsSections
     if (index >= 0 && courseDetailsSections.size > 1) {
       val currentSection = courseDetailsSections.get(index)
@@ -45,10 +43,9 @@ object CourseDetailsSectionsRepo {
       CourseDetailsSectionRepo(currentSection.getUUID).update(currentSection)
       CourseDetailsSectionRepo(previousSection.getUUID).update(previousSection)
     }
-    ""
   }
 
-  def moveDown(entityUUID: String, entityType: CourseDetailsEntityType, index: Int) = {
+  def moveDown(entityUUID: String, entityType: CourseDetailsEntityType, index: Int): Unit = {
     val courseDetailsSections = CourseDetailsSectionsRepo.getForEntity(entityUUID, entityType).getCourseDetailsSections
     if (index < (courseDetailsSections.size - 1) && courseDetailsSections.size > 1) {
       val currentSection = courseDetailsSections.get(index)
@@ -60,7 +57,5 @@ object CourseDetailsSectionsRepo {
       CourseDetailsSectionRepo(currentSection.getUUID).update(currentSection)
       CourseDetailsSectionRepo(nextSection.getUUID).update(nextSection)
     }
-    ""
   }
-
 }

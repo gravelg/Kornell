@@ -17,7 +17,7 @@ object TracksRepo {
     track
   }
 
-  def getByInstitution(institutionUUID: String) = {
+  def getByInstitution(institutionUUID: String): List[Track] = {
     sql"""select * from Track where institutionUUID = ${institutionUUID}""".map[Track](toTrack)
   }
 }

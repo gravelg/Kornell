@@ -1,16 +1,16 @@
 package kornell.server.jdbc.repository
 
-import kornell.server.jdbc.SQL._
-import java.sql.ResultSet
-import kornell.core.util.UUID
-import kornell.server.repository.TOs
-import scala.collection.JavaConverters._
-import kornell.core.to.InstitutionEmailWhitelistTO
 import kornell.core.entity.AuditedEntityType
+import kornell.core.to.InstitutionEmailWhitelistTO
+import kornell.core.util.UUID
+import kornell.server.jdbc.SQL._
+import kornell.server.repository.TOs
+
+import scala.collection.JavaConverters._
 
 class InstitutionEmailWhitelistRepo(institutionUUID: String) {
 
-  def get = {
+  def get: InstitutionEmailWhitelistTO = {
     TOs.newInstitutionEmailWhitelistTO(
       sql"""
         | select domain from InstitutionEmailWhitelist
@@ -19,7 +19,7 @@ class InstitutionEmailWhitelistRepo(institutionUUID: String) {
         .map[String])
   }
 
-  def updateDomains(domains: InstitutionEmailWhitelistTO) = {
+  def updateDomains(domains: InstitutionEmailWhitelistTO): InstitutionEmailWhitelistTO = {
     val from = get
 
     removeDomains(institutionUUID)
@@ -30,12 +30,12 @@ class InstitutionEmailWhitelistRepo(institutionUUID: String) {
     domains
   }
 
-  def removeDomains(institutionUUID: String) = {
+  def removeDomains(institutionUUID: String): InstitutionEmailWhitelistRepo = {
     sql"""delete from InstitutionEmailWhitelist where institutionUUID = ${institutionUUID}""".executeUpdate
     this
   }
 
-  def addDomain(domain: String) = {
+  def addDomain(domain: String): Unit = {
     sql"""insert into InstitutionEmailWhitelist (uuid, domain, institutionUUID) values
     (${UUID.random},
     ${domain},

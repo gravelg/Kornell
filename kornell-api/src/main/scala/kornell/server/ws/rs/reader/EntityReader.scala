@@ -6,8 +6,8 @@ import kornell.core.entity.EntityFactory
 
 @Provider
 class EntityReader extends AutoBeanReader {
-  val factory = AutoBeanFactorySource.create(classOf[EntityFactory])
+  val factory: EntityFactory = AutoBeanFactorySource.create(classOf[EntityFactory])
 
-  override def getTypePrefix = EntityFactory.PREFIX
-  override def getAutoBeanFactory = factory
+  override def getTypePrefix: String = EntityFactory.PREFIX
+  override def getAutoBeanFactory: EntityFactory = factory
 }

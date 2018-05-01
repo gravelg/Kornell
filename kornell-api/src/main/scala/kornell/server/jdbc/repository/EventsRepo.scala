@@ -1,59 +1,34 @@
 package kornell.server.jdbc.repository
 
-import java.util.Date
-
-import scala.collection.JavaConverters._
-
-import org.joda.time.DateTime
-
-import com.google.web.bindery.autobean.shared.AutoBean
-import com.google.web.bindery.autobean.shared.AutoBeanCodex
-import com.google.web.bindery.autobean.shared.AutoBeanUtils
+import com.google.web.bindery.autobean.shared.{AutoBean, AutoBeanCodex, AutoBeanUtils}
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource
-
-import kornell.core.entity.AuditedEntityType
-import kornell.core.entity.AuditedEntityType
-import kornell.core.entity.EnrollmentState
-import kornell.core.entity.EnrollmentState
-import kornell.core.entity.EntityState
+import kornell.core.entity.{AuditedEntityType, EnrollmentState, EntityState}
 import kornell.core.error.exception.EntityConflictException
-import kornell.core.error.exception.EntityConflictException
-import kornell.core.event.ActomEntered
-import kornell.core.event.ActomEntered
-import kornell.core.event.AttendanceSheetSigned
-import kornell.core.event.AttendanceSheetSigned
-import kornell.core.event.CourseClassStateChanged
-import kornell.core.event.CourseClassStateChanged
-import kornell.core.event.EnrollmentStateChanged
-import kornell.core.event.EnrollmentStateChanged
-import kornell.core.event.EnrollmentTransferred
-import kornell.core.event.EnrollmentTransferred
-import kornell.core.event.EntityChanged
-import kornell.core.event.EventFactory
-import kornell.core.event.EventFactory
-import kornell.core.to.EntityChangedEventsTO
+import kornell.core.event._
 import kornell.core.to.EntityChangedEventsTO
 import kornell.core.util.UUID
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.ep.EnrollmentSEP
-import kornell.server.jdbc.SQL._
-import kornell.server.jdbc.SQL.SQLHelper
+import kornell.server.jdbc.SQL.{SQLHelper, _}
 import kornell.server.repository.TOs._
-import kornell.server.util.EmailService
-import kornell.server.util.Settings
+import kornell.server.util.{EmailService, Settings}
+import org.joda.time.DateTime
+
+import scala.collection.JavaConverters._
 
 object EventsRepo {
-  val events = AutoBeanFactorySource.create(classOf[EventFactory])
 
-  def newEnrollmentStateChanged = events.newEnrollmentStateChanged.as
+  val events: EventFactory = AutoBeanFactorySource.create(classOf[EventFactory])
 
-  def logActomEntered(event: ActomEntered) = {
+  def newEnrollmentStateChanged: EnrollmentStateChanged = events.newEnrollmentStateChanged.as
+
+  def logActomEntered(event: ActomEntered): Unit = {
     sql"""
     insert into ActomEntered(uuid,eventFiredAt,enrollmentUUID,actomKey)
     values(${event.getUUID},
          now(),
            ${event.getEnrollmentUUID},
-       ${event.getActomKey});
+       ${event.getActomKey})
   """.executeUpdate
 
     EnrollmentSEP.onProgress(event.getEnrollmentUUID)
@@ -61,17 +36,17 @@ object EventsRepo {
 
   }
 
-  def logAttendanceSheetSigned(event: AttendanceSheetSigned) = {
+  def logAttendanceSheetSigned(event: AttendanceSheetSigned): Unit = {
     val todayStart = DateTime.now.withTimeAtStartOfDay.toDate
     val todayEnd = DateTime.now.plusDays(1).withTimeAtStartOfDay.minusMillis(1).toDate
     // don't log more than once a day
     val attendanceSheetSignedUUID = sql"""
         select uuid from AttendanceSheetSigned
-        where personUUID=${event.getPersonUUID()}
-        and institutionUUID=${event.getInstitutionUUID()}
+        where personUUID=${event.getPersonUUID}
+        and institutionUUID=${event.getInstitutionUUID}
         and eventFiredAt between ${todayStart} and ${todayEnd}
       """.first
-    if (!attendanceSheetSignedUUID.isDefined)
+    if (attendanceSheetSignedUUID.isEmpty)
       sql"""
         insert into AttendanceSheetSigned(uuid,eventFiredAt,institutionUUID,personUUID)
         values(${event.getUUID}, now(), ${event.getInstitutionUUID}, ${event.getPersonUUID});
@@ -80,7 +55,7 @@ object EventsRepo {
   }
 
   def logEnrollmentStateChanged(uuid: String, fromPersonUUID: String,
-    enrollmentUUID: String, fromState: EnrollmentState, toState: EnrollmentState, sendEmail: Boolean, notes: String) = {
+    enrollmentUUID: String, fromState: EnrollmentState, toState: EnrollmentState, sendEmail: Boolean, notes: String): Unit = {
 
     sql"""insert into EnrollmentStateChanged(uuid,eventFiredAt,personUUID,enrollmentUUID,fromState,toState,notes)
       values(${uuid},
@@ -116,7 +91,7 @@ object EventsRepo {
       event.getEnrollmentUUID, event.getFromState, event.getToState, true, null)
 
   def logCourseClassStateChanged(uuid: String, fromPersonUUID: String,
-    courseClassUUID: String, fromState: EntityState, toState: EntityState) = {
+    courseClassUUID: String, fromState: EntityState, toState: EntityState): Unit = {
 
     sql"""insert into CourseClassStateChanged(uuid,eventFiredAt,personUUID,courseClassUUID,fromState,toState)
       values(${uuid},
@@ -124,10 +99,10 @@ object EventsRepo {
          ${fromPersonUUID},
          ${courseClassUUID},
          ${fromState.toString},
-     ${toState.toString});
+     ${toState.toString})
     """.executeUpdate
 
-    sql"""update CourseClass set state = ${toState.toString} where uuid = ${courseClassUUID};
+    sql"""update CourseClass set state = ${toState.toString} where uuid = ${courseClassUUID}
     """.executeUpdate
 
   }
@@ -146,27 +121,27 @@ object EventsRepo {
         ${event.getEnrollmentUUID},
         ${event.getFromCourseClassUUID},
         ${event.getToCourseClassUUID},
-        now());""".executeUpdate
+        now())""".executeUpdate
 
     EnrollmentRepo(event.getEnrollmentUUID).transfer(event.getFromCourseClassUUID, event.getToCourseClassUUID)
   }
 
-  def logEntityChange(institutionUUID: String, auditedEntityType: AuditedEntityType, entityUUID: String, fromBean: Any, toBean: Any): Any = {
+  def logEntityChange(institutionUUID: String, auditedEntityType: AuditedEntityType, entityUUID: String, fromBean: Any, toBean: Any): Unit = {
     logEntityChange(institutionUUID, auditedEntityType, entityUUID, fromBean, toBean, null)
   }
 
-  def logEntityChange(institutionUUID: String, auditedEntityType: AuditedEntityType, entityUUID: String, fromBean: Any, toBean: Any, personUUID: String) = {
+  def logEntityChange(institutionUUID: String, auditedEntityType: AuditedEntityType, entityUUID: String, fromBean: Any, toBean: Any, personUUID: String): Unit = {
     var fromAB: AutoBean[Any] = null
     var fromValue: String = null
     if (fromBean != null) {
       fromAB = AutoBeanUtils.getAutoBean(fromBean)
-      fromValue = AutoBeanCodex.encode(fromAB).getPayload.toString
+      fromValue = AutoBeanCodex.encode(fromAB).getPayload
     }
     var toAB: AutoBean[Any] = null
     var toValue: String = null
     if (toBean != null) {
       toAB = AutoBeanUtils.getAutoBean(toBean)
-      toValue = AutoBeanCodex.encode(toAB).getPayload.toString
+      toValue = AutoBeanCodex.encode(toAB).getPayload
     }
     val logChange = fromBean == null || toBean == null || {
       val diffMap = AutoBeanUtils.diff(fromAB, toAB)
@@ -181,7 +156,7 @@ object EventsRepo {
            ${entityUUID},
            ${fromValue},
            ${toValue},
-       now());
+       now())
       """.executeUpdate
     }
   }
@@ -253,7 +228,7 @@ object EventsRepo {
     entityChangedEventsTO
   }
 
-  def deleteActoms(enrollmentUUID: String) = {
+  def deleteActoms(enrollmentUUID: String): Unit = {
     sql"""
       DELETE from ActomEntered where enrollmentUUID = ${enrollmentUUID}
     """.executeUpdate

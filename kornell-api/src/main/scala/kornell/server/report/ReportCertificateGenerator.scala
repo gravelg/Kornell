@@ -1,40 +1,25 @@
 package kornell.server.report
 
-import java.io.File
-import java.net.URL
+import java.io.ByteArrayInputStream
+import java.net.{HttpURLConnection, URL}
 import java.sql.ResultSet
-import java.util.HashMap
-import org.apache.commons.io.FileUtils
-import kornell.core.error.exception.EntityConflictException
+import java.util
+import java.util.Date
+
+import javax.servlet.http.HttpServletResponse
+import kornell.core.entity.{CertificateDetails, CertificateType, CourseDetailsEntityType, RepositoryType}
+import kornell.core.error.exception.{EntityConflictException, ServerErrorException}
+import kornell.core.to.SimplePeopleTO
 import kornell.core.to.report.CertificateInformationTO
-import kornell.core.util.StringUtils.composeURL
+import kornell.core.util.StringUtils.mkurl
+import kornell.server.authentication.ThreadLocalAuthenticator
+import kornell.server.content.ContentManagers
 import kornell.server.jdbc.PreparedStmt
 import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.repository.TOs
-import kornell.server.util.Settings
-import kornell.server.util.DateConverter
-import kornell.server.authentication.ThreadLocalAuthenticator
-import java.util.Date
-import kornell.core.util.StringUtils.mkurl
-import kornell.server.jdbc.repository.InstitutionRepo
-import kornell.server.content.ContentManagers
-import java.io.ByteArrayInputStream
-import kornell.core.error.exception.ServerErrorException
-import kornell.server.jdbc.repository.EnrollmentsRepo
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.core.to.SimplePeopleTO
-import java.net.HttpURLConnection
-import javax.servlet.http.HttpServletResponse
-import kornell.server.jdbc.repository.ContentRepositoriesRepo
-import kornell.core.entity.RepositoryType
-import kornell.core.error.exception.EntityNotFoundException
-import kornell.core.entity.CertificateDetails
-import kornell.server.jdbc.repository.CertificatesDetailsRepo
-import kornell.core.entity.CourseDetailsEntityType
+import kornell.server.jdbc.repository.{CertificatesDetailsRepo, ContentRepositoriesRepo, EnrollmentsRepo, InstitutionRepo, PersonRepo}
 import kornell.server.repository.Entities
-import kornell.core.entity.CertificateType
 import kornell.server.service.S3Service
-import com.amazonaws.services.s3.metrics.S3ServiceMetric
+import kornell.server.util.DateConverter
 
 object ReportCertificateGenerator {
 
@@ -77,11 +62,11 @@ object ReportCertificateGenerator {
 
   def findCertificateDetails(certificateInformationTO: CertificateInformationTO): CertificateDetails = {
     var details = CertificatesDetailsRepo.getForEntity(certificateInformationTO.getCourseClassUUID, CourseDetailsEntityType.COURSE_CLASS)
-    if (!details.isDefined) {
+    if (details.isEmpty) {
       details = CertificatesDetailsRepo.getForEntity(certificateInformationTO.getCourseVersionUUID, CourseDetailsEntityType.COURSE_VERSION)
-      if (!details.isDefined) {
+      if (details.isEmpty) {
         details = CertificatesDetailsRepo.getForEntity(certificateInformationTO.getCourseUUID, CourseDetailsEntityType.COURSE)
-        if (!details.isDefined) {
+        if (details.isEmpty) {
           details = Option(Entities.newCertificateDetails(null, "reports/", CertificateType.NO_BG, CourseDetailsEntityType.COURSE_CLASS, null))
         }
       }
@@ -117,7 +102,7 @@ object ReportCertificateGenerator {
 
   }
 
-  def getCertificateInformationTOsByCourseClass(courseClassUUID: String, enrollments: String) = {
+  def getCertificateInformationTOsByCourseClass(courseClassUUID: String, enrollments: String): List[CertificateInformationTO] = {
 
     var sql = """select p.fullName, c.name as courseName, cc.name, i.fullName as institutionName, i.assetsRepositoryUUID, cv.distributionPrefix, p.cpf, e.certifiedAt, cv.uuid as courseVersionUUID, cc.uuid as courseClassUUID, c.uuid as courseUUID, i.baseURL, s.repositoryType, c.code
       from Person p
@@ -138,10 +123,10 @@ object ReportCertificateGenerator {
   }
 
   private def generateCertificateReport(certificateData: List[CertificateInformationTO], certificateDetails: CertificateDetails): Array[Byte] = {
-    if (certificateData.length == 0) {
+    if (certificateData.isEmpty) {
       return null
     }
-    val parameters: HashMap[String, Object] = new HashMap()
+    val parameters: util.HashMap[String, Object] = new util.HashMap()
     val baseURL = certificateData.head.getBaseURL.split("Kornell.nocache.html").head
     //TODO: both urls NEED the extra slash because the jasper files count on it
     parameters.put("institutionURL", mkurl(baseURL, "repository", certificateData.head.getAssetsRepositoryUUID, S3Service.PREFIX, S3Service.INSTITUTION) + "/")
@@ -153,7 +138,7 @@ object ReportCertificateGenerator {
 
   }
 
-  def generateCourseClassCertificates(courseClassUUID: String, peopleTO: SimplePeopleTO) = {
+  def generateCourseClassCertificates(courseClassUUID: String, peopleTO: SimplePeopleTO): String = {
     try {
       val people = peopleTO.getSimplePeopleTO
       val enrollmentUUIDs = {
@@ -172,20 +157,20 @@ object ReportCertificateGenerator {
       }
 
       val certificateInformationTOsByCourseClass = ReportCertificateGenerator.getCertificateInformationTOsByCourseClass(courseClassUUID, enrollmentUUIDs)
-      if (certificateInformationTOsByCourseClass.length == 0) {
+      if (certificateInformationTOsByCourseClass.isEmpty) {
         throw new ServerErrorException("errorGeneratingReport")
       } else {
         val report = generateCertificate(certificateInformationTOsByCourseClass)
         val bs = new ByteArrayInputStream(report)
         val person = PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get).get
-        val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID()).get.getUUID)
+        val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(person.getInstitutionUUID).get.getUUID)
         val filename = ReportCertificateGenerator.getCourseClassCertificateReportFileName(courseClassUUID)
 
         repo.put(
           bs,
           "application/pdf",
           "Content-Disposition: attachment; filename=\"" + filename + "\"",
-          Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), filename)
+          Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName), filename)
 
         getCourseClassCertificateReportURL(courseClassUUID)
       }
@@ -195,27 +180,26 @@ object ReportCertificateGenerator {
     }
   }
 
-  def courseClassCertificateExists(courseClassUUID: String) = {
+  def courseClassCertificateExists(courseClassUUID: String): String = {
     try {
       val url = getCourseClassCertificateReportURL(courseClassUUID)
-      HttpURLConnection.setFollowRedirects(false);
+      HttpURLConnection.setFollowRedirects(false)
       val con = new URL(url).openConnection.asInstanceOf[HttpURLConnection]
       con.setRequestMethod("HEAD")
-      if (con.getResponseCode() == HttpURLConnection.HTTP_OK) url else ""
+      if (con.getResponseCode == HttpURLConnection.HTTP_OK) url else ""
     } catch {
       case e: Exception => throw new ServerErrorException("errorCheckingCerts", e)
     }
   }
 
-  def getCourseClassCertificateReportFileName(courseClassUUID: String) = {
+  def getCourseClassCertificateReportFileName(courseClassUUID: String): String = {
     mkurl(S3Service.PREFIX, S3Service.REPORTS, S3Service.CERTIFICATES, "certificates-" + ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get + courseClassUUID + ".pdf")
   }
 
-  def getCourseClassCertificateReportURL(courseClassUUID: String) = {
+  def getCourseClassCertificateReportURL(courseClassUUID: String): String = {
     val institutionUUID = getInstitutionUUID(courseClassUUID)
     val repo = ContentManagers.forRepository(ContentRepositoriesRepo.firstRepositoryByInstitution(institutionUUID).get.getUUID)
     val key = getCourseClassCertificateReportFileName(courseClassUUID)
     mkurl(InstitutionRepo(institutionUUID).get.getBaseURL.split("Kornell.nocache.html").head, repo.url(key))
   }
-
 }

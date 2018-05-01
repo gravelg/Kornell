@@ -1,14 +1,11 @@
 package kornell.server.jdbc.repository
 
-import kornell.server.jdbc.SQL._
-import kornell.server.repository.Entities
-import kornell.server.repository.ContentRepository
-import kornell.core.entity.ContentRepository
-import java.sql.ResultSet
-import kornell.core.util.UUID
-import com.google.common.cache.CacheLoader
-import com.google.common.cache.CacheBuilder
 import java.util.concurrent.TimeUnit.MINUTES
+
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import kornell.core.entity.ContentRepository
+import kornell.core.util.UUID
+import kornell.server.jdbc.SQL._
 
 object ContentRepositoriesRepo {
 
@@ -44,30 +41,30 @@ object ContentRepositoriesRepo {
     repo
   }
 
-  def firstRepository(repoUUID: String) = sql"""
+  def firstRepository(repoUUID: String): Option[ContentRepository] = sql"""
     select * from ContentRepository where uuid=$repoUUID
   """.first[ContentRepository]
 
-  def firstRepositoryByInstitution(institutionUUID: String) = sql"""
+  def firstRepositoryByInstitution(institutionUUID: String): Option[ContentRepository] = sql"""
     select * from ContentRepository where institutionUUID=${institutionUUID}
   """.first[ContentRepository]
 
-  val cacheBuilder = CacheBuilder
+  val cacheBuilder: CacheBuilder[AnyRef, AnyRef] = CacheBuilder
     .newBuilder()
     .expireAfterAccess(5, MINUTES)
     .maximumSize(20)
 
-  val contentRepositoryLoader = new CacheLoader[String, Option[ContentRepository]]() {
+  val contentRepositoryLoader : CacheLoader[String, Option[ContentRepository]]= new CacheLoader[String, Option[ContentRepository]]() {
     override def load(repositoryUUID: String): Option[ContentRepository] = firstRepository(repositoryUUID)
   }
-  val contentRepositoryCache = cacheBuilder.build(contentRepositoryLoader)
+  val contentRepositoryCache: LoadingCache[String, Option[ContentRepository]] = cacheBuilder.build(contentRepositoryLoader)
 
-  def getByRepositoryUUID(repositoryUUID: String) = contentRepositoryCache.get(repositoryUUID)
+  def getByRepositoryUUID(repositoryUUID: String): Option[ContentRepository] = contentRepositoryCache.get(repositoryUUID)
 
-  def updateCache(repo: ContentRepository) = {
+  def updateCache(repo: ContentRepository): Unit = {
     val optionRepo = Some(repo)
     contentRepositoryCache.put(repo.getUUID, optionRepo)
   }
 
-  def clearCache() = contentRepositoryCache.invalidateAll()
+  def clearCache(): Unit = contentRepositoryCache.invalidateAll()
 }

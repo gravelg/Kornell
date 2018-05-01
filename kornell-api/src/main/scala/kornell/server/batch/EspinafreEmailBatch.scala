@@ -12,7 +12,7 @@ class EspinafreEmailBatch {
 
   //3pm Brasilia time
   @Schedule(hour = "18", persistent = false)
-  def sendEspinafreEmailReminder() = {
+  def sendEspinafreEmailReminder(): Unit = {
     val institution = InstitutionsRepo.byType(InstitutionType.DASHBOARD).get
     val emailList = EnrollmentsRepo.getEspinafreEmailList
     emailList.foreach(

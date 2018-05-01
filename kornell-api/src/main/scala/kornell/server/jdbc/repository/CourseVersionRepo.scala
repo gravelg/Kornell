@@ -1,31 +1,21 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import kornell.server.repository.Entities
-import kornell.core.entity.CourseVersion
-import kornell.server.jdbc.SQL._
-import kornell.core.to.CourseVersionTO
-import kornell.core.to.CourseClassesTO
-import kornell.server.repository.TOs
-import kornell.core.entity.AuditedEntityType
-import kornell.core.util.UUID
-import kornell.server.service.AssetService
-import kornell.core.util.StringUtils
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.entity.EntityState
-import kornell.core.error.exception.EntityConflictException
 import java.util.Date
+
+import kornell.core.entity.{AuditedEntityType, CourseDetailsEntityType, CourseVersion, EntityState}
+import kornell.core.error.exception.EntityConflictException
+import kornell.core.util.{StringUtils, UUID}
 import kornell.server.content.ContentManagers
-import kornell.server.service.S3Service
-import kornell.server.service.SandboxService
+import kornell.server.jdbc.SQL._
+import kornell.server.service.{AssetService, S3Service}
 
 class CourseVersionRepo(uuid: String) {
 
   val finder = sql"select * from CourseVersion where uuid = $uuid and state <> ${EntityState.deleted.toString}"
 
-  def get = finder.get[CourseVersion]
+  def get: CourseVersion = finder.get[CourseVersion]
 
-  def first = finder.first[CourseVersion]
+  def first: Option[CourseVersion] = finder.first[CourseVersion]
 
   def update(courseVersion: CourseVersion, skipAudit: Boolean, institutionUUID: String): CourseVersion = {
     //get previous version
@@ -66,7 +56,7 @@ class CourseVersionRepo(uuid: String) {
     }
   }
 
-  def delete = {
+  def delete: CourseVersion = {
     val courseVersion = get
     if (CourseClassesRepo.countByCourseVersion(uuid) == 0) {
       sql"""
@@ -88,12 +78,14 @@ class CourseVersionRepo(uuid: String) {
       val cm = ContentManagers.forRepository(repo.getUUID)
 
       cm.deleteFolder(S3Service.CLASSROOMS, course.getCode, courseVersion.getDistributionPrefix)
-
       courseVersion
+    } else {
+      throw new EntityConflictException("versionHasClasses")
     }
+
   }
 
-  def copy = {
+  def copy: CourseVersion = {
     val courseVersion = CourseVersionRepo(uuid).first.get
     val institutionUUID = CoursesRepo.byCourseVersionUUID(courseVersion.getUUID).get.getInstitutionUUID
     val sourceCourseVersionUUID = courseVersion.getUUID
@@ -104,7 +96,7 @@ class CourseVersionRepo(uuid: String) {
     courseVersion.setUUID(targetCourseVersionUUID)
     courseVersion.setDistributionPrefix(targetCourseVersionUUID)
     courseVersion.setName(courseVersion.getName + " (2)")
-    courseVersion.setVersionCreatedAt(new Date());
+    courseVersion.setVersionCreatedAt(new Date())
     if (StringUtils.isSome(courseVersion.getThumbUrl)) {
       courseVersion.setThumbUrl(courseVersion.getThumbUrl.replace(sourceCourseVersionUUID + "/thumb.jpg", targetCourseVersionUUID + "/thumb.jpg"))
     }
@@ -116,7 +108,7 @@ class CourseVersionRepo(uuid: String) {
     courseVersion
   }
 
-  def getChildren(): List[CourseVersion] = {
+  def getChildren: List[CourseVersion] = {
     sql"""
       select * from CourseVersion where parentVersionUUID = ${uuid}"""
       .map[CourseVersion](toCourseVersion)

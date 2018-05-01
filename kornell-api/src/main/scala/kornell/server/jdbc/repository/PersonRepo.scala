@@ -1,20 +1,11 @@
 package kornell.server.jdbc.repository
 
-import kornell.server.jdbc.SQL._
 import kornell.core.entity.Person
-import java.sql.ResultSet
-import kornell.server.repository.Entities
-import kornell.server.repository.Entities._
-import java.util.Date
-import kornell.core.entity.role.RoleCategory
-import scala.collection.JavaConverters._
-import kornell.core.entity.role.RoleType
-import java.text.SimpleDateFormat
-import java.text.DateFormat
-import java.util.concurrent.TimeUnit
-import kornell.server.jdbc.PreparedStmt
-import kornell.core.util.StringUtils._
+import kornell.core.entity.role.{RoleCategory, RoleType}
 import kornell.core.error.exception.EntityConflictException
+import kornell.core.util.StringUtils._
+import kornell.server.jdbc.PreparedStmt
+import kornell.server.jdbc.SQL._
 
 class PersonRepo(val uuid: String) {
 
@@ -22,7 +13,7 @@ class PersonRepo(val uuid: String) {
 
   def first: Option[Person] = PeopleRepo.getByUUID(uuid)
 
-  def update(person: Person) = {
+  def update(person: Person): PersonRepo = {
     sql"""
       update Person set fullName = ${person.getFullName},
       email = ${person.getEmail}, company = ${person.getCompany}, title = ${person.getTitle},
@@ -48,7 +39,7 @@ class PersonRepo(val uuid: String) {
   }
 
   def hasPassword(institutionUUID: String): Boolean = {
-    var sql = s"select count(*) from Person p join Password pw on pw.personUUID = p.uuid where p.uuid = '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null"
+    val sql = s"select count(*) from Person p join Password pw on pw.personUUID = p.uuid where p.uuid = '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null"
     val pstmt = new PreparedStmt(sql, List())
     val result = pstmt.get[Boolean]
     result
@@ -60,10 +51,10 @@ class PersonRepo(val uuid: String) {
   def isRegistered(institutionUUID: String, cpf: String, email: String): Boolean = {
     var sql = s"select count(*) from Person p left join Password pw on pw.personUUID = p.uuid where p.uuid != '${uuid}' and p.institutionUUID = '${institutionUUID}' and pw.password is not null "
     if (isSome(cpf)) {
-      sql = sql + s"and (p.cpf = '${digitsOf(cpf)}' or pw.username = '${digitsOf(cpf)}')";
+      sql = sql + s"and (p.cpf = '${digitsOf(cpf)}' or pw.username = '${digitsOf(cpf)}')"
     }
     if (isSome(email)) {
-      sql = sql + s"and (p.email = '${email}' or pw.username = '${email}')";
+      sql = sql + s"and (p.email = '${email}' or pw.username = '${email}')"
     }
     if (sql.contains("--")) throw new EntityConflictException("invalidValue")
     val pstmt = new PreparedStmt(sql, List())
@@ -71,15 +62,15 @@ class PersonRepo(val uuid: String) {
     result
   }
 
-  def hasPowerOver(targetPersonUUID: String) = {
-    val actorRoles = RolesRepo.getUserRoles(uuid, RoleCategory.BIND_DEFAULT).getRoleTOs
+  def hasPowerOver(targetPersonUUID: String): Boolean = {
+    val actorRoles = new RolesRepo().getUserRoles(uuid, RoleCategory.BIND_DEFAULT).getRoleTOs
     val targetPerson = PersonRepo(targetPersonUUID).get
     val targetUsername = AuthRepo().getUsernameByPersonUUID(targetPersonUUID)
 
     //if there's no username yet, any admin can have power
-    (!targetUsername.isDefined) ||
+    targetUsername.isEmpty ||
       {
-        val targetRoles = RolesRepo.getUserRoles(targetPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs
+        val targetRoles = new RolesRepo().getUserRoles(targetPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs
 
         //people have power over themselves
         (uuid == targetPersonUUID) ||
@@ -105,9 +96,9 @@ class PersonRepo(val uuid: String) {
       }
   }
 
-  def getUsername = sql"""select username from Password where personUUID=${uuid}""".first[String].getOrElse(null)
+  def getUsername: String = sql"""select username from Password where personUUID=${uuid}""".first[String].orNull
 
-  def acceptTerms(p: Person) = {
+  def acceptTerms(p: Person): Unit = {
     sql"""update Person
          set termsAcceptedOn = now()
          where uuid=${uuid}

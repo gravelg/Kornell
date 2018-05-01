@@ -13,6 +13,6 @@ trait SyncContentManager { //TODO: Consider Future[T] instead of Try[T]
   def deleteFolder(keys: String*)
 
   //TODO: Consider urls generated on the client side and remove this method
-  def getPrefix(): String
+  def getPrefix: String
   def url(segments: String*): String = mkurl(getPrefix, segments: _*)
 }

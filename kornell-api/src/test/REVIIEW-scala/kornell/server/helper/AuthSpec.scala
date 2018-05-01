@@ -8,7 +8,7 @@ trait AuthSpec {
     ThreadLocalAuthenticator.setAuthenticatedPersonUUID(personUUID)
 
   def yeldIdentity() =
-    ThreadLocalAuthenticator.clearAuthenticatedPersonUUID
+    ThreadLocalAuthenticator.clearAuthenticatedPersonUUID()
 
   def asIdentity[T](personUUID: String)(fun: => T):T =
     try {

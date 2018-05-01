@@ -1,25 +1,22 @@
 package kornell.server.scorm12
 
-import kornell.core.scorm12.rte.DMElement
-import kornell.core.scorm12.rte.RTE
-import java.util.{ Map => JMap }
-import scala.collection.mutable.{ Map => MMap }
-import scala.collection.JavaConverters._
+import java.util
 import java.util.logging.Logger
-import java.util.HashMap
-import kornell.core.scorm12._
-import kornell.core.entity.Person
-import kornell.core.entity.Enrollment
-import kornell.core.entity.CourseClass
+
+import kornell.core.entity.{CourseClass, Enrollment, Person}
+import kornell.core.scorm12.rte.{DMElement, RTE}
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable.{Map => MMap}
 
 object SCORM12 {
-  val logger = Logger.getLogger("kornell.server.scorm12")
+  val logger: Logger = Logger.getLogger("kornell.server.scorm12")
 
-  def initialize(entries: JMap[String, String], person: Person,
+  def initialize(entries: util.Map[String, String], person: Person,
     enrollment: Enrollment,
-    courseClass: CourseClass) = dataModel.initialize(entries, person, enrollment, courseClass)
+    courseClass: CourseClass): util.Map[String, String] = dataModel.initialize(entries, person, enrollment, courseClass)
 
-  def merged(mms: Seq[JMap[String, String]]): MMap[String, String] = {
+  def merged(mms: Seq[util.Map[String, String]]): MMap[String, String] = {
     val merged = MMap[String, String]()
     for {
       mm <- mms
@@ -32,17 +29,17 @@ object SCORM12 {
 
   implicit class Element(el: DMElement) {
 
-    def initialize(entries: JMap[String, String], person: Person,
+    def initialize(entries: util.Map[String, String], person: Person,
       enrollment: Enrollment,
-      courseClass: CourseClass): JMap[String, String] =
+      courseClass: CourseClass): util.Map[String, String] =
       _initialize(entries, person, enrollment, courseClass).asJava
 
-    def _initialize(entries: JMap[String, String],
+    def _initialize(entries: util.Map[String, String],
       person: Person,
       enrollment: Enrollment,
       courseClass: CourseClass): MMap[String, String] = {
-      type Maps = List[JMap[String, String]]
-      val childDataModels = el.getChildren().asScala
+      type Maps = List[util.Map[String, String]]
+      val childDataModels = el.getChildren.asScala
       val kids: Maps = childDataModels
         .map { _.initialize(entries, person, enrollment, courseClass) }
         .toList

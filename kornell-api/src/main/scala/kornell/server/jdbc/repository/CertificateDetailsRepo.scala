@@ -1,21 +1,20 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import kornell.server.jdbc.SQL._
+import java.util.logging.Logger
+
 import kornell.core.entity.CertificateDetails
-import kornell.core.entity.CourseDetailsEntityType
 import kornell.core.util.StringUtils.mkurl
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.content.ContentManagers
-import java.util.logging.Logger
+import kornell.server.jdbc.SQL._
 
 class CertificateDetailsRepo(uuid: String) {
-  val logger = Logger.getLogger("kornell.server.jdbc.repository.CertificateDetailsRepo")
+  val logger: Logger = Logger.getLogger("kornell.server.jdbc.repository.CertificateDetailsRepo")
 
   val finder = sql"select * from CertificateDetails where uuid=$uuid"
 
-  def get = finder.get[CertificateDetails]
-  def first = finder.first[CertificateDetails]
+  def get: CertificateDetails = finder.get[CertificateDetails]
+  def first: Option[CertificateDetails] = finder.first[CertificateDetails]
 
   def update(certificateDetails: CertificateDetails): CertificateDetails = {
     sql"""
@@ -27,7 +26,7 @@ class CertificateDetailsRepo(uuid: String) {
     certificateDetails
   }
 
-  def delete = {
+  def delete: CertificateDetails = {
     val certificateDetails = get
     sql"""
       delete from CertificateDetails

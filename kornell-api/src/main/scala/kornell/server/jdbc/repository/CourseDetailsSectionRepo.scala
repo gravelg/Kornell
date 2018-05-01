@@ -1,16 +1,16 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import kornell.server.jdbc.SQL._
-import scala.collection.JavaConverters._
 import kornell.core.entity.CourseDetailsSection
+import kornell.server.jdbc.SQL._
+
+import scala.collection.JavaConverters._
 
 class CourseDetailsSectionRepo(uuid: String) {
 
   val finder = sql"select * from CourseDetailsSection where uuid=$uuid"
 
-  def get = finder.get[CourseDetailsSection]
-  def first = finder.first[CourseDetailsSection]
+  def get: CourseDetailsSection = finder.get[CourseDetailsSection]
+  def first: Option[CourseDetailsSection] = finder.first[CourseDetailsSection]
 
   def update(courseDetailsSection: CourseDetailsSection): CourseDetailsSection = {
     sql"""
@@ -23,7 +23,7 @@ class CourseDetailsSectionRepo(uuid: String) {
     courseDetailsSection
   }
 
-  def delete = {
+  def delete: CourseDetailsSection = {
     val courseDetailsSection = get
     sql"""
       delete from CourseDetailsSection
@@ -40,7 +40,6 @@ class CourseDetailsSectionRepo(uuid: String) {
 
     courseDetailsSection
   }
-
 }
 
 object CourseDetailsSectionRepo {

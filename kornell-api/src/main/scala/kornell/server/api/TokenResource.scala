@@ -1,24 +1,15 @@
 package kornell.server.api
 
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.POST
-import kornell.server.jdbc.repository.AuthRepo
-import kornell.core.entity.AuthClientType
-import org.joda.time.DateTime
 import java.util.Date
-import kornell.core.util.UUID
-import kornell.server.jdbc.repository.TokenRepo
-import javax.ws.rs.QueryParam
-import javax.ws.rs.Produces
-import javax.ws.rs.FormParam
-import javax.ws.rs.GET
-import kornell.core.to.TokenTO
-import kornell.core.error.exception.UnauthorizedAccessException
-import javax.ws.rs.core.Context
+
 import javax.servlet.http.HttpServletRequest
-import kornell.core.error.exception.AuthenticationException
-import javax.ws.rs.core.Response
+import javax.ws.rs.{FormParam, POST, Path, Produces}
+import javax.ws.rs.core.{Context, Response}
+import kornell.core.entity.AuthClientType
+import kornell.core.error.exception.{AuthenticationException, UnauthorizedAccessException}
+import kornell.core.to.TokenTO
+import kornell.core.util.UUID
+import kornell.server.jdbc.repository.{AuthRepo, TokenRepo}
 
 @Path("auth")
 class TokenResource {
@@ -27,7 +18,7 @@ class TokenResource {
   @Produces(Array(TokenTO.TYPE))
   @Path("token")
   def getToken(@FormParam("clientType") clientType: String, @FormParam("institutionUUID") institutionUUID: String,
-    @FormParam("userkey") userkey: String, @FormParam("password") password: String) = {
+    @FormParam("userkey") userkey: String, @FormParam("password") password: String): TokenTO = {
     //gotta escape because form params and plus signs are weird
     val authValue = AuthRepo().authenticate(institutionUUID, userkey.replaceAll(" ", "\\+"), password)
     val authClientType = AuthClientType.valueOf(clientType)
@@ -59,7 +50,7 @@ class TokenResource {
 
   @POST
   @Path("logout")
-  def logout(@Context req: HttpServletRequest) = {
+  def logout(@Context req: HttpServletRequest): Response = {
     val auth = req.getHeader("X-KNL-TOKEN")
     if (auth != null && auth.length() > 0) {
       TokenRepo().deleteToken(auth)

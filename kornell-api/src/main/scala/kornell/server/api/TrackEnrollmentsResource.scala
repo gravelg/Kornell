@@ -1,13 +1,8 @@
 package kornell.server.api
 
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.POST
-import javax.ws.rs.Consumes
-import javax.ws.rs.Produces
+import javax.ws.rs._
 import kornell.core.entity.TrackEnrollment
 import kornell.server.jdbc.repository.TrackEnrollmentsRepo
-import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.util.AccessDeniedErr
 import kornell.server.util.Conditional.toConditional
 
@@ -20,10 +15,10 @@ class TrackEnrollmentsResource {
   @POST
   @Consumes(Array(TrackEnrollment.TYPE))
   @Produces(Array(TrackEnrollment.TYPE))
-  def create(trackEnrollment: TrackEnrollment) = {
+  def create(trackEnrollment: TrackEnrollment): TrackEnrollment = {
     TrackEnrollmentsRepo.create(trackEnrollment)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 }
 

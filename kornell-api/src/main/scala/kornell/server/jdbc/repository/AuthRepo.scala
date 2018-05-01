@@ -1,28 +1,23 @@
 package kornell.server.jdbc.repository
 
 import java.sql.ResultSet
-import java.util.concurrent.TimeUnit.MINUTES
-import scala.collection.JavaConverters.setAsJavaSetConverter
-import javax.ws.rs.WebApplicationException
-import javax.ws.rs.core.Response
+
 import kornell.core.entity.Person
-import kornell.core.entity.role.Role
+import kornell.core.entity.role.RoleType
+import kornell.core.error.exception.{EntityNotFoundException, UnauthorizedAccessException}
+import kornell.core.util.UUID
 import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.SQL._
-import kornell.server.repository.Entities.newPerson
 import kornell.server.util.SHA256
-import scala.util.Try
-import kornell.core.entity.role.RoleType
-import kornell.core.error.exception.EntityNotFoundException
-import kornell.core.error.exception.UnauthorizedAccessException
 import org.mindrot.BCrypt
-import kornell.core.util.UUID
+
+import scala.util.Try
 
 object AuthRepo {
 
   def apply() = new AuthRepo
 
-  def lookup(institutionUUID: String, userkey: String) =
+  def lookup(institutionUUID: String, userkey: String): Option[UsrValue] =
     authByUsername(institutionUUID, userkey)
       .orElse(authByCPF(institutionUUID, userkey))
       .orElse(authByEmail(institutionUUID, userkey))
@@ -36,7 +31,7 @@ object AuthRepo {
   type PersonUUID = String
   type PasswordResetRequired = Boolean
 
-  def authByEmail(institutionUUID: String, email: String) =
+  def authByEmail(institutionUUID: String, email: String): Option[UsrValue] =
     sql"""
    select pwd.password as password, pwd.personUUID, p.forcePasswordUpdate
    from Password pwd
@@ -45,7 +40,7 @@ object AuthRepo {
      and p.institutionUUID=${institutionUUID}
     """.first[UsrValue](toUsrValue)
 
-  def authByCPF(institutionUUID: String, cpf: String) =
+  def authByCPF(institutionUUID: String, cpf: String): Option[UsrValue] =
     sql"""
    select pwd.password as password, pwd.personUUID, p.forcePasswordUpdate
    from Password pwd
@@ -54,7 +49,7 @@ object AuthRepo {
      and p.institutionUUID=${institutionUUID}
     """.first[UsrValue](toUsrValue)
 
-  def authByUsername(institutionUUID: String, username: String) =
+  def authByUsername(institutionUUID: String, username: String): Option[UsrValue] =
     sql"""
     select pwd.password, pwd.personUUID, p.forcePasswordUpdate
     from Password pwd
@@ -63,7 +58,7 @@ object AuthRepo {
   and pwd.institutionUUID=${institutionUUID}
     """.first[UsrValue](toUsrValue)
 
-  def usernameOf(personUUID: String) = {
+  def usernameOf(personUUID: String): Option[String] = {
     val username = sql"""
       select username from Password where personUUID = $personUUID
     """.first[String] { rs => rs.getString("username") }
@@ -86,8 +81,8 @@ class AuthRepo() {
   }.getOrElse(None)
 
   def withPerson[T](fun: Person => T): T = {
-    val personUUID = ThreadLocalAuthenticator.getAuthenticatedPersonUUID
-    personUUID match {
+    val authenticatedUUID = ThreadLocalAuthenticator.getAuthenticatedPersonUUID
+    authenticatedUUID match {
       case Some(personUUID) => {
         val person = PersonRepo(personUUID).first
         person match {
@@ -99,27 +94,27 @@ class AuthRepo() {
     }
   }
 
-  def getPersonByPasswordChangeUUID(passwordChangeUUID: String) =
+  def getPersonByPasswordChangeUUID(passwordChangeUUID: String): Option[Person] =
     sql"""
       select p.* from Person p
       join Password pwd on pwd.personUUID = p.uuid
       where pwd.requestPasswordChangeUUID = $passwordChangeUUID
     """.first[Person]
 
-  def getUsernameByPersonUUID(personUUID: String) =
+  def getUsernameByPersonUUID(personUUID: String): Option[String] =
     sql"""
       select pwd.username from Password pwd
       where pwd.personUUID = $personUUID
     """.first[String]
 
-  def getPersonByUsernameAndPasswordUpdateFlag(username: String) =
+  def getPersonByUsernameAndPasswordUpdateFlag(username: String): Option[Person] =
     sql"""
       select p.* from Person p
       join Password pwd on pwd.personUUID = p.uuid
       where pwd.username = ${username} and p.forcePasswordUpdate = true
     """.first[Person]
 
-  def hasPassword(institutionUUID: String, username: String) =
+  def hasPassword(institutionUUID: String, username: String): Boolean =
     sql"""
       select pwd.username from Password pwd
       where pwd.username = $username
@@ -127,7 +122,7 @@ class AuthRepo() {
       and pwd.password is not null
     """.first[String].isDefined
 
-  def updatePassword(personUUID: String, plainPassword: String, disableForceUpdatePassword: Boolean) = {
+  def updatePassword(personUUID: String, plainPassword: String, disableForceUpdatePassword: Boolean): Unit = {
     sql"""
       update Password set password=${BCrypt.hashpw(SHA256(plainPassword), BCrypt.gensalt())}, requestPasswordChangeUUID=null where personUUID=${personUUID}
     """.executeUpdate
@@ -138,9 +133,9 @@ class AuthRepo() {
     }
   }
 
-  def setPlainPassword(institutionUUID: String, personUUID: String, username: String, plainPassword: String, forcePasswordUpdate: Boolean, requestPasswordChangeUUID: String = null) = {
+  def setPlainPassword(institutionUUID: String, personUUID: String, username: String, plainPassword: String, forcePasswordUpdate: Boolean, requestPasswordChangeUUID: String = null): Unit = {
     val pwd = Option(plainPassword) match {
-      case Some(one) => BCrypt.hashpw(SHA256(plainPassword), BCrypt.gensalt())
+      case Some(_) => BCrypt.hashpw(SHA256(plainPassword), BCrypt.gensalt())
       case None => null
     }
     sql"""
@@ -158,13 +153,13 @@ class AuthRepo() {
     }
   }
 
-  def updateRequestPasswordChangeUUID(personUUID: String, requestPasswordChangeUUID: String) =
+  def updateRequestPasswordChangeUUID(personUUID: String, requestPasswordChangeUUID: String): Unit =
     sql"""
         update Password set requestPasswordChangeUUID = $requestPasswordChangeUUID
         where personUUID = $personUUID
       """.executeUpdate
 
-  def grantPlatformAdmin(personUUID: String, institutionUUID: String) = {
+  def grantPlatformAdmin(personUUID: String, institutionUUID: String): Unit = {
     sql"""
         insert into Role (uuid, personUUID, role, institutionUUID, courseClassUUID)
         values (${UUID.random}, ${personUUID},
@@ -174,7 +169,7 @@ class AuthRepo() {
         """.executeUpdate
   }
 
-  def grantInstitutionAdmin(personUUID: String, institutionUUID: String) =
+  def grantInstitutionAdmin(personUUID: String, institutionUUID: String): Unit =
     sql"""
         insert into Role (uuid, personUUID, role, institutionUUID, courseClassUUID)
         values (${UUID.random},

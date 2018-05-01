@@ -1,43 +1,29 @@
 package kornell.server.jdbc.repository
 
-import kornell.core.entity.Enrollment
-import scala.collection.JavaConverters._
-import kornell.core.entity.EnrollmentState
-import kornell.server.jdbc.SQL._
-import kornell.server.repository.Entities._
-import kornell.core.entity.Enrollments
-import kornell.core.to.EnrollmentTO
-import kornell.core.to.EnrollmentsTO
-import kornell.server.repository.TOs
-import kornell.core.error.exception.EntityConflictException
-import scala.collection.mutable.Buffer
-import kornell.core.to.SimplePersonTO
-import kornell.core.to.SimplePeopleTO
-import kornell.server.repository.Entities
-import kornell.core.entity.Person
-import kornell.core.util.UUID
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
 import java.util.concurrent.TimeUnit.MINUTES
-import kornell.core.entity.CourseVersion
-import kornell.core.error.exception.ServerErrorException
-import kornell.core.entity.InstitutionType
-import kornell.core.to.DashboardLeaderboardTO
-import kornell.core.to.DashboardLeaderboardItemTO
-import kornell.core.entity.EnrollmentSource
+
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import kornell.core.entity._
+import kornell.core.error.exception.{EntityConflictException, ServerErrorException}
+import kornell.core.to._
+import kornell.core.util.UUID
 import kornell.server.jdbc.PreparedStmt
+import kornell.server.jdbc.SQL._
+import kornell.server.repository.{Entities, TOs}
+
+import scala.collection.JavaConverters._
 
 object EnrollmentsRepo {
 
-  def byCourseClass(courseClassUUID: String) =
+  def byCourseClass(courseClassUUID: String): EnrollmentsTO =
     byCourseClassPaged(courseClassUUID, "", Int.MaxValue, 1, "e.state", false)
 
-  def byCourseClassPaged(courseClassUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean) = {
+  def byCourseClassPaged(courseClassUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean): EnrollmentsTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
     val orderColumn = if (orderBy != null && !orderBy.contains(";")) orderBy else "e.state"
-    val orderMod = (if (asc) " asc" else " desc")
-    val order = orderColumn + orderMod + (if (orderColumn.contains("e.progress")) (", e.assessmentScore " + orderMod) else "")
+    val orderMod = if (asc) " asc" else " desc"
+    val order = orderColumn + orderMod + (if (orderColumn.contains("e.progress")) ", e.assessmentScore " + orderMod else "")
 
     val enrollmentsTO = TOs.newEnrollmentsTO(
       new PreparedStmt(s"""
@@ -80,21 +66,21 @@ object EnrollmentsRepo {
     enrollmentsTO
   }
 
-  def countByCourseClass(courseClassUUID: String) =
+  def countByCourseClass(courseClassUUID: String): Int =
     sql"""select count(*)
       from Enrollment e
       where e.courseClassUUID = ${courseClassUUID}
       and e.state <> ${EnrollmentState.deleted.toString}
     """.first[String].get.toInt
 
-  def countByCourseClassAndState(courseClassUUID: String, enrollmentState: EnrollmentState) =
+  def countByCourseClassAndState(courseClassUUID: String, enrollmentState: EnrollmentState): Int =
     sql"""select count(*)
       from Enrollment e
       where e.courseClassUUID = ${courseClassUUID}
       and e.state = ${enrollmentState.toString}
     """.first[String].get.toInt
 
-  def byPerson(personUUID: String) =
+  def byPerson(personUUID: String): List[Enrollment] =
     sql"""
       SELECT
       e.*
@@ -128,12 +114,12 @@ object EnrollmentsRepo {
       AND e.personUUID = ${personUUID}
     """.first[Enrollment]
 
-  def byStateAndPerson(state: EnrollmentState, personUUID: String) =
+  def byStateAndPerson(state: EnrollmentState, personUUID: String): List[EnrollmentTO] =
     sql"""
       SELECT e.*, p.*
       FROM Enrollment e join Person p on e.personUUID = p.uuid
       WHERE e.personUUID = ${personUUID}
-      AND e.state = ${state.toString()}
+      AND e.state = ${state.toString}
       ORDER BY e.state desc, p.fullName, p.email
     """.map[EnrollmentTO](toEnrollmentTO)
 
@@ -183,7 +169,7 @@ object EnrollmentsRepo {
     enr.courseClassUUID = ${courseClassUUID}""".map[SimplePersonTO](toSimplePersonTO))
   }
 
-  def getEspinafreEmailList(): List[Person] = {
+  def getEspinafreEmailList: List[Person] = {
     sql"""select p.* from Enrollment e
         join CourseVersion cv on cv.uuid = e.courseVersionUUID
       join Person p on e.personUUID = p.uuid
@@ -194,9 +180,9 @@ object EnrollmentsRepo {
     """.map[Person](toPerson)
   }
 
-  def getLeaderboardForDashboard(dashboardEnrollmentUUID: String) = {
+  def getLeaderboardForDashboard(dashboardEnrollmentUUID: String): DashboardLeaderboardTO = {
     val courseClass = CourseClassesRepo.byEnrollment(dashboardEnrollmentUUID)
-    if (!courseClass.isDefined) throw new ServerErrorException("errorGeneratingReport")
+    if (courseClass.isEmpty) throw new ServerErrorException("errorGeneratingReport")
     val institution = InstitutionRepo(courseClass.get.getInstitutionUUID).get
     if (!InstitutionType.DASHBOARD.equals(institution.getInstitutionType)) throw new ServerErrorException("errorGeneratingReport")
     TOs.newDashboardLeaderboardTO(
@@ -214,7 +200,7 @@ object EnrollmentsRepo {
         """.map[DashboardLeaderboardItemTO](toDashboardLeaderboardItemTO))
   }
 
-  def getLeaderboardPosition(dashboardEnrollmentUUID: String) = {
+  def getLeaderboardPosition(dashboardEnrollmentUUID: String): String = {
     val personUUID = sql" SELECT personUUID FROM Enrollment e WHERE uuid = ${dashboardEnrollmentUUID}".first[String].get
     var personAttribute = 0
     val leaderboardItems = getLeaderboardForDashboard(dashboardEnrollmentUUID).getDashboardLeaderboardItems
@@ -223,31 +209,31 @@ object EnrollmentsRepo {
       if (item.getPersonUUID.equals(personUUID))
         personAttribute = item.getAttribute.toInt
     }
-    (leaderboardItems.asScala.filter(_.getAttribute.toInt > personAttribute).length + 1).toString
+    (leaderboardItems.asScala.count(_.getAttribute.toInt > personAttribute) + 1).toString
   }
 
-  val cacheBuilder = CacheBuilder
+  val cacheBuilder: CacheBuilder[AnyRef, AnyRef] = CacheBuilder
     .newBuilder()
     .expireAfterAccess(5, MINUTES)
     .maximumSize(1000)
 
-  val uuidLoader = new CacheLoader[String, Option[Enrollment]]() {
+  val uuidLoader: CacheLoader[String, Option[Enrollment]] = new CacheLoader[String, Option[Enrollment]]() {
     override def load(uuid: String): Option[Enrollment] = sql" SELECT * FROM Enrollment e WHERE uuid = ${uuid}".first[Enrollment]
   }
 
-  val uuidCache = cacheBuilder.build(uuidLoader)
+  val uuidCache: LoadingCache[String, Option[Enrollment]] = cacheBuilder.build(uuidLoader)
 
-  def getByUUID(uuid: String) = Option(uuid) flatMap uuidCache.get
+  def getByUUID(uuid: String): Option[Enrollment] = Option(uuid) flatMap uuidCache.get
 
-  def updateCache(e: Enrollment) = {
+  def updateCache(e: Enrollment): Unit = {
     val oe = Some(e)
     uuidCache.put(e.getUUID, oe)
   }
 
-  def invalidateCache(enrollmentUUID: String) = {
+  def invalidateCache(enrollmentUUID: String): Unit = {
     uuidCache.invalidate(enrollmentUUID)
   }
 
-  def clearCache() = uuidCache.invalidateAll()
+  def clearCache(): Unit = uuidCache.invalidateAll()
 
 }

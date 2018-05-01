@@ -1,24 +1,17 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import scala.collection.JavaConverters._
-import kornell.core.entity.Course
-import kornell.core.entity.Course
-import kornell.server.jdbc.SQL._
-import kornell.server.repository.Entities._
-import kornell.server.repository.TOs._
-import kornell.core.entity.CourseVersion
-import kornell.core.to.CourseVersionTO
-import kornell.core.to.CourseVersionsTO
-import kornell.core.util.UUID
 import java.util.Date
+
+import kornell.core.entity.{AuditedEntityType, CourseVersion, EntityState, InstitutionType}
 import kornell.core.error.exception.EntityConflictException
-import kornell.core.entity.AuditedEntityType
-import kornell.core.util.StringUtils
+import kornell.core.to.{CourseVersionTO, CourseVersionsTO}
+import kornell.core.util.{StringUtils, UUID}
 import kornell.server.jdbc.PreparedStmt
-import kornell.core.entity.EntityState
-import kornell.core.entity.InstitutionType
+import kornell.server.jdbc.SQL._
+import kornell.server.repository.TOs._
 import kornell.server.service.SandboxService
+
+import scala.collection.JavaConverters._
 
 object CourseVersionsRepo {
 
@@ -28,14 +21,14 @@ object CourseVersionsRepo {
         left join Course c on c.uuid = cv.courseUUID
         left join Institution i on i.uuid = c.institutionUUID
         where cv.courseUUID = ${courseVersion.getCourseUUID} and
-        (cv.name = ${courseVersion.getName} or (cv.distributionPrefix = ${courseVersion.getDistributionPrefix}) and i.institutionType <> ${InstitutionType.DASHBOARD.toString()})
+        (cv.name = ${courseVersion.getName} or (cv.distributionPrefix = ${courseVersion.getDistributionPrefix}) and i.institutionType <> ${InstitutionType.DASHBOARD.toString})
         and cv.state <> ${EntityState.deleted.toString}
       """.first[String].get
     if (courseVersionExists == "0") {
       if (courseVersion.getUUID == null) {
         courseVersion.setUUID(UUID.random)
       }
-      courseVersion.setVersionCreatedAt(new Date());
+      courseVersion.setVersionCreatedAt(new Date())
 
       sql"""
       | insert into CourseVersion (uuid,name,courseUUID,versionCreatedAt,distributionPrefix,disabled,thumbUrl,classroomJson,classroomJsonPublished,label,instanceCount,parentVersionUUID)
@@ -65,14 +58,16 @@ object CourseVersionsRepo {
     }
   }
 
-  def getCourseVersionTO(institutionUUID: String, courseVersionUUID: String) = {
+  def getCourseVersionTO(institutionUUID: String, courseVersionUUID: String): Option[CourseVersionTO] = {
     val courseVersionsTO = byInstitution(institutionUUID, "", Int.MaxValue, 1, "cv.name", true, null, courseVersionUUID)
     if (courseVersionsTO.getCourseVersionTOs.size > 0) {
-      courseVersionsTO.getCourseVersionTOs.get(0)
+      Option(courseVersionsTO.getCourseVersionTOs.get(0))
+    } else {
+      None
     }
   }
 
-  def byInstitution(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, courseUUID: String = null, courseVersionUUID: String = null) = {
+  def byInstitution(institutionUUID: String, searchTerm: String, pageSize: Int, pageNumber: Int, orderBy: String, asc: Boolean, courseUUID: String = null, courseVersionUUID: String = null): CourseVersionsTO = {
     val resultOffset = (pageNumber.max(1) - 1) * pageSize
     val filteredSearchTerm = '%' + Option(searchTerm).getOrElse("") + '%'
     val orderColumn = if (orderBy != null && !orderBy.contains(";")) orderBy else "cv.name"
@@ -141,19 +136,19 @@ object CourseVersionsRepo {
     courseVersionsTO
   }
 
-  private def bindCourseClassesCounts(courseVersionsTO: CourseVersionsTO) = {
+  private def bindCourseClassesCounts(courseVersionsTO: CourseVersionsTO): CourseVersionsTO = {
     val versions = courseVersionsTO.getCourseVersionTOs.asScala
     versions.foreach(cv => cv.setCourseClassesCount(CourseClassesRepo.countByCourseVersion(cv.getCourseVersion.getUUID)))
     courseVersionsTO.setCourseVersionTOs(versions.asJava)
     courseVersionsTO
   }
 
-  def byParentVersionUUID(parentVersionUUID: String) = sql"""
+  def byParentVersionUUID(parentVersionUUID: String): List[CourseVersion] = sql"""
     select * from CourseVersion where parentVersionUUID = ${parentVersionUUID}
       and state <> ${EntityState.deleted.toString}
   """.map[CourseVersion]
 
-  def byEnrollment(enrollmentUUID: String) = {
+  def byEnrollment(enrollmentUUID: String): Option[CourseVersion] = {
     sql"""
       | select cv.* from
       | CourseVersion cv
@@ -164,21 +159,21 @@ object CourseVersionsRepo {
       """.first[CourseVersion](toCourseVersion)
   }
 
-  def byCourseClassUUID(courseClassUUID: String) = sql"""
+  def byCourseClassUUID(courseClassUUID: String): Option[CourseVersion] = sql"""
     select * from CourseVersion cv join
     CourseClass cc on cc.courseVersionUUID = cv.uuid
     where cc.uuid = $courseClassUUID
     and cv.state <> ${EntityState.deleted.toString}
   """.first[CourseVersion]
 
-  def countByCourse(courseUUID: String) =
+  def countByCourse(courseUUID: String): Int =
     sql"""select count(*)
       from CourseVersion cv
       where cv.courseUUID = ${courseUUID}
       and cv.state <> ${EntityState.deleted.toString}
     """.first[String].get.toInt
 
-  def allByInstitution(institutionUUID: String) =
+  def allByInstitution(institutionUUID: String): List[CourseVersion] =
     sql"""
       select cv.* from CourseVersion cv left join Course c on cv.courseUUID = c.uuid
       where cv.state <> ${EntityState.deleted.toString} and c.institutionUUID = ${institutionUUID}

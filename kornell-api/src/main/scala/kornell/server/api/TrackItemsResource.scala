@@ -1,13 +1,8 @@
 package kornell.server.api
 
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.POST
-import javax.ws.rs.Consumes
-import javax.ws.rs.Produces
+import javax.ws.rs._
 import kornell.core.entity.TrackItem
 import kornell.server.jdbc.repository.TrackItemsRepo
-import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.util.AccessDeniedErr
 import kornell.server.util.Conditional.toConditional
 
@@ -22,8 +17,8 @@ class TrackItemsResource {
   @Produces(Array(TrackItem.TYPE))
   def create(trackItem: TrackItem): TrackItem = {
     TrackItemsRepo.create(trackItem)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 }
 

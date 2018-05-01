@@ -1,27 +1,23 @@
 package kornell.server.report
 
-import java.io.InputStream
 import java.sql.ResultSet
-import java.util.HashMap
-import scala.collection.JavaConverters.seqAsJavaListConverter
-import kornell.core.to.report.InstitutionBillingEnrollmentReportTO
-import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.repository.TOs
-import kornell.server.jdbc.repository.InstitutionRepo
-import kornell.core.to.report.InstitutionBillingMonthlyReportTO
-import kornell.core.entity.BillingType
-import kornell.core.entity.Institution
-import kornell.core.entity.EnrollmentState
+import java.util
+
 import javax.servlet.http.HttpServletResponse
+import kornell.core.entity.BillingType
+import kornell.core.to.report.{InstitutionBillingEnrollmentReportTO, InstitutionBillingMonthlyReportTO}
+import kornell.server.jdbc.SQL.SQLHelper
+import kornell.server.jdbc.repository.InstitutionRepo
+import kornell.server.repository.TOs
 
 object ReportInstitutionBillingGenerator {
 
-  def generateInstitutionBillingReport(institutionUUID: String, periodStart: String, periodEnd: String, resp: HttpServletResponse) = {
+  def generateInstitutionBillingReport(institutionUUID: String, periodStart: String, periodEnd: String, resp: HttpServletResponse): Array[Byte] = {
     val institution = InstitutionRepo(institutionUUID).get
     resp.addHeader("Content-disposition", "attachment; filename=" + institution.getName + " - " + periodStart + ".xls")
     resp.setContentType("application/vnd.ms-excel")
 
-    val parameters: HashMap[String, Object] = new HashMap()
+    val parameters: util.HashMap[String, Object] = new util.HashMap()
     parameters.put("institutionName", institution.getName)
     parameters.put("periodStart", periodStart)
     parameters.put("periodEnd", periodEnd)
@@ -32,7 +28,7 @@ object ReportInstitutionBillingGenerator {
     }
   }
 
-  private def generateInstitutionBillingMonthlyReport(institutionUUID: String, periodStart: String, periodEnd: String, parameters: HashMap[String, Object]): Array[Byte] = {
+  private def generateInstitutionBillingMonthlyReport(institutionUUID: String, periodStart: String, periodEnd: String, parameters: util.HashMap[String, Object]): Array[Byte] = {
 
     implicit def toInstitutionBillingMonthlyReportTO(rs: ResultSet): InstitutionBillingMonthlyReportTO =
       TOs.newInstitutionBillingMonthlyReportTO(
@@ -61,7 +57,7 @@ object ReportInstitutionBillingGenerator {
     getReportBytesFromStream(institutionBillingReportTO, parameters, jasperStream, "xls")
   }
 
-  private def generateInstitutionBillingEnrollmentReport(institutionUUID: String, periodStart: String, periodEnd: String, parameters: HashMap[String, Object]): Array[Byte] = {
+  private def generateInstitutionBillingEnrollmentReport(institutionUUID: String, periodStart: String, periodEnd: String, parameters: util.HashMap[String, Object]): Array[Byte] = {
 
     implicit def toInstitutionBillingEnrollmentReportTO(rs: ResultSet): InstitutionBillingEnrollmentReportTO =
       TOs.newInstitutionBillingEnrollmentReportTO(
@@ -109,5 +105,4 @@ object ReportInstitutionBillingGenerator {
     val jasperStream = cl.getResourceAsStream("reports/institutionBillingXLS_enrollment.jasper")
     getReportBytesFromStream(institutionBillingReportTO, parameters, jasperStream, "xls")
   }
-
 }

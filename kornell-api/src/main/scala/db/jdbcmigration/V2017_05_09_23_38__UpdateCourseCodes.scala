@@ -1,24 +1,17 @@
 package db.jdbcmigration
 
+import java.sql.{Connection, ResultSet}
+
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration
-import java.sql.Connection
-import kornell.server.util.EnrollmentUtil._
-import kornell.server.jdbc.repository.EnrollmentRepo
-import kornell.server.jdbc.SQL._
-import java.io.File
-import org.apache.commons.io.FileUtils
-import java.net.URL
-import kornell.core.util.StringUtils
-import net.lingala.zip4j.core.ZipFile
-import java.sql.ResultSet
 import kornell.server.jdbc.ConnectionHandler
+import kornell.server.jdbc.SQL._
 
 class V2017_04_25_23_38__UpdateCourseCodes extends JdbcMigration {
-  override def migrate(conn: Connection) {
-    migrateCourseCodes
+  override def migrate(conn: Connection): Unit = {
+    migrateCourseCodes()
   }
 
-  def migrateCourseCodes() = {
+  def migrateCourseCodes(): Unit = {
     val versions = sql"""
   		  select course_uuid, distributionPrefix, uuid from CourseVersion
   		""".map[(String, String, String)](toTuple)
@@ -38,7 +31,7 @@ class V2017_04_25_23_38__UpdateCourseCodes extends JdbcMigration {
       		""".executeUpdate
         }
       } catch {
-        case e: Exception => {}
+        case _: Exception =>
       }
     }
     ConnectionHandler.commit()

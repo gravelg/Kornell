@@ -1,27 +1,17 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import kornell.core.entity.Course
-import kornell.core.entity.Person
-import kornell.server.repository.Entities.newCourse
-import kornell.server.jdbc.SQL._
-import kornell.core.entity.AuditedEntityType
-import kornell.core.util.UUID
-import kornell.core.entity.CourseDetailsEntityType
-import scala.collection.JavaConverters._
-import kornell.server.service.S3Service
-import kornell.core.util.StringUtils._
-import kornell.server.service.AssetService
-import kornell.core.util.StringUtils
-import kornell.core.entity.EntityState
+import kornell.core.entity.{AuditedEntityType, Course, CourseDetailsEntityType, EntityState}
 import kornell.core.error.exception.EntityConflictException
+import kornell.core.util.{StringUtils, UUID}
+import kornell.server.jdbc.SQL._
+import kornell.server.service.AssetService
 
 class CourseRepo(uuid: String) {
 
   val finder = sql"select * from Course where uuid = $uuid and state <> ${EntityState.deleted.toString}"
 
-  def get = finder.get[Course]
-  def first = finder.first[Course]
+  def get: Course = finder.get[Course]
+  def first: Option[Course] = finder.first[Course]
 
   def update(course: Course): Course = {
     //get previous course
@@ -58,7 +48,7 @@ class CourseRepo(uuid: String) {
     }
   }
 
-  def delete = {
+  def delete: Course = {
     val course = get
     if (CourseVersionsRepo.countByCourse(uuid) == 0) {
       sql"""
@@ -69,10 +59,12 @@ class CourseRepo(uuid: String) {
         where uuid = ${uuid}
       """.executeUpdate
       course
+    } else {
+      throw new EntityConflictException("courseHasVersions")
     }
   }
 
-  def copy = {
+  def copy: Course = {
     val course = CourseRepo(uuid).first.get
     val sourceCourseUUID = course.getUUID
     val targetCourseUUID = UUID.random

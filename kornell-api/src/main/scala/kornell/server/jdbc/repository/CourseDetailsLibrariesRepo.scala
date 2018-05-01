@@ -1,13 +1,12 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import scala.collection.JavaConverters._
-import kornell.server.jdbc.SQL._
-import kornell.core.util.UUID
-import kornell.core.entity.CourseDetailsLibrary
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.server.repository.TOs
 import java.text.Normalizer
+
+import kornell.core.entity.{CourseDetailsEntityType, CourseDetailsLibrary}
+import kornell.core.to.CourseDetailsLibrariesTO
+import kornell.core.util.UUID
+import kornell.server.jdbc.SQL._
+import kornell.server.repository.TOs
 
 object CourseDetailsLibrariesRepo {
 
@@ -33,13 +32,13 @@ object CourseDetailsLibrariesRepo {
     courseDetailsLibrary
   }
 
-  def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType) = {
+  def getForEntity(entityUUID: String, entityType: CourseDetailsEntityType): CourseDetailsLibrariesTO = {
     TOs.newCourseDetailsLibrariesTO(sql"""
       select * from CourseDetailsLibrary where entityUUID = ${entityUUID} and entityType = ${entityType.toString} order by `index`
     """.map[CourseDetailsLibrary](toCourseDetailsLibrary))
   }
 
-  def moveUp(entityUUID: String, entityType: CourseDetailsEntityType, index: Int) = {
+  def moveUp(entityUUID: String, entityType: CourseDetailsEntityType, index: Int): Unit = {
     val courseDetailsLibraries = CourseDetailsLibrariesRepo.getForEntity(entityUUID, entityType).getCourseDetailsLibraries
     if (index >= 0 && courseDetailsLibraries.size > 1) {
       val currentLibrary = courseDetailsLibraries.get(index)
@@ -51,10 +50,9 @@ object CourseDetailsLibrariesRepo {
       CourseDetailsLibraryRepo(currentLibrary.getUUID).update(currentLibrary)
       CourseDetailsLibraryRepo(previousLibrary.getUUID).update(previousLibrary)
     }
-    ""
   }
 
-  def moveDown(entityUUID: String, entityType: CourseDetailsEntityType, index: Int) = {
+  def moveDown(entityUUID: String, entityType: CourseDetailsEntityType, index: Int): Unit = {
     val courseDetailsLibraries = CourseDetailsLibrariesRepo.getForEntity(entityUUID, entityType).getCourseDetailsLibraries
     if (index < (courseDetailsLibraries.size - 1) && courseDetailsLibraries.size > 1) {
       val currentLibrary = courseDetailsLibraries.get(index)
@@ -66,6 +64,5 @@ object CourseDetailsLibrariesRepo {
       CourseDetailsLibraryRepo(currentLibrary.getUUID).update(currentLibrary)
       CourseDetailsLibraryRepo(nextLibrary.getUUID).update(nextLibrary)
     }
-    ""
   }
 }

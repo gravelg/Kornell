@@ -1,29 +1,27 @@
 package kornell.server.repository
 
-import kornell.core.lom.LOMFactory
+import java.util
+
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource
-import kornell.core.lom.ExternalPage
-import kornell.core.lom.Topic
-import kornell.core.lom.Content
-import kornell.core.lom.ContentFormat
-import java.util.ArrayList
+import kornell.core.lom._
 import kornell.core.util.StringUtils._
+
 import scala.collection.JavaConverters._
 import scala.util.Try
 
 object LOM {
-  val factory = AutoBeanFactorySource.create(classOf[LOMFactory])
+  val factory: LOMFactory = AutoBeanFactorySource.create(classOf[LOMFactory])
 
-  def newTopic(name: String = "") = {
+  def newTopic(name: String = ""): Topic = {
     val topic = factory.newTopic.as
     topic.setName(name)
-    topic.setChildren(new ArrayList)
+    topic.setChildren(new util.ArrayList)
     topic
   }
 
-  def newContent(topic: Topic) = {
+  def newContent(topic: Topic): Content = {
     val content = factory.newContent.as
-    content.setFormat(ContentFormat.Topic);
+    content.setFormat(ContentFormat.Topic)
     content.setTopic(topic)
     content
   }
@@ -33,7 +31,7 @@ object LOM {
     fileName: String = "",
     title: String = "",
     actomKey: String = "",
-    index: Int) = {
+    index: Int): ExternalPage = {
 
     val baseURL: String = ""
     val page = factory.newExternalPage.as
@@ -49,17 +47,16 @@ object LOM {
     page
   }
 
-  def newContent(page: ExternalPage) = {
+  def newContent(page: ExternalPage): Content = {
     val content = factory.newContent.as
-    content.setFormat(ContentFormat.ExternalPage);
+    content.setFormat(ContentFormat.ExternalPage)
     content.setExternalPage(page)
     content
   }
 
-  def newContents(children: List[Content] = List()) = {
+  def newContents(children: List[Content] = List()): Contents = {
     val contents = factory.newContents.as
     contents.setChildren(children asJava)
     contents
   }
-
 }

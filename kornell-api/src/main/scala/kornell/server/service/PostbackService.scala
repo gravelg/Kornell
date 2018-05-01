@@ -1,27 +1,22 @@
 package kornell.server.service
 
-import org.apache.http.impl.client.HttpClients
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.StringEntity
-import org.apache.http.util.EntityUtils
-import org.apache.http.client.utils.URLEncodedUtils
-import java.nio.charset.Charset
-import scala.collection.JavaConverters._
-import kornell.server.repository.TOs
-import kornell.core.entity.RegistrationType
-import java.util.logging.Logger
-import java.util.logging.Level
-import kornell.core.entity.PostbackType
-import kornell.server.jdbc.repository.PostbackConfigRepo
-import org.apache.http.client.methods.HttpGet
-import kornell.server.jdbc.repository.CourseClassRepo
-import scala.xml.XML
-import kornell.server.jdbc.repository.CourseClassesRepo
-import kornell.server.jdbc.ConnectionHandler
-import kornell.server.util.DateConverter
-import kornell.server.jdbc.repository.InstitutionRepo
 import java.net.URLEncoder
+import java.nio.charset.Charset
+import java.util.logging.{Level, Logger}
+
 import javax.servlet.http.HttpServletRequest
+import kornell.core.entity.{PostbackType, RegistrationType}
+import kornell.server.jdbc.ConnectionHandler
+import kornell.server.jdbc.repository.{CourseClassesRepo, InstitutionRepo, PostbackConfigRepo}
+import kornell.server.repository.TOs
+import kornell.server.util.DateConverter
+import org.apache.http.client.methods.{HttpGet, HttpPost}
+import org.apache.http.client.utils.URLEncodedUtils
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.util.EntityUtils
+
+import scala.collection.JavaConverters._
+import scala.xml.XML
 
 object PostbackService {
 
@@ -86,7 +81,7 @@ object PostbackService {
    * </transaction>
    */
 
-  val logger = Logger.getLogger("kornell.server.repository.service.PostbackService")
+  val logger: Logger = Logger.getLogger("kornell.server.repository.service.PostbackService")
 
   //Paypal URLs
   //One URL for sandbox transactions, one for live
@@ -101,11 +96,11 @@ object PostbackService {
   val pag_sandbox_validation = "https://pagseguro.uol.com.br/Security/NPI/Default.aspx?Comando=validar"
   val pag_validation = "https://pagseguro.uol.com.br/Security/NPI/Default.aspx?Comando=validar"
 
-  def paypalPostback(env: String, payload: String) = {
+  def paypalPostback(env: String, payload: String): Unit = {
     //Need to prepend a string to message we send back to validate authenticity
     val validation_message = "?cmd=_notify-validate&" + payload
     val hello = new Thread(new Runnable {
-      def run() {
+      override def run(): Unit = {
         try {
           val current_url = if (env != "live") paypal_sandbox_validation_url else paypal_validation_url
           val postbackType = if (env != "live") PostbackType.PAYPAL_SANDBOX else PostbackType.PAYPAL
@@ -124,23 +119,23 @@ object PostbackService {
         } catch {
           case e: Throwable => logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + payload, e)
         } finally {
-          DateConverter.clearTimeZone
+          DateConverter.clearTimeZone()
           try {
             // in new thread we get a new connection, no filter so we need to commit/rollback manually
-            ConnectionHandler.commit
+            ConnectionHandler.commit()
           } catch {
             case e: Throwable => {
-              ConnectionHandler.rollback
+              ConnectionHandler.rollback()
               logger.log(Level.SEVERE, "POSTBACKLOG: Exception while processing postback " + payload, e)
             }
           }
         }
       }
     })
-    hello.start
+    hello.start()
   }
 
-  def paypalWCPostback(env: String, institutionUUID: String, request: HttpServletRequest) = {
+  def paypalWCPostback(env: String, institutionUUID: String, request: HttpServletRequest): Unit = {
     val postbackType = if (env == "live") {
       PostbackType.PAYPAL
     } else {
@@ -174,7 +169,7 @@ object PostbackService {
     }
   }
 
-  def getPostbackTypeAndUrl(env: String, notificationCode: String) = {
+  def getPostbackTypeAndUrl(env: String, notificationCode: String): (PostbackType, String) = {
     if (env == "live") {
       if (notificationCode != null) {
         (PostbackType.PAGSEGURO, pag_get_trans_url)
@@ -190,7 +185,7 @@ object PostbackService {
     }
   }
 
-  def prettyParams(request: HttpServletRequest) = {
+  def prettyParams(request: HttpServletRequest): String = {
     var paramsString = ""
     for (param <- request.getParameterNames.asScala) {
       paramsString += param + "->" + request.getParameter(param) + ","
@@ -198,9 +193,9 @@ object PostbackService {
     paramsString
   }
 
-  def pagseguroPostback(env: String, institutionUUID: String, pagseguroRequest: HttpServletRequest) = {
+  def pagseguroPostback(env: String, institutionUUID: String, pagseguroRequest: HttpServletRequest): Unit = {
     val (postbackType, current_url) = getPostbackTypeAndUrl(env, pagseguroRequest.getParameter("notificationCode"))
-    val postbackConfig = PostbackConfigRepo.getConfig(institutionUUID, postbackType).getOrElse(null)
+    val postbackConfig = PostbackConfigRepo.getConfig(institutionUUID, postbackType).orNull
     if (postbackConfig == null) {
       logger.log(Level.SEVERE, "POSTBACKLOG: Missing postback config for Pagseguro transaction ID [" + prettyParams(pagseguroRequest) + "] and " +
         " institution: [" + institutionUUID + "] and env [" + env + "], could not process")
@@ -246,13 +241,13 @@ object PostbackService {
     }
   }
 
-  def processPagseguroResponseWooCommerce(institutionUUID: String, pagseguroRequest: HttpServletRequest) = {
+  def processPagseguroResponseWooCommerce(institutionUUID: String, pagseguroRequest: HttpServletRequest): Unit = {
     val user_email = pagseguroRequest.getParameter("CliEmail")
     val name = pagseguroRequest.getParameter("CliNome")
     val pagseguroIds = pagseguroRequest.getParameter("Referencia").split("/")
     for (pagseguroId <- pagseguroIds) {
       val courseClass = CourseClassesRepo.byEcommerceIdentifier(pagseguroId)
-      if (!courseClass.isDefined || courseClass.get.getInstitutionUUID != institutionUUID) {
+      if (courseClass.isEmpty || courseClass.get.getInstitutionUUID != institutionUUID) {
         logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for ecommerceIdentifier [" + pagseguroId + "] and " +
           "institution [" + institutionUUID + "]")
       } else {
@@ -271,17 +266,17 @@ object PostbackService {
     }
   }
 
-  def processPagseguroResponse(institutionUUID: String, xmlResponse: String) = {
+  def processPagseguroResponse(institutionUUID: String, xmlResponse: String): Unit = {
     val response_xml = XML.loadString(xmlResponse)
 
     val user_email = (response_xml \\ "sender" \\ "email").text
     val name = (response_xml \\ "sender" \\ "name").text
-    val pagseguroIds = (response_xml \\ "items" \\ "item" \\ "id")
+    val pagseguroIds = response_xml \\ "items" \\ "item" \\ "id"
 
     for (pagseguroId <- pagseguroIds) {
       val textId = (pagseguroId \\ "id").text
       val courseClass = CourseClassesRepo.byEcommerceIdentifier(textId)
-      if (!courseClass.isDefined || courseClass.get.getInstitutionUUID != institutionUUID) {
+      if (courseClass.isEmpty || courseClass.get.getInstitutionUUID != institutionUUID) {
         logger.log(Level.SEVERE, "POSTBACKLOG: No courseClass found for ecommerceIdentifier [" + textId + "] and " +
           "institution [" + institutionUUID + "], could not process XML " + xmlResponse)
       } else {
@@ -300,7 +295,7 @@ object PostbackService {
     }
   }
 
-  def createEnrollment(payload: String, postbackType: PostbackType) = {
+  def createEnrollment(payload: String, postbackType: PostbackType): Unit = {
     val payloadMap = URLEncodedUtils.parse(payload, Charset.forName("utf-8")).asScala.map(t => t.getName -> t.getValue).toMap
 
     val token = getValueFromPayloadMap(payloadMap, "custom").get
@@ -308,7 +303,7 @@ object PostbackService {
     val courseClass = CourseClassesRepo.byEcommerceIdentifier(ecommerceIdentifier).get
     val institutionUUID = courseClass.getInstitutionUUID
     DateConverter.setTimeZone(new InstitutionRepo(institutionUUID).get.getTimeZone)
-    val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).getOrElse(null)
+    val postbackConfig = PostbackConfigRepo.checkConfig(institutionUUID, postbackType, token).orNull
 
     if (postbackConfig != null) {
       val enrollmentRequest = TOs.tos.newEnrollmentRequestTO.as
@@ -336,8 +331,7 @@ object PostbackService {
     try {
       Some(payloadMap(key))
     } catch {
-      case e: Throwable => { None }
+      case _: Throwable => None
     }
   }
-
 }

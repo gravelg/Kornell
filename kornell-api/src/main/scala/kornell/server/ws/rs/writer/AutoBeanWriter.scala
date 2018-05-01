@@ -1,22 +1,12 @@
-package kornell.server.ws.rs
+package kornell.server.ws.rs.writer
 
-import java.lang.Class
-import com.google.web.bindery.autobean.shared.AutoBean
-import com.google.web.bindery.autobean.shared.AutoBeanCodex
-import com.google.web.bindery.autobean.shared.AutoBeanUtils
-import javax.ws.rs.ext.Provider
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.MultivaluedMap
-import javax.ws.rs.ext.MessageBodyWriter
-import kornell.server.util.Conditional._
-import java.io.OutputStream
-import kornell.server.util.Passed
-import kornell.server.util.Failed
-import kornell.server.util.Err
+import java.io.{OutputStream, OutputStreamWriter}
+
+import com.google.web.bindery.autobean.shared.{AutoBeanCodex, AutoBeanUtils}
 import javax.ws.rs.WebApplicationException
-import javax.ws.rs.core.Response
-import java.util.logging.Logger
-import java.io.OutputStreamWriter
+import javax.ws.rs.core.{MediaType, MultivaluedMap, Response}
+import javax.ws.rs.ext.{MessageBodyWriter, Provider}
+import kornell.server.util.{Err, Failed, Passed}
 
 @Provider
 class AutoBeanWriter extends MessageBodyWriter[Any] {
@@ -24,12 +14,12 @@ class AutoBeanWriter extends MessageBodyWriter[Any] {
     aType: java.lang.Class[_],
     genericType: java.lang.reflect.Type,
     annotations: Array[java.lang.annotation.Annotation],
-    mediaType: MediaType) = -1L
+    mediaType: MediaType): Long = -1L
 
   override def isWriteable(aType: java.lang.Class[_],
     genericType: java.lang.reflect.Type,
     annotations: Array[java.lang.annotation.Annotation],
-    mediaType: MediaType) = mediaType.toString().contains("vnd.kornell")
+    mediaType: MediaType): Boolean = mediaType.toString.contains("vnd.kornell")
 
   override def writeTo(t: Any,
     aType: java.lang.Class[_],
@@ -37,29 +27,28 @@ class AutoBeanWriter extends MessageBodyWriter[Any] {
     annotations: Array[java.lang.annotation.Annotation],
     mediaType: MediaType,
     httpHeaders: MultivaluedMap[java.lang.String, java.lang.Object],
-    out: java.io.OutputStream) {
+    out: java.io.OutputStream): Unit = {
     t match {
-      case Some(thing) => { outputPayload(thing, out) }
-      case Passed(block) => { outputPayload(block, out) }
-      case Failed(err) => { spitErr(err) }
-      case _ => { outputPayload(t, out) }
+      case Some(thing) => outputPayload(thing, out)
+      case Passed(block) => outputPayload(block, out)
+      case Failed(err) => spitErr(err)
+      case _ => outputPayload(t, out)
     }
   }
 
-  def spitErr(e: Err) = {
+  def spitErr(e: Err): Nothing = {
     println(e)
-    val response = Response.status(Response.Status.BAD_REQUEST).build();
-    throw new WebApplicationException(response);
+    val response = Response.status(Response.Status.BAD_REQUEST).build()
+    throw new WebApplicationException(response)
   }
 
-  private def outputPayload(content: Any, out: OutputStream) = {
+  private def outputPayload(content: Any, out: OutputStream): Unit = {
     val bean = AutoBeanUtils.getAutoBean(content)
     val payload = AutoBeanCodex.encode(bean).getPayload
-    val writer = new OutputStreamWriter(out, "UTF-8");
+    val writer = new OutputStreamWriter(out, "UTF-8")
     writer.write(payload)
     writer.flush()
     writer.close()
-
   }
 
 }

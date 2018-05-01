@@ -5,7 +5,7 @@ import kornell.server.jdbc.SQL._
 
 class ContentRepositoryRepo(uuid: String) {
 
-  def get = ContentRepositoriesRepo.getByRepositoryUUID(uuid).get
+  def get: ContentRepository = ContentRepositoriesRepo.getByRepositoryUUID(uuid).get
 
   def update(repo: ContentRepository): ContentRepository = {
     sql"""

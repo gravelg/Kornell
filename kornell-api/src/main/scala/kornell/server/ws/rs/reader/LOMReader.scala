@@ -6,8 +6,8 @@ import kornell.core.lom.LOMFactory
 
 @Provider
 class LOMReader extends AutoBeanReader {
-  val factory = AutoBeanFactorySource.create(classOf[LOMFactory])
+  val factory: LOMFactory = AutoBeanFactorySource.create(classOf[LOMFactory])
 
-  override def getTypePrefix = LOMFactory.PREFIX
-  override def getAutoBeanFactory = factory
+  override def getTypePrefix: String = LOMFactory.PREFIX
+  override def getAutoBeanFactory: LOMFactory = factory
 }

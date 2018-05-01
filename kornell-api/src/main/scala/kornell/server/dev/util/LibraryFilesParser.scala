@@ -1,25 +1,17 @@
 package kornell.server.dev.util
 
-import scala.collection.mutable.ListBuffer
-import kornell.core.lom.Topic
-import kornell.core.lom.Content
-import kornell.server.repository.Entities
-import kornell.core.lom.Contents
-import scala.io.Source
-import scala.io.BufferedSource
-import kornell.core.util.StringUtils._
-import kornell.server.repository.LOM
-import kornell.core.to.LibraryFileTO
-import kornell.server.repository.TOs
-import kornell.core.to.LibraryFilesTO
+import kornell.core.to.{LibraryFileTO, LibraryFilesTO}
 import kornell.core.util.StringUtils
+import kornell.server.repository.TOs
+
+import scala.collection.mutable.ListBuffer
 
 object LibraryFilesParser {
 
   def parse(filesURL: String, source: String): LibraryFilesTO =
     parseLines(filesURL, source.lines)
 
-  def parseLine(lineArray: Array[String], filesURL: String) = {
+  def parseLine(lineArray: Array[String], filesURL: String): LibraryFileTO = {
     val libraryFileTO = TOs.newLibraryFileTO
     //#fullFileName#fileType#fileNameDisplay#fileDescription#fileSize#publishingDate
     libraryFileTO.setURL(StringUtils.composeURL(filesURL, lineArray(0)))
@@ -31,7 +23,7 @@ object LibraryFilesParser {
     libraryFileTO
   }
 
-  def parseLines(filesURL: String, lines: Iterator[String]) = {
+  def parseLines(filesURL: String, lines: Iterator[String]): LibraryFilesTO = {
     val result = ListBuffer[LibraryFileTO]()
     lines foreach { line =>
       val lineArray = line.split(";")

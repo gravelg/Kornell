@@ -1,20 +1,14 @@
 package kornell.server.service
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-
 import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.util.UUID
-import kornell.server.jdbc.repository.CertificatesDetailsRepo
-import kornell.server.jdbc.repository.ContentRepositoriesRepo
-import kornell.server.jdbc.repository.CourseDetailsHintsRepo
-import kornell.server.jdbc.repository.CourseDetailsLibrariesRepo
-import kornell.server.jdbc.repository.CourseDetailsSectionsRepo
-import kornell.server.jdbc.repository.InstitutionRepo
-import kornell.core.util.StringUtils
+import kornell.core.util.{StringUtils, UUID}
+import kornell.server.jdbc.repository.{CertificatesDetailsRepo, ContentRepositoriesRepo, CourseDetailsHintsRepo, CourseDetailsLibrariesRepo, CourseDetailsSectionsRepo, InstitutionRepo}
+
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 object AssetService {
 
-  def copyAssets(institutionUUID: String, entityType: CourseDetailsEntityType, sourceEntityUUID: String, targetEntityUUID: String, thumbUrl: String) = {
+  def copyAssets(institutionUUID: String, entityType: CourseDetailsEntityType, sourceEntityUUID: String, targetEntityUUID: String, thumbUrl: String): Unit = {
     val institution = InstitutionRepo(institutionUUID).get
     val bucketName = ContentRepositoriesRepo.firstRepository(institution.getAssetsRepositoryUUID).get.getBucketName
     val s3 = S3Service.getAmazonS3Client(institution.getUUID)
@@ -27,7 +21,7 @@ object AssetService {
       println(targetThumbPath)
       try {
         s3.copyObject(bucketName, sourceThumbPath, bucketName, targetThumbPath)
-      } catch { case e: Exception => {} }
+      } catch { case _: Exception => }
     }
 
     //copy certificate bg
@@ -45,7 +39,7 @@ object AssetService {
       println(targetCertificateBgPath)
       try {
         s3.copyObject(bucketName, sourceCertificateBgPath, bucketName, targetCertificateBgPath)
-      } catch { case e: Exception => {} }
+      } catch { case _: Exception => }
     }
 
     //copy sections
@@ -77,7 +71,7 @@ object AssetService {
       println(targetLibraryPath)
       try {
         s3.copyObject(bucketName, sourceLibraryPath, bucketName, targetLibraryPath)
-      } catch { case e: Exception => {} }
+      } catch { case _: Exception => }
     })
   }
 }

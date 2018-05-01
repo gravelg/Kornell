@@ -1,41 +1,32 @@
 package kornell.server.service
 
-import java.util.Date
-
-import kornell.core.entity.ContentSpec
-import kornell.core.entity.Course
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.util.StringUtils
-import kornell.core.util.UUID
-import kornell.server.jdbc.repository.CourseClassesRepo
-import kornell.server.jdbc.repository.CourseDetailsHintsRepo
-import kornell.server.jdbc.repository.CourseDetailsSectionsRepo
-import kornell.server.jdbc.repository.CourseVersionsRepo
-import kornell.server.jdbc.repository.CoursesRepo
-import kornell.server.repository.Entities
-import kornell.server.repository.TOs
-import kornell.core.entity.RegistrationType
-import kornell.core.entity.EntityState
-import kornell.server.authentication.ThreadLocalAuthenticator
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
+import java.util.Date
+
+import kornell.core.entity._
+import kornell.core.to.CourseClassTO
+import kornell.core.util.{StringUtils, UUID}
+import kornell.server.authentication.ThreadLocalAuthenticator
+import kornell.server.jdbc.repository.{CourseClassesRepo, CourseDetailsHintsRepo, CourseDetailsSectionsRepo, CourseVersionsRepo, CoursesRepo}
+import kornell.server.repository.{Entities, TOs}
 
 object CourseCreationService {
 
-  def generateCourseDetails(courseUUID: String, to: Course) = {
-    val duration = CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "duration",
+  def generateCourseDetails(courseUUID: String, to: Course): Unit = {
+    CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "duration",
       "Carga de estudo: XXX horas", CourseDetailsEntityType.COURSE, courseUUID, 0, "fa fa-clock-o"))
-    val help = CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "help",
+    CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "help",
       "Se precisar entrar em contato, clique em ajuda no menu acima.", CourseDetailsEntityType.COURSE, courseUUID, 1, "fa fa-question-circle"))
-    val multimedia = CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "multimedia-warning",
+    CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "multimedia-warning",
       "Este curso contém vídeo e áudio, certifique que seu dispositivo possa reproduzi-los.", CourseDetailsEntityType.COURSE, courseUUID, 2, "fa fa-warning"))
-    val certificate = CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "certificate",
+    CourseDetailsHintsRepo.create(Entities.newCourseDetailsHint(UUID.random, "certificate",
       "Curso com certificação.", CourseDetailsEntityType.COURSE, courseUUID, 3, "fa fa-certificate"))
 
-    val description = CourseDetailsSectionsRepo.create(Entities.newCourseDetailsSection(UUID.random, "Apresentação", to.getDescription, CourseDetailsEntityType.COURSE, courseUUID, 0))
+    CourseDetailsSectionsRepo.create(Entities.newCourseDetailsSection(UUID.random, "Apresentação", to.getDescription, CourseDetailsEntityType.COURSE, courseUUID, 0))
   }
 
-  def createCourse(institutionUUID: String, to: Course) = {
+  def createCourse(institutionUUID: String, to: Course): Course = {
     val courseUUID = UUID.random
     if (StringUtils.isNone(to.getCode)) {
       val formattedDate = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date)
@@ -57,7 +48,7 @@ object CourseCreationService {
     course
   }
 
-  def createCourseVersion(institutionUUID: String, courseUUID: String, to: Course) = {
+  def createCourseVersion(institutionUUID: String, courseUUID: String, to: Course): CourseVersion = {
     val versionUUID = UUID.random
     val formattedDate = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date)
     val distributionPrefix = to.getName.toLowerCase.replaceAll(" ", "-") + "-" + formattedDate
@@ -75,7 +66,7 @@ object CourseCreationService {
     version
   }
 
-  def createCourseClass(institutionUUID: String, versionUUID: String, to: Course) = {
+  def createCourseClass(institutionUUID: String, versionUUID: String, to: Course): CourseClass = {
     val courseClass = CourseClassesRepo.create(Entities.newCourseClass(
       UUID.random,
       to.getName,
@@ -103,8 +94,8 @@ object CourseCreationService {
     courseClass
   }
 
-  def simpleCreation(institutionUUID: String, to: Course) = {
-    val course = createCourse(institutionUUID, to);
+  def simpleCreation(institutionUUID: String, to: Course): CourseClassTO = {
+    val course = createCourse(institutionUUID, to)
     val courseVersion = createCourseVersion(institutionUUID, course.getUUID, to)
     val courseClass = createCourseClass(institutionUUID, courseVersion.getUUID, to)
     TOs.newCourseClassTO(course, courseVersion, courseClass, null)

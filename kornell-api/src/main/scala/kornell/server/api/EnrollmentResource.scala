@@ -1,59 +1,36 @@
 package kornell.server.api
 
-import scala.collection.JavaConverters._
-import javax.ws.rs.Consumes
-import javax.ws.rs.DELETE
-import javax.ws.rs.GET
-import javax.ws.rs.PUT
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.Produces
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.SecurityContext
-import kornell.core.entity.Assessment
-import kornell.core.entity.Enrollment
+import java.util
+
+import javax.ws.rs._
+import kornell.core.entity._
 import kornell.core.lom.Contents
-import kornell.server.jdbc.SQL._
-import kornell.server.jdbc.repository.AuthRepo
-import kornell.server.jdbc.repository.CourseClassRepo
-import kornell.server.jdbc.repository.EnrollmentRepo
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.server.util.Conditional.toConditional
-import kornell.server.util.Err
-import kornell.server.util.AccessDeniedErr
-import kornell.server.repository.ContentRepository
-import java.util.HashMap
-import kornell.core.entity.ActomEntries
-import kornell.core.entity.EnrollmentEntries
-import kornell.server.repository.Entities
 import kornell.core.to.EnrollmentLaunchTO
-import kornell.server.repository.TOs
-import kornell.server.scorm12.SCORM12
-import kornell.core.entity.EnrollmentsEntries
-import kornell.server.jdbc.PreparedStmt
 import kornell.server.ep.EnrollmentSEP
-import kornell.server.jdbc.repository.CourseClassesRepo
-import kornell.core.to.DashboardLeaderboardTO
-import kornell.server.jdbc.repository.EnrollmentsRepo
-import kornell.server.jdbc.repository.CourseVersionRepo
-import kornell.core.entity.ContentSpec
-import kornell.server.jdbc.repository.CourseRepo
-import kornell.server.jdbc.repository.EnrollmentRepo
+import kornell.server.jdbc.PreparedStmt
+import kornell.server.jdbc.SQL._
+import kornell.server.jdbc.repository.{AuthRepo, CourseClassesRepo, CourseRepo, CourseVersionRepo, EnrollmentRepo, PersonRepo}
+import kornell.server.repository.{ContentRepository, Entities, TOs}
+import kornell.server.scorm12.SCORM12
+import kornell.server.util.AccessDeniedErr
+import kornell.server.util.Conditional.toConditional
+
+import scala.collection.JavaConverters._
 
 @Produces(Array(Enrollment.TYPE))
 class EnrollmentResource(uuid: String) {
-  lazy val enrollment = get
+  lazy val enrollment: Enrollment = get
   lazy val enrollmentRepo = EnrollmentRepo(uuid)
 
-  def get = enrollmentRepo.get
+  def get: Enrollment = enrollmentRepo.get
 
   @GET
-  def first = enrollmentRepo.first
+  def first: Option[Enrollment] = enrollmentRepo.first
 
   @PUT
   @Consumes(Array(Enrollment.TYPE))
   @Produces(Array(Enrollment.TYPE))
-  def update(enrollment: Enrollment) = {
+  def update(enrollment: Enrollment): Enrollment = {
     EnrollmentRepo(enrollment.getUUID).update(enrollment)
   }.requiring(PersonRepo(getAuthenticatedPersonUUID).hasPowerOver(enrollment.getPersonUUID), AccessDeniedErr())
     .get
@@ -64,7 +41,7 @@ class EnrollmentResource(uuid: String) {
   @GET
   @Path("contents")
   @Produces(Array(Contents.TYPE))
-  def contents(): Option[Contents] = AuthRepo().withPerson { person =>
+  def contents: Option[Contents] = AuthRepo().withPerson { person =>
     first map { e =>
       ContentRepository.findVisitedContent(e, person)
     }
@@ -89,7 +66,7 @@ class EnrollmentResource(uuid: String) {
     result
   }
 
-  def findEnrollmentsFamilyUUIDs(): List[String] = {
+  def findEnrollmentsFamilyUUIDs: List[String] = {
     val selfie = Set(uuid)
     val family = findFamilyOf(findRootOf(uuid)).toSet
     val result = (selfie ++ family).toList
@@ -99,11 +76,11 @@ class EnrollmentResource(uuid: String) {
   @GET
   @Path("launch")
   @Produces(Array(EnrollmentLaunchTO.TYPE))
-  def launch() = AuthRepo().withPerson { person =>
+  def launch(): EnrollmentLaunchTO = AuthRepo().withPerson { person =>
 
     val courseClassUUID = Option(enrollment.getCourseClassUUID).getOrElse {
       val parent = EnrollmentRepo(enrollment.getParentEnrollmentUUID).first
-      parent.map { _.getCourseClassUUID() }.getOrElse(null)
+      parent.map { _.getCourseClassUUID() }.orNull
     }
     val courseClass = if (courseClassUUID != null) {
       CourseClassesRepo(courseClassUUID).get
@@ -120,8 +97,8 @@ class EnrollmentResource(uuid: String) {
     val mEntries = eEntries.getEnrollmentEntriesMap.asScala
 
     for {
-      (enrollmentUUID, enrollmentEntries) <- mEntries.par
-      (actomKey, actomEntries) <- enrollmentEntries.getActomEntriesMap.asScala
+      (_, enrollmentEntries) <- mEntries.par
+      (_, actomEntries) <- enrollmentEntries.getActomEntriesMap.asScala
     } {
       val entriesMap = actomEntries.getEntries
       val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
@@ -147,10 +124,10 @@ class EnrollmentResource(uuid: String) {
         if (topic.getTopic != null) {
           topic.getTopic.getChildren.asScala.foreach { externalPage =>
             val key = externalPage.getExternalPage.getKey
-            val actomEntries = Option(enrollmentEntries.getActomEntriesMap.get(key)) match {
+            Option(enrollmentEntries.getActomEntriesMap.get(key)) match {
               case Some(ae) => ae
               case None => {
-                val entriesMap = new HashMap[String, String]()
+                val entriesMap = new util.HashMap[String, String]()
                 val launchedMap = SCORM12.initialize(entriesMap, person, enrollment, courseClass)
                 entriesMap.putAll(launchedMap)
                 val ae = Entities.newActomEntries(enrollment.getUUID, key, entriesMap)
@@ -193,12 +170,12 @@ class EnrollmentResource(uuid: String) {
         }
       }
 
-      val aeMap = enrollmentEntries.getActomEntriesMap()
+      val aeMap = enrollmentEntries.getActomEntriesMap
 
       val actomEntries = Option(aeMap.get(actomKey)) match {
         case Some(a) => a
         case None => {
-          val a: ActomEntries = Entities.newActomEntries(enrollmentUUID, actomKey, new HashMap[String, String]())
+          val a: ActomEntries = Entities.newActomEntries(enrollmentUUID, actomKey, new util.HashMap[String, String]())
           aeMap.put(actomKey, a)
           a
         }
@@ -212,7 +189,7 @@ class EnrollmentResource(uuid: String) {
   @GET
   @Path("approved")
   @Produces(Array("text/plain"))
-  def approved = {
+  def approved: String = {
     val e = first.get
     if (Assessment.PASSED == e.getAssessment) {
       if (e.getAssessmentScore != null)
@@ -226,6 +203,6 @@ class EnrollmentResource(uuid: String) {
 
   @GET
   @Produces(Array(EnrollmentsEntries.TYPE))
-  def getEntries(): EnrollmentsEntries = getEntries(List(uuid))
+  def getEntries: EnrollmentsEntries = getEntries(List(uuid))
 
 }

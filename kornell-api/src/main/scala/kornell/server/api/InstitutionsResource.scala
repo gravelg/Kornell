@@ -1,10 +1,6 @@
 package kornell.server.api
 
-import javax.ws.rs.Consumes
-import javax.ws.rs.POST
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.Produces
+import javax.ws.rs._
 import kornell.core.entity.Institution
 import kornell.server.jdbc.repository.InstitutionsRepo
 import kornell.server.util.AccessDeniedErr
@@ -19,9 +15,9 @@ class InstitutionsResource {
   @POST
   @Produces(Array(Institution.TYPE))
   @Consumes(Array(Institution.TYPE))
-  def create(institution: Institution) = {
+  def create(institution: Institution): Institution = {
     InstitutionsRepo.create(institution)
-  }.requiring(isControlPanelAdmin(), AccessDeniedErr()).get
+  }.requiring(isControlPanelAdmin, AccessDeniedErr()).get
 
 }
 

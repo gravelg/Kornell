@@ -1,10 +1,8 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import kornell.server.jdbc.SQL._
-import kornell.core.entity.CertificateDetails
+import kornell.core.entity.{CertificateDetails, CourseDetailsEntityType}
 import kornell.core.util.UUID
-import kornell.core.entity.CourseDetailsEntityType
+import kornell.server.jdbc.SQL._
 
 object CertificatesDetailsRepo {
 

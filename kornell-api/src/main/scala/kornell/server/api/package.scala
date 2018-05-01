@@ -1,53 +1,48 @@
 package kornell.server
 
-import javax.ws.rs.core.SecurityContext
-import kornell.server.jdbc.repository.AuthRepo
-import kornell.core.entity.role.RoleCategory
-import scala.collection.JavaConverters._
 import java.util.logging.Logger
+
+import kornell.core.entity.role.RoleCategory
 import kornell.server.authentication.ThreadLocalAuthenticator
-import kornell.server.jdbc.repository.RolesRepo
-import kornell.server.jdbc.repository.CourseRepo
-import kornell.server.jdbc.repository.CourseClassRepo
-import kornell.server.jdbc.repository.PersonRepo
+import kornell.server.jdbc.repository.{CourseClassRepo, CourseRepo, PersonRepo, RolesRepo}
 
 package object api {
-  val logger = Logger.getLogger("kornell.server.api")
+  val logger: Logger = Logger.getLogger("kornell.server.api")
 
-  def isControlPanelAdmin(): Boolean =
-    RoleCategory.isControlPanelAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs)
+  def isControlPanelAdmin: Boolean =
+    RoleCategory.isControlPanelAdmin(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs)
 
   def isPlatformAdmin(institutionUUID: String): Boolean =
-    RoleCategory.isPlatformAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
+    RoleCategory.isPlatformAdmin(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
 
-  def isPlatformAdmin(): Boolean =
-    RoleCategory.isPlatformAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
+  def isPlatformAdmin: Boolean =
+    RoleCategory.isPlatformAdmin(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
 
   def isInstitutionAdmin(institutionUUID: String): Boolean =
-    RoleCategory.isInstitutionAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
+    RoleCategory.isInstitutionAdmin(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
 
-  def isInstitutionAdmin(): Boolean =
-    RoleCategory.isInstitutionAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
+  def isInstitutionAdmin: Boolean =
+    RoleCategory.isInstitutionAdmin(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
 
   def isCourseClassAdmin(courseClassUUID: String): Boolean =
-    RoleCategory.isCourseClassAdmin(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)
+    RoleCategory.isCourseClassAdmin(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)
 
   def isCourseClassTutor(courseClassUUID: String): Boolean =
-    RoleCategory.isCourseClassTutor(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)
+    RoleCategory.isCourseClassTutor(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)
 
   def isCourseClassObserver(courseClassUUID: String): Boolean =
-    RoleCategory.isCourseClassObserver(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)
+    RoleCategory.isCourseClassObserver(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, courseClassUUID)
 
   def isPublisher(institutionUUID: String): Boolean =
-    RoleCategory.isPublisher(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
+    RoleCategory.isPublisher(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, institutionUUID)
 
-  def isPublisher(): Boolean =
-    RoleCategory.isPublisher(RolesRepo.getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
+  def isPublisher: Boolean =
+    RoleCategory.isPublisher(new RolesRepo().getUserRoles(getAuthenticatedPersonUUID, RoleCategory.BIND_DEFAULT).getRoleTOs, getAutenticatedPersonInstitutionUUID)
 
-  def getAuthenticatedPersonUUID = ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null)
+  def getAuthenticatedPersonUUID: String = ThreadLocalAuthenticator.getAuthenticatedPersonUUID.orNull
 
-  def getAutenticatedPersonInstitutionUUID = PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID
+  def getAutenticatedPersonInstitutionUUID: String = PersonRepo(getAuthenticatedPersonUUID).get.getInstitutionUUID
 
-  def getInstitutionUUID(courseClassUUID: String, courseUUID: String = null) = if (courseUUID != null) CourseRepo(courseUUID).get.getInstitutionUUID else CourseClassRepo(courseClassUUID).get.getInstitutionUUID
+  def getInstitutionUUID(courseClassUUID: String, courseUUID: String = null): String = if (courseUUID != null) CourseRepo(courseUUID).get.getInstitutionUUID else CourseClassRepo(courseClassUUID).get.getInstitutionUUID
 
 }

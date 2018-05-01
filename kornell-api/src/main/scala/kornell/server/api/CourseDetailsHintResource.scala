@@ -1,48 +1,39 @@
 package kornell.server.api
 
-import javax.ws.rs.GET
-import javax.ws.rs.Produces
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.SecurityContext
-import kornell.server.util.Conditional.toConditional
-import kornell.server.jdbc.repository.PersonRepo
-import javax.ws.rs.Consumes
-import javax.ws.rs.PUT
-import javax.ws.rs.DELETE
-import kornell.server.util.AccessDeniedErr
-import kornell.server.jdbc.repository.CourseDetailsHintRepo
+import javax.ws.rs._
 import kornell.core.entity.CourseDetailsHint
-import javax.ws.rs.POST
-import javax.ws.rs.PathParam
+import kornell.server.jdbc.repository.CourseDetailsHintRepo
+import kornell.server.util.AccessDeniedErr
+import kornell.server.util.Conditional.toConditional
 
 class CourseDetailsHintResource(uuid: String) {
 
   @GET
   @Produces(Array(CourseDetailsHint.TYPE))
-  def get = {
+  def get: CourseDetailsHint = {
     CourseDetailsHintRepo(uuid).get
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
-    .or(isPublisher(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
+    .or(isPublisher, AccessDeniedErr())
     .get
 
   @PUT
   @Consumes(Array(CourseDetailsHint.TYPE))
   @Produces(Array(CourseDetailsHint.TYPE))
-  def update(courseDetailsHint: CourseDetailsHint) = {
+  def update(courseDetailsHint: CourseDetailsHint): CourseDetailsHint = {
     CourseDetailsHintRepo(uuid).update(courseDetailsHint)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
-    .or(isPublisher(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
+    .or(isPublisher, AccessDeniedErr())
     .get
 
   @DELETE
   @Produces(Array(CourseDetailsHint.TYPE))
-  def delete() = {
+  def delete(): CourseDetailsHint = {
     CourseDetailsHintRepo(uuid).delete
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
-    .or(isPublisher(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
+    .or(isPublisher, AccessDeniedErr())
     .get
 }
 

@@ -1,28 +1,13 @@
 package kornell.server.api
 
-import javax.ws.rs.Consumes
-import javax.ws.rs.GET
-import javax.ws.rs.PUT
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
-import kornell.server.jdbc.SQL._
-import kornell.server.jdbc.repository.AuthRepo
-import kornell.server.jdbc.repository.EventsRepo
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.server.authentication.ThreadLocalAuthenticator
-import kornell.core.event.ActomEntered
-import kornell.core.event.AttendanceSheetSigned
-import kornell.core.event.CourseClassStateChanged
-import kornell.core.event.EnrollmentStateChanged
-import kornell.core.event.EnrollmentTransferred
-import kornell.core.event.EntityChanged
-import kornell.core.entity.AuditedEntityType
-import kornell.core.to.EntityChangedEventsTO
-import kornell.server.util.Conditional.toConditional
-import kornell.server.util.AccessDeniedErr
-import kornell.server.jdbc.repository.EnrollmentRepo
+import javax.ws.rs._
 import javax.ws.rs.core.Response
+import kornell.core.entity.AuditedEntityType
+import kornell.core.event._
+import kornell.core.to.EntityChangedEventsTO
+import kornell.server.jdbc.repository.{AuthRepo, EnrollmentRepo, EventsRepo}
+import kornell.server.util.AccessDeniedErr
+import kornell.server.util.Conditional.toConditional
 
 @Path("events")
 class EventsResource {
@@ -71,7 +56,7 @@ class EventsResource {
   @GET
   @Produces(Array(EntityChangedEventsTO.TYPE))
   @Path("entityChanged")
-  def getEntityChangedEvents(@QueryParam("entityType") entityType: String, @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int) =
+  def getEntityChangedEvents(@QueryParam("entityType") entityType: String, @QueryParam("ps") pageSize: Int, @QueryParam("pn") pageNumber: Int): EntityChangedEventsTO =
     AuthRepo().withPerson { person =>
       EventsRepo.getEntityChangedEvents(person.getInstitutionUUID, AuditedEntityType.valueOf(entityType), pageSize, pageNumber)
     }

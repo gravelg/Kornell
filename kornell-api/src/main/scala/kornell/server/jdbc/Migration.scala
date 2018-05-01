@@ -1,14 +1,13 @@
 package kornell.server.jdbc
 
-import java.util.logging.Logger
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import java.util.logging.{Level, Logger}
+
 import com.googlecode.flyway.core.Flyway
-import java.util.logging.Level
+
+import scala.util.{Failure, Success, Try}
 
 object Migration {
-  val log = Logger.getLogger(getClass.getName)
+  val log: Logger = Logger.getLogger(getClass.getName)
 
   def apply() = migration
 

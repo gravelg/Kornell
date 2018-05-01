@@ -3,61 +3,13 @@ package kornell.server.jdbc
 import java.sql.ResultSet
 import java.util.logging.Logger
 
-import kornell.core.entity.Assessment
-import kornell.core.entity.AuditedEntityType
-import kornell.core.entity.AuthClientType
-import kornell.core.entity.BillingType
-import kornell.core.entity.CertificateDetails
-import kornell.core.entity.CertificateType
-import kornell.core.entity.ChatThread
-import kornell.core.entity.ChatThreadParticipant
-import kornell.core.entity.ContentRepository
-import kornell.core.entity.ContentSpec
-import kornell.core.entity.Course
-import kornell.core.entity.CourseClass
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.entity.CourseDetailsHint
-import kornell.core.entity.CourseDetailsLibrary
-import kornell.core.entity.CourseDetailsSection
-import kornell.core.entity.CourseVersion
-import kornell.core.entity.EmailTemplate
-import kornell.core.entity.EmailTemplateType
-import kornell.core.entity.Enrollment
-import kornell.core.entity.EnrollmentSource
-import kornell.core.entity.EnrollmentState
-import kornell.core.entity.EntityState
-import kornell.core.entity.Institution
-import kornell.core.entity.InstitutionRegistrationPrefix
-import kornell.core.entity.InstitutionType
-import kornell.core.entity.Person
-import kornell.core.entity.PostbackConfig
-import kornell.core.entity.PostbackType
-import kornell.core.entity.RegistrationType
-import kornell.core.entity.RegistrationType
-import kornell.core.entity.RepositoryType
-import kornell.core.entity.role.RoleCategory
-import kornell.core.entity.role.RoleType
-import kornell.core.entity.Track
-import kornell.core.entity.TrackEnrollment
-import kornell.core.entity.TrackItem
-import kornell.core.entity.role.RoleCategory
-import kornell.core.entity.role.RoleType
+import kornell.core.entity._
+import kornell.core.entity.role.{RoleCategory, RoleType}
 import kornell.core.event.EntityChanged
-import kornell.core.to.ChatThreadMessageTO
-import kornell.core.to.CourseClassTO
-import kornell.core.to.CourseTO
-import kornell.core.to.CourseVersionTO
-import kornell.core.to.DashboardLeaderboardItemTO
-import kornell.core.to.EnrollmentTO
-import kornell.core.to.PersonTO
-import kornell.core.to.RoleTO
-import kornell.core.to.SimplePersonTO
-import kornell.core.to.TokenTO
-import kornell.core.to.UnreadChatThreadTO
+import kornell.core.to._
 import kornell.server.repository.Entities._
-import kornell.server.repository.Entities
+import kornell.server.repository.{Entities, TOs}
 import kornell.server.repository.TOs._
-import kornell.server.repository.TOs
 
 /**
  * Classes in this package are Data Access Objects for JDBC Databases
@@ -70,7 +22,7 @@ import kornell.server.repository.TOs
  */
 package object repository {
 
-  val logger = Logger.getLogger("kornell.server.jdbc.repository")
+  val logger: Logger = Logger.getLogger("kornell.server.jdbc.repository")
 
   //TODO: Move converters to their repos
   implicit def toInstitution(rs: ResultSet): Institution =
@@ -162,7 +114,7 @@ package object repository {
       rs.getString("institutionUUID"),
       rs.getBoolean("childCourse"),
       rs.getString("courseThumbUrl"),
-      ContentSpec.valueOf(rs.getString("contentSpec")));
+      ContentSpec.valueOf(rs.getString("contentSpec")))
 
     val version = newCourseVersion(
       rs.getString("courseVersionUUID"),
@@ -177,7 +129,7 @@ package object repository {
       rs.getString("classroomJson"),
       rs.getString("classroomJsonPublished"),
       rs.getString("label"),
-      rs.getString("courseVersionThumbUrl"));
+      rs.getString("courseVersionThumbUrl"))
 
     val clazz = newCourseClass(
       rs.getString("courseClassUUID"),
@@ -250,7 +202,7 @@ package object repository {
       rs.getTimestamp("lastProgressUpdate"),
       Option(rs.getString("assessment"))
         .map(Assessment.valueOf)
-        .getOrElse(null),
+        .orNull,
       rs.getTimestamp("lastAssessmentUpdate"),
       rs.getBigDecimal("assessmentScore"),
       rs.getTimestamp("certifiedAt"),
@@ -275,7 +227,7 @@ package object repository {
       rs.getTimestamp("lastProgressUpdate"),
       Option(rs.getString("assessment"))
         .map(Assessment.valueOf)
-        .getOrElse(null),
+        .orNull,
       rs.getTimestamp("lastAssessmentUpdate"),
       rs.getBigDecimal("assessmentScore"),
       rs.getTimestamp("certifiedAt"))

@@ -1,16 +1,15 @@
 package kornell.server.ws.rs.reader
 
-import javax.ws.rs.ext.MessageBodyReader
-import com.google.web.bindery.autobean.shared.AutoBeanFactory
-import com.google.web.bindery.autobean.shared.AutoBeanCodex
-import java.lang.annotation.Annotation
 import java.io.InputStream
-import javax.ws.rs.core.MediaType
-import scala.io.Source
-import javax.ws.rs.core.MultivaluedMap
+import java.lang.annotation.Annotation
 import java.lang.reflect.Type
-import scala.io.Codec
 import java.nio.charset.CodingErrorAction
+
+import com.google.web.bindery.autobean.shared.{AutoBeanCodex, AutoBeanFactory}
+import javax.ws.rs.core.{MediaType, MultivaluedMap}
+import javax.ws.rs.ext.MessageBodyReader
+
+import scala.io.{Codec, Source}
 
 trait AutoBeanReader extends MessageBodyReader[Any] {
   def getAutoBeanFactory: AutoBeanFactory
@@ -35,7 +34,7 @@ trait AutoBeanReader extends MessageBodyReader[Any] {
     codec.onMalformedInput(CodingErrorAction.IGNORE)
 
     val src = Source.fromInputStream(in)(codec)
-    if (!src.isEmpty) {
+    if (src.nonEmpty) {
       val lines = src.getLines()
       val text = lines.mkString("")
       val bean = AutoBeanCodex.decode(getAutoBeanFactory, clazz, text)

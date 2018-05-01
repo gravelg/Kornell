@@ -6,14 +6,14 @@ import org.joda.time.DateTimeZone
 object DateConverter {
   val threadLocal = new ThreadLocal[String]
 
-  def setTimeZone(timeZone: String) = {
+  def setTimeZone(timeZone: String): String = {
     threadLocal.set(timeZone)
     timeZone
   }
 
-  def getTimeZone() = Option(threadLocal.get)
+  def getTimeZone = Option(threadLocal.get)
 
-  def convertDate(date: Date) = {
+  def convertDate(date: Date): Date = {
     Option(date) match {
       case Some(s) => {
         val st = s.getTime
@@ -23,5 +23,5 @@ object DateConverter {
     }
   }
 
-  def clearTimeZone = threadLocal.set(null)
+  def clearTimeZone(): Unit = threadLocal.set(null)
 }

@@ -1,50 +1,38 @@
 package kornell.server.api
 
 import java.sql.ResultSet
-import java.util.HashMap
-import scala.collection.JavaConversions._
-import javax.servlet.http.HttpServletRequest
-import javax.ws.rs.Consumes
-import javax.ws.rs.GET
-import javax.ws.rs.PUT
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.Produces
-import javax.ws.rs.core.Context
+import java.util
+import java.util.Map
+
+import javax.ws.rs._
+import javax.ws.rs.core.Response
 import kornell.core.entity.ActomEntries
+import kornell.core.util.UUID
 import kornell.server.ep.EnrollmentSEP
+import kornell.server.jdbc.PreparedStmt
 import kornell.server.jdbc.SQL._
 import kornell.server.jdbc.repository.ActomEntriesRepo
 import kornell.server.repository.Entities
-import kornell.core.scorm12.rte.RTE
-import kornell.core.scorm12.rte.DMElement
-import kornell.server.scorm12.SCORM12
-import kornell.server.jdbc.repository.AuthRepo
-import scala.collection.mutable.ListBuffer
-import java.util.Map
-import kornell.server.jdbc.PreparedStmt
-import scala.util.Try
-import java.math.BigDecimal
 import kornell.server.util.EnrollmentUtil._
+
+import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import java.util.Date
-import javax.ws.rs.core.Response
-import kornell.core.util.UUID
+import scala.collection.mutable.ListBuffer
 
 class ActomResource(enrollmentUUID: String, actomURL: String) {
   implicit def toString(rs: ResultSet): String = rs.getString("entryValue")
 
   @GET
-  def get() = actomKey
+  def get(): String = actomKey
 
-  val actomKey = if (actomURL.contains("?"))
+  val actomKey: String = if (actomURL.contains("?"))
     actomURL.substring(0, actomURL.indexOf("?"))
   else
     actomURL
 
   @Path("entries/{entryKey}")
   @GET
-  def getValue(@PathParam("entryKey") entryKey: String) = {
+  def getValue(@PathParam("entryKey") entryKey: String): Response = {
     ActomEntriesRepo.getValue(enrollmentUUID, actomKey, entryKey)
     Response.noContent.build
   }
@@ -52,19 +40,16 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
   @Path("entries/{entryKey}")
   @Consumes(Array("text/plain"))
   @PUT
-  def putValue(@PathParam("entryKey") entryKey: String, entryValue: String) = {
-    updateQueryModel(entryKey, entryValue)
+  def putValue(@PathParam("entryKey") entryKey: String, entryValue: String): Response = {
+    sql"""insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue)
+    values (${UUID.random}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue})
+    on duplicate key update entryValue = $entryValue
+    """.executeUpdate
     Response.noContent.build
   }
 
-  def updateQueryModel(entryKey: String, entryValue: String) = sql"""
-    insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue)
-    values (${UUID.random}, ${enrollmentUUID} , ${actomKey}, ${entryKey}, ${entryValue})
-    on duplicate key update entryValue = ${entryValue}
-  """.executeUpdate
-
   //Batch version of put value using a map
-  def putValues(actomEntries: Map[String, String]) = {
+  def putValues(actomEntries: util.Map[String, String]): Int = {
     var queryModelQuery = "insert into ActomEntries (uuid, enrollmentUUID, actomKey, entryKey, entryValue) values "
     val queryModelStrings = new ListBuffer[String]
     for ((key, value) <- actomEntries) {
@@ -80,8 +65,7 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
   @Consumes(Array(ActomEntries.TYPE))
   @Produces(Array(ActomEntries.TYPE))
   @PUT
-  def putEntries(entries: ActomEntries) = {
-    val modifiedAt = entries.getLastModifiedAt()
+  def putEntries(entries: ActomEntries): ActomEntries = {
     val actomEntries = entries.getEntries
 
     val enrollmentMap = collection.mutable.Map[String, String]()
@@ -104,12 +88,12 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
 
     parsePreAssessmentScore(actomEntries)
       .foreach {
-        EnrollmentSEP.onPreAssessmentScore(enrollmentUUID, _);
+        EnrollmentSEP.onPreAssessmentScore(enrollmentUUID, _)
       }
 
     parsePostAssessmentScore(actomEntries)
       .foreach {
-        EnrollmentSEP.onPostAssessmentScore(enrollmentUUID, _);
+        EnrollmentSEP.onPostAssessmentScore(enrollmentUUID, _)
       }
 
     entries
@@ -118,13 +102,13 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
   @Path("entries")
   @Produces(Array(ActomEntries.TYPE))
   @GET
-  def getEntries(): ActomEntries = {
-    val entries = Entities.newActomEntries(enrollmentUUID, actomKey, new HashMap[String, String])
+  def getEntries: ActomEntries = {
+    val entries = Entities.newActomEntries(enrollmentUUID, actomKey, new util.HashMap[String, String])
     sql"""
     select * from ActomEntries
     where enrollmentUUID=${enrollmentUUID}
       and actomKey=${actomKey}""".foreach { rs =>
-      entries.getEntries().put(rs.getString("entryKey"), rs.getString("entryValue"))
+      entries.getEntries.put(rs.getString("entryKey"), rs.getString("entryValue"))
     }
     entries
   }
@@ -132,5 +116,5 @@ class ActomResource(enrollmentUUID: String, actomURL: String) {
 }
 
 object ActomResource {
-  def apply(enrollmentUUID: String, actomKey: String) = new ActomResource(enrollmentUUID, actomKey);
+  def apply(enrollmentUUID: String, actomKey: String) = new ActomResource(enrollmentUUID, actomKey)
 }

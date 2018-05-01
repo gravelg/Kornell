@@ -1,76 +1,26 @@
 package kornell.server.repository
 
-import java.math.BigDecimal
 import java.util.Date
-import scala.collection.JavaConverters.seqAsJavaListConverter
+
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource
-import kornell.core.entity.AuthClientType
-import kornell.core.entity.ChatThreadType
-import kornell.core.entity.Course
-import kornell.core.entity.CourseClass
-import kornell.core.entity.CourseVersion
-import kornell.core.entity.Enrollment
-import kornell.core.entity.InstitutionRegistrationPrefix
-import kornell.core.entity.Person
-import kornell.core.entity.RegistrationType
-import kornell.core.entity.role.Role
-import kornell.core.to.ChatThreadMessageTO
-import kornell.core.to.CourseClassTO
-import kornell.core.to.CourseVersionTO
-import kornell.core.to.CourseVersionsTO
-import kornell.core.to.CoursesTO
-import kornell.core.to.EnrollmentRequestTO
-import kornell.core.to.EnrollmentRequestsTO
-import kornell.core.to.EnrollmentTO
-import kornell.core.to.EnrollmentsTO
-import kornell.core.to.LibraryFileTO
-import kornell.core.to.PersonTO
-import kornell.core.to.RegistrationRequestTO
-import kornell.core.to.RoleTO
-import kornell.core.to.SimplePersonTO
-import kornell.core.to.TOFactory
-import kornell.core.to.UnreadChatThreadTO
-import kornell.core.to.report.CertificateInformationTO
-import kornell.core.to.report.CourseClassAuditTO
-import kornell.core.to.report.CourseClassReportTO
-import kornell.core.to.report.EnrollmentsBreakdownTO
-import kornell.core.to.report.InstitutionBillingEnrollmentReportTO
-import kornell.core.to.report.InstitutionBillingMonthlyReportTO
-import kornell.core.util.StringUtils
-import kornell.core.entity.InstitutionRegistrationPrefix
-import kornell.core.to.PersonTO
-import kornell.core.entity.AuthClientType
-import kornell.core.to.SimplePersonTO
-import kornell.core.to.EntityChangedEventsTO
-import kornell.core.event.EntityChanged
-import kornell.core.event.EventFactory
-import kornell.core.entity.AuditedEntityType
+import kornell.core.entity._
+import kornell.core.entity.role.{Role, RoleType}
+import kornell.core.event.{EntityChanged, EventFactory}
+import kornell.core.to._
+import kornell.core.to.report.{CourseClassAuditTO, EnrollmentsBreakdownTO, InstitutionBillingEnrollmentReportTO, InstitutionBillingMonthlyReportTO}
 import kornell.server.content.ContentManagers
-import kornell.core.entity.role.RoleType
-import kornell.server.util.DateConverter
-import kornell.server.authentication.ThreadLocalAuthenticator
 import kornell.server.jdbc.repository.InstitutionRepo
-import kornell.core.to.CourseClassesTO
-import kornell.core.to.DashboardLeaderboardItemTO
-import kornell.core.to.CourseTO
-import kornell.core.to.CourseDetailsHintsTO
-import kornell.core.entity.CourseDetailsHint
-import kornell.core.to.CourseDetailsLibrariesTO
-import kornell.core.entity.CourseDetailsLibrary
-import kornell.core.to.CourseDetailsSectionsTO
-import kornell.core.entity.CourseDetailsSection
-import kornell.core.to.TrackTO
-import kornell.core.entity.Track
-import kornell.core.to.TrackItemTO
-import kornell.core.entity.TrackItem
+import kornell.server.util.DateConverter
+
+import scala.collection.JavaConverters.seqAsJavaListConverter
 
 //TODO: Consider turning to Object
 object TOs {
-  val tos = AutoBeanFactorySource.create(classOf[TOFactory])
-  val events = AutoBeanFactorySource.create(classOf[EventFactory])
+  val tos: TOFactory = AutoBeanFactorySource.create(classOf[TOFactory])
+  val events: EventFactory = AutoBeanFactorySource.create(classOf[EventFactory])
 
-  def newUserInfoTO = tos.newUserInfoTO.as
-  def newUserHelloTO = tos.newUserHelloTO.as
+  def newUserInfoTO: UserInfoTO = tos.newUserInfoTO.as
+  def newUserHelloTO:UserHelloTO = tos.newUserHelloTO.as
   def newEnrollmentsTO: EnrollmentsTO = tos.newEnrollmentsTO.as
   def newCoursesTO: CoursesTO = tos.newCoursesTO.as
   def newCourseTO: CourseTO = tos.newCourseTO.as
@@ -106,7 +56,7 @@ object TOs {
     courseVersions
   }
 
-  def newCourseClassesTO(l: List[CourseClassTO]) = {
+  def newCourseClassesTO(l: List[CourseClassTO]): CourseClassesTO = {
     val to = tos.newCourseClassesTO.as
     to.setCourseClasses(l asJava)
     to.setPageCount(l.length)
@@ -182,7 +132,7 @@ object TOs {
     to
   }
 
-  def newRoleTO(role: Role, person: Person, username: String) = {
+  def newRoleTO(role: Role, person: Person, username: String): RoleTO = {
     val r = tos.newRoleTO.as
     r.setRole(role)
     r.setPerson(person)
@@ -190,19 +140,19 @@ object TOs {
     r
   }
 
-  def newRolesTO(roleTOs: List[RoleTO]) = {
+  def newRolesTO(roleTOs: List[RoleTO]): RolesTO = {
     val rs = tos.newRolesTO.as
     rs.setRoleTOs(roleTOs.asJava)
     rs
   }
 
-  def newLibraryFilesTO(libraryFileTOs: List[LibraryFileTO]) = {
+  def newLibraryFilesTO(libraryFileTOs: List[LibraryFileTO]): LibraryFilesTO = {
     val lf = tos.newLibraryFilesTO.as
     lf.setLibraryFiles(libraryFileTOs.asJava)
     lf
   }
 
-  def newUnreadChatThreadsTO(l: List[UnreadChatThreadTO]) = {
+  def newUnreadChatThreadsTO(l: List[UnreadChatThreadTO]):UnreadChatThreadsTO = {
     val to = tos.newUnreadChatThreadsTO.as
     to.setUnreadChatThreadTOs(l asJava)
     to
@@ -220,7 +170,7 @@ object TOs {
     to
   }
 
-  def newChatThreadMessagesTO(l: List[ChatThreadMessageTO]) = {
+  def newChatThreadMessagesTO(l: List[ChatThreadMessageTO]): ChatThreadMessagesTO = {
     val to = tos.newChatThreadMessagesTO.as
     to.setChatThreadMessageTOs(l asJava)
     to.setServerTime(new Date)
@@ -237,19 +187,19 @@ object TOs {
     to
   }
 
-  def newInstitutionRegistrationPrefixesTO(l: List[InstitutionRegistrationPrefix]) = {
+  def newInstitutionRegistrationPrefixesTO(l: List[InstitutionRegistrationPrefix]): InstitutionRegistrationPrefixesTO = {
     val to = tos.newInstitutionRegistrationPrefixesTO.as
     to.setInstitutionRegistrationPrefixes(l asJava)
     to
   }
 
-  def newInstitutionHostNamesTO(l: List[String]) = {
+  def newInstitutionHostNamesTO(l: List[String]): InstitutionHostNamesTO = {
     val to = tos.newInstitutionHostNamesTO().as
     to.setInstitutionHostNames(l asJava)
     to
   }
 
-  def newInstitutionEmailWhitelistTO(l: List[String]) = {
+  def newInstitutionEmailWhitelistTO(l: List[String]): InstitutionEmailWhitelistTO = {
     val to = tos.newInstitutionEmailWhitelistTO().as
     to.setDomains(l asJava)
     to
@@ -298,20 +248,20 @@ object TOs {
     to
   }
 
-  def newPeopleTO(people: List[PersonTO]) = {
+  def newPeopleTO(people: List[PersonTO]): PeopleTO = {
     val ps = tos.newPeopleTO.as
     ps.setPeopleTO(people.asJava)
     ps
   }
 
-  def newPersonTO(person: Person, username: String) = {
+  def newPersonTO(person: Person, username: String): PersonTO = {
     val p = tos.newPersonTO.as
     p.setPerson(person)
     p.setUsername(username)
     p
   }
 
-  def newTokenTO(token: String, expiry: Date, personUUID: String, clientType: AuthClientType) = {
+  def newTokenTO(token: String, expiry: Date, personUUID: String, clientType: AuthClientType): TokenTO = {
     val to = tos.newTokenTO.as
     to.setToken(token)
     to.setExpiry(expiry)
@@ -320,7 +270,7 @@ object TOs {
     to
   }
 
-  def newSimplePersonTO(personUUID: String, fullName: String, username: String) = {
+  def newSimplePersonTO(personUUID: String, fullName: String, username: String): SimplePersonTO = {
     val to = tos.newSimplePersonTO.as
     to.setPersonUUID(personUUID)
     to.setFullName(fullName)
@@ -328,13 +278,13 @@ object TOs {
     to
   }
 
-  def newSimplePeopleTO(simplePeople: List[SimplePersonTO]) = {
+  def newSimplePeopleTO(simplePeople: List[SimplePersonTO]): SimplePeopleTO = {
     val to = tos.newSimplePeopleTO.as
     to.setSimplePeopleTO(simplePeople.asJava)
     to
   }
 
-  def newDashboardLeaderboardItemTO(personUUID: String, fullName: String, attribute: String) = {
+  def newDashboardLeaderboardItemTO(personUUID: String, fullName: String, attribute: String): DashboardLeaderboardItemTO = {
     val to = tos.newDashboardLeaderboardItemTO.as
     to.setPersonUUID(personUUID)
     to.setFullName(fullName)
@@ -342,18 +292,18 @@ object TOs {
     to
   }
 
-  def newDashboardLeaderboardTO(dashboardLeaderboardItems: List[DashboardLeaderboardItemTO]) = {
+  def newDashboardLeaderboardTO(dashboardLeaderboardItems: List[DashboardLeaderboardItemTO]): DashboardLeaderboardTO = {
     val to = tos.newDashboardLeaderboardTO.as
     to.setDashboardLeaderboardItems(dashboardLeaderboardItems.asJava)
     to
   }
 
-  def newEnrollmentLaunchTO() = {
+  def newEnrollmentLaunchTO: EnrollmentLaunchTO = {
     val to = tos.newEnrollmentLaunchTO().as()
     to
   }
 
-  def newEntityChanged(uuid: String, eventFiredAt: Date, institutionUUID: String, fromPersonUUID: String, entityType: AuditedEntityType, entityUUID: String, fromValue: String, toValue: String, entityName: String, fromPersonName: String, fromUsername: String) = {
+  def newEntityChanged(uuid: String, eventFiredAt: Date, institutionUUID: String, fromPersonUUID: String, entityType: AuditedEntityType, entityUUID: String, fromValue: String, toValue: String, entityName: String, fromPersonName: String, fromUsername: String): EntityChanged = {
     val event = events.newEntityChanged.as
     event.setUUID(uuid)
     event.setEventFiredAt(DateConverter.convertDate(eventFiredAt))

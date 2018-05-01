@@ -8,8 +8,8 @@ class TrackRepo(uuid: String) {
 
   val finder = sql"select * from Track where uuid=$uuid"
 
-  def get = finder.get[Track]
-  def first = finder.first[Track]
+  def get: Track = finder.get[Track]
+  def first: Option[Track] = finder.first[Track]
 
   def update(track: Track): Track = {
     sql"""update Track set name = ${track.getName} where uuid = ${uuid}""".executeUpdate

@@ -7,10 +7,10 @@ class TrackEnrollmentRepo(uuid: String) {
 
   val finder = sql"select * from TrackEnrollment where uuid=$uuid"
 
-  def get = finder.get[TrackEnrollment]
-  def first = finder.first[TrackEnrollment]
+  def get: TrackEnrollment = finder.get[TrackEnrollment]
+  def first: Option[TrackEnrollment] = finder.first[TrackEnrollment]
 
-  def delete = {
+  def delete: TrackEnrollment = {
     val enrollment = get
     sql"""delete from TrackEnrollment where uuid=${uuid}""".executeUpdate
 

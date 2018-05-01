@@ -1,42 +1,34 @@
 package kornell.server.web
 
-import javax.servlet._
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import java.util.logging.Logger
-import kornell.server.jdbc.repository.InstitutionsRepo
-import kornell.core.entity.Institution
-import java.net.URL
-import java.net.URI
-import org.apache.http.client.utils.URLEncodedUtils
-import java.nio.charset.Charset
-import kornell.server.jdbc.ConnectionHandler
-import java.util.logging.Level
 import java.sql.SQLException
+import java.util.logging.Logger
+
+import javax.servlet._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import kornell.server.jdbc.ConnectionHandler
 
 class TransactionManagementFilter extends Filter {
 
-  val logger = Logger.getLogger("kornell.server.web")
+  val logger: Logger = Logger.getLogger("kornell.server.web")
   val DOMAIN_HEADER = "X-KNL-DOMAIN"
 
-  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain) =
+  override def doFilter(sreq: ServletRequest, sres: ServletResponse, chain: FilterChain): Unit =
     (sreq, sres) match {
       case (hreq: HttpServletRequest, hres: HttpServletResponse) => {
         doFilter(hreq, hres, chain)
       }
     }
 
-  def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) = {
+  def doFilter(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain): Unit = {
     try {
       chain.doFilter(req, resp)
-      ConnectionHandler.commit
+      ConnectionHandler.commit()
     } catch {
       case e: Throwable => {
         // Gotta do this cause wildfly wraps uncaught exceptions
         e.getCause match {
-          case sql: SQLException => ConnectionHandler.rollback
           case _ => {
-            ConnectionHandler.rollback
+            ConnectionHandler.rollback()
             e.printStackTrace()
           }
         }
@@ -45,7 +37,7 @@ class TransactionManagementFilter extends Filter {
     }
   }
 
-  override def init(cfg: FilterConfig) {}
+  override def init(cfg: FilterConfig): Unit = {}
 
-  override def destroy() {}
+  override def destroy(): Unit = {}
 }

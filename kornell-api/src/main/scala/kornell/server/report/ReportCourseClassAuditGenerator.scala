@@ -1,44 +1,37 @@
 package kornell.server.report
 
-import java.io.InputStream
 import java.sql.ResultSet
-import java.util.HashMap
-import scala.collection.JavaConverters.seqAsJavaListConverter
-import kornell.core.to.report.InstitutionBillingEnrollmentReportTO
-import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.repository.TOs
-import kornell.server.jdbc.repository.InstitutionRepo
-import kornell.core.to.report.InstitutionBillingMonthlyReportTO
-import kornell.core.entity.BillingType
-import kornell.core.entity.Institution
-import kornell.core.entity.CourseClass
-import kornell.core.to.report.CourseClassAuditTO
-import kornell.server.jdbc.repository.InstitutionsRepo
-import kornell.core.entity.EnrollmentState
-import kornell.core.entity.EnrollmentSource
-import javax.servlet.http.HttpServletResponse
-import kornell.server.jdbc.repository.CourseClassRepo
 import java.text.SimpleDateFormat
+import java.util
+
+import javax.servlet.http.HttpServletResponse
+import kornell.core.entity.{EnrollmentSource, EnrollmentState}
+import kornell.core.error.exception.EntityNotFoundException
+import kornell.core.to.report.CourseClassAuditTO
+import kornell.server.jdbc.SQL.SQLHelper
+import kornell.server.jdbc.repository.{CourseClassRepo, InstitutionRepo}
+import kornell.server.repository.TOs
 
 object ReportCourseClassAuditGenerator {
 
-  def generateCourseClassAuditReport(courseClassUUID: String, resp: HttpServletResponse) = {
+  def generateCourseClassAuditReport(courseClassUUID: String, resp: HttpServletResponse): Array[Byte] = {
     if (courseClassUUID != null) {
       val courseClass = CourseClassRepo(courseClassUUID).get
       val fileName = courseClass.getName + " - Audit - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) + ".xls"
       resp.addHeader("Content-disposition", "attachment; filename=" + fileName)
       resp.setContentType("application/vnd.ms-excel")
 
-      val parameters: HashMap[String, Object] = new HashMap()
+      val parameters: util.HashMap[String, Object] = new util.HashMap()
       parameters.put("courseClassName", courseClass.getName)
       parameters.put("institutionBaseURL", InstitutionRepo(courseClass.getInstitutionUUID).get.getBaseURL)
 
       generateCourseClassAuditReportWithParameters(courseClass.getUUID, parameters)
+    } else {
+      throw new EntityNotFoundException("notFound")
     }
-
   }
 
-  private def generateCourseClassAuditReportWithParameters(courseClassUUID: String, parameters: HashMap[String, Object]) = {
+  private def generateCourseClassAuditReportWithParameters(courseClassUUID: String, parameters: util.HashMap[String, Object]): Array[Byte] = {
 
     implicit def toCourseClassAuditTO(rs: ResultSet): CourseClassAuditTO =
       TOs.newCourseClassAuditTO(
@@ -134,5 +127,4 @@ object ReportCourseClassAuditGenerator {
     val jasperStream = cl.getResourceAsStream("reports/courseClassAuditXLS.jasper")
     getReportBytesFromStream(courseClassAuditTO, parameters, jasperStream, "xls")
   }
-
 }

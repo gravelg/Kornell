@@ -1,29 +1,19 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import scala.collection.JavaConverters._
-import kornell.core.entity.Course
-import kornell.core.entity.Course
-import kornell.server.jdbc.SQL._
-import kornell.server.jdbc.SQL._
-import kornell.server.repository.Entities._
-import kornell.server.repository.TOs._
-import kornell.server.repository.Entities
-import kornell.server.repository.TOs
-import kornell.core.entity.role.Role
-import kornell.core.util.UUID
-import kornell.core.entity.role.Roles
-import kornell.core.entity.role.RoleType
-import kornell.core.entity.role.RoleCategory
-import kornell.core.to.RoleTO
 import kornell.core.entity.AuditedEntityType
+import kornell.core.entity.role.{Role, RoleCategory, RoleType, Roles}
 import kornell.core.error.exception.EntityConflictException
-import kornell.core.util.StringUtils
+import kornell.core.to.{RoleTO, RolesTO}
+import kornell.core.util.{StringUtils, UUID}
+import kornell.server.jdbc.SQL._
+import kornell.server.repository.TOs
 import kornell.server.service.SandboxService
 
-object RolesRepo {
+import scala.collection.JavaConverters._
 
-  def getUserRoles(personUUID: String, bindMode: String) =
+class RolesRepo {
+
+  def getUserRoles(personUUID: String, bindMode: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, cc.name as courseClassName
       | from Role r
@@ -33,7 +23,7 @@ object RolesRepo {
       | order by r.role, pw.username
       """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def getUsersForCourseClassByRole(courseClassUUID: String, roleType: RoleType, bindMode: String) =
+  def getUsersForCourseClassByRole(courseClassUUID: String, roleType: RoleType, bindMode: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*,
       | if(pw.username is not null, pw.username, p.email) as username,
@@ -47,7 +37,7 @@ object RolesRepo {
       | order by r.role, if(pw.username is not null, pw.username, p.email)
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def getAllUsersWithRoleForCourseClass(courseClassUUID: String) =
+  def getAllUsersWithRoleForCourseClass(courseClassUUID: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, cc.name as courseClassName
       | from Role r
@@ -57,7 +47,7 @@ object RolesRepo {
       | order by r.role, pw.username
     """.map[RoleTO](toRoleTO(_, RoleCategory.BIND_DEFAULT)))
 
-  def getInstitutionAdmins(institutionUUID: String, bindMode: String) =
+  def getInstitutionAdmins(institutionUUID: String, bindMode: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, null as courseClassName
       | from Role r
@@ -67,7 +57,7 @@ object RolesRepo {
       | order by r.role, pw.username
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def getPublishers(institutionUUID: String, bindMode: String) =
+  def getPublishers(institutionUUID: String, bindMode: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, null as courseClassName
       | from Role r
@@ -77,7 +67,7 @@ object RolesRepo {
       | order by r.role, pw.username
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def getPlatformAdmins(institutionUUID: String, bindMode: String) =
+  def getPlatformAdmins(institutionUUID: String, bindMode: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, null as courseClassName
       | from Role r
@@ -87,7 +77,7 @@ object RolesRepo {
       | order by r.role, pw.username
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def getCourseClassSupportThreadParticipants(courseClassUUID: String, institutionUUID: String, bindMode: String) =
+  def getCourseClassSupportThreadParticipants(courseClassUUID: String, institutionUUID: String, bindMode: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, cc.name as courseClassName
       | from (select * from Role
@@ -106,7 +96,7 @@ object RolesRepo {
       | left join CourseClass cc on r.courseClassUUID = cc.uuid
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def getPlatformSupportThreadParticipants(institutionUUID: String, bindMode: String) =
+  def getPlatformSupportThreadParticipants(institutionUUID: String, bindMode: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, null as courseClassName
       | from (select * from Role
@@ -122,7 +112,7 @@ object RolesRepo {
       | group by pw.username
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def getAllUsersWithRoleForInstitution(institutionUUID: String, bindMode: String) =
+  def getAllUsersWithRoleForInstitution(institutionUUID: String, bindMode: String): RolesTO =
     TOs.newRolesTO(sql"""
       | select r.*, pw.username, null as courseClassName
       | from Role r
@@ -131,13 +121,13 @@ object RolesRepo {
       | order by r.role, pw.username
     """.map[RoleTO](toRoleTO(_, bindMode)))
 
-  def updateCourseClassAdmins(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.courseClassAdmin, roles)
+  def updateCourseClassAdmins(institutionUUID: String, courseClassUUID: String, roles: Roles): Roles = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.courseClassAdmin, roles)
 
-  def updateTutors(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.tutor, roles)
+  def updateTutors(institutionUUID: String, courseClassUUID: String, roles: Roles): Roles = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.tutor, roles)
 
-  def updateCourseClassObservers(institutionUUID: String, courseClassUUID: String, roles: Roles) = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.courseClassObserver, roles)
+  def updateCourseClassObservers(institutionUUID: String, courseClassUUID: String, roles: Roles): Roles = updateCourseClassRole(institutionUUID, courseClassUUID, RoleType.courseClassObserver, roles)
 
-  def updateCourseClassRole(institutionUUID: String, courseClassUUID: String, roleType: RoleType, roles: Roles) = {
+  def updateCourseClassRole(institutionUUID: String, courseClassUUID: String, roleType: RoleType, roles: Roles): Roles = {
     val from = getUsersForCourseClassByRole(courseClassUUID, roleType, RoleCategory.BIND_DEFAULT)
 
     removeCourseClassRole(courseClassUUID, roleType).addRoles(roles)
@@ -159,7 +149,7 @@ object RolesRepo {
     roles
   }
 
-  def updateInstitutionAdmins(institutionUUID: String, roles: Roles) = {
+  def updateInstitutionAdmins(institutionUUID: String, roles: Roles): Roles = {
     val from = getInstitutionAdmins(institutionUUID, RoleCategory.BIND_DEFAULT)
 
     removeInstitutionAdmins(institutionUUID).addRoles(roles)
@@ -173,7 +163,7 @@ object RolesRepo {
     roles
   }
 
-  def updatePublishers(institutionUUID: String, roles: Roles) = {
+  def updatePublishers(institutionUUID: String, roles: Roles): Roles = {
     val from = getPublishers(institutionUUID, RoleCategory.BIND_DEFAULT)
 
     removePublishers(institutionUUID).addRoles(roles)
@@ -186,12 +176,12 @@ object RolesRepo {
     roles
   }
 
-  def addRoles(roles: Roles) = {
-    roles.getRoles.asScala.foreach(create _)
+  def addRoles(roles: Roles): Roles = {
+    roles.getRoles.asScala.foreach(create)
     roles
   }
 
-  def create(role: Role) = {
+  def create(role: Role): Unit = {
     if (StringUtils.isNone(role.getUUID)) {
       role.setUUID(UUID.random)
     }
@@ -226,7 +216,7 @@ object RolesRepo {
     }
   }
 
-  def removeCourseClassRole(courseClassUUID: String, roleType: RoleType) = {
+  def removeCourseClassRole(courseClassUUID: String, roleType: RoleType): RolesRepo = {
     sql"""
       delete from Role
       where courseClassUUID = ${courseClassUUID}
@@ -235,7 +225,7 @@ object RolesRepo {
     this
   }
 
-  def removeInstitutionAdmins(institutionUUID: String) = {
+  def removeInstitutionAdmins(institutionUUID: String): RolesRepo = {
     sql"""
         delete from Role
         where institutionUUID = ${institutionUUID}
@@ -244,7 +234,7 @@ object RolesRepo {
     this
   }
 
-  def removePublishers(institutionUUID: String) = {
+  def removePublishers(institutionUUID: String): RolesRepo = {
     sql"""
         delete from Role
         where institutionUUID = ${institutionUUID}

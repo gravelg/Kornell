@@ -1,22 +1,17 @@
 package kornell.server
 
-import java.io.File
-import java.io.InputStream
+import java.io.{File, InputStream}
 import java.util.HashMap
 
-import scala.collection.JavaConverters.seqAsJavaListConverter
-
 import kornell.core.util.UUID
-import kornell.server.jdbc.repository.CourseClassRepo
-import kornell.server.jdbc.repository.CourseRepo
+import kornell.server.jdbc.repository.{CourseClassRepo, CourseRepo}
 import kornell.server.util.Settings
-import net.sf.jasperreports.engine.JRExporterParameter
-import net.sf.jasperreports.engine.JasperFillManager
-import net.sf.jasperreports.engine.JasperReport
-import net.sf.jasperreports.engine.JasperRunManager
+import net.sf.jasperreports.engine.{JRExporterParameter, JasperFillManager, JasperReport, JasperRunManager}
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource
 import net.sf.jasperreports.engine.export.JRXlsExporter
 import net.sf.jasperreports.engine.util.JRLoader
+
+import scala.collection.JavaConverters.seqAsJavaListConverter
 
 package object report {
 
@@ -35,7 +30,7 @@ package object report {
   def getReportBytes(certificateData: List[Any], parameters: HashMap[String, Object], jasperFile: String): Array[Byte] =
     JasperRunManager.runReportToPdf(jasperFile, parameters, new JRBeanCollectionDataSource(certificateData asJava))
 
-  def runReportToPdf(certificateData: List[Any], parameters: HashMap[String, Object], jasperReport: JasperReport, fileType: String) =
+  def runReportToPdf(certificateData: List[Any], parameters: HashMap[String, Object], jasperReport: JasperReport, fileType: String): Array[Byte] =
     if (fileType != null && fileType == "xls") {
       val fileName = Settings.tmpDir + "tmp-" + UUID.random + ".xls"
       val exporterXLS = new JRXlsExporter()
@@ -50,7 +45,7 @@ package object report {
     } else
       JasperRunManager.runReportToPdf(jasperReport, parameters, new JRBeanCollectionDataSource(certificateData asJava))
 
-  def clearJasperFiles = {
+  def clearJasperFiles: String = {
     val folder = new File(Settings.tmpDir)
     var deleted = "Deleting files from folder " + folder.getAbsolutePath + ": "
     folder.listFiles().foreach(file =>
@@ -61,26 +56,25 @@ package object report {
     deleted
   }
 
-  def getFileType(fileType: String) = {
+  def getFileType(fileType: String): String = {
     if (fileType == "xls")
       "xls"
     else
       "pdf"
   }
 
-  def getContentType(fileType: String) = {
+  def getContentType(fileType: String): String = {
     if (getFileType(fileType) == "xls")
       "application/vnd.ms-excel"
     else
       "application/pdf"
   }
 
-  def getInstitutionUUID(courseClassUUID: String, courseUUID: String = null) = {
+  def getInstitutionUUID(courseClassUUID: String, courseUUID: String = null): String = {
     if (courseUUID != null) {
       CourseRepo(courseUUID).get.getInstitutionUUID
     } else {
       CourseClassRepo(courseClassUUID).get.getInstitutionUUID
     }
   }
-
 }

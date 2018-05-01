@@ -2,17 +2,15 @@ package kornell.server.jdbc.repository
 
 import java.sql.ResultSet
 import java.util.concurrent.TimeUnit.MINUTES
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
-import kornell.core.entity.Person
-import kornell.core.entity.RegistrationType
-import kornell.core.to.PersonTO
+
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import kornell.core.entity.{AuditedEntityType, Person, RegistrationType}
+import kornell.core.to.{PeopleTO, PersonTO}
 import kornell.core.util.StringUtils.isSome
 import kornell.server.jdbc.SQL.SQLHelper
 import kornell.server.repository.Entities
 import kornell.server.repository.Entities.randUUID
 import kornell.server.repository.TOs.newPeopleTO
-import kornell.core.entity.AuditedEntityType
 
 object PeopleRepo {
 
@@ -20,40 +18,40 @@ object PeopleRepo {
 
   type InstitutionKey = (String, String)
 
-  val usernameLoader = new CacheLoader[InstitutionKey, Option[Person]]() {
+  val usernameLoader: CacheLoader[InstitutionKey, Option[Person]] = new CacheLoader[InstitutionKey, Option[Person]]() {
     override def load(instKey: InstitutionKey): Option[Person] = lookupByUsername(instKey._1, instKey._2)
   }
 
-  val cpfLoader = new CacheLoader[InstitutionKey, Option[Person]]() {
+  val cpfLoader: CacheLoader[InstitutionKey, Option[Person]] = new CacheLoader[InstitutionKey, Option[Person]]() {
     override def load(instKey: InstitutionKey): Option[Person] = lookupByCPF(instKey._1, instKey._2)
   }
 
-  val emailLoader = new CacheLoader[InstitutionKey, Option[Person]]() {
+  val emailLoader: CacheLoader[InstitutionKey, Option[Person]] = new CacheLoader[InstitutionKey, Option[Person]]() {
     override def load(instKey: InstitutionKey): Option[Person] = lookupByEmail(instKey._1, instKey._2)
   }
 
-  val uuidLoader = new CacheLoader[String, Option[Person]]() {
+  val uuidLoader: CacheLoader[String, Option[Person]] = new CacheLoader[String, Option[Person]]() {
     override def load(uuid: String): Option[Person] = lookupByUUID(uuid)
   }
 
-  val timezoneLoader = new CacheLoader[String, Option[String]]() {
+  val timezoneLoader: CacheLoader[String, Option[String]] = new CacheLoader[String, Option[String]]() {
     override def load(personUUID: String): Option[String] = lookupTimezoneByUUID(personUUID)
   }
 
   val DEFAULT_CACHE_SIZE = 1000
 
-  val cacheBuilder = CacheBuilder
+  val cacheBuilder: CacheBuilder[AnyRef, AnyRef] = CacheBuilder
     .newBuilder()
     .expireAfterAccess(5, MINUTES)
     .maximumSize(1000)
 
-  val usernameCache = cacheBuilder.build(usernameLoader)
-  val cpfCache = cacheBuilder.build(cpfLoader)
-  val emailCache = cacheBuilder.build(emailLoader)
-  val uuidCache = cacheBuilder.build(uuidLoader)
-  val timezoneCache = cacheBuilder.build(timezoneLoader)
+  val usernameCache: LoadingCache[(String, String), Option[Person]] = cacheBuilder.build(usernameLoader)
+  val cpfCache: LoadingCache[(String, String), Option[Person]] = cacheBuilder.build(cpfLoader)
+  val emailCache: LoadingCache[(String, String), Option[Person]] = cacheBuilder.build(emailLoader)
+  val uuidCache: LoadingCache[String, Option[Person]]  = cacheBuilder.build(uuidLoader)
+  val timezoneCache: LoadingCache[String, Option[String]] = cacheBuilder.build(timezoneLoader)
 
-  def clearCache() = {
+  def clearCache(): Unit = {
     usernameCache.invalidateAll()
     cpfCache.invalidateAll()
     emailCache.invalidateAll()
@@ -61,13 +59,13 @@ object PeopleRepo {
     timezoneCache.invalidateAll()
   }
 
-  def getByUsername(institutionUUID: String, username: String) = Option(institutionUUID, username) flatMap usernameCache.get
-  def getByEmail(institutionUUID: String, email: String) = Option(institutionUUID, email) flatMap emailCache.get
-  def getByCPF(institutionUUID: String, cpf: String) = Option(institutionUUID, cpf) flatMap cpfCache.get
-  def getByUUID(uuid: String) = Option(uuid) flatMap uuidCache.get
-  def getTimezoneByUUID(personUUID: String) = timezoneCache.get(personUUID)
+  def getByUsername(institutionUUID: String, username: String): Option[Person] = Option(institutionUUID, username) flatMap usernameCache.get
+  def getByEmail(institutionUUID: String, email: String): Option[Person] = Option(institutionUUID, email) flatMap emailCache.get
+  def getByCPF(institutionUUID: String, cpf: String): Option[Person] = Option(institutionUUID, cpf) flatMap cpfCache.get
+  def getByUUID(uuid: String): Option[Person] = Option(uuid) flatMap uuidCache.get
+  def getTimezoneByUUID(personUUID: String): Option[String] = timezoneCache.get(personUUID)
 
-  def lookupByUsername(institutionUUID: String, username: String) = sql"""
+  def lookupByUsername(institutionUUID: String, username: String): Option[Person] = sql"""
     select p.* from Person p
     join Password pwd
     on p.uuid = pwd.personUUID
@@ -75,24 +73,24 @@ object PeopleRepo {
     and p.institutionUUID = $institutionUUID
   """.first[Person]
 
-  def lookupByCPF(institutionUUID: String, cpf: String) = sql"""
+  def lookupByCPF(institutionUUID: String, cpf: String): Option[Person] = sql"""
     select p.* from Person p
     where p.cpf = $cpf
     and p.institutionUUID = $institutionUUID
   """.first[Person]
 
-  def lookupByEmail(institutionUUID: String, email: String) = sql"""
+  def lookupByEmail(institutionUUID: String, email: String): Option[Person] = sql"""
     select p.* from Person p
     where p.email = $email
     and p.institutionUUID = $institutionUUID
   """.first[Person]
 
-  def lookupByUUID(uuid: String) = sql"""
+  def lookupByUUID(uuid: String): Option[Person] = sql"""
     select p.* from Person p
     where p.uuid = $uuid
   """.first[Person]
 
-  def lookupTimezoneByUUID(personUUID: String) =
+  def lookupTimezoneByUUID(personUUID: String): Option[String] =
     sql"""select i.timeZone from Person p left join Institution i on p.institutionUUID = i.uuid where p.uuid = ${personUUID}""".first[String]
 
   def get(institutionUUID: String, any: String): Option[Person] = get(institutionUUID, any, any, any)
@@ -112,7 +110,7 @@ object PeopleRepo {
       .orElse(getByCPF(institutionUUID, cpf))
       .orElse(getByEmail(institutionUUID, email))
 
-  def findBySearchTerm(institutionUUID: String, search: String) = {
+  def findBySearchTerm(institutionUUID: String, search: String): PeopleTO = {
     newPeopleTO(
       sql"""
         | select p.*,
@@ -162,7 +160,7 @@ object PeopleRepo {
     person
   }
 
-  def updateCaches(p: Person) = {
+  def updateCaches(p: Person): Unit = {
     val op = Some(p)
     uuidCache.put(p.getUUID, op)
     if (isSome(p.getCPF)) cpfCache.put((p.getInstitutionUUID, p.getCPF), op)
@@ -172,7 +170,7 @@ object PeopleRepo {
     }
   }
 
-  def invalidateCache(p: Person) = {
+  def invalidateCache(p: Person): Unit = {
     if (isSome(p.getCPF)) cpfCache.invalidate((p.getInstitutionUUID, p.getCPF))
     if (isSome(p.getEmail)) emailCache.invalidate((p.getInstitutionUUID, p.getEmail))
     uuidCache.invalidate(p.getUUID)

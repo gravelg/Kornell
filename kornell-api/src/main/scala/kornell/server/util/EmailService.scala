@@ -2,39 +2,25 @@ package kornell.server.util
 
 import java.io.File
 import java.net.URL
-import org.apache.commons.io.FileUtils
-import kornell.core.entity.Institution
-import kornell.core.entity.Person
-import kornell.core.entity.Course
-import kornell.core.entity.PersonCategory
-import kornell.core.entity.CourseClass
-import kornell.core.util.StringUtils._
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.core.entity.Enrollment
-import kornell.server.jdbc.repository.InstitutionEmailWhitelistRepo
-import kornell.core.entity.ChatThread
-import kornell.server.util.Settings._
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.logging.Logger
-import java.util.logging.Level
-import kornell.core.util.StringUtils
-import kornell.server.service.S3Service
-import kornell.server.jdbc.repository.InstitutionsRepo
-import kornell.server.jdbc.repository.CourseClassRepo
-import kornell.server.jdbc.repository.CourseVersionRepo
-import kornell.server.jdbc.repository.CourseRepo
+import java.nio.file.{Path, Paths}
 import java.text.SimpleDateFormat
-import kornell.server.jdbc.repository.RolesRepo
-import collection.JavaConverters._
-import kornell.core.entity.EmailTemplateType
-import kornell.server.jdbc.repository.EmailTemplatesRepo
+import java.util.logging.{Level, Logger}
+
+import kornell.core.entity._
+import kornell.core.util.StringUtils
+import kornell.core.util.StringUtils._
+import kornell.server.jdbc.repository.{CourseClassRepo, CourseRepo, CourseVersionRepo, EmailTemplatesRepo, InstitutionEmailWhitelistRepo, InstitutionsRepo, PersonRepo, RolesRepo}
+import kornell.server.service.S3Service
+import kornell.server.util.Settings._
+import org.apache.commons.io.FileUtils
+
+import scala.collection.JavaConverters._
 
 object EmailService {
 
-  val logger = Logger.getLogger("kornell.server.email")
+  val logger: Logger = Logger.getLogger("kornell.server.email")
 
-  def sendEmailBatchEnrollment(person: Person, institution: Institution, courseClass: CourseClass) = {
+  def sendEmailBatchEnrollment(person: Person, institution: Institution, courseClass: CourseClass): Unit = {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
       val values = scala.collection.mutable.Map[String, String]()
       values("PERSON_FULLNAME") = person.getFullName
@@ -50,7 +36,7 @@ object EmailService {
     }
   }
 
-  def sendEmailConfirmation(person: Person, institution: Institution) = {
+  def sendEmailConfirmation(person: Person, institution: Institution): Unit = {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
       val values = scala.collection.mutable.Map[String, String]()
       values("PERSON_FULLNAME") = person.getFullName
@@ -66,7 +52,7 @@ object EmailService {
     }
   }
 
-  def sendEmailRequestPasswordChange(person: Person, institution: Institution, requestPasswordChangeUUID: String) = {
+  def sendEmailRequestPasswordChange(person: Person, institution: Institution, requestPasswordChangeUUID: String): Unit = {
     if (checkWhitelistForDomain(institution, person.getEmail)) {
       val values = scala.collection.mutable.Map[String, String]()
       values("PERSON_FULLNAME") = person.getFullName
@@ -81,7 +67,7 @@ object EmailService {
     }
   }
 
-  def sendEmailEnrolled(person: Person, institution: Institution, course: Course, enrollment: Enrollment, courseClass: CourseClass) = {
+  def sendEmailEnrolled(person: Person, institution: Institution, course: Course, enrollment: Enrollment, courseClass: CourseClass): Unit = {
     if (checkWhitelistForDomain(institution, person.getEmail) && person.isReceiveEmailCommunication) {
       val hasPassword = PersonRepo(person.getUUID).hasPassword(institution.getUUID)
       val actionLink = if (hasPassword) {
@@ -107,7 +93,7 @@ object EmailService {
     }
   }
 
-  def sendEmailNewChatThread(person: Person, institution: Institution, courseClass: CourseClass, chatThread: ChatThread, message: String) = {
+  def sendEmailNewChatThread(person: Person, institution: Institution, courseClass: CourseClass, chatThread: ChatThread, message: String): Unit = {
     val participant = PersonRepo(chatThread.getPersonUUID).get
     if (checkWhitelistForDomain(institution, person.getEmail) && person.isReceiveEmailCommunication && !participant.getUUID.equals(person.getUUID)) {
       val templateType = {
@@ -145,7 +131,7 @@ object EmailService {
     }
   }
 
-  def sendEmailEspinafreReminder(person: Person, institution: Institution) = {
+  def sendEmailEspinafreReminder(person: Person, institution: Institution): Unit = {
     if (person.isReceiveEmailCommunication) {
       val values = scala.collection.mutable.Map[String, String]()
       values("BUTTON_LINK") = institution.getBaseURL
@@ -159,10 +145,10 @@ object EmailService {
     }
   }
 
-  def sendEmailClassCompletion(enrollment: Enrollment) = {
+  def sendEmailClassCompletion(enrollment: Enrollment): Unit = {
     val person = PersonRepo(enrollment.getPersonUUID).get
     val institution = InstitutionsRepo.getByUUID(person.getInstitutionUUID).get
-    if (enrollment.getCourseVersionUUID == null && institution.isNotifyInstitutionAdmins()) {
+    if (enrollment.getCourseVersionUUID == null && institution.isNotifyInstitutionAdmins) {
       val df = new SimpleDateFormat("yyyy-MM-dd hh:mm")
       val enrolledClass = CourseClassRepo(enrollment.getCourseClassUUID).get
       val course = CourseRepo(CourseVersionRepo(enrolledClass.getCourseVersionUUID).get.getCourseUUID).get
@@ -177,10 +163,9 @@ object EmailService {
       values("COMPLETION_DATE") = df.format(enrollment.getLastProgressUpdate)
 
       val from = getFromEmail(institution)
-      val to = person.getEmail
       val imgFile = getInstitutionLogoImage(institution)
       val template = processTemplate(EmailTemplateType.CLASS_COMPLETION, values)
-      for (admin <- RolesRepo.getInstitutionAdmins(institution.getUUID, "PERSON").getRoleTOs.asScala) {
+      for (admin <- new RolesRepo().getInstitutionAdmins(institution.getUUID, "PERSON").getRoleTOs.asScala) {
         EmailSender.sendEmail(template._1, from, admin.getPerson.getEmail, from, template._2, imgFile, person.getUUID)
       }
     }
@@ -193,7 +178,7 @@ object EmailService {
       SMTP_FROM.get
   }
 
-  private def processTemplate(templateType: EmailTemplateType, values: scala.collection.mutable.Map[String, String]) = {
+  private def processTemplate(templateType: EmailTemplateType, values: scala.collection.mutable.Map[String, String]): (String, String) = {
     val template = EmailTemplatesRepo.getTemplate(templateType, UserLocale.getLocale.get).get
     var output = template.getTemplate
     var title = template.getTitle
@@ -204,7 +189,7 @@ object EmailService {
     (title, output)
   }
 
-  private def processTitle(templateType: EmailTemplateType, values: scala.collection.mutable.Map[String, String]) = {
+  private def processTitle(templateType: EmailTemplateType, values: scala.collection.mutable.Map[String, String]): String = {
     val template = EmailTemplatesRepo.getTemplate(templateType, UserLocale.getLocale.get).get
     var title = template.getTitle
     values.foreach { x =>
@@ -217,7 +202,7 @@ object EmailService {
     val logoImageName: String = "logo300x80.png"
     val tempDir: Path = Paths.get(System.getProperty("java.io.tmpdir"))
     val imgPath = tempDir.resolve(institution.getUUID + "-" + logoImageName)
-    val imgFile: File = imgPath.toFile()
+    val imgFile: File = imgPath.toFile
 
     val purgeTime = System.currentTimeMillis - (1 * 24 * 60 * 60 * 1000) //one day
     if (imgFile.lastModified < purgeTime && !imgFile.delete)
@@ -235,7 +220,7 @@ object EmailService {
     imgFile
   }
 
-  def checkWhitelistForDomain(institution: Institution, email: String) = {
+  def checkWhitelistForDomain(institution: Institution, email: String): Boolean = {
     //If we don't use the whitelist, just continue with the sending
     if (!institution.isUseEmailWhitelist) {
       true

@@ -1,22 +1,14 @@
 package kornell.server.jdbc.repository
 
-import java.sql.ResultSet
-import scala.collection.JavaConverters._
-import kornell.core.entity.Course
-import kornell.core.entity.Course
-import kornell.server.jdbc.SQL._
-import kornell.server.jdbc.SQL._
-import kornell.server.repository.Entities._
-import kornell.server.repository.TOs._
-import kornell.server.repository.Entities
-import kornell.core.util.UUID
-import kornell.core.to.CoursesTO
-import kornell.core.entity.AuditedEntityType
-import kornell.core.to.CourseTO
-import kornell.server.repository.TOs
-import kornell.server.jdbc.PreparedStmt
-import kornell.core.entity.EntityState
+import kornell.core.entity.{AuditedEntityType, Course, EntityState}
 import kornell.core.error.exception.EntityConflictException
+import kornell.core.to.{CourseTO, CoursesTO}
+import kornell.core.util.UUID
+import kornell.server.jdbc.PreparedStmt
+import kornell.server.jdbc.SQL._
+import kornell.server.repository.TOs
+
+import scala.collection.JavaConverters._
 
 object CoursesRepo {
 
@@ -53,7 +45,7 @@ object CoursesRepo {
     }
   }
 
-  def byCourseClassUUID(courseClassUUID: String) = sql"""
+  def byCourseClassUUID(courseClassUUID: String): Option[Course] = sql"""
     select c.* from Course c join
     CourseVersion cv on cv.courseUUID = c.uuid join
     CourseClass cc on cc.courseVersionUUID = cv.uuid
@@ -63,7 +55,7 @@ object CoursesRepo {
     and cc.state <> ${EntityState.deleted.toString}
   """.first[Course]
 
-  def byCourseVersionUUID(courseVersionUUID: String) = sql"""
+  def byCourseVersionUUID(courseVersionUUID: String): Option[Course] = sql"""
     select * from Course c join
     CourseVersion cv on cv.courseUUID = c.uuid
     where cv.uuid = $courseVersionUUID
@@ -115,7 +107,7 @@ object CoursesRepo {
     coursesTO
   }
 
-  private def bindCourseVersionsCounts(coursesTO: CoursesTO) = {
+  private def bindCourseVersionsCounts(coursesTO: CoursesTO): CoursesTO = {
     val courses = coursesTO.getCourses.asScala
     courses.foreach(cv => cv.setCourseVersionsCount(CourseVersionsRepo.countByCourse(cv.getCourse.getUUID)))
     coursesTO.setCourses(courses.asJava)

@@ -1,7 +1,6 @@
 package kornell.server.jdbc
 
 import java.sql.Connection
-import kornell.core.util.UUID
 import java.sql.ResultSet
 
 object SQL {
@@ -11,10 +10,10 @@ object SQL {
   type ConnectionFactory = () => Connection
 
   implicit class SQLHelper(val srtCtx: StringContext) extends AnyVal {
-    def sql(args: Any*) = {
+    def sql(args: Any*): PreparedStmt = {
       val parts = srtCtx.parts.iterator
       val params = args.toList
-      var query = new StringBuffer(parts.next)
+      val query = new StringBuffer(parts.next)
       while (parts.hasNext) {
         query append "?"
         query append parts.next

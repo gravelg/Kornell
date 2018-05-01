@@ -1,32 +1,23 @@
 package kornell.server.repository
 
-import kornell.server.dev.util.ContentsParser
-import kornell.server.jdbc.repository.CourseClassesRepo
-import kornell.core.entity.Person
-import scala.collection.mutable.ListBuffer
-import kornell.core.util.StringUtils._
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.core.entity.Enrollment
-import kornell.server.jdbc.repository.CourseVersionRepo
-import kornell.server.content.ContentManagers
-import kornell.server.jdbc.repository.InstitutionsRepo
-import kornell.server.jdbc.repository.InstitutionRepo
-import kornell.server.jdbc.repository.CourseRepo
-import kornell.server.service.S3Service
-import scala.xml.XML
-import kornell.server.scorm12.ManifestParser
-import kornell.server.jdbc.repository.CoursesRepo
-import kornell.core.entity.ContentSpec
-import kornell.core.error.exception.ServerErrorException
-import kornell.server.jdbc.repository.CourseVersionsRepo
-import kornell.server.dev.util.WizardParser
-import kornell.core.entity.CourseVersion
-import kornell.server.jdbc.repository.CourseClassRepo
+import java.io.InputStream
+
+import kornell.core.lom.Contents
+import kornell.core.entity.{ContentSpec, Enrollment, Person}
 import kornell.core.util.StringUtils
+import kornell.core.util.StringUtils._
+import kornell.server.content.ContentManagers
+import kornell.server.dev.util.{ContentsParser, WizardParser}
+import kornell.server.jdbc.repository.{CourseClassRepo, CourseClassesRepo, CourseRepo, CourseVersionRepo, CourseVersionsRepo, CoursesRepo, InstitutionRepo, PersonRepo}
+import kornell.server.scorm12.ManifestParser
+import kornell.server.service.S3Service
+
+import scala.collection.mutable.ListBuffer
+import scala.xml.XML
 
 object ContentRepository {
 
-  def findVisitedContent(enrollment: Enrollment, person: Person) = {
+  def findVisitedContent(enrollment: Enrollment, person: Person): Contents = {
     val contentSpec = {
       if (enrollment.getCourseVersionUUID != null)
         CoursesRepo.byCourseVersionUUID(enrollment.getCourseVersionUUID).get.getContentSpec
@@ -40,17 +31,17 @@ object ContentRepository {
     }
   }
 
-  def findSCORM12Actoms(courseClassUUID: String) = {
+  def findSCORM12Actoms(courseClassUUID: String): List[String] = {
     val structureIn = getClassManifestContent(courseClassUUID, "imsmanifest.xml")
     val contents = XML.load(structureIn)
 
-    val nodes = (contents \\ "resource")
+    val nodes = contents \\ "resource"
     val result = ListBuffer[String]()
     nodes.map(x => result += x.attribute("href").get.toString)
     result.toList
   }
 
-  def findKNLVisitedContent(enrollment: Enrollment, person: Person, isWizard: Boolean) = {
+  def findKNLVisitedContent(enrollment: Enrollment, person: Person, isWizard: Boolean): Contents = {
     val visited = getVisited(enrollment)
     if (isWizard) {
       val courseClass = CourseClassRepo(enrollment.getCourseClassUUID).get
@@ -58,10 +49,12 @@ object ContentRepository {
       val classroomJson = courseVersion.getClassroomJson
       val classroomJsonPublished = courseVersion.getClassroomJsonPublished
       val json = if (courseClass.isSandbox && StringUtils.isSome(classroomJson)) {
-        classroomJson;
+        classroomJson
       } else if (StringUtils.isSome(classroomJsonPublished)) {
-        classroomJsonPublished;
-      } else ""
+        classroomJsonPublished
+      } else {
+        ""
+      }
       WizardParser.parse(json, visited)
     } else {
       val prefix = getPrefix(enrollment, person)
@@ -76,7 +69,7 @@ object ContentRepository {
     }
   }
 
-  def findSCORM12VisitedContent(enrollment: Enrollment, person: Person) = {
+  def findSCORM12VisitedContent(enrollment: Enrollment, person: Person): Contents = {
     val prefix = getPrefix(enrollment, person)
     val visited = getVisited(enrollment)
     val structureSrc = {
@@ -111,7 +104,7 @@ object ContentRepository {
     visited
   }
 
-  private def getVersionManifestContent(courseVersionUUID: String, filename: String) = {
+  private def getVersionManifestContent(courseVersionUUID: String, filename: String): InputStream = {
     val version = CourseVersionRepo(courseVersionUUID).get
     val course = CourseRepo(version.getCourseUUID).get
     val institution = InstitutionRepo(course.getInstitutionUUID).get
@@ -122,7 +115,7 @@ object ContentRepository {
     structureIn
   }
 
-  private def getClassManifestContent(courseClassUUID: String, filename: String) = {
+  private def getClassManifestContent(courseClassUUID: String, filename: String): InputStream = {
     val classRepo = CourseClassesRepo(courseClassUUID)
     val institution = classRepo.institution.get
     val repositoryUUID = institution.getAssetsRepositoryUUID

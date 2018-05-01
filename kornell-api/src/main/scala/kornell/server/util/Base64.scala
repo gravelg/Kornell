@@ -10,7 +10,7 @@ object Base64 {
         .map(x => encodeChar(binaryToDecimal(x)))
         .mkString
 
-    encoded + "=" * ((4 - encoded.length % 4) % 4) grouped (76) mkString "\n"
+    encoded + "=" * ((4 - encoded.length % 4) % 4) grouped 76 mkString "\n"
   }
 
   def encodeChar(i: Int): Char = encodeTable(i)
@@ -55,7 +55,7 @@ object Base64 {
       getEncodeTableIndexList(src.filterNot(_ == '\n'))
         .map(x => toBinarySeq(6)(Seq.fill(1)(x.toByte)))
 
-    deleteExtraZero(indexSeq.flatMap(s => s))
+    deleteExtraZero(indexSeq.flatten)
       .grouped(BIT_LENGTH)
       .map(binaryToDecimal(_).toByte).toSeq
   }

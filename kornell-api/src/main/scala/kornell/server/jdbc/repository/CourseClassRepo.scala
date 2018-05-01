@@ -1,28 +1,23 @@
 package kornell.server.jdbc.repository
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-import kornell.core.entity.CourseClass
-import kornell.core.error.exception.EntityConflictException
-import kornell.server.jdbc.SQL.SQLHelper
-import kornell.server.jdbc.SQL.rsToString
-import kornell.core.entity.AuditedEntityType
-import kornell.core.entity.ChatThreadType
-import kornell.server.authentication.ThreadLocalAuthenticator
-import kornell.core.util.UUID
-import kornell.server.service.AssetService
-import kornell.core.util.StringUtils
-import kornell.core.entity.CourseDetailsEntityType
-import kornell.core.entity.EntityState
-import kornell.core.entity.role.RoleType
-import kornell.core.entity.role.RoleCategory
 import java.util.Date
+
+import kornell.core.entity._
+import kornell.core.entity.role.RoleCategory
+import kornell.core.error.exception.EntityConflictException
+import kornell.core.util.{StringUtils, UUID}
+import kornell.server.authentication.ThreadLocalAuthenticator
+import kornell.server.jdbc.SQL.{SQLHelper, rsToString}
+import kornell.server.service.AssetService
+
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 class CourseClassRepo(uuid: String) {
 
   val finder = sql"""select * from CourseClass where uuid = $uuid and state <> ${EntityState.deleted.toString}"""
 
-  def get = finder.get[CourseClass]
-  def first = finder.first[CourseClass]
+  def get: CourseClass = finder.get[CourseClass]
+  def first: Option[CourseClass] = finder.first[CourseClass]
 
   def version = CourseVersionRepo(get.getCourseVersionUUID)
 
@@ -73,7 +68,7 @@ class CourseClassRepo(uuid: String) {
     }
   }
 
-  def delete = {
+  def delete: CourseClass = {
     val courseClass = get
     if (EnrollmentsRepo.countByCourseClass(uuid) == 0) {
       sql"""
@@ -81,11 +76,13 @@ class CourseClassRepo(uuid: String) {
         set state = ${EntityState.deleted.toString}
         where uuid = ${uuid}
       """.executeUpdate
+      courseClass
+    } else {
+      throw new EntityConflictException("classHasEnrollments")
     }
-    courseClass
   }
 
-  def copy = {
+  def copy: CourseClass = {
     val courseClass = CourseClassRepo(uuid).first.get
     val sourceCourseClassUUID = courseClass.getUUID
     val targetCourseClassUUID = UUID.random
@@ -103,12 +100,12 @@ class CourseClassRepo(uuid: String) {
     CourseClassesRepo.create(courseClass)
 
     //copy roles
-    val roles = RolesRepo.getAllUsersWithRoleForCourseClass(sourceCourseClassUUID)
+    val roles = new RolesRepo().getAllUsersWithRoleForCourseClass(sourceCourseClassUUID)
     roles.getRoleTOs.asScala.foreach(roleTO => {
       val role = roleTO.getRole
       role.setUUID(UUID.random)
       RoleCategory.setCourseClassUUID(role, targetCourseClassUUID)
-      RolesRepo.create(role)
+      new RolesRepo().create(role)
     })
 
     AssetService.copyAssets(courseClass.getInstitutionUUID, CourseDetailsEntityType.COURSE_CLASS, sourceCourseClassUUID, targetCourseClassUUID, courseClass.getThumbUrl)

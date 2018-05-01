@@ -1,14 +1,13 @@
 package kornell.server.jdbc.repository
 
-import kornell.core.entity.Institution
+import kornell.core.entity.{AuditedEntityType, Institution, InstitutionRegistrationPrefix}
+import kornell.core.to.InstitutionRegistrationPrefixesTO
 import kornell.server.jdbc.SQL._
 import kornell.server.repository.TOs
-import kornell.core.entity.InstitutionRegistrationPrefix
-import kornell.core.entity.AuditedEntityType
 
 class InstitutionRepo(uuid: String) {
 
-  def get = InstitutionsRepo.getByUUID(uuid).get
+  def get: Institution = InstitutionsRepo.getByUUID(uuid).get
 
   def update(institution: Institution): Institution = {
     //get previous version
@@ -43,12 +42,12 @@ class InstitutionRepo(uuid: String) {
 
     InstitutionsRepo.updateCaches(institution)
 
-    InstitutionsRepo.cleanUpHostNameCache
+    InstitutionsRepo.cleanUpHostNameCache()
 
     institution
   }
 
-  def getInstitutionRegistrationPrefixes = {
+  def getInstitutionRegistrationPrefixes: InstitutionRegistrationPrefixesTO = {
     TOs.newInstitutionRegistrationPrefixesTO(sql"""
       | select * from InstitutionRegistrationPrefix
       | where institutionUUID = ${uuid}

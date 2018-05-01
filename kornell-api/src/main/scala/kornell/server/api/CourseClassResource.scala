@@ -1,51 +1,28 @@
 package kornell.server.api
 
-import scala.collection.JavaConverters._
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
-import javax.ws.rs.Consumes
-import javax.ws.rs.DELETE
-import javax.ws.rs.GET
-import javax.ws.rs.PUT
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
-import javax.ws.rs.core.Context
-import javax.ws.rs.core.SecurityContext
-import kornell.core.entity.ChatThreadType
-import kornell.core.entity.CourseClass
-import kornell.core.entity.role.RoleCategory
-import kornell.core.entity.role.RoleType
-import kornell.core.entity.role.Roles
-import kornell.core.error.exception.EntityConflictException
-import kornell.core.error.exception.EntityNotFoundException
-import kornell.core.error.exception.UnauthorizedAccessException
-import kornell.core.to.LibraryFilesTO
-import kornell.core.to.RolesTO
-import kornell.server.jdbc.SQL._
-import kornell.server.jdbc.repository.AuthRepo
-import kornell.server.jdbc.repository.ChatThreadsRepo
-import kornell.server.jdbc.repository.CourseClassRepo
-import kornell.server.jdbc.repository.PersonRepo
-import kornell.server.jdbc.repository.RolesRepo
+import javax.ws.rs._
+import javax.ws.rs.core.{Context, Response, SecurityContext}
+import kornell.core.entity.{ChatThreadType, CourseClass}
+import kornell.core.entity.role.{RoleCategory, RoleType, Roles}
+import kornell.core.error.exception.{EntityConflictException, EntityNotFoundException, UnauthorizedAccessException}
+import kornell.core.to.{CourseClassTO, LibraryFilesTO, RolesTO}
+import kornell.server.jdbc.repository.{AuthRepo, ChatThreadsRepo, CourseClassRepo, CourseClassesRepo, RolesRepo}
 import kornell.server.repository.LibraryFilesRepository
+import kornell.server.service.S3Service
 import kornell.server.util.AccessDeniedErr
 import kornell.server.util.Conditional.toConditional
-import kornell.core.to.CourseClassTO
-import kornell.server.jdbc.repository.CourseClassesRepo
-import javax.ws.rs.PathParam
-import kornell.server.service.S3Service
-import javax.ws.rs.POST
 
 class CourseClassResource(uuid: String) {
 
   @GET
   @Path("to")
   @Produces(Array(CourseClassTO.TYPE))
-  def getTO(implicit @Context sc: SecurityContext) =
+  def getTO(implicit @Context sc: SecurityContext): Option[CourseClassTO] =
     AuthRepo().withPerson { person =>
       CourseClassesRepo.getCourseClassTO(person.getInstitutionUUID, uuid)
-    }.requiring(isPlatformAdmin(), AccessDeniedErr())
-      .or(isInstitutionAdmin(), AccessDeniedErr())
+    }.requiring(isPlatformAdmin, AccessDeniedErr())
+      .or(isInstitutionAdmin, AccessDeniedErr())
       .or(isCourseClassAdmin(uuid), AccessDeniedErr())
       .or(isCourseClassTutor(uuid), AccessDeniedErr())
       .or(isCourseClassObserver(uuid), AccessDeniedErr())
@@ -54,8 +31,8 @@ class CourseClassResource(uuid: String) {
   @PUT
   @Consumes(Array(CourseClass.TYPE))
   @Produces(Array(CourseClass.TYPE))
-  def update(courseClass: CourseClass) = AuthRepo().withPerson { p =>
-    val roles = RolesRepo.getUserRoles(p.getUUID, RoleCategory.BIND_DEFAULT).getRoleTOs
+  def update(courseClass: CourseClass): CourseClass = AuthRepo().withPerson { p =>
+    val roles = new RolesRepo().getUserRoles(p.getUUID, RoleCategory.BIND_DEFAULT).getRoleTOs
     if (!(RoleCategory.isPlatformAdmin(roles, courseClass.getInstitutionUUID) ||
       RoleCategory.isInstitutionAdmin(roles, courseClass.getInstitutionUUID)))
       throw new UnauthorizedAccessException("classNoRights")
@@ -63,19 +40,19 @@ class CourseClassResource(uuid: String) {
       try {
         CourseClassRepo(uuid).update(courseClass)
       } catch {
-        case ioe: MySQLIntegrityConstraintViolationException =>
+        case _: MySQLIntegrityConstraintViolationException =>
           throw new EntityConflictException("constraintViolatedUUIDName")
       }
   }
 
   @DELETE
   @Produces(Array(CourseClass.TYPE))
-  def delete() = AuthRepo().withPerson { p =>
+  def delete(): CourseClass = AuthRepo().withPerson { p =>
     val courseClass = CourseClassRepo(uuid).get
     if (courseClass == null)
       throw new EntityNotFoundException("classNotFound")
 
-    val roles = RolesRepo.getUserRoles(p.getUUID, RoleCategory.BIND_DEFAULT).getRoleTOs
+    val roles = new RolesRepo().getUserRoles(p.getUUID, RoleCategory.BIND_DEFAULT).getRoleTOs
     val institutionUUID = CourseClassRepo(uuid).get.getInstitutionUUID
     if (!(RoleCategory.isPlatformAdmin(roles, institutionUUID) ||
       RoleCategory.isInstitutionAdmin(roles, institutionUUID)))
@@ -85,7 +62,7 @@ class CourseClassResource(uuid: String) {
         CourseClassRepo(uuid).delete
         courseClass
       } catch {
-        case ioe: MySQLIntegrityConstraintViolationException =>
+        case _: MySQLIntegrityConstraintViolationException =>
           throw new EntityConflictException("constraintViolatedUUIDName")
       }
   }
@@ -93,80 +70,80 @@ class CourseClassResource(uuid: String) {
   @POST
   @Path("copy")
   @Produces(Array(CourseClass.TYPE))
-  def copy = {
+  def copy: CourseClass = {
     CourseClassRepo(uuid).copy
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 
   @Produces(Array(LibraryFilesTO.TYPE))
   @Path("libraryFiles")
   @GET
-  def getLibraryFiles = LibraryFilesRepository.findLibraryFiles(uuid)
+  def getLibraryFiles: LibraryFilesTO = LibraryFilesRepository.findLibraryFiles(uuid)
 
   @PUT
   @Consumes(Array(Roles.TYPE))
-  @Produces(Array(Roles.TYPE))
   @Path("admins")
-  def updateAdmins(roles: Roles) = AuthRepo().withPerson { person =>
+  def updateAdmins(roles: Roles): Roles = AuthRepo().withPerson { person =>
     {
-      val r = RolesRepo.updateCourseClassAdmins(person.getInstitutionUUID, uuid, roles)
+      val r = new RolesRepo().updateCourseClassAdmins(person.getInstitutionUUID, uuid, roles)
       ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.SUPPORT)
       ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.INSTITUTION_SUPPORT)
+      r
     }
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 
   @GET
   @Produces(Array(RolesTO.TYPE))
   @Path("admins")
-  def getAdmins(@QueryParam("bind") bindMode: String) = AuthRepo().withPerson { person =>
-    RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.courseClassAdmin, bindMode)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  def getAdmins(@QueryParam("bind") bindMode: String): RolesTO = {
+    new RolesRepo().getUsersForCourseClassByRole(uuid, RoleType.courseClassAdmin, bindMode)
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 
   @PUT
   @Consumes(Array(Roles.TYPE))
   @Produces(Array(Roles.TYPE))
   @Path("tutors")
-  def updateTutors(roles: Roles) = AuthRepo().withPerson { person =>
+  def updateTutors(roles: Roles): Roles = AuthRepo().withPerson { person =>
     {
-      val r = RolesRepo.updateTutors(person.getInstitutionUUID, uuid, roles)
+      val r = new RolesRepo().updateTutors(person.getInstitutionUUID, uuid, roles)
       ChatThreadsRepo.updateParticipantsInThreads(uuid, person.getInstitutionUUID, ChatThreadType.TUTORING)
       r
     }
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 
   @GET
   @Produces(Array(RolesTO.TYPE))
   @Path("tutors")
-  def getTutors(@QueryParam("bind") bindMode: String) = AuthRepo().withPerson { person =>
-    RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.tutor, bindMode)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  def getTutors(@QueryParam("bind") bindMode: String): RolesTO = {
+    new RolesRepo().getUsersForCourseClassByRole(uuid, RoleType.tutor, bindMode)
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 
   @PUT
   @Consumes(Array(Roles.TYPE))
   @Produces(Array(Roles.TYPE))
   @Path("observers")
-  def updateObservers(roles: Roles) = AuthRepo().withPerson { person =>
-    RolesRepo.updateCourseClassObservers(person.getInstitutionUUID, uuid, roles)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  def updateObservers(roles: Roles): Roles = AuthRepo().withPerson { person =>
+    new RolesRepo().updateCourseClassObservers(person.getInstitutionUUID, uuid, roles)
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 
   @GET
   @Produces(Array(RolesTO.TYPE))
   @Path("observers")
-  def getObservers(@QueryParam("bind") bindMode: String) = AuthRepo().withPerson { person =>
-    RolesRepo.getUsersForCourseClassByRole(uuid, RoleType.courseClassObserver, bindMode)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  def getObservers(@QueryParam("bind") bindMode: String): RolesTO = {
+    new RolesRepo().getUsersForCourseClassByRole(uuid, RoleType.courseClassObserver, bindMode)
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 
   @GET
@@ -174,8 +151,8 @@ class CourseClassResource(uuid: String) {
   @Produces(Array("text/plain"))
   def getUploadUrl(@QueryParam("filename") filename: String, @QueryParam("path") path: String): String = {
     S3Service.getCourseClassUploadUrl(uuid, filename, path)
-  }.requiring(isPlatformAdmin(), AccessDeniedErr())
-    .or(isInstitutionAdmin(), AccessDeniedErr())
+  }.requiring(isPlatformAdmin, AccessDeniedErr())
+    .or(isInstitutionAdmin, AccessDeniedErr())
     .get
 }
 

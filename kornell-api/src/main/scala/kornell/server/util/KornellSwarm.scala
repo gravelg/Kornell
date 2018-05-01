@@ -6,12 +6,12 @@ import org.jboss.shrinkwrap.resolver.api.maven.archive.importer.MavenImporter
 import org.wildfly.swarm.Swarm
 
 object KornellSwarm extends App {
-  val container = new Swarm();
+  val container = new Swarm()
   val deployment = ShrinkWrap.create(classOf[MavenImporter])
     .loadPomFromFile("pom.xml")
     .importBuildOutput()
-    .as(classOf[WebArchive]);
+    .as(classOf[WebArchive])
 
-  container.start();
-  container.deploy(deployment);
+  container.start()
+  container.deploy(deployment)
 }

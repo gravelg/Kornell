@@ -1,16 +1,16 @@
 package kornell.server.jdbc.repository
 
-import kornell.server.jdbc.SQL._
-import java.sql.ResultSet
-import kornell.core.util.UUID
-import kornell.server.repository.TOs
-import kornell.core.to.InstitutionHostNamesTO
-import scala.collection.JavaConverters._
 import kornell.core.entity.AuditedEntityType
+import kornell.core.to.InstitutionHostNamesTO
+import kornell.core.util.UUID
+import kornell.server.jdbc.SQL._
+import kornell.server.repository.TOs
+
+import scala.collection.JavaConverters._
 
 class InstitutionHostNameRepo(institutionUUID: String) {
 
-  def get = {
+  def get: InstitutionHostNamesTO = {
     TOs.newInstitutionHostNamesTO(
       sql"""
         | select hostName from InstitutionHostName
@@ -19,7 +19,7 @@ class InstitutionHostNameRepo(institutionUUID: String) {
         .map[String])
   }
 
-  def updateHostnames(hostnames: InstitutionHostNamesTO) = {
+  def updateHostnames(hostnames: InstitutionHostNamesTO): InstitutionHostNamesTO = {
     val from = get
 
     removeHostnames(institutionUUID)
@@ -31,13 +31,13 @@ class InstitutionHostNameRepo(institutionUUID: String) {
     hostnames
   }
 
-  def removeHostnames(institutionUUID: String) = {
+  def removeHostnames(institutionUUID: String): InstitutionHostNameRepo = {
     sql"""delete from InstitutionHostName where institutionUUID = ${institutionUUID}""".executeUpdate
-    InstitutionsRepo.cleanUpHostNameCache
+    InstitutionsRepo.cleanUpHostNameCache()
     this
   }
 
-  def addHostname(hostName: String) = {
+  def addHostname(hostName: String): Unit = {
     sql"""insert into InstitutionHostName (uuid, hostName, institutionUUID) values
     (${UUID.random},
     ${hostName},

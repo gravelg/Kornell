@@ -1,15 +1,10 @@
 package kornell.server.api
 
-import javax.ws.rs.Path
-import javax.ws.rs.POST
-import javax.ws.rs.Produces
-import javax.ws.rs.Consumes
-import kornell.server.jdbc.repository.ContentRepositoriesRepo
-import kornell.server.util.Conditional.toConditional
-import kornell.server.util.AccessDeniedErr
-import javax.ws.rs.PathParam
-import javax.ws.rs.PUT
+import javax.ws.rs._
 import kornell.core.entity.ContentRepository
+import kornell.server.jdbc.repository.ContentRepositoriesRepo
+import kornell.server.util.AccessDeniedErr
+import kornell.server.util.Conditional.toConditional
 
 @Path("contentRepositories")
 class ContentRepositoriesResource {
@@ -20,7 +15,7 @@ class ContentRepositoriesResource {
   @POST
   @Produces(Array(ContentRepository.TYPE))
   @Consumes(Array(ContentRepository.TYPE))
-  def createRepo(contentRepository: ContentRepository) = {
+  def createRepo(contentRepository: ContentRepository): ContentRepository = {
     ContentRepositoriesRepo.createRepo(contentRepository)
-  }.requiring(isControlPanelAdmin(), AccessDeniedErr()).get
+  }.requiring(isControlPanelAdmin, AccessDeniedErr()).get
 }
