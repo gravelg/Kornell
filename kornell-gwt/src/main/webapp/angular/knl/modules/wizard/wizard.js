@@ -160,15 +160,15 @@ app.controller('WizardController', [
                 position: 'right'
             },
             {
+                element: '#treeHelp7',
+                intro: 'Para cada versão criada, existe uma turma "sandbox", onde os administradores da instituição e publicadores de conteúdo podem testar as alterações no conteúdo de seus cursos. A qualquer momento, um administrador pode reiniciar todas as matrículas da turma, caso seja necessário testar alguma alteração. Lembre-se que em turmas "sandbox" você verá o conteúdo que está SALVO, ao invés de ver o conteúdo publicado.',
+                position: 'right'
+            },
+            {
                 element: '#none',
                 intro: 'Se tiver qualquer outra dúvida ou sugestão, entre em contato com o suporte clicando no botão de ajuda no canto superior direito da plataforma.',
                 position: 'right'
-            }/*,
-            {
-                element: '#treeHelp7',
-                intro: 'Lembre-se que cada item possui sua própria ajuda.',
-                position: 'left'
-            }*/
+            }
         ],
         showStepNumbers: false,
         showBullets: true,
@@ -179,6 +179,10 @@ app.controller('WizardController', [
         prevLabel: 'Anterior',
         skipLabel: 'Fechar',
         doneLabel: 'Fechar'
+    };
+
+    $scope.goToSandboxClassroom = function(){
+      $scope.postMessageToParentFrame("goToSandboxClassroom", "");
     };
 
     $scope.publishTree = function(){

@@ -7,11 +7,18 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.ContentSpec;
+import kornell.core.util.StringUtils;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
 import kornell.gui.client.util.forms.FormHelper;
@@ -98,6 +105,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
             wizardContainer.add(wizardView);
         }
         courseVersionUpload.setVisible(!isWizardVersion);
+        sandboxButton.setVisible(!isWizardVersion && StringUtils.isNone(presenter.getCourseVersion().getParentVersionUUID()));
         title.setVisible(!isWizardVersion);
     }
 

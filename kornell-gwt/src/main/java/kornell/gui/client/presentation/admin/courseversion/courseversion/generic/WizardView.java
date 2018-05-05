@@ -125,6 +125,10 @@ public class WizardView extends Composite {
         });
     }
 
+    public void goToSandboxClassroom() {
+        presenter.goToSandboxClass();
+    }
+
     private void checkForUnpublishedContent(CourseVersion courseVersionSaved) {
         sendIFrameMessage("lastClassroomJsonPublished", courseVersionSaved.getClassroomJsonPublished());
     }
@@ -152,6 +156,8 @@ public class WizardView extends Composite {
                 v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::discardWizard()();
             } else if(e.data.type === "requestUploadPath"){
                 v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::requestUploadPath(Ljava/lang/String;)(e.data.message);
+            } else if(e.data.type === "goToSandboxClassroom"){
+                v.@kornell.gui.client.presentation.admin.courseversion.courseversion.generic.WizardView::goToSandboxClassroom()();
             } else if(e.data.type === "kornellNotification"){
                 if(e.data.notificationType === "success"){
                     @kornell.gui.client.util.view.KornellNotification::show(Ljava/lang/String;)(e.data.message);

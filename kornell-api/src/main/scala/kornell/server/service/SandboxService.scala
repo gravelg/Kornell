@@ -159,19 +159,17 @@ object SandboxService {
   }
 
   def getEnrollment(courseVersionUUID: String): String = {
-    val sandboxClass = CourseClassesRepo.sandboxForVersion(courseVersionUUID).get
-    val version = CourseVersionRepo(courseVersionUUID).get
-    val enrollment = EnrollmentsRepo.byCourseClassAndPerson(sandboxClass.getUUID, ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get, false)
-    if (version.getParentVersionUUID != null) {
+    if (CourseVersionRepo(courseVersionUUID).get.getParentVersionUUID != null) {
       throw new EntityNotFoundException("notFound")
     }
 
+    val sandboxClass = CourseClassesRepo.sandboxForVersion(courseVersionUUID).get
+    val enrollment = EnrollmentsRepo.byCourseClassAndPerson(sandboxClass.getUUID, ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get, false)
+
     if (enrollment.isDefined) {
-      print("hey")
       enrollment.get.getUUID
     } else {
       val enrollment = enrollAdmin(sandboxClass.getUUID, ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get)
-      print("hey")
       enrollment.getUUID
     }
   }
