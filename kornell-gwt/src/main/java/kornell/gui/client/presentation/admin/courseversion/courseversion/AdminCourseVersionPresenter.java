@@ -21,12 +21,12 @@ import kornell.gui.client.presentation.admin.courseversion.courseversions.AdminC
 import kornell.gui.client.util.view.KornellNotification;
 
 public class AdminCourseVersionPresenter implements AdminCourseVersionView.Presenter {
-    Logger logger = Logger.getLogger(AdminCourseVersionPresenter.class.getName());
+    private Logger logger = Logger.getLogger(AdminCourseVersionPresenter.class.getName());
     private AdminCourseVersionView view;
     private KornellSession session;
     private PlaceController placeController;
     private EventBus bus;
-    Place defaultPlace;
+    private Place defaultPlace;
     private ViewFactory viewFactory;
     private AdminCourseVersionContentPresenter courseVersionContentPresenter;
     private CourseVersion courseVersion;
@@ -53,17 +53,6 @@ public class AdminCourseVersionPresenter implements AdminCourseVersionView.Prese
             placeController.goTo(defaultPlace);
         }
     }
-
-    public void eventListener(String message) {
-        KornellNotification.show("Received a message from child: " + message);
-        sendIFrameMessage("wow");
-    }
-
-    private native void sendIFrameMessage(String message) /*-{
-        var domain = $wnd.location.protocol + "//" + $wnd.location.hostname;
-        var iframe = $wnd.document.getElementById('angularFrame').contentWindow;
-        iframe.postMessage(message, domain);
-    }-*/;
 
     @Override
     public Widget asWidget() {

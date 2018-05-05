@@ -38,4 +38,8 @@ public class CourseVersionClient extends RESTClient {
     public void resetSandbox(Callback<Void> callback) {
         PUT("courseVersions", courseVersionUUID, "resetSandbox").go(callback);
     }
+
+    public void sandboxEnrollment(Callback<String> callback) {
+        GET("courseVersions", courseVersionUUID, "sandboxEnrollment").go(callback);
+    }
 }

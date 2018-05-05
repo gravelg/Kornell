@@ -7,10 +7,12 @@ import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
+import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.Course;
 import kornell.core.entity.CourseVersion;
 import kornell.gui.client.ViewFactory;
+import kornell.gui.client.presentation.classroom.ClassroomPlace;
 
 public class AdminCourseVersionContentPresenter implements AdminCourseVersionContentView.Presenter {
     Logger logger = Logger.getLogger(AdminCourseVersionContentPresenter.class.getName());
@@ -65,5 +67,15 @@ public class AdminCourseVersionContentPresenter implements AdminCourseVersionCon
     @Override
     public Course getCourse() {
         return adminCourseVersionPresenter.getCourse();
+    }
+
+    @Override
+    public void goToSandboxClass() {
+        session.courseVersion(this.getCourseVersion().getUUID()).sandboxEnrollment(new Callback<String>() {
+            @Override
+            public void ok(String enrollmentUUID) {
+                placeController.goTo(new ClassroomPlace(enrollmentUUID));
+            }
+        });
     }
 }
