@@ -16,7 +16,6 @@ app.controller('FinalExamLectureController', [
             $scope.isApproved = initialState.isApproved;
             $scope.currentScore = initialState.currentScore;
             if($scope.isApproved !== 'true'){
-                knlUtils.setLectureAttribute('type', $scope.lecture.type);
                 knlUtils.setActionAttribute('nextEnabled', 'false');
             }
             if($scope.lecture.shuffleQuestions){
@@ -95,9 +94,7 @@ app.controller('FinalExamLectureController', [
   
             knlUtils.saveExamAttempt($scope.cmiScoreRaw);
             if($scope.isApproved && !knlUtils.isApproved()){
-                knlUtils.setLectureAttribute('currentScore', $scope.cmiScoreRaw);
-                knlUtils.setLectureAttribute('isApproved', 'true');
-                knlUtils.setLectureAttribute('attempt.correct_index', knlUtils.getLastAttemptIndex());
+                knlUtils.saveApproved($scope.cmiScoreRaw);
             }
             $scope.showPanel = 'result';
         };

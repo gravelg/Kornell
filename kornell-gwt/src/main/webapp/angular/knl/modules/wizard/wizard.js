@@ -320,6 +320,12 @@ app.controller('WizardController', [
             }
             if(lecture.type === 'finalExam'){
               $scope.hasFinalExamLecture = true;
+              angular.forEach(lecture.questions, function(question){
+                question.uuid = question.uuid || $scope.uuid();
+                angular.forEach(question.options, function(option){
+                  option.uuid = option.uuid || $scope.uuid();
+                });
+              });
             }
             $scope.lectureUUIDs.push(lecture.uuid);
             verifySavedStatuses(lecture);
