@@ -178,6 +178,9 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("Go to class")
     String goToClassButton();
 
+    @DefaultStringValue("Go to version")
+    String goToVersionButton();
+
     @DefaultStringValue("This class has been disabled by the institution.<br><br> The material in this class is inaccessible.<br>")
     String inactiveCourseClass();
 

@@ -15,7 +15,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -46,9 +45,8 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
     FlowPanel coursesWrapper;
     @UiField
     FlowPanel pnlCourses;
-    @UiField
-    HTMLPanel subtitleSandbox;
-    Button btnCoursesAll, btnCoursesInProgress, btnCoursesToStart, btnCoursesToAcquire, btnCoursesFinished, btnCoursesSandbox;
+
+    Button btnCoursesAll, btnCoursesInProgress, btnCoursesToStart, btnCoursesToAcquire, btnCoursesFinished;
 
     private KornellSession session;
     private PlaceController placeCtrl;
@@ -83,9 +81,6 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
     private void startPlaceBar() {
         if (widgets == null) {
             widgets = new ArrayList<>();
-            if (session.hasPublishingRole()) {
-                btnCoursesSandbox = startButton(constants.sandbox(), widgets);
-            }
             btnCoursesFinished = startButton(constants.finished(), widgets);
             btnCoursesToAcquire = startButton(constants.available(), widgets);
             btnCoursesToStart = startButton(constants.toStart(), widgets);
@@ -139,12 +134,6 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
     private void prepareClassesPanel(final CourseClassesTO tos) {
         classesCount = tos.getCourseClasses().size();
 
-        if(selectedFilterButton != null && selectedFilterButton.equals(btnCoursesSandbox)){
-            subtitleSandbox.setVisible(true);
-        } else {
-            subtitleSandbox.setVisible(false);
-        }
-
         for (final CourseClassTO courseClassTO : tos.getCourseClasses()) {
             if (courseClassTO.getCourseClass().isInvisible()) {
                 continue;
@@ -170,8 +159,6 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
                 } else {
                     addPanelIfFiltered(btnCoursesToAcquire, courseClassTO);
                 }
-            } else if (session.hasPublishingRole()) {
-                addPanelIfFiltered(btnCoursesSandbox, courseClassTO);
             }
         }
     }
@@ -191,9 +178,6 @@ public class GenericWelcomeView extends Composite implements WelcomeView {
         refreshButtonSelection(btnCoursesToStart);
         refreshButtonSelection(btnCoursesToAcquire);
         refreshButtonSelection(btnCoursesFinished);
-        if (session.hasPublishingRole()) {
-            refreshButtonSelection(btnCoursesSandbox);
-        }
     }
 
     private void refreshButtonSelection(Button button) {
