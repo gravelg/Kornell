@@ -9,11 +9,6 @@
 		<g:FlowPanel styleName="welcomePanel">
 			<g:ScrollPanel>
 				<g:FlowPanel ui:field="coursesWrapper" addStyleNames="coursesWrapper">
-				    <g:HTMLPanel ui:field="subtitleSandbox" addStyleNames="coursePanelInfo">
-				    	<ui:msg description="Sandbox classes explanation">
-				    		A opção de visualizar turmas "sandbox" só é disponível para administradores da instituição. Para cada versão criada, existe uma turma "sandbox", onde os administradores podem testar as alterações no conteúdo de seus cursos. A qualquer momento, um administrador pode reiniciar todas as matrículas da turma, caso seja necessário testar alguma alteração. Lembre-se que em turmas "sandbox" você verá o conteúdo que está salvo, ao invés de ver o conteúdo publicado.
-				    	</ui:msg>
-				    </g:HTMLPanel>
 					<g:FlowPanel ui:field="pnlCourses" addStyleNames="pnlCourses"/>
 				</g:FlowPanel>
 		  	</g:ScrollPanel>

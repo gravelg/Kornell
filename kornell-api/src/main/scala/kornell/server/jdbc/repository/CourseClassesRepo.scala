@@ -108,7 +108,7 @@ object CourseClassesRepo {
   }
 
   private def getAllClassesByInstitution(institutionUUID: String): kornell.core.to.CourseClassesTO =
-    getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, null, showSandbox = true)
+    getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, null, showSandbox = false)
 
   def getCourseClassTO(institutionUUID: String, courseClassUUID: String) = {
     val courseClassesTO = getAllClassesByInstitutionPaged(institutionUUID, "", Int.MaxValue, 1, "cc.name", true, "", null, courseClassUUID)

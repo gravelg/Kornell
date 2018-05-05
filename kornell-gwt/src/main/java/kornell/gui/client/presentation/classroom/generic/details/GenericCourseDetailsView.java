@@ -49,6 +49,7 @@ import kornell.gui.client.event.ShowDetailsEventHandler;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.personnel.classroom.WizardTeacher;
 import kornell.gui.client.presentation.admin.courseclass.courseclass.generic.GenericCourseClassMessagesView;
+import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionPlace;
 import kornell.gui.client.presentation.classroom.ClassroomView.Presenter;
 import kornell.gui.client.presentation.message.MessagePresenter;
 import kornell.gui.client.presentation.profile.ProfilePlace;
@@ -86,6 +87,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
     private Button btnTutor;
     private Button btnLibrary;
     private Button btnGoToCourse;
+    private Button btnGoToVersion;
 
     private Button btnCurrent;
     private CourseClassTO courseClassTO;
@@ -436,6 +438,7 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
         btnTutor = new Button();
         btnLibrary = new Button();
         btnGoToCourse = new Button();
+        btnGoToVersion = new Button();
         displayButton(btnAbout, constants.btnAbout(), constants.btnAboutInfo(), true);
         if (actoms != null && actoms.size() > 1) {
             displayButton(btnTopics, constants.btnTopics(), constants.btnTopicsInfo(), false);
@@ -457,6 +460,9 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
             if (courseClassTO.getCourseClass().isTutorChatEnabled()) {
                 displayButton(btnTutor, constants.btnTutor(), constants.tutorChatButton(), false);
                 btnTutor.addStyleName("btnChat");
+            }
+            if (session.hasPublishingRole()) {
+                displayButton(btnGoToVersion, constants.goToVersionButton(), "", false);
             }
             displayButton(btnLibrary, constants.btnLibrary(), constants.libraryButton(), false);
             displayButton(btnGoToCourse, constants.goToClassButton(), "", false);
@@ -480,10 +486,12 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
             @Override
             public void onClick(ClickEvent event) {
                 Button btn = (Button) event.getSource();
-                if (!btnGoToCourse.equals(btn)) {
-                    handleEvent(btn);
-                } else {
+                if (btnGoToCourse.equals(btn)) {
                     bus.fireEvent(new ShowDetailsEvent(false));
+                } else if (btnGoToVersion.equals(btn)) {
+                    placeCtrl.goTo(new AdminCourseVersionPlace(courseClassTO.getCourseVersionTO().getCourseVersion().getUUID()));
+                } else {
+                    handleEvent(btn);
                 }
             }
         });

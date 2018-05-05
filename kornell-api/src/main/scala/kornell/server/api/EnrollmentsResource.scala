@@ -33,6 +33,7 @@ import kornell.server.jdbc.repository.CourseVersionsRepo
 import kornell.core.error.exception.ServerErrorException
 import kornell.core.entity.InstitutionType
 import kornell.core.to.DashboardLeaderboardTO
+import javax.ws.rs.core.Response
 
 @Path("enrollments")
 @Produces(Array(Enrollment.TYPE))
@@ -88,7 +89,7 @@ class EnrollmentsResource {
   @PUT
   @Path("{courseClassUUID}/notesUpdated")
   @Produces(Array("text/plain"))
-  def putNotesChange(@PathParam("courseClassUUID") courseClassUUID: String, notes: String) =
+  def putNotesChange(@PathParam("courseClassUUID") courseClassUUID: String, notes: String) = {
     AuthRepo().withPerson { p =>
       sql"""
       update Enrollment set notes=$notes
@@ -96,6 +97,8 @@ class EnrollmentsResource {
       and courseClassUUID=${courseClassUUID}
       """.executeUpdate
     }
+    Response.noContent.build
+  }
 
   @GET
   @Path("{courseClassUUID}/simpleEnrollments")
