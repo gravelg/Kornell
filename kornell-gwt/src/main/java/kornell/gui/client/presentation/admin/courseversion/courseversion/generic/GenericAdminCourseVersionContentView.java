@@ -1,8 +1,5 @@
 package kornell.gui.client.presentation.admin.courseversion.courseversion.generic;
 
-import java.util.HashMap;
-import java.util.List;
-
 import com.github.gwtbootstrap.client.ui.FileUpload;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -10,20 +7,14 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-
 import kornell.api.client.Callback;
 import kornell.api.client.KornellSession;
 import kornell.core.entity.ContentSpec;
 import kornell.gui.client.event.ShowPacifierEvent;
 import kornell.gui.client.presentation.admin.courseversion.courseversion.AdminCourseVersionContentView;
 import kornell.gui.client.util.forms.FormHelper;
-import kornell.gui.client.util.forms.formfield.KornellFormFieldWrapper;
 
 public class GenericAdminCourseVersionContentView extends Composite implements AdminCourseVersionContentView {
     interface MyUiBinder extends UiBinder<Widget, GenericAdminCourseVersionContentView> {
@@ -33,19 +24,13 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 
     private static EventBus bus;
     private KornellSession session;
-    boolean isCurrentUser, showContactDetails, isRegisteredWithCPF;
-    private FormHelper formHelper = GWT.create(FormHelper.class);
-    private List<Label> sideItems;
-    private HashMap<String, Label> sidePanelItemsMap;
-    private static String HIGHLIGHT_CLASS = "highlightText";
-    private String PLAIN_CLASS = "plainDiscreteTextColor";
-    private KornellFormFieldWrapper name;
-    private List<KornellFormFieldWrapper> fields;
 
     @UiField
     HTMLPanel title;
     @UiField
     FlowPanel courseVersionUpload;
+    @UiField
+    FlowPanel sandboxClassButton;
     @UiField
     FlowPanel wizardContainer;
 
@@ -53,17 +38,31 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
 
     private boolean isWizardVersion = false;
 
-    private String nameLabel;
-    private String changedString = "(*) ";
-
     private WizardView wizardView;
-
-    private double id;
 
     public GenericAdminCourseVersionContentView(final KornellSession session, EventBus bus, PlaceController placeCtrl) {
         this.session = session;
         GenericAdminCourseVersionContentView.bus = bus;
         initWidget(uiBinder.createAndBindUi(this));
+
+        sandboxClassButton.addStyleName("fieldPanelWrapper");
+        FlowPanel sandboxButtonPanel = new FlowPanel();
+        sandboxButtonPanel.addStyleName("labelPanel");
+        Label sandboxLabel = new Label("Go to Sandbox Class");
+        sandboxLabel.addStyleName("lblLabel");
+        sandboxButtonPanel.add(sandboxLabel);
+
+        com.github.gwtbootstrap.client.ui.Button sandboxButton = new com.github.gwtbootstrap.client.ui.Button();
+        sandboxButton.addStyleName("btnAction");
+        sandboxButton.setText("GO!");
+        sandboxButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.goToSandboxClass();
+            }
+        });
+        sandboxButtonPanel.add(sandboxButton);
+        courseVersionUpload.add(sandboxButtonPanel);
 
         courseVersionUpload.addStyleName("fieldPanelWrapper fileUploadPanel");
         FlowPanel labelPanel = new FlowPanel();

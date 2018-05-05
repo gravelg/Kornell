@@ -2,7 +2,7 @@ package kornell.server.api
 
 import javax.ws.rs.GET
 import javax.ws.rs.Produces
-import kornell.core.entity.CourseVersion
+import kornell.core.entity.{CourseVersion, Enrollment}
 import kornell.server.jdbc.repository.CourseVersionRepo
 import kornell.server.util.Conditional.toConditional
 import kornell.server.jdbc.repository.PersonRepo
@@ -87,6 +87,16 @@ class CourseVersionResource(uuid: String) {
   def resetSandbox = {
     SandboxService.resetEnrollments(uuid, getAutenticatedPersonInstitutionUUID)
     Response.noContent.build
+  }.requiring(isPlatformAdmin(), AccessDeniedErr())
+    .or(isInstitutionAdmin(), AccessDeniedErr())
+    .or(isPublisher(), AccessDeniedErr())
+    .get
+
+  @GET
+  @Path("sandboxEnrollment")
+  @Produces(Array("text/plain"))
+  def getSandboxEnrollment: String = {
+    SandboxService.getEnrollment(uuid)
   }.requiring(isPlatformAdmin(), AccessDeniedErr())
     .or(isInstitutionAdmin(), AccessDeniedErr())
     .or(isPublisher(), AccessDeniedErr())

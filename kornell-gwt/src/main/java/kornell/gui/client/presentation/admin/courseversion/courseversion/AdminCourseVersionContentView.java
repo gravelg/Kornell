@@ -18,6 +18,8 @@ public interface AdminCourseVersionContentView extends IsWidget {
         void setCourseVersion(CourseVersion courseVersion);
 
         Course getCourse();
+
+        void goToSandboxClass();
     }
 
     void setPresenter(Presenter presenter);
