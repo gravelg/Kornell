@@ -26,7 +26,7 @@ app.factory('knlUtils', [
             try {
                 doLMSSetValue(key, value);
             } catch(err) {
-                console.log("Error attempting to save SCORM attribute.");
+                console.log("Error attempting to save SCORM attribute.", key, value);
             }
         };
 
@@ -51,103 +51,8 @@ app.factory('knlUtils', [
             knlUtils.setAttribute(knlUtils.getActionAttributeName(key), value);
         };
 
-        knlUtils.getLectureAttributeName = function(key){
-            return knlUtils.getLectureAttributeNameWithIndex($rootScope.lectureUUID, key);
-        };
-
-        knlUtils.getLectureAttributeNameWithIndex = function(lectureUUID, key){
-            return knlUtils.getKnlAttributeName('lecture.' + lectureUUID + '.' + key);
-        };
-
-        knlUtils.setLectureAttribute = function(key, value){
-            knlUtils.setAttribute(knlUtils.getLectureAttributeName(key), value);
-        };
-
         knlUtils.next = function(){
             knlUtils.setActionAttribute('next', 'true');
-        };
-
-        knlUtils.getAttemptAttributeName = function(key){
-            return knlUtils.getLectureAttributeName('attempt.' + knlUtils.getCurrentAttemptIndex() + '.' + key);
-        };
-
-        knlUtils.setAttemptAttribute = function(key, value){
-            knlUtils.setAttribute(knlUtils.getAttemptAttributeName(key), value);
-        };
-
-        knlUtils.getQuestionAttributeName = function(questionIndex, key){
-            return knlUtils.getAttemptAttributeName('question.' + questionIndex + '.' + key);
-        };
-
-        knlUtils.setQuestionAttribute = function(questionIndex, key, value){
-            knlUtils.setAttribute(knlUtils.getQuestionAttributeName(questionIndex, key), value);
-        };
-
-        knlUtils.getOptionAttributeName = function(questionIndex, optionIndex, key){
-            return knlUtils.getQuestionAttributeName(questionIndex, 'option.' + optionIndex + '.' + key);
-        };
-
-        knlUtils.setOptionAttribute = function(questionIndex, optionIndex, key, value){
-            knlUtils.setAttribute(knlUtils.getOptionAttributeName(questionIndex, optionIndex, key), value);
-        };
-
-        knlUtils.getAttemptCount = function() {
-            return knlUtils.doLMSGetValueSanitized(knlUtils.getLectureAttributeName('attempt._count')) || 0;
-        };
-
-        knlUtils.getLastAttemptIndex = function() {
-            return knlUtils.getAttemptCount() - 1;
-        };
-
-        knlUtils.getCurrentAttemptIndex = function() {
-            return knlUtils.getLastAttemptIndex() + 1;
-        };
-
-        knlUtils.initFinalExam = function(){
-            var initialState = {
-                score: knlUtils.doLMSGetValueSanitized('cmi.core.score.raw'),
-                isApproved: knlUtils.doLMSGetValueSanitized(knlUtils.getLectureAttributeName('isApproved')),
-                currentScore: knlUtils.doLMSGetValueSanitized(knlUtils.getLectureAttributeName('currentScore'))
-            }
-            return initialState;
-        };
-
-        knlUtils.saveExamAttempt = function(score) {
-            var question, option;
-            for (var questionIndex = 0; questionIndex < $rootScope.lecture.questions.length; questionIndex++){
-                question = $rootScope.lecture.questions[questionIndex];
-                for (var optionIndex = 0; optionIndex < question.options.length; optionIndex++){
-                    option = question.options[optionIndex];
-                    option.expected && knlUtils.setOptionAttribute(questionIndex, optionIndex, 'expected', 'true');
-                    option.selected && knlUtils.setOptionAttribute(questionIndex, optionIndex, 'selected', 'true');
-                }
-                knlUtils.setQuestionAttribute(questionIndex, 'option._count', question.options.length);
-                knlUtils.setQuestionAttribute(questionIndex, 'correct', question.correct ? 'true' : 'false');
-                knlUtils.setQuestionAttribute(questionIndex, 'time', question.time);
-            }
-            knlUtils.setAttemptAttribute('question._count', $rootScope.lecture.questions.length);
-            knlUtils.setAttemptAttribute('score', score);
-            knlUtils.setLectureAttribute('attempt._count', (knlUtils.getCurrentAttemptIndex() + 1));
-        };
-
-        knlUtils.isApproved = function(){
-            var isApproved = true, lectureIndex = 0;
-            angular.forEach($rootScope.classroomInfo.modules, function(module){
-                angular.forEach(module.lectures, function(lecture){
-                    if(lecture.type == 'finalExam'){
-                        isApproved = isApproved && 
-                            (knlUtils.doLMSGetValueSanitized(knlUtils.getLectureAttributeNameWithIndex(lectureIndex, 'isApproved')) === 'true');
-                    }
-                    lectureIndex++;
-                });
-            });
-            return isApproved;
-        };
-
-        knlUtils.saveApproved = function($cmiScoreRaw){
-            knlUtils.setLectureAttribute('currentScore', cmiScoreRaw);
-            knlUtils.setLectureAttribute('isApproved', 'true');
-            knlUtils.setLectureAttribute('attempt.correct_index', knlUtils.getLastAttemptIndex());
         };
         
         knlUtils.shuffleArray = function(array) {
@@ -159,7 +64,67 @@ app.factory('knlUtils', [
             }
             return array;
         };
-		
-		return knlUtils;
-	}
+
+        knlUtils.saveFinalExamJson = function(json){
+            $rootScope.isDebug && console.log('saveFinalExamJson', json);
+            json = angular.toJson(json);
+            knlUtils.setAttribute(knlUtils.getKnlAttributeName('json'), json);
+        };
+
+        knlUtils.getFinalExamJson = function(){
+            var json = knlUtils.doLMSGetValueSanitized(knlUtils.getKnlAttributeName('json'));
+            json = angular.fromJson(json || { attempts: [] });
+            $rootScope.isDebug && console.log('getFinalExamJson', json);
+            return json;
+        };
+
+        knlUtils.saveExamAttempt = function(score, isApproved) {
+            var json = knlUtils.getFinalExamJson();
+            var attempt = {
+                score: score,
+                publishingUUID: $rootScope.classroomInfo.publishingUUID,
+                questions: []
+            };
+
+            var questionClassroom, optionClassroom, question;
+            for (var questionIndex = 0; questionIndex < $rootScope.lecture.questions.length; questionIndex++){
+                questionClassroom = $rootScope.lecture.questions[questionIndex];
+                question = {
+                    uuid: questionClassroom.uuid,
+                    time: questionClassroom.time,
+                    isCorrect: questionClassroom.correct
+                };
+                for (var optionIndex = 0; optionIndex < questionClassroom.options.length; optionIndex++){
+                    optionClassroom = questionClassroom.options[optionIndex];
+                    if(optionClassroom.expected !== optionClassroom.selected){
+                        question.wrongOptions = question.wrongOptions || [];
+                        question.wrongOptions.push(optionClassroom.uuid);
+                    }
+                }
+                attempt.questions.push(question);
+            }
+            json.attempts = json.attempts || [];
+            json.attempts.push(attempt);
+
+            if(isApproved && !json.isApproved) {
+                json.currentScore = cmiScoreRaw;
+                json.isApproved = true;
+                json.attemptCorrectIndex = json.attempts.length - 2;
+                attempt.isApproved = true;
+            }
+            knlUtils.saveFinalExamJson(json);
+        };
+
+        knlUtils.initFinalExam = function(){
+            var json = knlUtils.getFinalExamJson(),
+            initialState = {
+                score: knlUtils.doLMSGetValueSanitized('cmi.core.score.raw'),
+                isApproved: json.isApproved,
+                currentScore: json.currentScore
+            }
+            return initialState;
+        };
+
+        return knlUtils;
+    }
 ]);

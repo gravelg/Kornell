@@ -15,7 +15,7 @@ app.controller('FinalExamLectureController', [
             $scope.score = initialState.score;
             $scope.isApproved = initialState.isApproved;
             $scope.currentScore = initialState.currentScore;
-            if($scope.isApproved !== 'true'){
+            if(!$scope.isApproved){
                 knlUtils.setActionAttribute('nextEnabled', 'false');
             }
             if($scope.lecture.shuffleQuestions){
@@ -81,21 +81,19 @@ app.controller('FinalExamLectureController', [
 
             $scope.cmiScoreRaw = (($scope.totalCorrect*100)/$scope.questionCount);
             $scope.cmiScoreRaw = Math.round($scope.cmiScoreRaw);
+            $scope.isApproved = ($scope.cmiScoreRaw >= $scope.cmiScoreMin) || !$scope.cmiScoreMin;
+
             knlUtils.setAttribute('cmi.core.score.raw', $scope.cmiScoreRaw);
             knlUtils.setAttribute('cmi.core.score.max', 100);
             knlUtils.setAttribute('cmi.core.score.min', $scope.cmiScoreMin);
 
-            $scope.isApproved = ($scope.cmiScoreRaw >= $scope.cmiScoreMin) || !$scope.cmiScoreMin;
             if($scope.isApproved){
                 knlUtils.setActionAttribute('nextEnabled', 'true');
             } else {
                 knlUtils.setActionAttribute('nextEnabled', 'false');
             }
-  
-            knlUtils.saveExamAttempt($scope.cmiScoreRaw);
-            if($scope.isApproved && !knlUtils.isApproved()){
-                knlUtils.saveApproved($scope.cmiScoreRaw);
-            }
+            
+            knlUtils.saveExamAttempt($scope.cmiScoreRaw, $scope.isApproved);
             $scope.showPanel = 'result';
         };
 
@@ -113,7 +111,7 @@ app.controller('FinalExamLectureController', [
             $scope.blah = [];
             var hasAccessToQuestion = true;
             if($scope.currentQuestion){
-                if($scope.isApproved === 'true'){
+                if($scope.isApproved){
                     $scope.blah[index] = 1;
                     //if is approved, access is granted
                     hasAccessToQuestion = true;

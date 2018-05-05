@@ -58,7 +58,7 @@ app.controller('LectureController', [
       $scope.module = $scope.getNodeByUUID($scope.lecture.parentUUID);
 			$rootScope.lecture = $scope.lecture;
 
-      if(knlUtils.isApproved()){
+      if(knlUtils.getFinalExamJson().isApproved){
         knlUtils.setActionAttribute('prevEnabled', 'true');
         knlUtils.setActionAttribute('nextEnabled', 'true');
       }
