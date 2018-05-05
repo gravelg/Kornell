@@ -30,7 +30,7 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
     @UiField
     FlowPanel courseVersionUpload;
     @UiField
-    FlowPanel sandboxClassButton;
+    Button sandboxButton;
     @UiField
     FlowPanel wizardContainer;
 
@@ -44,25 +44,6 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
         this.session = session;
         GenericAdminCourseVersionContentView.bus = bus;
         initWidget(uiBinder.createAndBindUi(this));
-
-        sandboxClassButton.addStyleName("fieldPanelWrapper");
-        FlowPanel sandboxButtonPanel = new FlowPanel();
-        sandboxButtonPanel.addStyleName("labelPanel");
-        Label sandboxLabel = new Label("Go to Sandbox Class");
-        sandboxLabel.addStyleName("lblLabel");
-        sandboxButtonPanel.add(sandboxLabel);
-
-        com.github.gwtbootstrap.client.ui.Button sandboxButton = new com.github.gwtbootstrap.client.ui.Button();
-        sandboxButton.addStyleName("btnAction");
-        sandboxButton.setText("GO!");
-        sandboxButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.goToSandboxClass();
-            }
-        });
-        sandboxButtonPanel.add(sandboxButton);
-        courseVersionUpload.add(sandboxButtonPanel);
 
         courseVersionUpload.addStyleName("fieldPanelWrapper fileUploadPanel");
         FlowPanel labelPanel = new FlowPanel();
@@ -96,6 +77,13 @@ public class GenericAdminCourseVersionContentView extends Composite implements A
             }
         });
         courseVersionUpload.add(btnOK);
+
+        sandboxButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.goToSandboxClass();
+            }
+        });
     }
 
     @Override
