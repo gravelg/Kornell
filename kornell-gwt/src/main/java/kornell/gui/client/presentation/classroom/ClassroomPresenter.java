@@ -47,6 +47,7 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
     private Contents contents;
     private Sequencer sequencer;
     private EventBus bus;
+    private SCORM12Runtime runtime;
 
     public ClassroomPresenter(EventBus bus, ClassroomView view, PlaceController placeCtrl, SequencerFactory seqFactory,
             KornellSession session) {
@@ -61,6 +62,9 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
             @Override
             public void onPlaceChange(PlaceChangeEvent event) {
                 stopSequencer();
+                if(!(event.getNewPlace() instanceof ClassroomPlace) && runtime != null){
+                    runtime.stop();
+                }
             }
         });
     }
@@ -134,7 +138,7 @@ public class ClassroomPresenter implements ClassroomView.Presenter {
                 };
 
                 private void loadRuntime(EnrollmentsEntries enrollmentEntries) {
-                    SCORM12Runtime.launch(bus, session, placeCtrl, enrollmentEntries);
+                    runtime = SCORM12Runtime.launch(bus, session, placeCtrl, enrollmentEntries);
                 }
 
                 private void loadContents(final String enrollmentUUID, final Contents contents) {

@@ -143,7 +143,7 @@ class EnrollmentRepo(uuid: String) {
 
   def setEnrollmentProgress(e: Enrollment, newProgress: Int) = {
     val currentProgress = e.getProgress
-    val isProgress = newProgress > currentProgress
+    val isProgress = currentProgress == null || newProgress > currentProgress
     if (isProgress) {
       val isValid = newProgress >= 0 && newProgress <= 100
       if (isValid) {

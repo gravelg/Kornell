@@ -36,6 +36,7 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
     private boolean disableNextButton;
     private boolean disablePrevButton;
     private Timer disableButtonsTimer;
+    private boolean isActive;
 
     private SCORM12Runtime(EventBus bus, KornellSession session, PlaceController placeCtrl,
             EnrollmentsEntries entries) {
@@ -43,6 +44,7 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
         this.session = session;
         this.placeCtrl = placeCtrl;
         this.bus = bus;
+        this.isActive = true;
         bus.addHandler(ActomEnteredEvent.TYPE, this);
         bus.addHandler(ProgressEvent.TYPE, this);
         enableDisableButtons(true, true);
@@ -56,11 +58,13 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 
     @Override
     public void onActomEntered(ActomEnteredEvent event) {
-        logger.info("Loading [enrollmentUUID:" + event.getEnrollmentUUID() + "][actomKey:" + event.getActomKey() + "]");
-        if (currentAPI != null) {
-            currentAPI.onActomEntered();
+        if(isActive){
+            logger.info("Loading [enrollmentUUID:" + event.getEnrollmentUUID() + "][actomKey:" + event.getActomKey() + "]");
+            if (currentAPI != null) {
+                currentAPI.onActomEntered();
+            }
+            bindNewAdapter(event.getEnrollmentUUID(), event.getActomKey());
         }
-        bindNewAdapter(event.getEnrollmentUUID(), event.getActomKey());
     }
 
     private void bindNewAdapter(String enrollmentUUID, String actomKey) {
@@ -150,6 +154,13 @@ public class SCORM12Runtime implements ActomEnteredEventHandler, ProgressEventHa
 
     @Override
     public void onProgress(ProgressEvent event) {
-        enableDisableButtons(event.hasNext(), event.hasPrevious());
+        if(isActive){
+            disableNextButton = !event.hasNext();
+            enableDisableButtons(event.hasNext(), event.hasPrevious());
+        }
+    }
+
+    public void stop() {
+        this.isActive = false;
     }
 }
