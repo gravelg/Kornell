@@ -127,11 +127,15 @@ object EmailService {
       values("PERSON_FULLNAME") = person.getFullName
       values("BUTTON_LINK") = institution.getBaseURL + "#message:"
       values("INSTITUTION_SHORTNAME") = institution.getName
-      values("CLASS_NAME") = courseClass.getName
       values("PARTICIPANT_FULLNAME") = participant.getFullName
       values("PARTICIPANT_EMAIL") = participant.getEmail
       values("THREAD_MESSAGE") = message.replace("\n", "<br />\n")
       values("THREAD_SUBJECT") = processTitle(templateType, values)
+      values("CLASS_NAME") = {
+        if (courseClass != null)
+          courseClass.getName
+        else ""
+      }
 
       val from = getFromEmail(institution)
       val to = person.getEmail

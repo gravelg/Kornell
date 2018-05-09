@@ -127,6 +127,14 @@ app.controller('WizardController', [
       
     };
 
+    $scope.toggleBlockAdvance = function() {
+      if($scope.selectedNode.blockAdvance){
+        $scope.selectedNode.blockAdvanceDate = moment.now();
+      } else {
+        $scope.selectedNode.blockAdvanceDate = null;
+      }
+    };
+
     $scope.treeHelpOptions = {
         steps: [
             {
@@ -330,6 +338,9 @@ app.controller('WizardController', [
                   option.uuid = option.uuid || $scope.uuid();
                 });
               });
+            }
+            if(lecture.blockAdvanceDate){
+              lecture.blockAdvanceDate = lecture.blockAdvanceDate.valueOf ? lecture.blockAdvanceDate.valueOf() : lecture.blockAdvanceDate;
             }
             $scope.lectureUUIDs.push(lecture.uuid);
             verifySavedStatuses(lecture);

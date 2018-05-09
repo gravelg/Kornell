@@ -138,9 +138,11 @@ public class WizardView extends Composite {
 	    if(domain.host.indexOf('localhost:') >= 0){
 	    	domain = '*';
 	    }
-	    var iframe = $wnd.document.getElementById('angularFrame').contentWindow;
-	    var data = { type: type, message: message};
-	    iframe.postMessage(data, domain);
+	    if($wnd.document.getElementById('angularFrame')){
+    	    var iframe = $wnd.document.getElementById('angularFrame').contentWindow;
+    	    var data = { type: type, message: message};
+    	    iframe.postMessage(data, domain);
+	    }
 	}-*/;
 
     private native void injectEventListener(WizardView v) /*-{

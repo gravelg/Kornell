@@ -43,10 +43,13 @@
                     <a ng-disabled="blockPublishButton" uib-tooltip="Publicar Curso" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-primary btn-sm margin-right-5" ng-click="publishTree()">
                         <i class="fa fa-upload"></i>
                     </a>
-                    <a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" ng-click="discardTree()">
+                    <a ng-disabled="blockPublishButton" uib-tooltip="Descartar Alterações" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm margin-right-5" ng-click="discardTree()">
                         <i class="fa fa-times"></i>
                     </a>
-                    <a uib-tooltip="Ajuda" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm right" ng-click="startTreeHelp()">
+                    <a id="treeHelp7" uib-tooltip="Ir para sala de aula 'sandbox'" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm margin-right-5" ng-click="goToSandboxClassroom()">
+                        <i class="fa fa-book"></i>
+                    </a>
+                    <a uib-tooltip="Ajuda" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" ng-click="startTreeHelp()">
                         <i class="fa fa-question"></i>
                     </a>
                     <span ng-show="isUnpublished" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true">&nbsp;&nbsp;&nbsp; <i class="fa fa-warning changedFlagIcon"></i></span>
@@ -103,6 +106,25 @@
                             <label>Imagem do plano de fundo</label>
                             <p class="help-block">Defina a imagem de plano de fundo para essa aula. Caso não seja definida, o plano de fundo será a imagem ou a cor definida na aula.</p>
                             <div ng-controller="FileController" ng-include="'fileUpload.html'" ng-init="init('imageBackground','image')"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Bloquear o avanço dos participantes</label>
+                            <p class="help-block">Defina a data e hora que o acesso será liberado. Os participantes poderão ver até essa aula, mas só poderão avançar para a próxima aula após a data configurada abaixo.</p>
+                            <div class="checkbox checkbox-primary">
+                                <input class="" ng-model="selectedNode.blockAdvance" id="checkbox_blockAdvance_{{selectedNode.uuid}}" type="checkbox" ng-change="toggleBlockAdvance()">
+                                <label for="checkbox_blockAdvance_{{selectedNode.uuid}}" id="label_blockAdvance_{{selectedNode.uuid}}">
+                                    <span><small>Habilitar bloqueio</small></span>
+                                </label>
+                            </div>
+                            <div ng-if="selectedNode.blockAdvance">
+                                <h5><span uib-tooltip="UTC: {{ selectedNode.blockAdvanceDate | date:'yyyy-MM-dd HH:mm' : 'UTC'}}" tooltip-placement="right">{{ selectedNode.blockAdvanceDate | date:'yyyy-MM-dd HH:mm' }}</span></h5>
+                                <div class="dropdown">
+                                    <a  class="dropdown-toggle" id="dropdown" role="button" data-toggle="dropdown" data-target=".dropdown" href="#"><i class="fa fa-calendar-times-o changedFlagIcon"></i> Escolher nova data</a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <datetimepicker data-ng-model="selectedNode.blockAdvanceDate" data-datetimepicker-config="{ dropdownSelector: '#dropdown' }" data-on-set-time="onBlockAdvanceSet(newDate, oldDate)"/>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -467,7 +489,11 @@
 
 <script type="text/ng-template" id="lecturesRenderer.html">
     <div class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === lecture.uuid}" ng-click="edit(this)">
-        <span class="tree-node-title"><i class="fa fa-warning changedFlagIcon" ng-show="lecture.isUnpublished"></i>{{lecture.title | limitToDots: limitToDots}}</span>
+        <span class="tree-node-title">
+            <i class="fa fa-warning changedFlagIcon" ng-show="lecture.isUnpublished" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true"></i>
+            <i class="fa fa-calendar-times-o changedFlagIcon" ng-show="lecture.blockAdvance" uib-tooltip="Bloqueio configurado" tooltip-placement="bottom" tooltip-append-to-body="true"></i>
+            {{lecture.title | limitToDots: limitToDots}}
+        </span>
         <a id="nodeEdit_{{lecture.uuid}}" uib-tooltip="Editar aula" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs knlEditLectureButton" style="margin-right: 3px;">
             <span class="glyphicon glyphicon-edit"></span>
         </a>

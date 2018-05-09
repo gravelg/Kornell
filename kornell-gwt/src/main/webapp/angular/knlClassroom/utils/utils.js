@@ -54,6 +54,14 @@ app.factory('knlUtils', [
         knlUtils.next = function(){
             knlUtils.setActionAttribute('next', 'true');
         };
+
+        knlUtils.enableNext = function(enable){
+            knlUtils.setActionAttribute('nextEnabled', enable ? 'true' : 'false');
+        };
+
+        knlUtils.enablePrev = function(enable){
+            knlUtils.setActionAttribute('prevEnabled', enable ? 'true' : 'false');
+        };
         
         knlUtils.shuffleArray = function(array) {
             for (var i = array.length - 1; i > 0; i--) {

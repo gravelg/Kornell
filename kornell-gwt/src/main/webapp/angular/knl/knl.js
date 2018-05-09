@@ -11,7 +11,8 @@ var app = angular.module('knl', [
     'ui.sortable',
     'textAngular',
     'angularFileUpload',
-    'angular-intro'
+    'angular-intro',
+    'ui.bootstrap.datetimepicker'
 ]);
 
 app.config([
@@ -145,5 +146,11 @@ app.run([
                 message: message
             }, $rootScope.domain);
         };
+
+        if($.cookie("knlLocale") === 'en'){
+            moment.locale('en');
+        } else {
+            moment.locale('pt_BR');
+        }
     }
 ]);

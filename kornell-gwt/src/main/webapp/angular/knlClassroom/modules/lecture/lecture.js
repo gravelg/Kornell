@@ -5,10 +5,11 @@ var app = angular.module('knlClassroom');
 app.controller('LectureController', [
 	'$scope',
 	'$rootScope',
-	'$timeout',
+  '$timeout',
+  '$interval',
 	'$location',
 	'knlUtils',
-	function($scope, $rootScope, $timeout, $location, knlUtils) {
+	function($scope, $rootScope, $timeout, $interval, $location, knlUtils) {
 
     var classroomInfo = JSON.parse(decodeURI(Base64.decode(window.isPreview ? localStorage.KNLwp : $location.$$search.classroomInfo)));
 
@@ -48,6 +49,27 @@ app.controller('LectureController', [
       }
     };
 
+    $scope.verifyNexPrevAvailability = function(){
+      var shouldBlockAdvance = function(){
+        return $scope.lecture.blockAdvanceDate && ($scope.lecture.blockAdvanceDate >= moment.now().valueOf());
+      };
+
+      if(shouldBlockAdvance()){
+        knlUtils.enableNext(false);
+        var interval = $interval(function(){
+          if(shouldBlockAdvance()){
+            knlUtils.enableNext(false);
+          } else {
+            knlUtils.enableNext(true);
+            $interval.cancel(interval);
+          }
+        },3000);
+      } else if(knlUtils.getFinalExamJson().isApproved){
+        knlUtils.enableNext(true);
+        knlUtils.enablePrev(true);
+      }
+    };
+
 		$scope.initLecture = function(){
 			if(!$scope.classroomInfo) return;
 
@@ -58,17 +80,10 @@ app.controller('LectureController', [
       $scope.module = $scope.getNodeByUUID($scope.lecture.parentUUID);
 			$rootScope.lecture = $scope.lecture;
 
-      if(knlUtils.getFinalExamJson().isApproved){
-        knlUtils.setActionAttribute('prevEnabled', 'true');
-        knlUtils.setActionAttribute('nextEnabled', 'true');
-      }
+      $scope.verifyNexPrevAvailability();
+
 			$rootScope.evaluateTimer(true);
 
-			var key = 'knl.lecture.'+$scope.lectureUUID+'.type';
-      var lectureType = knlUtils.doLMSGetValueSanitized(key);
-      if(!lectureType){
-        knlUtils.setAttribute(key, $scope.lecture.type);
-      }
       if($scope.classroomInfo.colorBackground){
         $scope.bgStyle = 'background-color: #'+$scope.classroomInfo.colorBackground+';';
       }
