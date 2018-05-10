@@ -175,7 +175,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
 
     private String getSupportEmail() {
         String supportEmail = GenericClientFactoryImpl.KORNELL_SESSION.getInstitution().getInstitutionSupportEmail();
-        supportEmail = StringUtils.isSome(supportEmail) ? supportEmail : "suporte@craftware.com.br";
+        supportEmail = StringUtils.isSome(supportEmail) ? supportEmail : "suporte@eduvem.com";
         if (supportEmail.indexOf('<') >= 0 && supportEmail.indexOf('>') >= 0) {
             supportEmail = supportEmail.substring(supportEmail.indexOf('<') + 1, supportEmail.indexOf('>'));
         }
@@ -300,6 +300,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
         case login:
             loginPanel.setVisible(true);
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
                 public void execute() {
                     txtUsername.setFocus(true);
                 }
@@ -313,6 +314,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
             }
             signUpPanel.setVisible(true);
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
                 public void execute() {
                     suName.setFocus(true);
                 }
@@ -321,6 +323,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
         case forgotPassword:
             forgotPasswordPanel.setVisible(true);
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
                 public void execute() {
                     fpEmail.setFocus(true);
                 }
@@ -329,6 +332,7 @@ public class GenericVitrineView extends Composite implements VitrineView {
         case newPassword:
             newPasswordPanel.setVisible(true);
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
                 public void execute() {
                     newPassword.setFocus(true);
                 }

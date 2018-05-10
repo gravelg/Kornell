@@ -89,7 +89,7 @@ object Settings extends Enum {
   val SMTP_PORT = settting("SMTP_PORT")
   val SMTP_USERNAME = settting("SMTP_USERNAME")
   val SMTP_PASSWORD = settting("SMTP_PASSWORD")
-  val SMTP_FROM = settting("SMTP_FROM", "suporte@craftware.com.br")
+  val SMTP_FROM = settting("SMTP_FROM", "suporte@eduvem.com")
   val BUILD_NUM = settting("build.number")
   val BUILT_ON = settting("built.on")
   val DEFAULT_LOCALE = "pt_BR"

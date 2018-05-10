@@ -26,7 +26,7 @@ public interface KornellConstants extends ConstantsWithLookup {
     @DefaultStringValue("Institution not found.")
     String institutionNotFound();
 
-    @DefaultStringValue("We are currently under maintenance. Please check again later. If the problem persists, contact us at suporte@craftware.com.br. Thanks for your patience.")
+    @DefaultStringValue("We are currently under maintenance. Please check again later. If the problem persists, contact us at suporte@eduvem.com. Thanks for your patience.")
     String maintenanceMessage();
 
     /**
