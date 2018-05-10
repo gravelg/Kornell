@@ -15,7 +15,8 @@ app.controller('FinalExamLectureController', [
             $scope.score = initialState.score;
             $scope.isApproved = initialState.isApproved;
             $scope.currentScore = initialState.currentScore;
-            if(!$scope.isApproved){
+            $scope.lecture.expectedGrade = $scope.lecture.expectedGrade || 0;
+            if(!$scope.isApproved && $scope.lecture.expectedGrade > 0){
                 knlUtils.setActionAttribute('nextEnabled', 'false');
             }
             if($scope.lecture.shuffleQuestions){

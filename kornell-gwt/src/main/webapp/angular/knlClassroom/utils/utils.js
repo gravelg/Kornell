@@ -111,15 +111,17 @@ app.factory('knlUtils', [
                 }
                 attempt.questions.push(question);
             }
-            json.attempts = json.attempts || [];
-            json.attempts.push(attempt);
 
             if(isApproved && !json.isApproved) {
-                json.currentScore = cmiScoreRaw;
+                json.currentScore = score;
                 json.isApproved = true;
                 json.attemptCorrectIndex = json.attempts.length - 2;
                 attempt.isApproved = true;
             }
+            
+            json.attempts = json.attempts || [];
+            json.attempts.push(attempt);
+
             knlUtils.saveFinalExamJson(json);
         };
 
