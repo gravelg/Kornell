@@ -35,6 +35,7 @@ import java.net.URL
 import java.io.ByteArrayInputStream
 import kornell.server.jdbc.repository.PersonRepo
 import kornell.server.authentication.ThreadLocalAuthenticator
+import java.text.Normalizer
 
 object ReportCourseClassGenerator {
 
@@ -343,7 +344,9 @@ object ReportCourseClassGenerator {
 
   def getFileName(courseUUID: String, courseClassUUID: String) = {
     val title = if (courseUUID != null) CourseRepo(courseUUID).get.getName else CourseClassRepo(courseClassUUID).get.getName
-    title + " - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())
+    val normalizeTitle = Normalizer.normalize(title, Normalizer.Form.NFD)
+    val replaceTitle = normalizeTitle.replaceAll("[^\\p{ASCII}]", "")
+    replaceTitle + " - " + new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())
   }
 
   def getCourseClassInfoReportFileName(courseUUID: String, courseClassUUID: String, fileType: String) = {

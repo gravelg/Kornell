@@ -16,6 +16,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
@@ -343,15 +344,17 @@ public class GenericCourseClassReportItemView extends Composite {
         return simplePeopleTO;
     }
 
-    private void displayActionCell(final String url) {
+    private void displayActionCell(String url) {
         if (url != null && !"".equals(url)) {
             lblDownload.setText("Baixar");
             lblDownload.addStyleName("cursorPointer");
             lblDownload.removeStyleName("anchorToLabel");
+            int afterLastSlash = url.lastIndexOf("/") + 1;
+            final String finalURL = url.substring(0, afterLastSlash) + URL.encodeQueryString(url.substring(afterLastSlash)).replace("+", " ");
             downloadHandler = lblDownload.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    Window.open(url, "", "");
+                    Window.open(finalURL, "", "");
                 }
             });
         } else {
