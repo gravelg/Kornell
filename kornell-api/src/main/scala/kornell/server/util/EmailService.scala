@@ -46,7 +46,7 @@ object EmailService {
       val to = person.getEmail
       val template = processTemplate(EmailTemplateType.BATCH_ENROLLMENT_CONFIRMATION, values)
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile)
+      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile, person.getUUID)
     }
   }
 
@@ -62,7 +62,7 @@ object EmailService {
       val to = person.getEmail
       val template = processTemplate(EmailTemplateType.SIGNUP_CONFIRMATION, values)
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile)
+      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile, person.getUUID)
     }
   }
 
@@ -77,7 +77,7 @@ object EmailService {
       val to = person.getEmail
       val template = processTemplate(EmailTemplateType.PASSWORD_RESET, values)
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile)
+      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile, person.getUUID)
     }
   }
 
@@ -103,7 +103,7 @@ object EmailService {
       val to = person.getEmail
       val template = processTemplate(EmailTemplateType.ENROLLMENT_CONFIRMATION, values)
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile)
+      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile, person.getUUID)
     }
   }
 
@@ -141,7 +141,7 @@ object EmailService {
       val to = person.getEmail
       val template = processTemplate(templateType, values)
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile)
+      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile, person.getUUID)
     }
   }
 
@@ -155,7 +155,7 @@ object EmailService {
       val to = person.getEmail
       val template = processTemplate(EmailTemplateType.ESPINAFRE_REMINDER, values)
       val imgFile = getInstitutionLogoImage(institution)
-      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile)
+      EmailSender.sendEmail(template._1, from, to, from, template._2, imgFile, person.getUUID)
     }
   }
 
@@ -181,7 +181,7 @@ object EmailService {
       val imgFile = getInstitutionLogoImage(institution)
       val template = processTemplate(EmailTemplateType.CLASS_COMPLETION, values)
       for (admin <- RolesRepo.getInstitutionAdmins(institution.getUUID, "PERSON").getRoleTOs.asScala) {
-        EmailSender.sendEmail(template._1, from, admin.getPerson.getEmail, from, template._2, imgFile)
+        EmailSender.sendEmail(template._1, from, admin.getPerson.getEmail, from, template._2, imgFile, person.getUUID)
       }
     }
   }

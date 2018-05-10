@@ -28,11 +28,12 @@ object EmailSender {
   val executor = Executors.newSingleThreadExecutor
 
   def sendEmailSync(subject: String,
-    from: String,
-    to: String,
-    replyTo: String,
-    body: String,
-    imgFile: File = null): Unit = try {
+                    from: String,
+                    to: String,
+                    replyTo: String,
+                    body: String,
+                    imgFile: File = null,
+                    personUUID: String = null): Unit = try {
     getEmailSession match {
       case Some(session) => {
         val message = new MimeMessage(session);
@@ -56,6 +57,9 @@ object EmailSender {
           imagePartLogo.attachFile(imgFile)
           multipart.addBodyPart(imagePartLogo)
         }
+        if (personUUID != null) {
+          message.setHeader("X-KNL-UUID", personUUID)
+        }
 
         message.setContent(multipart)
 
@@ -78,12 +82,13 @@ object EmailSender {
   }
 
   def sendEmail(subject: String,
-    from: String,
-    to: String,
-    replyTo: String,
-    body: String,
-    imgFile: File = null): Unit = executor.submit(new Runnable() {
-    override def run: Unit = sendEmailSync(subject, from, to, replyTo, body, imgFile)
+                from: String,
+                to: String,
+                replyTo: String,
+                body: String,
+                imgFile: File = null,
+                personUUID: String = null): Unit = executor.submit(new Runnable() {
+    override def run: Unit = sendEmailSync(subject, from, to, replyTo, body, imgFile, personUUID)
   })
 
   private def getEmailSession =
