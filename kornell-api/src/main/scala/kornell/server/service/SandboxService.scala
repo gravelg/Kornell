@@ -117,7 +117,7 @@ object SandboxService {
    */
   def fixEnrollments(institutionUUID: String, oldRoles: RolesTO, newRoles: RolesTO) = {
     val oldPersonUUIDs = oldRoles.getRoleTOs.asScala.map(x => x.getRole.getPersonUUID)
-    val newPersonUUIDs = newRoles.getRoleTOs.asScala.map(x => x.getUsername)
+    val newPersonUUIDs = newRoles.getRoleTOs.asScala.map(x => x.getRole.getPersonUUID)
 
     val missing = oldPersonUUIDs.filter(x => !newPersonUUIDs.contains(x))
     val added = newPersonUUIDs.filter(x => !oldPersonUUIDs.contains(x))
