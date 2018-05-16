@@ -46,6 +46,7 @@ import kornell.core.entity.AuditedEntityType
 import kornell.server.jdbc.repository.CourseClassesRepo
 import javax.ws.rs.core.Response
 import kornell.server.util.Settings._
+import kornell.core.util.StringUtils
 
 //TODO Person/People Resource
 @Path("user")
@@ -68,10 +69,13 @@ class UserResource(private val authRepo: AuthRepo) {
       else None
     }
     if (!institution.isDefined) {
-      throw new EntityNotFoundException("unknownInstitution")
+      if (StringUtils.isSome(name) || StringUtils.isSome(hostName)) {
+        throw new EntityNotFoundException("unknownInstitution");
+      }
+    } else {
+      userHello.setInstitution(institution.get)
     }
 
-    userHello.setInstitution(institution.get);
     val auth = req.getHeader("X-KNL-TOKEN")
 
     val token = TokenRepo().checkToken(auth)
