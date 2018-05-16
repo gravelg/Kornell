@@ -461,10 +461,10 @@ public class GenericCourseDetailsView extends Composite implements ShowDetailsEv
                 displayButton(btnTutor, constants.btnTutor(), constants.tutorChatButton(), false);
                 btnTutor.addStyleName("btnChat");
             }
+            displayButton(btnLibrary, constants.btnLibrary(), constants.libraryButton(), false);
             if (session.hasPublishingRole()) {
                 displayButton(btnGoToVersion, constants.goToVersionButton(), "", false);
             }
-            displayButton(btnLibrary, constants.btnLibrary(), constants.libraryButton(), false);
             displayButton(btnGoToCourse, constants.goToClassButton(), "", false);
         }
     }

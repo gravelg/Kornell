@@ -111,7 +111,14 @@ app.run([
     '$timeout',
     function($rootScope, $location, $http, $timeout) {
 
-        $rootScope.domain = window.location.host.indexOf('localhost:') >= 0 ? '*' : parent.location;
+        var isLocal = window.location.host.indexOf('localhost:') >= 0;
+        $rootScope.domain = isLocal ? '*' : parent.location;
+
+        var urlParams = {}
+        location.search.substr(1).split("&").forEach(function(item) {urlParams[item.split("=")[0]] = item.split("=")[1]});
+
+        $rootScope.isDebug = urlParams.isDebug || isLocal;
+
 
         $rootScope.$on('$locationChangeSuccess', function(next, current) {
             //ga('send', 'pageview', location.hash.substring(2, location.hash.length));

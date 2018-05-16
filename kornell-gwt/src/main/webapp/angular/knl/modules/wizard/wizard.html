@@ -4,7 +4,7 @@
     .another-file-over-class { border: dotted 3px green; }
 </style>
 
-<div class="sidePanel" id="page-wrapper" ng-intro-options="treeHelpOptions" ng-intro-method="startTreeHelp" ng-intro-autostart="false" >
+<div ng-show="!showDiff" class="sidePanel" id="page-wrapper" ng-intro-options="treeHelpOptions" ng-intro-method="startTreeHelp" ng-intro-autostart="false" >
     <div ng-if="innerWidth > 991" class="row">
         <div class="col-md-3 noPadding">
             <div class="scroll-body" slimscroll="{}">
@@ -23,7 +23,9 @@
                             <a id="treeHelp7" uib-tooltip="Ir para sala de aula 'sandbox'" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm pull-right margin-right-5" ng-click="goToSandboxClassroom()">
                                 <i class="fa fa-book"></i>
                             </a>
-                            <span ng-show="isUnpublished" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true">&nbsp;&nbsp;&nbsp; <i class="fa fa-warning changedFlagIcon"></i></span>
+                            <a ng-show="isUnpublished" ng-click="isDebug && initializeJsonDiff()" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true" style="margin-left: 8px;">
+                                <i class="fa fa-warning changedFlagIcon"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -52,7 +54,9 @@
                     <a uib-tooltip="Ajuda" tooltip-placement="bottom" tooltip-append-to-body="true" class="btn btn-default btn-sm" ng-click="startTreeHelp()">
                         <i class="fa fa-question"></i>
                     </a>
-                    <span ng-show="isUnpublished" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true">&nbsp;&nbsp;&nbsp; <i class="fa fa-warning changedFlagIcon"></i></span>
+                    <a ng-show="isUnpublished" ng-click="isDebug && initializeJsonDiff()" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true" style="margin-left: 8px;">
+                        <i class="fa fa-warning changedFlagIcon"></i>
+                    </a>
                 </div>
             </div>
             <div class="col-sm-12">
@@ -64,6 +68,34 @@
     <div ng-if="false" class="row">
         <div class="col-sm-12">
             <pre class="code">{{ data | json }}</pre>
+        </div>
+    </div>
+</div>
+<div ng-show="showDiff">
+    <p class="help-block pull-left">Aqui você consegue visualizar quais foram as alterações feitas desde a última publicação.</p>
+    <a uib-tooltip="Fechar comparação" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-danger btn-sm" ng-click="showDiff = false" style="margin-right: 3px";>
+        <i class="fa fa-times"></i>
+    </a>
+    <div class="visualdiffWrapper" style="clear: both;">
+        <label class="title">Comparação (em verde o que foi adicionado e em vermelho o que foi removido)</label>
+        <br>
+        <div class="checkbox checkbox-primary">
+            <input class="" ng-click="toggleFullDiff()" type="checkbox" id="checkbox_showFullDiff">
+            <label for="checkbox_showFullDiff" id="label_showFullDiff">
+                <span><small>Mostrar diferença completa.</small></span>
+            </label>
+        </div>
+        <br>
+        <p class="visualdiff"></p>
+    </div>
+    <div class="json-input">
+        <div>
+            <label class="title">Último conteúdo publicado</label>
+            <textarea class="json-input-left"></textarea>
+        </div>
+        <div>
+            <label class="title">Último conteúdo salvo</label>
+            <textarea class="json-input-right"></textarea>
         </div>
     </div>
 </div>
@@ -448,7 +480,7 @@
         <ol ui-tree-nodes ng-model="data" id="treeHelp1">
             <li ui-tree-node ng-repeat="root in data">
                 <div class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === root.uuid}" ng-click="edit(this)">
-                    <span class="tree-node-title"><b><i class="fa fa-warning changedFlagIcon" ng-show="root.isUnpublished"></i>{{root.title | limitToDots: limitToDots}}</b></span>
+                    <span class="tree-node-title"><b><i class="fa fa-warning changedFlagIcon" ng-show="isUnpublishedNodes[root.uuid]"></i>{{root.title | limitToDots: limitToDots}}</b></span>
                     <a id="nodeEdit_{{root.uuid}}" uib-tooltip="Editar curso" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" data-nodrag ng-click="edit(this)" style="margin-right: 3px;">
                         <span class="glyphicon glyphicon-edit"></span>
                     </a>
@@ -470,7 +502,7 @@
         <a class="btn btn-primary btn-xxs margin-right-5" ng-if="module.lectures && module.lectures.length > 0" data-nodrag ng-click="this.toggle()">
             <span class="glyphicon" ng-class="{ 'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed }"></span>
         </a>
-        <span class="tree-node-title"><i class="fa fa-warning changedFlagIcon" ng-show="module.isUnpublished"></i>{{module.title | limitToDots: limitToDots}}</span>
+        <span class="tree-node-title"><i class="fa fa-warning changedFlagIcon" ng-show="isUnpublishedNodes[module.uuid]"></i>{{module.title | limitToDots: limitToDots}}</span>
         <a id="nodeEdit_{{module.uuid}}" uib-tooltip="Editar módulo" tooltip-placement="left" tooltip-append-to-body="true" class="pull-right btn btn-primary btn-xxs" ng-click="edit(this)" style="margin-right: 3px;">
             <span class="glyphicon glyphicon-edit"></span>
         </a>
@@ -490,7 +522,7 @@
 <script type="text/ng-template" id="lecturesRenderer.html">
     <div class="tree-node tree-node-content" ng-class="{selected: selectedNode.uuid === lecture.uuid}" ng-click="edit(this)">
         <span class="tree-node-title">
-            <i class="fa fa-warning changedFlagIcon" ng-show="lecture.isUnpublished" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true"></i>
+            <i class="fa fa-warning changedFlagIcon" ng-show="isUnpublishedNodes[lecture.uuid]" uib-tooltip="Publicação pendente" tooltip-placement="bottom" tooltip-append-to-body="true"></i>
             <i class="fa fa-calendar-times-o changedFlagIcon" ng-show="lecture.blockAdvance" uib-tooltip="Bloqueio configurado" tooltip-placement="bottom" tooltip-append-to-body="true"></i>
             {{lecture.title | limitToDots: limitToDots}}
         </span>
@@ -624,7 +656,7 @@
     </div>
     <div class="modal-body" id="modal-body">
         <div class="form-group formGroupModal">
-            <label ng-bind-html="$ctrl.resolve.message"></label>
+            <label ng-bind-html="$ctrl.resolve.message" style="font-size: 16px;"></label>
         </div>
     </div>
     <div class="modal-footer">

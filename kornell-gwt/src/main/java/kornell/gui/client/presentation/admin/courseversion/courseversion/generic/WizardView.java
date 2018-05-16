@@ -46,7 +46,9 @@ public class WizardView extends Composite {
 
     private void createIFrame() {
         if (iframe == null) {
-            String iframeSrc = "/angular/knl.html?cache-buster="+session.getCurrentVersionAPI()+"#!/wizard";
+            String iframeSrc = "/angular/knl.html?cache-buster="+session.getCurrentVersionAPI();
+            iframeSrc += session.isPlatformAdmin() ? "&isDebug=true" : "";
+            iframeSrc += "#!/wizard";
             if(Window.Location.getHostName().indexOf("localhost") >= 0){
                 iframeSrc = "http://localhost:8008" + iframeSrc;
             }

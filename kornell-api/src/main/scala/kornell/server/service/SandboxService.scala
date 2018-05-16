@@ -30,6 +30,7 @@ import kornell.core.entity.CourseClass
 import kornell.core.entity.role.RoleCategory
 import kornell.core.error.exception.EntityNotFoundException
 import kornell.server.jdbc.repository.EnrollmentRepo
+import kornell.server.jdbc.repository.PersonRepo
 
 object SandboxService {
 
@@ -133,7 +134,7 @@ object SandboxService {
    */
   def resetEnrollments(courseVersionUUID: String, institutionUUID: String) = {
     // make sure the version is processed
-    processVersion(courseVersionUUID: String, institutionUUID: String)
+    processVersion(courseVersionUUID, institutionUUID)
 
     val courseClass = CourseClassesRepo.sandboxForVersion(courseVersionUUID).get
     if (courseClass.getState == EntityState.deleted) {
@@ -162,6 +163,9 @@ object SandboxService {
     if (CourseVersionRepo(courseVersionUUID).get.getParentVersionUUID != null) {
       throw new EntityNotFoundException("notFound")
     }
+
+    // make sure the version is processed
+    processVersion(courseVersionUUID, PersonRepo(ThreadLocalAuthenticator.getAuthenticatedPersonUUID.getOrElse(null)).get.getInstitutionUUID)
 
     val sandboxClass = CourseClassesRepo.sandboxForVersion(courseVersionUUID).get
     val enrollment = EnrollmentsRepo.byCourseClassAndPerson(sandboxClass.getUUID, ThreadLocalAuthenticator.getAuthenticatedPersonUUID.get, false)

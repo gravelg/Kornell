@@ -29,6 +29,9 @@ app.controller('WizardController', [
         $scope.verifyTree();
       }
     },false);
+
+    $scope.isUnsavedNodes = {};
+    $scope.isUnpublishedNodes = {};
     
     $scope.initWizard = function(){
 
@@ -107,9 +110,6 @@ app.controller('WizardController', [
 
       $scope.$watch('root', function() {
         $scope.verifyTreeHelper();
-        if($scope.isUnsaved) {
-          $scope.saveTree();
-        }
       }, true);
 
       $timeout(function(){
@@ -258,7 +258,12 @@ app.controller('WizardController', [
       if($scope.verifyTimer){
         $timeout.cancel($scope.verifyTimer);
       }
-      $scope.verifyTimer = $timeout($scope.verifyTree, 1000);
+      $scope.verifyTimer = $timeout(function(){
+        $scope.verifyTree();
+        if($scope.isUnsaved) {
+          $scope.saveTree();
+        }
+      }, 1000);
     };
 
     $scope.verifyTree = function() {
@@ -278,13 +283,13 @@ app.controller('WizardController', [
           };
 
           source = source || 'lastClassroomJsonSaved';
-          var flagAttribute = source == 'lastClassroomJsonSaved' ? 'isUnsaved' : 'isUnpublished';
+          var statusAttribute = (source == 'lastClassroomJsonSaved') ? 'isUnsaved' : 'isUnpublished';
           if($scope[source]) {
             var o1 = angular.copy(node),
                 o2 = angular.copy($scope.getNodeByUUID(node.uuid, source));
             if(o2){
-              delete o1[flagAttribute];
-              delete o2[flagAttribute];
+              //$scope[statusAttribute+'Nodes'][o1.uuid] = false;
+              //$scope[statusAttribute+'Nodes'][o2.uuid] = false;
               if(o1.itemType === 'root'){
                 o1.modules = concatenateUUIDs(o1.modules);
                 o2.modules = concatenateUUIDs(o2.modules);
@@ -297,10 +302,10 @@ app.controller('WizardController', [
               }
             }
             if(!angular.equals(o1, o2)){
-              node[flagAttribute] = true;
-              $scope[flagAttribute] = true;
+              $scope[statusAttribute+'Nodes'][node.uuid] = true;
+              $scope[statusAttribute] = true;
             } else {
-              delete node[flagAttribute];
+              $scope[statusAttribute+'Nodes'][node.uuid] = false;
             }
           }
         };
@@ -675,10 +680,68 @@ app.controller('WizardController', [
       $scope.innerWidth = $window.innerWidth;
     };
 
+    $scope.initializeJsonDiff = function(){
 
+      if(!$scope.areas){
 
-//$scope.root = {"title":"KNL","availableVideoSizes":"144,360,720","colorBackground":"EBEBEB","colorFont":"0284B5","colorTheme":"0284B5","colorTitle":"EBEBEB","itemType":"root","paddingTopIframe":56,"modules":[{"itemType":"module","title":"Módulo 1","uuid":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","lectures":[{"itemType":"lecture","title":"Lecture 1.1: Imagem","type":"image","uuid":"ca10d6da-1952-4830-9f9a-2c34a3485146","id":"https://static.pexels.com/photos/355988/pexels-photo-355988.jpeg","$$hashKey":"object:57","parentUUID":"65370d61-67c0-4a78-86bc-2f1c5730b5e5","count":0,"totalLecturesCount":0}],"parentUUID":"4849e1fc-ea88-4247-be80-155052f0fb0e","count":0,"$$hashKey":"object:19"}],"uuid":"4849e1fc-ea88-4247-be80-155052f0fb0e","$$hashKey":"object:13"};
-//$scope.initWizard();
+        var JsonArea = function JsonArea(element) {
+          this.element = element;
+          this.container = element.parentNode;
+          var self = this;
+        };
+
+        JsonArea.prototype.parse = function(str) {
+          if (/^\d+(.\d+)?(e[\+\-]?\d+)?$/i.test(str) ||
+            /^(true|false)$/.test(str) ||
+            /^["].*["]$/.test(str) ||
+            /^[\{\[](.|\n)*[\}\]]$/.test(str)) {
+            return JSON.parse(str, jsondiffpatch.dateReviver);
+          }
+          return this.editor.getValue();
+        };
+
+        JsonArea.prototype.setValue = function(value) {
+          if(typeof value === 'string')
+            value = this.parse(value)
+          this.editor.setValue(JSON.stringify(value, null, 2));
+        };
+
+        $scope.areas = {
+          left: new JsonArea(document.getElementsByClassName('json-input-left')[0]),
+          right: new JsonArea(document.getElementsByClassName('json-input-right')[0])
+        };
+
+        $scope.areas.left.editor = CodeMirror.fromTextArea($scope.areas.left.element, {
+            mode: 'javascript', json: true, readOnly: true
+        });
+
+        $scope.areas.right.editor = CodeMirror.fromTextArea($scope.areas.right.element, {
+            mode: 'javascript', json: true, readOnly: true
+        });
+      }
+
+      $scope.showDiff = true;
+      $timeout(function(){
+        $scope.areas.left.setValue($scope.lastClassroomJsonPublished);
+        $scope.areas.right.setValue($scope.lastClassroomJsonSaved);
+        var left = $scope.areas.left.parse($scope.areas.left.editor.getValue()),
+          right = $scope.areas.right.parse($scope.areas.right.editor.getValue());
+        var delta = jsondiffpatch.diff(left, right);
+        document.getElementsByClassName('visualdiff')[0].innerHTML = jsondiffpatch.formatters.html.format(delta, left);
+      },100);
+    };
+
+    $scope.toggleFullDiff = function (){
+      $scope.isNormalDiff = !$scope.isNormalDiff;
+      if($scope.isNormalDiff){
+        $('.jsondiffpatch-unchanged').addClass('jsondiffpatch-showing');
+        $('.jsondiffpatch-unchanged').removeClass('jsondiffpatch-unchanged');
+      } else {
+        $('.jsondiffpatch-showing').addClass('jsondiffpatch-unchanged');
+        $('.jsondiffpatch-showing').removeClass('jsondiffpatch-showing');
+      }
+    };
+
   }
 ]);
 
@@ -929,4 +992,3 @@ app.controller('FileController', [
     };
   }
 ]);
-
