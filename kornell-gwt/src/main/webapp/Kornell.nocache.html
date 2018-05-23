@@ -55,13 +55,6 @@
     <![endif]-->
   </body>
   <script>
-  if(localStorage){
-	  for(key in localStorage){
-	    if(!key.startsWith("KNL")){
-		  delete localStorage[key];
-	    }
-	  }
-  }
   var knl = function(){
 	return JSON.stringify({
 	  "KNL" : (localStorage["KNL" ] && JSON.parse(atob(localStorage["KNL" ]))),
