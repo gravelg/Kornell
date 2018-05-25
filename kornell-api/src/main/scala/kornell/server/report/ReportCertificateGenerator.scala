@@ -183,6 +183,7 @@ object ReportCertificateGenerator {
 
         repo.put(
           bs,
+          report.length,
           "application/pdf",
           "Content-Disposition: attachment; filename=\"" + filename + "\"",
           Map("certificatedata" -> "09/01/1980", "requestedby" -> person.getFullName()), filename)
