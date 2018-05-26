@@ -60,7 +60,7 @@ app.run([
             window.isPreview = true;
         }
         
-        $rootScope.isDebug = (window.location.host.startsWith("localhost"));
+        $rootScope.isDebug = (window.location.host.indexOf("localhost") === 0);
         
         $rootScope.$on('$locationChangeSuccess', function(next, current) {
             //ga('send', 'pageview', location.hash.substring(2, location.hash.length));
