@@ -275,10 +275,10 @@ public class GenericAdminCourseView extends Composite implements AdminCourseView
             code.setError("O código deve ter entre 2 e 255 caracteres");
         }
         if (!formHelper.isLengthValid(title.getFieldPersistText(), 2, 100)) {
-            title.setError("Insira o título do curso");
+            title.setError("O título deve ter entre 2 e 255 caracteres");
         }
-        if (!formHelper.isLengthValid(description.getFieldPersistText(), 2, 200)) {
-            description.setError("Insira a descrição");
+        if (!formHelper.isLengthValid(description.getFieldPersistText(), 2, 255)) {
+            description.setError("A descrição deve ter entre 2 e 255 caracteres");
         }
         if (!formHelper.isLengthValid(contentSpec.getFieldPersistText(), 2, 20)) {
             contentSpec.setError("Insira o tipo");
